@@ -18,22 +18,16 @@ import argparse
 import os
 import pandas as pd
 import time
-import yaml
 
+from .check_tslash import check_tslash
 from .load_instrument_configuration import load_instrument_configuration
+from .nights_to_be_reduced import nights_to_be_reduced
 
 from .bias import make_master_bias
 from .flat import make_master_flat
 from .generate_lists import obtain_files_lists, create_list_cal_and_sci
 from .reduction import reducing_images, decidir_repetir_calculos
 from .salida_limpia import mostrarresultados
-
-
-def check_tslash(dumdir):
-    """Auxiliary function to add trailing slash when not present"""
-    if dumdir[-1] != '/':
-        dumdir += '/'
-    return dumdir
 
 
 def main():
@@ -47,36 +41,19 @@ def main():
 
     # parse command-line options
     parser = argparse.ArgumentParser(
-        description="Basic data reduction of CAHA data")
-    # group1 = parser.add_mutually_exclusive_group()
-    # group2 = parser.add_mutually_exclusive_group()
+        description="Basic data reduction of CAHA data"
+    )
 
     parser.add_argument("-q", "--quiet", action="store_true",
                         help="run quietly (reduced verbosity)")
     parser.add_argument("-i", "--instrument", type=str,
                         help="instrument identification")
     parser.add_argument("-d", "--datadir", type=str,
-                        help='data Directory')
-    parser.add_argument("--step", type=str, help="reduction step")
-    # parser.add_argument("-vi", "--verboseimage", action="store_true",
-    #                     help="Mostrar Imagenes")
-    # parser.add_argument("--recortar", action="store_true",
-    #                     help="Activar el recorte de imagenes")
-    # parser.add_argument("--calysci", action="store_false",
-    #                     help="Usar cuando los archivos no tienen '-cal-' y "
-    #                          "'-sci-' en el nombre para diferenciar entre "
-    #                          "calibración y ciencia.")
-    # parser.add_argument("-nr", "--noreducc", action="store_false",
-    #                     help="No realizar la reduccion.")
-    # group1.add_argument("-nb", "--nobias", action="store_true",
-    #                     help="No realizar los Master Bias.")
-    # group1.add_argument("-sb", "--sibias", action="store_true",
-    #                     help="Fuerza realizar los Master Bias.")
-    #
-    # group2.add_argument("-nf", "--noflat", action="store_true",
-    #                     help="No realizar los Master Flat.")
-    # group2.add_argument("-sf", "--siflat", action="store_true",
-    #                     help="Fuerza realizar los Master Flat.")
+                        help='data directory')
+    parser.add_argument("-s", "--step", type=str, help="reduction step")
+    parser.add_argument("-n", "--night", type=str,
+                        help="night label (wildcards are valid withing "
+                             "quotes)")
 
     args = parser.parse_args()
 
@@ -88,6 +65,41 @@ def main():
     # import instrument configuration
     instconf = load_instrument_configuration(args.instrument)
 
+    if verbose:
+        print(instconf)
+        input('Press RETURN to continue...')
+
+    datadir = args.datadir
+    if datadir is None:
+        print('ERROR: -d DATADIR (or --datadir DATADIR) missing!')
+        raise SystemExit()
+    else:
+        # add trailing slash if not present
+        datadir = check_tslash(datadir)
+
+    step = args.step
+    if step is None:
+        print('ERROR: -s STEP (or --step STEP) missing!')
+        raise SystemExit()
+    else:
+        valid_steps = ['initialize'] + instconf['calibrations'] + ['science']
+        print(valid_steps)
+        if step not in valid_steps:
+            print('ERROR: invalid step! Valid values are:')
+            for dum in valid_steps:
+                print('- {}'.format(dum))
+            raise SystemExit()
+
+    # nights to be reduced
+    list_of_nights = nights_to_be_reduced(datadir, args.night)
+    print(list_of_nights)
+
+    if step == 'initialize':
+        pass
+    else:
+        pass
+
+    input("STOP HERE!!!")
     # ToDo: continue here
 
     # check required subdirectories
