@@ -53,11 +53,11 @@ def main():
 
     parser.add_argument("-q", "--quiet", action="store_true",
                         help="run quietly (reduced verbosity)")
-    parser.add_argument("-i", "--instrument", required=True, type=str)
-    parser.add_argument("-d", "--datadir", required=True, type=str,
+    parser.add_argument("-i", "--instrument", type=str,
+                        help="instrument identification")
+    parser.add_argument("-d", "--datadir", type=str,
                         help='data Directory')
-    parser.add_argument("-s", "--step", required=True, type=str,
-                        help="reduction step")
+    parser.add_argument("--step", type=str, help="reduction step")
     # parser.add_argument("-vi", "--verboseimage", action="store_true",
     #                     help="Mostrar Imagenes")
     # parser.add_argument("--recortar", action="store_true",
@@ -88,6 +88,7 @@ def main():
     # import instrument configuration
     instconf = load_instrument_configuration(args.instrument)
 
+    # ToDo: continue here
 
     # check required subdirectories
     for subdir in required_subdirectories:

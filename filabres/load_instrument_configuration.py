@@ -8,9 +8,10 @@ def load_instrument_configuration(instrument):
 
     Parameters
     ----------
-    instrument : str
+    instrument : str or None
         Instrument-obsmode string identifying the instrument
-        and observing mode.
+        and observing mode. If None, a list with the available
+        instruments is displayed.
 
     Returns
     -------
@@ -20,10 +21,7 @@ def load_instrument_configuration(instrument):
     """
 
     # load configuration file
-    dumdata = pkgutil.get_data(
-        'filabres.instrument',
-        'instrument_definition.yaml'
-    )
+    dumdata = pkgutil.get_data('filabres.instrument', 'configuration.yaml')
     dumfile = StringIO(dumdata.decode('utf8'))
     bigdict = yaml.load(dumfile)
 
@@ -33,13 +31,16 @@ def load_instrument_configuration(instrument):
 
     # check instrument
     if instrument not in list_available:
-        raise ValueError('Unexpected instrument')
+        if instrument is not None:
+            print('ERROR: invalid instrument')
+        for dumid in list_available:
+            print('Available instruments:')
+            print('- {}'.format(dumid))
+        raise SystemExit()
 
     # append default keywords
     instconf = bigdict[instrument]
-    print(instconf)
     instconf['keywords'] = bigdict['default']['keywords'] + \
         instconf['keywords']
-    print(instconf)
 
     return instconf
