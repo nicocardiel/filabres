@@ -47,12 +47,8 @@ def main():
     parser.add_argument("-q", "--quiet", action="store_true")
     parser.add_argument("-d", "--dir_datos", required=True, type=str,
                         help='Data Directory')
-    parser.add_argument("-ddf", "--dir_dataf", default='./',
-                        type=str, help='DataFrame Directory')
     parser.add_argument("-vi", "--verboseimage", action="store_true",
                         help="Mostrar Imagenes")
-    parser.add_argument('--cmap', type=str, help="Colormap", default='hot')
-    parser.add_argument("-i", "--interactive", action="store_true")
     parser.add_argument("--recortar", action="store_true",
                         help="Activar el recorte de imagenes")
     parser.add_argument("--calysci", action="store_false",
@@ -134,7 +130,7 @@ def main():
     if realizarbias:
         df_bias = make_master_bias(
             lista_noches,  dir_listas, dir_datos, dir_bias,
-            args.interactive, args.recortar,
+            args.recortar,
             verbose=verbose, verbose_imagen=args.verboseimage
         )
         numero_bias = len(os.listdir(dir_bias))
@@ -158,7 +154,6 @@ def main():
         df_flat = make_master_flat(
             lista_noches, lista_bias,
             dir_listas, dir_datos, dir_bias, dir_flats,
-            args.interactive,
             verbose=verbose, verbose_imagen=args.verboseimage
         )
         numero_flats = len(os.listdir(dir_flats))

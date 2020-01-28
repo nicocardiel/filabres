@@ -16,7 +16,7 @@ from .salida_limpia import mostrarresultados
 def join_bias_images(night, unique_sections_, coordinates_sections_,
                      sections_count_, indx_section_,
                      bin_sections_, dir_bias_, dir_data_, list_bias_,
-                     interactive=False, cut_extra=False,
+                     cut_extra=False,
                      verbose=False, verbose_imagen=False):
     """Combine multiple bias to generate a master bias.
 
@@ -137,9 +137,6 @@ def join_bias_images(night, unique_sections_, coordinates_sections_,
             imgdibujar(master_bias_colapsed, *coordinates_image, *coord_lim,
                        verbose_=1)
 
-        if interactive:
-            input("Press Enter to continue...")
-
         # Add to table
         isot_time = masterbias_header['DATE']
         time_ = Time(isot_time, format='isot', scale='utc')
@@ -176,7 +173,7 @@ def join_bias_images(night, unique_sections_, coordinates_sections_,
 
 
 def make_master_bias(list_nights, dir_lists, dir_data, dir_bias,
-                     interactive, cut_reshape,
+                     cut_reshape,
                      verbose=False, verbose_imagen=False):
     """Generate master bias
 
@@ -205,9 +202,8 @@ def make_master_bias(list_nights, dir_lists, dir_data, dir_bias,
         df_bias_ = join_bias_images(
             night, unique_section, sections_coordinates, section_counting,
             section_index, bin_sections, dir_bias, dir_data, list_bias,
-            interactive=interactive, cut_extra=cut_reshape,
-            verbose=verbose,
-            verbose_imagen=verbose_imagen
+            cut_extra=cut_reshape,
+            verbose=verbose, verbose_imagen=verbose_imagen
         )
         if df_bias is None:
             df_bias = df_bias_

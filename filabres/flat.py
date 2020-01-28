@@ -21,7 +21,6 @@ def join_flat_images(nights, unique_sections_, sections_coordinates_,
                      indx_section_,
                      dir_bias_, dir_data_, dir_flats_, list_flats_,
                      list_nights_, lista_bias,
-                     interactive=False,
                      verbose=False, verbose_images=False):
     """Combine multiple flats to create a master flat.
 
@@ -310,15 +309,12 @@ def join_flat_images(nights, unique_sections_, sections_coordinates_,
                            *coordinates_image,
                            *coord_lim, verbose_=1)
 
-            if interactive:
-                input("Press Enter to continue...")
-
     return element_list
 
 
 def make_master_flat(list_nights, list_bias, dir_lists, dir_data,
                      dir_bias, dir_flats,
-                     interactive, verbose=False, verbose_imagen=False):
+                     verbose=False, verbose_imagen=False):
     """Generate master flats
 
     """
@@ -346,7 +342,6 @@ def make_master_flat(list_nights, list_bias, dir_lists, dir_data,
         df_flat_ = join_flat_images(
             night, unique_section, sections_coordinates, section_index,
             dir_bias, dir_data, dir_flats, lista_flats, list_nights, list_bias,
-            interactive=interactive,
             verbose=verbose, verbose_images=verbose_imagen)
 
         if df_flat is None:
