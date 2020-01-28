@@ -13,12 +13,12 @@ def setup_package():
         author_email='cardiel@ucm.es',
         packages=find_packages('.'),
         package_data={
-            'filabres.instrument': ['instrument_definition.yaml']
+            'filabres.instrument': ['configuration.yaml']
         },
         entry_points={
             'console_scripts': [
                 'filabres = filabres.filabres:main',
-                'filabes-version = filabres.version:main'
+                'filabres-version = filabres.version:main'
             ],
         },
         install_requires=REQUIRES,
