@@ -1,7 +1,7 @@
 import fnmatch
 import os
 
-def nights_to_be_reduced(datadir, args_night):
+def nights_to_be_reduced(datadir, args_night, verbose=False):
     """Generate list of nights to be reduced.
 
     Parameters
@@ -11,6 +11,8 @@ def nights_to_be_reduced(datadir, args_night):
     args_night : str or None
         Night label. Wildcards are valid. If None, all the nights
         within the 'datadir' directory are considered.
+    verbose : bool
+        If True, display intermediate information.
 
     Returns
     -------
@@ -36,5 +38,8 @@ def nights_to_be_reduced(datadir, args_night):
     if len(list_of_nights) == 0:
         print('ERROR: no subdirectory matches the night selection')
         raise SystemExit()
+
+    if verbose:
+        print('* List of nights: {}'.format(list_of_nights))
 
     return list_of_nights

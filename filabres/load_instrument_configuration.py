@@ -3,7 +3,7 @@ from six import StringIO
 import yaml
 
 
-def load_instrument_configuration(instrument):
+def load_instrument_configuration(instrument, verbose=False):
     """Load instrument configuration from YAML file.
 
     Parameters
@@ -12,11 +12,14 @@ def load_instrument_configuration(instrument):
         Instrument-obsmode string identifying the instrument
         and observing mode. If None, a list with the available
         instruments is displayed.
+    verbose : bool
+        If True, display intermediate information.
 
     Returns
     -------
-    instconf : dictionary
-        Available instrument configurations.
+    instconf : dict
+        Instrument configuration. See file configuration.yaml
+        for details.
 
     """
 
@@ -42,5 +45,8 @@ def load_instrument_configuration(instrument):
     instconf = bigdict[instrument]
     instconf['keywords'] = bigdict['default']['keywords'] + \
         instconf['keywords']
+
+    if verbose:
+        print('* Instrument configuration: {}'.format(instconf))
 
     return instconf

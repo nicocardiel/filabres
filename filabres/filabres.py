@@ -20,6 +20,7 @@ import pandas as pd
 import time
 
 from .check_tslash import check_tslash
+from .initialize_db import initialize_db
 from .load_instrument_configuration import load_instrument_configuration
 from .nights_to_be_reduced import nights_to_be_reduced
 
@@ -62,28 +63,27 @@ def main():
     # set verbosity
     verbose = not args.quiet
 
-    # import instrument configuration
-    instconf = load_instrument_configuration(args.instrument)
+    # instrument configuration
+    instconf = load_instrument_configuration(instrument=args.instrument)
 
-    if verbose:
-        print(instconf)
-        input('Press RETURN to continue...')
-
+    # data directory
     datadir = args.datadir
     if datadir is None:
         print('ERROR: -d DATADIR (or --datadir DATADIR) missing!')
         raise SystemExit()
     else:
         # add trailing slash if not present
-        datadir = check_tslash(datadir)
+        datadir = check_tslash(dir=datadir)
 
+    # reduction step
     step = args.step
     if step is None:
         print('ERROR: -s STEP (or --step STEP) missing!')
         raise SystemExit()
     else:
         valid_steps = ['initialize'] + instconf['calibrations'] + ['science']
-        print(valid_steps)
+        if verbose:
+            print('* Valid steps: {}'.format(valid_steps))
         if step not in valid_steps:
             print('ERROR: invalid step! Valid values are:')
             for dum in valid_steps:
@@ -91,16 +91,21 @@ def main():
             raise SystemExit()
 
     # nights to be reduced
-    list_of_nights = nights_to_be_reduced(datadir, args.night)
-    print(list_of_nights)
+    list_of_nights = nights_to_be_reduced(datadir=datadir,
+                                          args_night=args.night,
+                                          verbose=verbose)
 
+    # reduction steps
     if step == 'initialize':
-        pass
+        initialize_db(datadir=datadir,
+                      list_of_nights=list_of_nights,
+                      instconf=instconf,
+                      verbose=verbose)
     else:
+        # ToDo: read file with images database
         pass
 
     input("STOP HERE!!!")
-    # ToDo: continue here
 
     # check required subdirectories
     for subdir in required_subdirectories:

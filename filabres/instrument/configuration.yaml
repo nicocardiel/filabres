@@ -5,7 +5,12 @@ default:
     - NAXIS1
     - NAXIS2
     - OBJECT
+    - RA
+    - DEC
+    - EQUINOX
     - DATE
+    - EXPTIME
+    - INSTRUME
     - CCDNAME
     - CCDSEC
     - BIASSEC
@@ -16,6 +21,7 @@ cafos-imaging:
   name: 'CAFOS'
   obsmode: 'imaging'
   keywords:
+    - IMAGETYP
     - INSFLNAM
   calibrations:
     - bias

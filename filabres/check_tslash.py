@@ -1,5 +1,5 @@
-def check_tslash(dumdir):
+def check_tslash(dir):
     """Auxiliary function to add trailing slash when not present"""
-    if dumdir[-1] != '/':
-        dumdir += '/'
-    return dumdir
+    if dir[-1] != '/':
+        dir += '/'
+    return dir
