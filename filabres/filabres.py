@@ -86,8 +86,7 @@ def main():
     verbose = not args.quiet
 
     # import instrument configuration
-    instrument = args.instrument
-    instconf = load_instrument_configuration(instrument)
+    instconf = load_instrument_configuration(args.instrument)
 
 
     # check required subdirectories

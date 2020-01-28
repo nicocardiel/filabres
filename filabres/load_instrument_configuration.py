@@ -25,16 +25,21 @@ def load_instrument_configuration(instrument):
         'instrument_definition.yaml'
     )
     dumfile = StringIO(dumdata.decode('utf8'))
-    instconf = yaml.load(dumfile)
+    bigdict = yaml.load(dumfile)
 
     # determine available instruments
-    list_available = list(instconf.keys())
+    list_available = list(bigdict.keys())
     list_available.remove('default')
 
     # check instrument
-    if instrument in list_available:
-        print(instconf[instrument])
-    else:
+    if instrument not in list_available:
         raise ValueError('Unexpected instrument')
+
+    # append default keywords
+    instconf = bigdict[instrument]
+    print(instconf)
+    instconf['keywords'] = bigdict['default']['keywords'] + \
+        instconf['keywords']
+    print(instconf)
 
     return instconf

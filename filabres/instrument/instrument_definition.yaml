@@ -12,6 +12,10 @@ default:
     - CCDBINY
 
 cafos-imaging:
+  name: 'CAFOS'
+  obsmode: 'imaging'
   keywords:
     - INSFLNAM
-
+  calibrations:
+    - bias
+    - flat
