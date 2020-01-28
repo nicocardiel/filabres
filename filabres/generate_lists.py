@@ -6,8 +6,8 @@ from .salida_limpia import stdrobust, mostrarresultados
 from .auxiliary_functions import save_file_csv
 
 
-def create_list_cal_and_sci(lista_nights_, dir_lists_, dir_data_, desc_bias,
-                            desc_flats, desc_arc, verbose, calysci):
+def create_list_cal_and_sci(lista_nights_, dir_lists_, dir_data_,
+                            verbose, calysci):
     i = 0
     for night in lista_nights_:
         print('\n--> Working with night {}'.format(night))
@@ -20,8 +20,7 @@ def create_list_cal_and_sci(lista_nights_, dir_lists_, dir_data_, desc_bias,
 
             path_ = dir_data_ + night + '/'
             l_bias, l_flat, l_arc, l_ciencia, l_archivos, l_falla = \
-                file_list_2(path_, desc_bias, desc_flats, desc_arc,
-                            verbose, calysci)
+                file_list_2(path_, verbose, calysci)
 
             print('\n Summary of images/night')
             mostrarresultados(
@@ -121,8 +120,7 @@ def create_unique_list(dir_data, night, stuff_list, keyword, binning=False,
             name_filter)
 
 
-def file_list_2(path_, desc_bias, desc_flats, desc_arc,
-                verbose=False, calysci=True):
+def file_list_2(path_, verbose=False, calysci=True):
     lista_bias = []
     lista_flat = []
     lista_arc = []

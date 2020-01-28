@@ -37,10 +37,6 @@ def main():
     dir_flats = 'flats/'
     dir_reduced = 'reduced/'
     required_subdirectories = [dir_bias, dir_flats, dir_listas, dir_reduced]
-    desc_bias = ['bias', 'Bias', 'BIAS']
-    desc_flats = ['flats', 'FLATS', 'FLAT', 'Flats', 'Flat', 'flat', 'Skyflat',
-                  'SDkyflat']
-    desc_arc = ['arc', 'ARC']
 
     # parse command-line options
     parser = argparse.ArgumentParser(description="Bias and Flat calibration "
@@ -129,7 +125,6 @@ def main():
           '*** Classifying images within each night ***')
     print('============================================')
     create_list_cal_and_sci(lista_noches, dir_listas, dir_datos,
-                            desc_bias, desc_flats, desc_arc,
                             verbose, args.calysci)
     tiempo_listas = time.time()
 
