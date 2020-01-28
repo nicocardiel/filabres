@@ -1,0 +1,17 @@
+# CAHA instrument definitions for filabres
+
+default:
+  keywords:
+    - NAXIS1
+    - NAXIS2
+    - OBJECT
+    - DATE
+    - CCDSEC
+    - BIASSEC
+    - CCDBINX
+    - CCDBINY
+
+cafos-imaging:
+  keywords:
+    - INSFLNAM
+

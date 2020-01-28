@@ -1,19 +1,26 @@
 # -*- coding: utf-8 -*-
 
-"""
-Recoge los resultados de observaciones del instrumento CAFOS y los reduce
-correctamente. Desarrollado por Enrique Galceran García como asignación de
-Prácticas en Empresa (Máster en Astrofísica, curso 2018-2019).
+"""Basic data reduction of CAHA data.
 
-Con modificaciones posteriores de Nicolás Cardiel.
+Project started with the "Prácticas en Empresa" of Enrique Galcerán García
+(Astrophysics Master, Universidad Complutense de Madrid, course 2018-2019).
+See details in: https://github.com/enriquegalceran/PE-CAHA
 
-ToDo: incluir calibración astrométrica
+The basic ideas from Galcerán's project have been used by Nicolás Cardiel to
+implement filabres, trying to speed up the execution time and generalizing
+the algorithms to be useful for additional instruments and observing modes.
+
+This code is hosted at: https://github.com/nicocardiel/filabres
+
 """
 
 import argparse
 import os
 import pandas as pd
 import time
+import yaml
+
+from .load_instrument_configuration import load_instrument_configuration
 
 from .bias import make_master_bias
 from .flat import make_master_flat
@@ -39,34 +46,37 @@ def main():
     required_subdirectories = [dir_bias, dir_flats, dir_listas, dir_reduced]
 
     # parse command-line options
-    parser = argparse.ArgumentParser(description="Bias and Flat calibration "
-                                                 "of CAFOS images")
-    group1 = parser.add_mutually_exclusive_group()
-    group2 = parser.add_mutually_exclusive_group()
+    parser = argparse.ArgumentParser(
+        description="Basic data reduction of CAHA data")
+    # group1 = parser.add_mutually_exclusive_group()
+    # group2 = parser.add_mutually_exclusive_group()
 
-    parser.add_argument("-q", "--quiet", action="store_true")
-    parser.add_argument("-d", "--dir_datos", required=True, type=str,
-                        help='Data Directory')
-    parser.add_argument("-vi", "--verboseimage", action="store_true",
-                        help="Mostrar Imagenes")
-    parser.add_argument("--recortar", action="store_true",
-                        help="Activar el recorte de imagenes")
-    parser.add_argument("--calysci", action="store_false",
-                        help="Usar cuando los archivos no tienen '-cal-' y "
-                             "'-sci-' en el nombre para diferenciar entre "
-                             "calibración y ciencia.")
-    parser.add_argument("-nr", "--noreducc", action="store_false",
-                        help="No realizar la reduccion.")
-
-    group1.add_argument("-nb", "--nobias", action="store_true",
-                        help="No realizar los Master Bias.")
-    group1.add_argument("-sb", "--sibias", action="store_true",
-                        help="Fuerza realizar los Master Bias.")
-
-    group2.add_argument("-nf", "--noflat", action="store_true",
-                        help="No realizar los Master Flat.")
-    group2.add_argument("-sf", "--siflat", action="store_true",
-                        help="Fuerza realizar los Master Flat.")
+    parser.add_argument("-q", "--quiet", action="store_true",
+                        help="run quietly (reduced verbosity)")
+    parser.add_argument("-i", "--instrument", required=True, type=str)
+    parser.add_argument("-d", "--datadir", required=True, type=str,
+                        help='data Directory')
+    parser.add_argument("-s", "--step", required=True, type=str,
+                        help="reduction step")
+    # parser.add_argument("-vi", "--verboseimage", action="store_true",
+    #                     help="Mostrar Imagenes")
+    # parser.add_argument("--recortar", action="store_true",
+    #                     help="Activar el recorte de imagenes")
+    # parser.add_argument("--calysci", action="store_false",
+    #                     help="Usar cuando los archivos no tienen '-cal-' y "
+    #                          "'-sci-' en el nombre para diferenciar entre "
+    #                          "calibración y ciencia.")
+    # parser.add_argument("-nr", "--noreducc", action="store_false",
+    #                     help="No realizar la reduccion.")
+    # group1.add_argument("-nb", "--nobias", action="store_true",
+    #                     help="No realizar los Master Bias.")
+    # group1.add_argument("-sb", "--sibias", action="store_true",
+    #                     help="Fuerza realizar los Master Bias.")
+    #
+    # group2.add_argument("-nf", "--noflat", action="store_true",
+    #                     help="No realizar los Master Flat.")
+    # group2.add_argument("-sf", "--siflat", action="store_true",
+    #                     help="Fuerza realizar los Master Flat.")
 
     args = parser.parse_args()
 
@@ -74,6 +84,11 @@ def main():
 
     # set verbosity
     verbose = not args.quiet
+
+    # import instrument configuration
+    instrument = args.instrument
+    instconf = load_instrument_configuration(instrument)
+
 
     # check required subdirectories
     for subdir in required_subdirectories:
@@ -85,9 +100,9 @@ def main():
             os.makedirs(subdir)
 
     # add trailing slash in subdirectory names when not present
-    dir_datos = check_tslash(args.dir_datos)
+    datadir = check_tslash(args.datadir)
     if verbose:
-        print('Data directory: {}'.format(dir_datos))
+        print('Data directory: {}'.format(datadir))
 
     # Comprobamos si queremos/hace falta calcular los bias
     if verbose:
@@ -104,7 +119,7 @@ def main():
     )
 
     # Creamos una lista de las noches disponibles
-    lista_noches = os.listdir(dir_datos)
+    lista_noches = os.listdir(datadir)
     lista_noches.sort()
     if verbose:
         print('Total number of nights found:', len(lista_noches))
@@ -120,7 +135,7 @@ def main():
     print('\n'
           '*** Classifying images within each night ***')
     print('============================================')
-    create_list_cal_and_sci(lista_noches, dir_listas, dir_datos,
+    create_list_cal_and_sci(lista_noches, dir_listas, datadir,
                             verbose, args.calysci)
     tiempo_listas = time.time()
 
@@ -129,7 +144,7 @@ def main():
     print('===================================')
     if realizarbias:
         df_bias = make_master_bias(
-            lista_noches,  dir_listas, dir_datos, dir_bias,
+            lista_noches,  dir_listas, datadir, dir_bias,
             args.recortar,
             verbose=verbose, verbose_imagen=args.verboseimage
         )
@@ -153,7 +168,7 @@ def main():
     if realizarflat:
         df_flat = make_master_flat(
             lista_noches, lista_bias,
-            dir_listas, dir_datos, dir_bias, dir_flats,
+            dir_listas, datadir, dir_bias, dir_flats,
             verbose=verbose, verbose_imagen=args.verboseimage
         )
         numero_flats = len(os.listdir(dir_flats))
@@ -174,7 +189,7 @@ def main():
     print('==================================')
     if args.noreducc:
         numeros_reducidos = reducing_images(
-            lista_noches, dir_listas, dir_datos, dir_bias, dir_flats,
+            lista_noches, dir_listas, datadir, dir_bias, dir_flats,
             dir_reduced, df_bias, df_flat,
             verbose, verbose_imagen=args.verboseimage)
     else:
