@@ -6,6 +6,7 @@ default:
     - NAXIS2
     - OBJECT
     - DATE
+    - CCDNAME
     - CCDSEC
     - BIASSEC
     - CCDBINX
