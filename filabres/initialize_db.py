@@ -46,12 +46,14 @@ def initialize_db(datadir, list_of_nights, instconf, verbose=False):
             os.makedirs(nightdir)
 
         # generate database for all the files
-        database = {'metainfo': dict(), 'images': dict()}
-        database['metainfo'] = {
-            'creation_date': datetime.datetime.utcnow().isoformat(),
-            'uuid': str(uuid.uuid1()),
-            'datadir': datadir,
-            'instconf': instconf
+        database = {
+            'metainfo': {
+                'creation_date': datetime.datetime.utcnow().isoformat(),
+                'uuid': str(uuid.uuid1()),
+                'datadir': datadir,
+                'instconf': instconf
+            },
+            'images': dict()
         }
         filenames = datadir + night + '/*.fits'
         list_of_fits = glob.glob(filenames)
