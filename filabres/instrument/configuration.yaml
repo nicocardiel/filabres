@@ -14,8 +14,11 @@ default:
     - EXPTIME    # Total integration time (sec)
     - INSTRUME   # instrument ID
     - CCDNAME    # Detector used
+    - ORIGSECX   # original size full frame nx
+    - ORIGSECY   # original size full frame ny
     - CCDSEC     # orientation to full frame [x1,y1:x2:y2]
     - BIASSEC    # overscan portion of frame [x1:y1,x2:y2]
+    - DATASEC    # image portion of frame [x1,y1:x2,y2]
     - CCDBINX    # Binning factor along X
     - CCDBINY    # Binning factor along Y
 
@@ -28,6 +31,16 @@ cafos-imaging:
     - INSFLNAM   # filter name
     - INSGRID    # grism no.
     - INSGRNAM   # grism name
-  calibrations:
-    - bias
-    - flat
+  imagetypes:
+    bias:
+      signature:
+        - DATASEC
+    flat:
+      signature:
+        - DATASEC
+        - DATASEC
+        - INSGRID
+        - INSFLID
+    science:
+      signature:
+        - DATASEC

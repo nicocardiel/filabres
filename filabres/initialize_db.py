@@ -2,6 +2,7 @@ from astropy.io import fits
 import datetime
 import glob
 import json
+import numpy as np
 import os
 import sys
 import uuid
@@ -55,19 +56,23 @@ def initialize_db(datadir, list_of_nights, instconf, verbose=False):
         list_of_fits.sort()
 
         # generate database for all the files in current night
+        jsonfilename = nightdir + '/imagedb.json'
         database = {
             'metainfo': {
                 'creation_date': datetime.datetime.utcnow().isoformat(),
+                'self': os.getcwd() + jsonfilename[1:],
                 'origin': sys.argv[0] + ', v.' + version,
                 'uuid': str(uuid.uuid1()),
                 'datadir': datadir,
-                'nimages': len(list_of_fits),
                 'instconf': instconf
             },
-            'images': dict()
+            'allimages': dict()
         }
+        imagetypes = instconf['imagetypes']
+        for imagetyp in imagetypes:
+            database[imagetyp] = []
 
-        # get relevant keywords for each FITS file
+        # get relevant keywords for each FITS file and classify it
         for filename in list_of_fits:
             basename = os.path.basename(filename)
             with fits.open(filename) as hdul:
@@ -75,10 +80,19 @@ def initialize_db(datadir, list_of_nights, instconf, verbose=False):
             dumdict = dict()
             for keyword in instconf['keywords']:
                 dumdict[keyword] = header[keyword]
-            database['images'][basename] = dumdict
+            database['allimages'][basename] = dumdict
+            # classify image
+            imagetyp = dumdict['IMAGETYP']
+            if imagetyp in imagetypes:
+                database[imagetyp].append(basename)
+
+        # update number of images
+        database['metainfo']['numtotal'] = len(list_of_fits)
+        for imagetyp in imagetypes:
+            label = 'num' + imagetyp
+            database['metainfo'][label] = len(database[imagetyp])
 
         # generate JSON output file
-        jsonfilename = nightdir + '/allfiles.json'
         if verbose:
             print('* Creating {}'.format(jsonfilename))
         with open(jsonfilename, 'w') as outfile:

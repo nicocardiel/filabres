@@ -81,7 +81,7 @@ def main():
         print('ERROR: -s STEP (or --step STEP) missing!')
         raise SystemExit()
     else:
-        valid_steps = ['initialize'] + instconf['calibrations'] + ['science']
+        valid_steps = ['initialize'] + list(instconf['imagetypes'].keys())
         if verbose:
             print('* Valid steps: {}'.format(valid_steps))
         if step not in valid_steps:
@@ -105,7 +105,8 @@ def main():
         # ToDo: read file with images database
         pass
 
-    input("STOP HERE!!!")
+    print("STOP HERE!!!")
+    raise SystemExit()
 
     # check required subdirectories
     for subdir in required_subdirectories:
