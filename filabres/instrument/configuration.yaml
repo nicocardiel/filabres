@@ -34,13 +34,20 @@ cafos-imaging:
   imagetypes:
     bias:
       signature:
+        - CCDNAME
         - DATASEC
+        - CCDBINX
+        - CCDBINY
     flat:
       signature:
+        - CCDNAME
         - DATASEC
-        - DATASEC
+        - CCDBINX
+        - CCDBINY
         - INSGRID
         - INSFLID
     science:
       signature:
         - DATASEC
+        - CCDBINX
+        - CCDBINY
