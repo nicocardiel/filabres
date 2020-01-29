@@ -2,27 +2,32 @@
 
 default:
   keywords:
-    - NAXIS1
-    - NAXIS2
-    - OBJECT
-    - RA
-    - DEC
-    - EQUINOX
-    - DATE
-    - EXPTIME
-    - INSTRUME
-    - CCDNAME
-    - CCDSEC
-    - BIASSEC
-    - CCDBINX
-    - CCDBINY
+    - NAXIS      # number of data axes
+    - NAXIS1     # length of data axis 1
+    - NAXIS2     # length of data axis 2
+    - OBJECT     # Target description
+    - RA         # DD.ddddd [deg]
+    - DEC        # +/-DD.ddddd [deg]
+    - EQUINOX    # Equinox in years
+    - DATE       # file creation date (YYYY-MM-DDThh:mm:ss UT)
+    - MJD-OBS    # modified jul. date
+    - EXPTIME    # Total integration time (sec)
+    - INSTRUME   # instrument ID
+    - CCDNAME    # Detector used
+    - CCDSEC     # orientation to full frame [x1,y1:x2:y2]
+    - BIASSEC    # overscan portion of frame [x1:y1,x2:y2]
+    - CCDBINX    # Binning factor along X
+    - CCDBINY    # Binning factor along Y
 
 cafos-imaging:
   name: 'CAFOS'
   obsmode: 'imaging'
   keywords:
-    - IMAGETYP
-    - INSFLNAM
+    - IMAGETYP   # Type of observation
+    - INSFLID    # filter no.
+    - INSFLNAM   # filter name
+    - INSGRID    # grism no.
+    - INSGRNAM   # grism name
   calibrations:
     - bias
     - flat

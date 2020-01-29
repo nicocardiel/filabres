@@ -1,7 +1,7 @@
-version = '0.1'
+version = '0.2'
 
 
-def main(args=None):
+def main():
     print('Version: ' + version)
 
 
