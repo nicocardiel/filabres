@@ -56,7 +56,7 @@ def initialize_db(datadir, list_of_nights, instconf, verbose=False):
         list_of_fits.sort()
 
         # generate database for all the files in current night
-        jsonfilename = nightdir + '/imagedb.json'
+        jsonfilename = nightdir + '/imagedb_' + instconf['instname'] + '.json'
         database = {
             'metainfo': {
                 'creation_date': datetime.datetime.utcnow().isoformat(),
@@ -68,29 +68,55 @@ def initialize_db(datadir, list_of_nights, instconf, verbose=False):
             },
             'allimages': dict()
         }
-        imagetypes = instconf['imagetypes']
-        for imagetyp in imagetypes:
-            database[imagetyp] = []
+        imagetypes = instconf['imagetypes'].keys()
 
         # get relevant keywords for each FITS file and classify it
         for filename in list_of_fits:
+            # get image header
             basename = os.path.basename(filename)
             with fits.open(filename) as hdul:
                 header = hdul[0].header
-            dumdict = dict()
-            for keyword in instconf['keywords']:
-                dumdict[keyword] = header[keyword]
-            database['allimages'][basename] = dumdict
-            # classify image
-            imagetyp = dumdict['IMAGETYP']
-            if imagetyp in imagetypes:
-                database[imagetyp].append(basename)
+            # check general instrument requirements
+            requirements = instconf['requirements']
+            fileok = True
+            for key in requirements:
+                if requirements[key] != header[key]:
+                    fileok = False
+            if fileok:
+                # get master keywords for the current file
+                dumdict = dict()
+                for keyword in instconf['masterkeywords']:
+                    dumdict[keyword] = header[keyword]
+                database['allimages'][basename] = dumdict
+                # classify image
+                imagetype = None
+                for img in instconf['imagetypes']:
+                    requirements = instconf['imagetypes'][img]['requirements']
+                    typefound = True
+                    for key in requirements:
+                        if requirements[key] != header[key]:
+                            typefound = False
+                    if typefound:
+                        imagetype = img
+                if imagetype is None:
+                    imagetype = 'unknown'
+
+            else:
+                imagetype = '.not.' + instconf['instname']
+            # include image in corresponding classification
+            if imagetype in database:
+                database[imagetype].append(basename)
+            else:
+                database[imagetype] = [basename]
 
         # update number of images
         database['metainfo']['numtotal'] = len(list_of_fits)
+        # ToDo: seguir aqui
+        """
         for imagetyp in imagetypes:
             label = 'num' + imagetyp
             database['metainfo'][label] = len(database[imagetyp])
+        """
 
         # generate JSON output file
         if verbose:

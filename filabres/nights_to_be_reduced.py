@@ -39,6 +39,8 @@ def nights_to_be_reduced(datadir, args_night, verbose=False):
         print('ERROR: no subdirectory matches the night selection')
         raise SystemExit()
 
+    list_of_nights.sort()
+
     if verbose:
         print('* List of nights: {}'.format(list_of_nights))
 

@@ -49,9 +49,10 @@ def main():
                         help="run quietly (reduced verbosity)")
     parser.add_argument("-i", "--instrument", type=str,
                         help="instrument identification")
-    parser.add_argument("-d", "--datadir", type=str,
+    parser.add_argument("-rs", "--reduction_step", type=str,
+                        help="reduction step")
+    parser.add_argument("-dd", "--datadir", type=str,
                         help='data directory')
-    parser.add_argument("-s", "--step", type=str, help="reduction step")
     parser.add_argument("-n", "--night", type=str,
                         help="night label (wildcards are valid withing "
                              "quotes)")
@@ -63,32 +64,23 @@ def main():
     # set verbosity
     verbose = not args.quiet
 
-    # instrument configuration
-    instconf = load_instrument_configuration(instrument=args.instrument)
+    # load instrument configuration
+    instrument = args.instrument
+    redustep = args.reduction_step
+    instconf = load_instrument_configuration(
+        instrument=instrument,
+        redustep=redustep,
+        verbose=False
+    )
 
     # data directory
     datadir = args.datadir
     if datadir is None:
-        print('ERROR: -d DATADIR (or --datadir DATADIR) missing!')
+        print('ERROR: -dd/--datadir DATADIR missing!')
         raise SystemExit()
     else:
         # add trailing slash if not present
         datadir = check_tslash(dir=datadir)
-
-    # reduction step
-    step = args.step
-    if step is None:
-        print('ERROR: -s STEP (or --step STEP) missing!')
-        raise SystemExit()
-    else:
-        valid_steps = ['initialize'] + list(instconf['imagetypes'].keys())
-        if verbose:
-            print('* Valid steps: {}'.format(valid_steps))
-        if step not in valid_steps:
-            print('ERROR: invalid step! Valid values are:')
-            for dum in valid_steps:
-                print('- {}'.format(dum))
-            raise SystemExit()
 
     # nights to be reduced
     list_of_nights = nights_to_be_reduced(datadir=datadir,
@@ -96,7 +88,7 @@ def main():
                                           verbose=verbose)
 
     # reduction steps
-    if step == 'initialize':
+    if redustep == 'initialize':
         initialize_db(datadir=datadir,
                       list_of_nights=list_of_nights,
                       instconf=instconf,

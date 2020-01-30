@@ -1,7 +1,10 @@
 # CAHA instrument definitions for filabres
 
-default:
-  keywords:
+cafos:
+  instname: cafos
+  requirements:
+    INSTRUME: 'CAFOS 2.2'
+  masterkeywords:
     - NAXIS      # number of data axes
     - NAXIS1     # length of data axis 1
     - NAXIS2     # length of data axis 2
@@ -21,11 +24,6 @@ default:
     - DATASEC    # image portion of frame [x1,y1:x2,y2]
     - CCDBINX    # Binning factor along X
     - CCDBINY    # Binning factor along Y
-
-cafos-imaging:
-  name: 'CAFOS'
-  obsmode: 'imaging'
-  keywords:
     - IMAGETYP   # Type of observation
     - INSFLID    # filter no.
     - INSFLNAM   # filter name
@@ -33,12 +31,18 @@ cafos-imaging:
     - INSGRNAM   # grism name
   imagetypes:
     bias:
+      requirements:
+        IMAGETYP: 'bias'
+        EXPTIME: 0.0
       signature:
         - CCDNAME
         - DATASEC
         - CCDBINX
         - CCDBINY
-    flat:
+    flat-imaging:
+      requirements:
+        IMAGETYP: 'flat'
+        INSGRID: 'GRISM-11'
       signature:
         - CCDNAME
         - DATASEC
@@ -46,8 +50,36 @@ cafos-imaging:
         - CCDBINY
         - INSGRID
         - INSFLID
-    science:
+    flat-spectroscopy:
+      requirements:
+        IMAGETYP: 'flat'
+        INSGRID: '.not.GRISM-11'
       signature:
+        - CCDNAME
         - DATASEC
         - CCDBINX
         - CCDBINY
+        - INSGRID
+        - INSFLID
+    science-imaging:
+      requirements:
+        IMAGETYP: 'science'
+        INSGRID: 'GRISM-11'
+      signature:
+        - CCDNAME
+        - DATASEC
+        - CCDBINX
+        - CCDBINY
+        - INSGRID
+        - INSFLID
+    science-spectroscopy:
+      requirements:
+        IMAGETYP: 'science'
+        INSGRID: '.not.GRISM-11'
+      signature:
+        - CCDNAME
+        - DATASEC
+        - CCDBINX
+        - CCDBINY
+        - INSGRID
+        - INSFLID
