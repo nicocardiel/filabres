@@ -35,22 +35,36 @@ def load_instrument_configuration(instrument, redustep, verbose=False):
     # check instrument and reduction step
     available_instruments = list(bigdict.keys())
     if instrument not in available_instruments:
-        if instrument is not None:
+        if instrument is None:
+            print('ERROR: missing instrument!')
+        else:
             print('ERROR: invalid instrument: {}'.format(instrument))
-        print('Avaliable options are:')
+        print('Possible options:')
         for instrument_ in available_instruments:
             print('-i/--instrument {}'.format(instrument_))
         raise SystemExit()
     else:
         # check reduction step
-        available_redusteps = ['initialize']
-        available_redusteps += list(bigdict[instrument]['imagetypes'])
-        if redustep not in available_redusteps:
-            if redustep is not None:
-                print('ERROR: invalid reduction step: {}'.format(redustep))
-            print('Avaliable options are:')
-            for redustep_ in available_redusteps:
-                print('-rs/--reduction_step {}'.format(redustep_))
+        defined_redusteps = {'initialize': True}
+        for img in bigdict[instrument]['imagetypes']:
+            defined_redusteps[img] = \
+                bigdict[instrument]['imagetypes'][img]['executable']
+        redustep_is_ok = True
+        if redustep not in defined_redusteps:
+            redustep_is_ok = False
+        else:
+            if not defined_redusteps[redustep]:
+                redustep_is_ok = False
+        if not redustep_is_ok:
+            if redustep is None:
+                print('ERROR: missing reduction step!')
+            else:
+                print('ERROR: invalid or unavailable reduction '
+                      'step: {}'.format(redustep))
+            print('Initial options are:')
+            for redustep_ in defined_redusteps:
+                print('-rs/--reduction_step {}  (available: {})'.format(
+                    redustep_, defined_redusteps[redustep_]))
             raise SystemExit()
 
     # define instrument configuration dictionary

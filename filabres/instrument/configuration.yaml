@@ -32,6 +32,7 @@ cafos:
     - INSGRNAM   # grism name
   imagetypes:
     bias:
+      executable: True
       requirements:
         IMAGETYP: 'bias'
         EXPTIME: 0.0
@@ -41,6 +42,7 @@ cafos:
         - CCDBINX
         - CCDBINY
     flat-imaging:
+      executable: False
       requirements:
         IMAGETYP: 'flat'
         INSGRID: 'GRISM-11'
@@ -52,6 +54,7 @@ cafos:
         - INSGRID
         - INSFLID
     flat-spectroscopy:
+      executable: False
       requirements:
         IMAGETYP: 'flat'
         INSGRID.NE.: 'GRISM-11'
@@ -63,6 +66,7 @@ cafos:
         - INSGRID
         - INSFLID
     arc:
+      executable: False
       requirements:
         IMAGETYP: 'arc'
         INSGRID.NE.: 'GRISM-11'
@@ -74,6 +78,7 @@ cafos:
         - INSGRID
         - INSFLID
     science-imaging:
+      executable: False
       requirements:
         IMAGETYP: 'science'
         INSGRID: 'GRISM-11'
@@ -85,6 +90,7 @@ cafos:
         - INSGRID
         - INSFLID
     science-spectroscopy:
+      executable: False
       requirements:
         IMAGETYP: 'science'
         INSGRID.NE.: 'GRISM-11'
