@@ -112,11 +112,15 @@ def initialize_db(datadir, list_of_nights, instconf, verbose=False):
         jsonfilename = nightdir + '/imagedb_' + instconf['instname'] + '.json'
         database = {
             'metainfo': {
-                'creation_date': datetime.datetime.utcnow().isoformat(),
-                'self': os.getcwd() + jsonfilename[1:],
-                'origin': sys.argv[0] + ', v.' + version,
-                'uuid': str(uuid.uuid1()),
+                'instrument': instconf['instname'],
                 'datadir': datadir,
+                'night': night,
+                'self': {
+                    'creation_date': datetime.datetime.utcnow().isoformat(),
+                    'thisfile': os.getcwd() + jsonfilename[1:],
+                    'origin': sys.argv[0] + ', v.' + version,
+                    'uuid': str(uuid.uuid1()),
+                },
                 'instconf': instconf
             },
             'allimages': dict(),

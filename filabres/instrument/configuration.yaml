@@ -2,6 +2,7 @@
 
 cafos:
   instname: cafos
+  version: 1.0
   requirements:
     INSTRUME: 'CAFOS 2.2'
   masterkeywords:
