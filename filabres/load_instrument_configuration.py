@@ -2,9 +2,11 @@ import pkgutil
 from six import StringIO
 import yaml
 
+from filabres import REQ_OPERATORS
 
 def load_instrument_configuration(instrument, redustep, verbose=False):
-    """Load instrument configuration from YAML file.
+    """
+    Load instrument configuration from YAML file.
 
     Parameters
     ----------
@@ -23,7 +25,6 @@ def load_instrument_configuration(instrument, redustep, verbose=False):
     instconf : dict
         Instrument configuration. See file configuration.yaml
         for details.
-
     """
 
     # load configuration file
@@ -60,6 +61,11 @@ def load_instrument_configuration(instrument, redustep, verbose=False):
     for imagetype in instconf['imagetypes']:
         # check keywords in requirements
         for keyword in instconf['imagetypes'][imagetype]['requirements']:
+            for operator in REQ_OPERATORS:
+                lenop = len(operator)
+                if keyword[-lenop:] == operator:
+                    keyword = keyword[:-lenop]
+                    break
             if keyword not in instconf['masterkeywords']:
                 print('ERROR in configuration.yaml file')
                 print('-> the (requirements) keyword {} is not included in '

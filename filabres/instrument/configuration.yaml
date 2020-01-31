@@ -53,7 +53,18 @@ cafos:
     flat-spectroscopy:
       requirements:
         IMAGETYP: 'flat'
-        INSGRID: '.not.GRISM-11'
+        INSGRID.NE.: 'GRISM-11'
+      signature:
+        - CCDNAME
+        - DATASEC
+        - CCDBINX
+        - CCDBINY
+        - INSGRID
+        - INSFLID
+    arc:
+      requirements:
+        IMAGETYP: 'arc'
+        INSGRID.NE.: 'GRISM-11'
       signature:
         - CCDNAME
         - DATASEC
@@ -75,7 +86,7 @@ cafos:
     science-spectroscopy:
       requirements:
         IMAGETYP: 'science'
-        INSGRID: '.not.GRISM-11'
+        INSGRID.NE.: 'GRISM-11'
       signature:
         - CCDNAME
         - DATASEC

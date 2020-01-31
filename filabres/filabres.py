@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
-"""Basic data reduction of CAHA data.
+"""
+Basic data reduction of CAHA data.
 
 Project started with the "Prácticas en Empresa" of Enrique Galcerán García
 (Astrophysics Master, Universidad Complutense de Madrid, course 2018-2019).
@@ -11,7 +12,6 @@ implement filabres, trying to speed up the execution time and generalizing
 the algorithms to be useful for additional instruments and observing modes.
 
 This code is hosted at: https://github.com/nicocardiel/filabres
-
 """
 
 import argparse

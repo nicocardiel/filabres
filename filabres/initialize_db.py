@@ -2,16 +2,70 @@ from astropy.io import fits
 import datetime
 import glob
 import json
-import numpy as np
 import os
 import sys
 import uuid
 
 from .version import version
 
+from filabres import REQ_OPERATORS
+
+
+def classify_image(instconf, header):
+    """
+    Classify image in one of the expected types.
+
+    The classification also checks that the specific requirements set
+    to each image type are also met.
+    Note that the function returns the first image type match without
+    checking for additional potential matches.
+
+    Parameters
+    ----------
+    instconf : dict
+        Instrument configuration. See file configuration.yaml
+        for details.
+    header: astropy `Header` object
+
+    Returns
+    -------
+    imagetype : str or None
+        One of the expected image types (or None if the any of the
+        requirements is not met).
+    """
+
+    imagetype = None
+
+    for img in instconf['imagetypes']:
+        requirements = instconf['imagetypes'][img]['requirements']
+        typefound = True
+        for keyword in requirements:
+            operatorfound = False
+            for operator in REQ_OPERATORS:
+                lenop = len(operator)
+                if keyword[-lenop:] == operator:
+                    operatorfound = True
+                    command = 'header[keyword[:-lenop]] ' + \
+                              REQ_OPERATORS[operator] + \
+                              ' requirements[keyword]'
+                    if not eval(command):
+                        typefound = False
+                    break
+            if not operatorfound:
+                if requirements[keyword] != header[keyword]:
+                    typefound = False
+            if not typefound:
+                break
+        if typefound:
+            imagetype = img
+            break
+
+    return imagetype
+
 
 def initialize_db(datadir, list_of_nights, instconf, verbose=False):
-    """Generate database with relevant keywords for each night.
+    """
+    Generate database with relevant keywords for each night.
 
     Parameters
     ----------
@@ -24,7 +78,6 @@ def initialize_db(datadir, list_of_nights, instconf, verbose=False):
         details.
     verbose : bool
         If True, display intermediate information.
-
     """
 
     # check for ./lists subdirectory
@@ -66,9 +119,15 @@ def initialize_db(datadir, list_of_nights, instconf, verbose=False):
                 'datadir': datadir,
                 'instconf': instconf
             },
-            'allimages': dict()
+            'allimages': dict(),
+            'lists': dict()
         }
-        imagetypes = instconf['imagetypes'].keys()
+
+        # initalize lists with classified images
+        for imagetype in instconf['imagetypes']:
+            database['lists'][imagetype] = []
+        database['lists']['unknown'] = []
+        database['lists']['wrong-instrument'] = []
 
         # get relevant keywords for each FITS file and classify it
         for filename in list_of_fits:
@@ -86,40 +145,46 @@ def initialize_db(datadir, list_of_nights, instconf, verbose=False):
                 # get master keywords for the current file
                 dumdict = dict()
                 for keyword in instconf['masterkeywords']:
-                    dumdict[keyword] = header[keyword]
+                    if keyword in header:
+                        dumdict[keyword] = header[keyword]
+                    else:
+                        print('ERROR: keyword {} is missing in '
+                              'file {}'.format(keyword, basename))
+                        raise SystemExit()
                 database['allimages'][basename] = dumdict
                 # classify image
-                imagetype = None
-                for img in instconf['imagetypes']:
-                    requirements = instconf['imagetypes'][img]['requirements']
-                    typefound = True
-                    for key in requirements:
-                        if requirements[key] != header[key]:
-                            typefound = False
-                    if typefound:
-                        imagetype = img
+                imagetype = classify_image(instconf, header)
                 if imagetype is None:
                     imagetype = 'unknown'
-
             else:
-                imagetype = '.not.' + instconf['instname']
+                imagetype = 'wrong-instrument'
             # include image in corresponding classification
-            if imagetype in database:
-                database[imagetype].append(basename)
+            if imagetype in database['lists']:
+                database['lists'][imagetype].append(basename)
             else:
-                database[imagetype] = [basename]
+                print('ERROR: unexpected image type {} in'
+                      'file {}'.format(imagetype, basename))
+                raise SystemExit()
 
         # update number of images
-        database['metainfo']['numtotal'] = len(list_of_fits)
-        # ToDo: seguir aqui
-        """
-        for imagetyp in imagetypes:
-            label = 'num' + imagetyp
-            database['metainfo'][label] = len(database[imagetyp])
-        """
+        database['metainfo']['num_allimages'] = len(list_of_fits)
+        num_doublecheck = 0
+        for imagetype in database['lists']:
+            label = 'num_' + imagetype
+            num = len(database['lists'][imagetype])
+            database['metainfo'][label] = num
+            num_doublecheck += num
+
+        database['metainfo']['num_doublecheck'] = num_doublecheck
 
         # generate JSON output file
         if verbose:
             print('* Creating {}'.format(jsonfilename))
         with open(jsonfilename, 'w') as outfile:
             json.dump(database, outfile, indent=2)
+
+        # double check
+        if num_doublecheck != len(list_of_fits):
+            print('ERROR: double check in number of files failed!')
+            print('--> see file {}'.format(jsonfilename))
+            raise SystemExit()
