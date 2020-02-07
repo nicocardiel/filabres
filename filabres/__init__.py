@@ -9,3 +9,5 @@ REQ_OPERATORS = {
     '.LT.': '<',
     '.LE.': '<='
 }
+
+LISTDIR = './lists/'
