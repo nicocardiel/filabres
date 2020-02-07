@@ -8,6 +8,7 @@ import uuid
 
 from .version import version
 
+from filabres import LISTDIR
 from filabres import REQ_OPERATORS
 
 
@@ -63,7 +64,7 @@ def classify_image(instconf, header):
     return imagetype
 
 
-def initialize_db(datadir, list_of_nights, instconf, verbose=False):
+def initialize_auxdb(datadir, list_of_nights, instconf, verbose=False):
     """
     Generate database with relevant keywords for each night.
 
@@ -81,19 +82,18 @@ def initialize_db(datadir, list_of_nights, instconf, verbose=False):
     """
 
     # check for ./lists subdirectory
-    subdir = './lists/'
-    if os.path.isdir(subdir):
+    if os.path.isdir(LISTDIR):
         if verbose:
-            print('Subdirectory {} found'.format(subdir))
+            print('Subdirectory {} found'.format(LISTDIR))
     else:
         if verbose:
-            print('Subdirectory {} not found. Creating it!'.format(subdir))
-        os.makedirs(subdir)
+            print('Subdirectory {} not found. Creating it!'.format(LISTDIR))
+        os.makedirs(LISTDIR)
 
     # create one subdirectory for each night
     for night in list_of_nights:
         # subdirectory for current night
-        nightdir = subdir + night
+        nightdir = LISTDIR + night
         if os.path.isdir(nightdir):
             if verbose:
                 print('Subdirectory {} found'.format(nightdir))
@@ -110,7 +110,7 @@ def initialize_db(datadir, list_of_nights, instconf, verbose=False):
 
         # generate database for all the files in current night
         jsonfilename = nightdir + '/imagedb_' + instconf['instname'] + '.json'
-        database = {
+        imagedb = {
             'metainfo': {
                 'instrument': instconf['instname'],
                 'datadir': datadir,
@@ -129,9 +129,9 @@ def initialize_db(datadir, list_of_nights, instconf, verbose=False):
 
         # initalize lists with classified images
         for imagetype in instconf['imagetypes']:
-            database['lists'][imagetype] = []
-        database['lists']['unknown'] = []
-        database['lists']['wrong-instrument'] = []
+            imagedb['lists'][imagetype] = []
+        imagedb['lists']['unknown'] = []
+        imagedb['lists']['wrong-instrument'] = []
 
         # get relevant keywords for each FITS file and classify it
         for filename in list_of_fits:
@@ -155,7 +155,7 @@ def initialize_db(datadir, list_of_nights, instconf, verbose=False):
                         print('ERROR: keyword {} is missing in '
                               'file {}'.format(keyword, basename))
                         raise SystemExit()
-                database['allimages'][basename] = dumdict
+                imagedb['allimages'][basename] = dumdict
                 # classify image
                 imagetype = classify_image(instconf, header)
                 if imagetype is None:
@@ -163,29 +163,29 @@ def initialize_db(datadir, list_of_nights, instconf, verbose=False):
             else:
                 imagetype = 'wrong-instrument'
             # include image in corresponding classification
-            if imagetype in database['lists']:
-                database['lists'][imagetype].append(basename)
+            if imagetype in imagedb['lists']:
+                imagedb['lists'][imagetype].append(basename)
             else:
                 print('ERROR: unexpected image type {} in'
                       'file {}'.format(imagetype, basename))
                 raise SystemExit()
 
         # update number of images
-        database['metainfo']['num_allimages'] = len(list_of_fits)
+        imagedb['metainfo']['num_allimages'] = len(list_of_fits)
         num_doublecheck = 0
-        for imagetype in database['lists']:
+        for imagetype in imagedb['lists']:
             label = 'num_' + imagetype
-            num = len(database['lists'][imagetype])
-            database['metainfo'][label] = num
+            num = len(imagedb['lists'][imagetype])
+            imagedb['metainfo'][label] = num
             num_doublecheck += num
 
-        database['metainfo']['num_doublecheck'] = num_doublecheck
+        imagedb['metainfo']['num_doublecheck'] = num_doublecheck
 
         # generate JSON output file
         if verbose:
             print('* Creating {}'.format(jsonfilename))
         with open(jsonfilename, 'w') as outfile:
-            json.dump(database, outfile, indent=2)
+            json.dump(imagedb, outfile, indent=2)
 
         # double check
         if num_doublecheck != len(list_of_fits):

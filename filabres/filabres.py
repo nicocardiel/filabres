@@ -15,14 +15,16 @@ This code is hosted at: https://github.com/nicocardiel/filabres
 """
 
 import argparse
+import json
 import os
 import pandas as pd
 import time
 
 from .check_tslash import check_tslash
-from .initialize_db import initialize_db
+from .initialize_auxdb import initialize_auxdb
 from .load_instrument_configuration import load_instrument_configuration
 from .nights_to_be_reduced import nights_to_be_reduced
+from .run_reduction_step import run_reduction_step
 
 from .bias import make_master_bias
 from .flat import make_master_flat
@@ -53,6 +55,8 @@ def main():
                         help="reduction step")
     parser.add_argument("-dd", "--datadir", type=str,
                         help='data directory')
+    parser.add_argument("-db", "--database", type=str,
+                        help='database file name (')
     parser.add_argument("-n", "--night", type=str,
                         help="night label (wildcards are valid withing "
                              "quotes)")
@@ -89,15 +93,34 @@ def main():
 
     # reduction steps
     if redustep == 'initialize':
-        initialize_db(datadir=datadir,
-                      list_of_nights=list_of_nights,
-                      instconf=instconf,
-                      verbose=verbose)
+        # initialize auxiliary databases (one for each observing night)
+        initialize_auxdb(datadir=datadir,
+                         list_of_nights=list_of_nights,
+                         instconf=instconf,
+                         verbose=verbose)
     else:
-        # ToDo: read file with images database
-        pass
+        # main database
+        if args.database is None:
+            databasefile = 'filabres_db.json'
+            database = {}
+        else:
+            databasefile = args.databasefile
+            with open(databasefile) as jfile:
+                database = json.load(jfile)
+        if verbose:
+            print('* Database set to {}'.format(databasefile))
+        # execute reduction step
+        run_reduction_step(redustep=redustep,
+                           datadir=datadir,
+                           list_of_nights=list_of_nights,
+                           instconf=instconf,
+                           database=database,
+                           verbose=verbose)
+        # update main database
+        with open(databasefile, 'w') as outfile:
+            json.dump(database, outfile, indent=2)
 
-    print("STOP HERE!!!")
+    print('* program STOP')
     raise SystemExit()
 
     # check required subdirectories

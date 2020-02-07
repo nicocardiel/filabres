@@ -4,6 +4,7 @@ import yaml
 
 from filabres import REQ_OPERATORS
 
+
 def load_instrument_configuration(instrument, redustep, verbose=False):
     """
     Load instrument configuration from YAML file.
