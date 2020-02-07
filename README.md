@@ -1,5 +1,5 @@
 # filabres
-Simplified Data Reduction Pipeline for CAHA data
+Automatic Data Reduction Pipeline for CAHA data
 
 To install the code, clone the repository and execute
 ```
