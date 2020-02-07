@@ -2,7 +2,7 @@
 
 cafos:
   instname: cafos
-  version: 1.0
+  version: 1.1
   requirements:
     INSTRUME: 'CAFOS 2.2'
   masterkeywords:
@@ -38,6 +38,8 @@ cafos:
         EXPTIME: 0.0
       signature:
         - CCDNAME
+        - NAXIS1
+        - NAXIS2
         - DATASEC
         - CCDBINX
         - CCDBINY
@@ -48,6 +50,8 @@ cafos:
         INSGRID: 'GRISM-11'
       signature:
         - CCDNAME
+        - NAXIS1
+        - NAXIS2
         - DATASEC
         - CCDBINX
         - CCDBINY
@@ -60,6 +64,8 @@ cafos:
         INSGRID.NE.: 'GRISM-11'
       signature:
         - CCDNAME
+        - NAXIS1
+        - NAXIS2
         - DATASEC
         - CCDBINX
         - CCDBINY
@@ -72,6 +78,8 @@ cafos:
         INSGRID.NE.: 'GRISM-11'
       signature:
         - CCDNAME
+        - NAXIS1
+        - NAXIS2
         - DATASEC
         - CCDBINX
         - CCDBINY
@@ -84,6 +92,8 @@ cafos:
         INSGRID: 'GRISM-11'
       signature:
         - CCDNAME
+        - NAXIS1
+        - NAXIS2
         - DATASEC
         - CCDBINX
         - CCDBINY
@@ -96,6 +106,8 @@ cafos:
         INSGRID.NE.: 'GRISM-11'
       signature:
         - CCDNAME
+        - NAXIS1
+        - NAXIS2
         - DATASEC
         - CCDBINX
         - CCDBINY
