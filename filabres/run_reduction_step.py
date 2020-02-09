@@ -11,21 +11,47 @@ from filabres import LISTDIR
 
 
 def getkey_from_signature(signature, key):
-    """Return key from signature
+    """
+    Return key from signature
 
     Parameters
-    ----------
+    ==========
     signature: dictionary
         Python dictionary storing the signature keywords.
     key : str
         Keyword to be obtained from signature
-
     """
     if key not in signature:
         print('* ERROR: {} not found in signature'.format(key))
         raise SystemExit()
     else:
         return signature[key]
+
+
+def signature_string(signature):
+    """
+    Return signature string.
+
+    Parameters
+    ==========
+    signature : dict
+        Signature dictionary.
+
+    Returns
+    =======
+    output : str
+        String sequence with the values of the different signature
+        keywords in alphabetic order.
+    """
+
+    lkeys = list(signature.keys())
+    lkeys.sort()
+    output = ''
+    for i, key in enumerate(lkeys):
+        if i != 0:
+            output += '__'
+        output += str(signature[key])
+    return output
 
 
 def run_reduction_step(redustep, datadir, list_of_nights, instconf,
@@ -66,14 +92,18 @@ def run_reduction_step(redustep, datadir, list_of_nights, instconf,
 
     # loop in night
     for night in list_of_nights:
-        # reset entries for this night
-        database[redustep][night] = dict()
+        # read local database for current night
         jsonfilename = LISTDIR + night + '/imagedb_' + \
                        instconf['instname'] + '.json'
         if verbose:
             print('* Reading file {}'.format(jsonfilename))
-        with open(jsonfilename) as jfile:
-            imagedb = json.load(jfile)
+        try:
+            with open(jsonfilename) as jfile:
+                imagedb = json.load(jfile)
+        except FileNotFoundError:
+            print('ERROR: file {} not found'.format(jsonfilename))
+            print('Try using -rs initialize')
+            raise SystemExit()
         # check version of instrument configuration
         if instconf['version'] != imagedb['metainfo']['instconf']['version']:
             print('ERROR: different versions of instrument configuration')
@@ -177,8 +207,14 @@ def run_reduction_step(redustep, datadir, list_of_nights, instconf,
                     hdu = fits.PrimaryHDU(image2d.astype(np.float32),
                                           output_header)
                     hdu.writeto(output_filename, overwrite=True)
-                    key = os.path.basename(output_filename)
-                    database[redustep][night][key] = signature
+                    # generate string with signature values
+                    key = signature_string(signature)
+                    # update main database with redustep if not present
+                    if key not in database[redustep]:
+                        database[redustep][key] = dict()
+                    # update database with result using MJD-OBS as index
+                    mjdobs = '{:.5f}'.format(output_header['MJD-OBS'])
+                    database[redustep][key][mjdobs] = output_filename
                 else:
                     print('* ERROR: combination of {} not implemented yet'.format(
                         redustep))
