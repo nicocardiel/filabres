@@ -39,19 +39,21 @@ def signature_string(signature):
 
     Returns
     =======
+    sortedkeys : list
+        List of signature keys in alphabetic order.
     output : str
         String sequence with the values of the different signature
         keywords in alphabetic order.
     """
 
-    lkeys = list(signature.keys())
-    lkeys.sort()
+    sortedkeys = list(signature.keys())
+    sortedkeys.sort()
     output = ''
-    for i, key in enumerate(lkeys):
+    for i, key in enumerate(sortedkeys):
         if i != 0:
             output += '__'
         output += str(signature[key])
-    return output
+    return sortedkeys, output
 
 
 def run_reduction_step(redustep, datadir, list_of_nights, instconf,
@@ -208,7 +210,9 @@ def run_reduction_step(redustep, datadir, list_of_nights, instconf,
                                           output_header)
                     hdu.writeto(output_filename, overwrite=True)
                     # generate string with signature values
-                    key = signature_string(signature)
+                    sortedkeys, key = signature_string(signature)
+                    if 'sortedkeys' not in database[redustep]:
+                        database[redustep]['sortedkeys'] = sortedkeys
                     # update main database with redustep if not present
                     if key not in database[redustep]:
                         database[redustep][key] = dict()
