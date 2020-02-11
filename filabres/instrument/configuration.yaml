@@ -44,7 +44,7 @@ cafos:
         - CCDBINX
         - CCDBINY
     flat-imaging:
-      executable: False
+      executable: True
       requirements:
         IMAGETYP: 'flat'
         INSGRID: 'GRISM-11'

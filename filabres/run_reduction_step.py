@@ -5,9 +5,25 @@ import numpy as np
 import os
 import sys
 
+from .statsumm import statsumm
 from .version import version
 
 from filabres import LISTDIR
+
+
+class NumpyEncoder(json.JSONEncoder):
+    """ Special json encoder for numpy types """
+    def default(self, obj):
+        if isinstance(obj, (np.int_, np.intc, np.intp, np.int8,
+            np.int16, np.int32, np.int64, np.uint8,
+            np.uint16, np.uint32, np.uint64)):
+            return int(obj)
+        elif isinstance(obj, (np.float_, np.float16, np.float32,
+            np.float64)):
+            return float(obj)
+        elif isinstance(obj,(np.ndarray,)): #### This is the fix
+            return obj.tolist()
+        return json.JSONEncoder.default(self, obj)
 
 
 def getkey_from_signature(signature, key):
@@ -56,13 +72,15 @@ def signature_string(signature):
     return sortedkeys, output
 
 
-def run_reduction_step(redustep, datadir, list_of_nights, instconf,
-                       database, verbose):
+def run_reduction_step(args_database, redustep, datadir, list_of_nights,
+                       instconf, verbose):
     """
     Execute reduction step.
 
     Parameters
     ==========
+    args_database : str or None
+        Main database file name.
     redustep : str
         Reduction step to be executed.
     datadir : str
@@ -72,12 +90,22 @@ def run_reduction_step(redustep, datadir, list_of_nights, instconf,
     instconf : dict
         Instrument configuration. See file configuration.json for
         details.
-    database: dict
-        Output database where the relevant information of the reduced
-        images is stored: signature, path and file name.
     verbose : bool
         If True, display intermediate information.
     """
+
+    # main database
+    if args_database is None:
+        databasefile = 'filabres_db.json'
+    else:
+        databasefile = args_database
+    try:
+        with open(databasefile) as jfile:
+            database = json.load(jfile)
+    except FileNotFoundError:
+        database = {}
+    if verbose:
+        print('* Main database set to {}'.format(databasefile))
 
     # check for subdirectory
     if os.path.isdir(redustep):
@@ -173,57 +201,80 @@ def run_reduction_step(redustep, datadir, list_of_nights, instconf,
                     for filename in images_with_fixed_signature:
                         print(filename, end=' ')
                     print()
-                if redustep == 'bias':  # median combination
-                    # declare temporary cube to store all the images
-                    naxis1 = getkey_from_signature(signature, 'NAXIS1')
-                    naxis2 = getkey_from_signature(signature, 'NAXIS2')
-                    image3d = np.zeros((nfiles, naxis2, naxis1),
-                                       dtype=np.float32)
-                    output_header = None
-                    output_filename = nightdir + '/bias{:04d}.fits'.format(
-                        isignature + 1)
-                    print('-> output filename {}'.format(output_filename))
-                    for i in range(nfiles):
-                        filename = images_with_fixed_signature[i]
-                        with fits.open(filename) as hdulist:
-                            image_header = hdulist[0].header
-                            image_data = hdulist[0].data
-                        if i == 0:
-                            output_header = image_header
-                            # avoid warning when saving FITS
-                            if output_header['BLANK']:
-                                del output_header['BLANK']
-                            output_header.add_history("---")
-                            output_header.add_history(
-                                'Using filabres v.{}'.format(version))
-                            output_header.add_history('Date: ' +
-                                str(datetime.datetime.utcnow().isoformat()))
-                            output_header.add_history(sys.argv)
-                            output_header.add_history(
-                                'Computing median {} from:'.format(redustep))
-                        image3d[i, :, :] += image_data
+                # declare temporary cube to store all the images
+                naxis1 = getkey_from_signature(signature, 'NAXIS1')
+                naxis2 = getkey_from_signature(signature, 'NAXIS2')
+                image3d = np.zeros((nfiles, naxis2, naxis1),
+                                   dtype=np.float32)
+                output_header = None
+                output_filename = nightdir + '/' + redustep + \
+                                  '{:04d}.fits'.format(isignature + 1)
+                print('-> output filename {}'.format(output_filename))
+                for i in range(nfiles):
+                    filename = images_with_fixed_signature[i]
+                    with fits.open(filename) as hdulist:
+                        image_header = hdulist[0].header
+                        image_data = hdulist[0].data
+                    if i == 0:
+                        output_header = image_header
+                        # avoid warning when saving FITS
+                        if output_header['BLANK']:
+                            del output_header['BLANK']
+                        output_header.add_history("---")
                         output_header.add_history(
-                            os.path.basename(filename))
-                    output_header.add_history('Signature: ' + str(signature))
+                            'Using filabres v.{}'.format(version))
+                        output_header.add_history('Date: ' +
+                            str(datetime.datetime.utcnow().isoformat()))
+                        output_header.add_history(sys.argv)
+                        output_header.add_history(
+                            'Computing median {} from:'.format(redustep))
+                    image3d[i, :, :] += image_data
+                    output_header.add_history(
+                        os.path.basename(filename))
+                output_header.add_history('Signature:')
+                for key in signature:
+                    output_header.add_history(
+                        ' - {}: {}'.format(key, signature[key])
+                    )
+                if redustep == 'bias':
+                    # median combination
                     image2d = np.median(image3d, axis=0)
-                    hdu = fits.PrimaryHDU(image2d.astype(np.float32),
-                                          output_header)
-                    hdu.writeto(output_filename, overwrite=True)
-                    # generate string with signature values
-                    sortedkeys, key = signature_string(signature)
-                    if 'sortedkeys' not in database[redustep]:
-                        database[redustep]['sortedkeys'] = sortedkeys
-                    # update main database with redustep if not present
-                    if key not in database[redustep]:
-                        database[redustep][key] = dict()
-                    # update database with result using MJD-OBS as index
-                    mjdobs = '{:.5f}'.format(output_header['MJD-OBS'])
-                    database[redustep][key][mjdobs] = output_filename
+                elif redustep == 'flat-imaging':
+                    # ToDo: subtract bias
+                    pass
+                    # ToDo: median combination of rescaled images
+                    image2d = np.median(image3d, axis=0)
                 else:
                     print('* ERROR: combination of {} not implemented yet'.format(
                         redustep))
                     raise SystemExit()
+                # save output FITS file
+                hdu = fits.PrimaryHDU(image2d.astype(np.float32),
+                                      output_header)
+                hdu.writeto(output_filename, overwrite=True)
+                # generate string with signature values
+                sortedkeys, key = signature_string(signature)
+                if 'sortedkeys' not in database[redustep]:
+                    database[redustep]['sortedkeys'] = sortedkeys
+                else:
+                    if sortedkeys != database[redustep]['sortedkeys']:
+                        print('* ERROR: sortedkeys have changed when'
+                              'reducing {} images'.format(redustep))
+                        raise SystemExit()
+                # update main database with new signature if not present
+                if key not in database[redustep]:
+                    database[redustep][key] = dict()
+                # update database with result using MJD-OBS as index
+                mjdobs = '{:.5f}'.format(output_header['MJD-OBS'])
+                database[redustep][key][mjdobs] = dict()
+                database[redustep][key][mjdobs]['filename'] = output_filename
+                database[redustep][key][mjdobs]['statsumm'] = \
+                    statsumm(image2d, rm_nan=True)
         else:
             # skipping night (no images of sought type)
             if verbose:
                 print('- No {} images found. Skipping night!'.format(redustep))
+
+    # update main database
+    with open(databasefile, 'w') as outfile:
+        json.dump(database, outfile, indent=2)

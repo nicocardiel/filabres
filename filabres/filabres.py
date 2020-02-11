@@ -99,26 +99,13 @@ def main():
                          instconf=instconf,
                          verbose=verbose)
     else:
-        # main database
-        if args.database is None:
-            databasefile = 'filabres_db.json'
-            database = {}
-        else:
-            databasefile = args.databasefile
-            with open(databasefile) as jfile:
-                database = json.load(jfile)
-        if verbose:
-            print('* Database set to {}'.format(databasefile))
         # execute reduction step
-        run_reduction_step(redustep=redustep,
+        run_reduction_step(args_database=args.database,
+                           redustep=redustep,
                            datadir=datadir,
                            list_of_nights=list_of_nights,
                            instconf=instconf,
-                           database=database,
                            verbose=verbose)
-        # update main database
-        with open(databasefile, 'w') as outfile:
-            json.dump(database, outfile, indent=2)
 
     print('* program STOP')
     raise SystemExit()
