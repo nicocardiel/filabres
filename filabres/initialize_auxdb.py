@@ -5,6 +5,7 @@ import json
 import os
 import sys
 import uuid
+import warnings
 
 from .version import version
 
@@ -109,7 +110,11 @@ def initialize_auxdb(datadir, list_of_nights, instconf, verbose=False):
         list_of_fits.sort()
 
         # generate database for all the files in current night
-        jsonfilename = nightdir + '/imagedb_' + instconf['instname'] + '.json'
+        basefilename = nightdir + '/imagedb_' + instconf['instname']
+        jsonfilename = basefilename + '.json'
+        logfilename = basefilename + '.log'
+        logfile = None
+        ## logging.basicConfig(filename=logfilename, filemode='w')
         imagedb = {
             'metainfo': {
                 'instrument': instconf['instname'],
@@ -137,8 +142,32 @@ def initialize_auxdb(datadir, list_of_nights, instconf, verbose=False):
         for filename in list_of_fits:
             # get image header
             basename = os.path.basename(filename)
-            with fits.open(filename) as hdul:
-                header = hdul[0].header
+            warningsfound = False
+            # initially convert warnings into errors
+            warnings.filterwarnings('error')
+            try:
+                with fits.open(filename) as hdul:
+                    header = hdul[0].header
+            except (UserWarning, ResourceWarning) as e:
+                if logfile is None:
+                    logfile = open(logfilename, 'wt')
+                    print('* Creating {}'.format(logfilename))
+                logfile.write('{} while reading {}\n'.format(
+                              type(e).__name__, basename))
+                logfile.write('{}\n'.format(e))
+                print('{} while reading {}'.format(
+                    type(e).__name__, basename))
+                print(str(e))
+                warningsfound = True
+                # ignore warnings from here to avoid the messages:
+                # Exception ignored in:...
+                # ResourceWarning: unclosed file...
+                warnings.filterwarnings('ignore')
+            if warningsfound:
+                # ignore warnings
+                with fits.open(filename) as hdul:
+                    header = hdul[0].header
+
             # check general instrument requirements
             requirements = instconf['requirements']
             fileok = True
@@ -169,6 +198,10 @@ def initialize_auxdb(datadir, list_of_nights, instconf, verbose=False):
                 print('ERROR: unexpected image type {} in'
                       'file {}'.format(imagetype, basename))
                 raise SystemExit()
+
+        # close logfile (if opened)
+        if logfile is not None:
+            logfile.close()
 
         # update number of images
         imagedb['metainfo']['num_allimages'] = len(list_of_fits)

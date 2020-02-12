@@ -3,7 +3,11 @@ import numpy as np
 
 def statsumm(image2d, rm_nan=False, verbose=False):
     """
-    Compute statistical summary of 2D image
+    Compute statistical summary of 2D image.
+
+    Note that the results are stored as native integers and float
+    to avoid problems when saving the dictionary as a JSON file
+    (that does not admit np.int nor np.float objects).
 
     Parameters
     ==========
