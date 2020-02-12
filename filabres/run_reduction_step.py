@@ -6,6 +6,9 @@ import numpy as np
 import os
 import sys
 
+from .retrieve_calibration import retrieve_calibration
+from .signature import getkey_from_signature
+from .signature import signature_string
 from .statsumm import statsumm
 from .version import version
 
@@ -28,54 +31,8 @@ class NumpyEncoder(json.JSONEncoder):
         return json.JSONEncoder.default(self, obj)
 
 
-def getkey_from_signature(signature, key):
-    """
-    Return key from signature
-
-    Parameters
-    ==========
-    signature: dictionary
-        Python dictionary storing the signature keywords.
-    key : str
-        Keyword to be obtained from signature
-    """
-    if key not in signature:
-        print('* ERROR: {} not found in signature'.format(key))
-        raise SystemExit()
-    else:
-        return signature[key]
-
-
-def signature_string(signature):
-    """
-    Return signature string.
-
-    Parameters
-    ==========
-    signature : dict
-        Signature dictionary.
-
-    Returns
-    =======
-    sortedkeys : list
-        List of signature keys in alphabetic order.
-    output : str
-        String sequence with the values of the different signature
-        keywords in alphabetic order.
-    """
-
-    sortedkeys = list(signature.keys())
-    sortedkeys.sort()
-    output = ''
-    for i, key in enumerate(sortedkeys):
-        if i != 0:
-            output += '__'
-        output += str(signature[key])
-    return sortedkeys, output
-
-
 def run_reduction_step(args_database, redustep, datadir, list_of_nights,
-                       instconf, verbose, debug=False):
+                       instconf, verbose=False, debug=False):
     """
     Execute reduction step.
 
@@ -258,9 +215,17 @@ def run_reduction_step(args_database, redustep, datadir, list_of_nights,
                     # median combination
                     image2d = np.median(image3d, axis=0)
                 elif redustep == 'flat-imaging':
-                    # ToDo: subtract bias
+                    # retrieve and subtract bias
+                    mjdobs = output_header['MJD-OBS']
+                    image2d_bias = retrieve_calibration(
+                        'bias', signature, mjdobs, database,
+                        verbose=verbose
+                    )
+                    for i in range(nfiles):
+                        image3d[i, :, :] -= image2d_bias
+                    # ToDo: normalize image
                     pass
-                    # ToDo: median combination of rescaled images
+                    # median combination of rescaled images
                     image2d = np.median(image3d, axis=0)
                 else:
                     print('* ERROR: combination of {} not implemented yet'.format(
