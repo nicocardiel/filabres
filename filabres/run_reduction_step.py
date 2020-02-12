@@ -1,4 +1,5 @@
 from astropy.io import fits
+from astropy.time import Time
 import datetime
 import json
 import numpy as np
@@ -13,15 +14,16 @@ from filabres import LISTDIR
 
 class NumpyEncoder(json.JSONEncoder):
     """ Special json encoder for numpy types """
+
     def default(self, obj):
         if isinstance(obj, (np.int_, np.intc, np.intp, np.int8,
-            np.int16, np.int32, np.int64, np.uint8,
-            np.uint16, np.uint32, np.uint64)):
+                            np.int16, np.int32, np.int64, np.uint8,
+                            np.uint16, np.uint32, np.uint64)):
             return int(obj)
         elif isinstance(obj, (np.float_, np.float16, np.float32,
-            np.float64)):
+                              np.float64)):
             return float(obj)
-        elif isinstance(obj,(np.ndarray,)): #### This is the fix
+        elif isinstance(obj, (np.ndarray,)):
             return obj.tolist()
         return json.JSONEncoder.default(self, obj)
 
@@ -73,7 +75,7 @@ def signature_string(signature):
 
 
 def run_reduction_step(args_database, redustep, datadir, list_of_nights,
-                       instconf, verbose):
+                       instconf, verbose, debug=False):
     """
     Execute reduction step.
 
@@ -198,17 +200,18 @@ def run_reduction_step(args_database, redustep, datadir, list_of_nights,
                         print(key, signature[key])
                     print('- Number of images with this signature:',
                           len(images_with_fixed_signature))
-                    for filename in images_with_fixed_signature:
-                        print(filename, end=' ')
-                    print()
+                    if debug:
+                        for filename in images_with_fixed_signature:
+                            print(filename, end=' ')
+                        print()
                 # declare temporary cube to store all the images
                 naxis1 = getkey_from_signature(signature, 'NAXIS1')
                 naxis2 = getkey_from_signature(signature, 'NAXIS2')
                 image3d = np.zeros((nfiles, naxis2, naxis1),
                                    dtype=np.float32)
                 output_header = None
-                output_filename = nightdir + '/' + redustep + \
-                                  '{:04d}.fits'.format(isignature + 1)
+                output_filename = nightdir + '/' + redustep
+                output_filename += '{:04d}.fits'.format(isignature + 1)
                 print('-> output filename {}'.format(output_filename))
                 for i in range(nfiles):
                     filename = images_with_fixed_signature[i]
@@ -217,15 +220,30 @@ def run_reduction_step(args_database, redustep, datadir, list_of_nights,
                         image_data = hdulist[0].data
                     if i == 0:
                         output_header = image_header
-                        # avoid warning when saving FITS
-                        if output_header['BLANK']:
-                            del output_header['BLANK']
                         output_header.add_history("---")
                         output_header.add_history(
                             'Using filabres v.{}'.format(version))
-                        output_header.add_history('Date: ' +
-                            str(datetime.datetime.utcnow().isoformat()))
+                        output_header.add_history(
+                            'Date: ' + str(
+                                datetime.datetime.utcnow().isoformat())
+                        )
                         output_header.add_history(sys.argv)
+                        # avoid warning when saving FITS
+                        if output_header['BLANK']:
+                            del output_header['BLANK']
+                        # check MJD-OBS is not negative
+                        mjdobs = output_header['MJD-OBS']
+                        if mjdobs < 0:
+                            tinit = Time(output_header['DATE-OBS'],
+                                         format='isot', scale='utc')
+                            output_header['MJD-OBS'] = tinit.mjd
+                            output_header.add_history(
+                                'MJD-OBS changed from {} to {:.5f}'.format(
+                                    mjdobs, tinit.mjd
+                                )
+                            )
+                            print('* WARNING: MJD-OBS change from {} to '
+                                  '{:.5f}'.format(mjdobs, tinit.mjd))
                         output_header.add_history(
                             'Computing median {} from:'.format(redustep))
                     image3d[i, :, :] += image_data
@@ -270,6 +288,10 @@ def run_reduction_step(args_database, redustep, datadir, list_of_nights,
                 database[redustep][key][mjdobs]['filename'] = output_filename
                 database[redustep][key][mjdobs]['statsumm'] = \
                     statsumm(image2d, rm_nan=True)
+                database[redustep][key][mjdobs]['norigin'] = nfiles
+                database[redustep][key][mjdobs]['originf'] = \
+                    [os.path.basename(dum) for dum in
+                     images_with_fixed_signature]
         else:
             # skipping night (no images of sought type)
             if verbose:

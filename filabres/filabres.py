@@ -60,6 +60,8 @@ def main():
     parser.add_argument("-n", "--night", type=str,
                         help="night label (wildcards are valid withing "
                              "quotes)")
+    parser.add_argument("--debug", action="store_true",
+                        help="display debugging information")
 
     args = parser.parse_args()
 
@@ -105,7 +107,8 @@ def main():
                            datadir=datadir,
                            list_of_nights=list_of_nights,
                            instconf=instconf,
-                           verbose=verbose)
+                           verbose=verbose,
+                           debug=args.debug)
 
     print('* program STOP')
     raise SystemExit()
