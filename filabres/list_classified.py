@@ -1,6 +1,7 @@
 import glob
 import json
 import os
+import pandas as pd
 
 from filabres import LISTDIR
 
@@ -38,6 +39,8 @@ def list_classified(img1, img2, args_night):
             print('ERROR: do not use -l and -ls simultaneously.')
             raise SystemExit()
 
+    df = None  # Avoid PyCharm warning
+
     # check for ./lists subdirectory
     if not os.path.isdir(LISTDIR):
         msg = "Subdirectory {} not found"
@@ -58,7 +61,7 @@ def list_classified(img1, img2, args_night):
         try:
             with open(jsonfilename) as jfile:
                 imagedb = json.load(jfile)
-        except:
+        except FileNotFoundError:
             raise SystemError('File {} not found'.format(jsonfilename))
 
         datadir = imagedb['metainfo']['datadir']
@@ -66,14 +69,23 @@ def list_classified(img1, img2, args_night):
         if imagetype in imagedb:
             for filename in imagedb[imagetype]:
                 outfile = datadir + night + '/' + filename
+                n += 1
                 if img1 is not None:
-                    print(datadir + night + '/' + filename, end= ' ')
-                    n += 1
+                    print(datadir + night + '/' + filename, end=' ')
                 else:
                     quantiles = imagedb[imagetype][filename]['quantiles']
-                    print(os.path.basename(outfile), quantiles)
+                    if n == 1:
+                        colnames = ['file'] + list(quantiles.keys())
+                        df = pd.DataFrame(columns=colnames)
+                    df.loc[n-1] = \
+                        [os.path.basename(outfile)] + list(quantiles.values())
 
-    if n > 0:
-        print()
+    if img1 is not None:
+        if n > 0:
+            print()
+    else:
+        if df is not None:
+            if df.shape[0] > 0:
+                print(df)
 
     raise SystemExit()
