@@ -229,13 +229,16 @@ def run_reduction_step(args_database, redustep, datadir, list_of_nights,
                     if debug:
                         print('bias level:', np.median(image2d_bias))
                     for i in range(nfiles):
+                        # subtract bias
                         image3d[i, :, :] -= image2d_bias
-                    # ToDo: normalize image
-                    pass
-                    # median combination of rescaled images
+                        # normalize by the median value
+                        image3d[i, :, :] /= np.median(image3d[i, :, :])
+                    # median combination of normalized images
                     image2d = np.median(image3d, axis=0)
+                    # set to 1.0 pixels with values <= 0
+                    image2d[image2d <= 0.0] = 1.0
                     output_header.add_history(
-                        'Combination method: rescaled median'
+                        'Combination method: median of normalized images'
                     )
                 else:
                     msg = '* ERROR: combination of {} not implemented' + \
@@ -276,7 +279,7 @@ def run_reduction_step(args_database, redustep, datadir, list_of_nights,
                     [os.path.basename(dum) for dum in
                      images_with_fixed_signature]
         else:
-            # skipping night (no images of sought type)
+            # skipping night (no images of sought type found)
             if verbose:
                 print('- No {} images found. Skipping night!'.format(redustep))
 

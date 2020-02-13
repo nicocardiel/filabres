@@ -53,18 +53,17 @@ def retrieve_calibration(redustep, signature, mjdobs, database, verbose=False):
 
     # check that the requested calibration is available in the main database
     if redustep not in database:
-        print('* ERROR: {} calibration not available in main database')
-        raise SystemExit()
+        msg = '* ERROR: {} calibration not available in main database'
+        raise SystemError(msg)
 
     # generate expected signature for calibration image
     sortedkeys = database[redustep]['sortedkeys']
     expected_signature = dict()
     for keyword in sortedkeys:
         if keyword not in signature:
-            print('* ERROR: keyword {} not present in {} calibration'.format(
-                keyword, redustep
-            ))
-            raise SystemExit()
+            msg = '* ERROR: keyword {} not present in {} calibration'.format(
+                  keyword, redustep)
+            raise SystemError(msg)
         expected_signature[keyword] = signature[keyword]
     sortedkeys_, key = signature_string(expected_signature)
 
@@ -88,22 +87,22 @@ def retrieve_calibration(redustep, signature, mjdobs, database, verbose=False):
     else:
         print('* ERROR: signature {} not found in main database'.format(key))
         # ToDo: decide alternative calibration
-        print('PENDING: decide alternative calibration')
-        raise SystemExit()
+        msg = 'PENDING: decide alternative calibration'
+        raise SystemError(msg)
 
     # double check
     naxis2, naxis1 = image2d_cal.shape
     if 'NAXIS1' in signature:
         naxis1_ = signature['NAXIS1']
         if naxis1 != signature['NAXIS1']:
-            print('* ERROR: NAXIS1 does not match: {} vs. {}'.format(
-                naxis1, naxis1_
-            ))
+            msg = '* ERROR: NAXIS1 does not match: {} vs. {}'.format(
+                  naxis1, naxis1)
+            raise SystemError(msg)
     if 'NAXIS2' in signature:
         naxis2_ = signature['NAXIS2']
         if naxis2 != signature['NAXIS2']:
-            print('* ERROR: NAXIS2 does not match: {} vs. {}'.format(
-                naxis2, naxis2_
-            ))
+            msg = '* ERROR: NAXIS2 does not match: {} vs. {}'.format(
+                  naxis2, naxis2)
+            raise SystemError(msg)
 
     return image2d_cal
