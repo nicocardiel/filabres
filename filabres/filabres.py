@@ -56,7 +56,6 @@ def main():
     args = parser.parse_args()
 
     # ---
-    # ToDo: use pandas to display quantiles in -lq
     # ToDo: use two types of requirements
 
     list_classified(args.l_imagetype, args.lq_imagetype, args.night)
