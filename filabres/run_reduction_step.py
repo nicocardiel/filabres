@@ -337,18 +337,22 @@ def run_reduction_step(args_database, redustep, datadir, list_of_nights,
                             for mjdobs in database[redustep][ssig]:
                                 old_originf = \
                                     database[redustep][ssig][mjdobs]['originf']
-                                # is there intersection?
+                                # is there a conflict?
                                 conflict = list(set(originf) & set(old_originf))
                                 if len(conflict) > 0:
                                     mjdobs_to_be_deleted.append(mjdobs)
-                                    print('WARNING: deleting previous database'
-                                          ' entry')
                                     filename = database[redustep][ssig][mjdobs][
                                         'filename']
-                                    print('Deleting {}'.format(filename))
                                     if os.path.exists(filename):
+                                        print('Deleting {}'.format(filename))
                                         os.remove(filename)
                             for mjdobs in mjdobs_to_be_deleted:
+                                print(
+                                    'WARNING: deleting previous database'
+                                    ' entry: {} --> {} --> {}'.format(redustep,
+                                                                      ssig,
+                                                                      mjdobs)
+                                )
                                 del database[redustep][ssig][mjdobs]
 
                     # statistical analysis
