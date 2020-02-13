@@ -86,6 +86,9 @@ def list_classified(img1, img2, args_night):
     else:
         if df is not None:
             if df.shape[0] > 0:
-                print(df)
+                pd.set_option('display.max_rows', None)
+                pd.set_option('display.max_columns', None)
+                pd.set_option('display.width', None)
+                print(df.round(1).to_string(index=False))
 
     raise SystemExit()

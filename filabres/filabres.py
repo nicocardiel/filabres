@@ -57,6 +57,8 @@ def main():
 
     # ---
     # ToDo: use two types of requirements
+    # ToDo: what do happen when moving the raw data into a different directory
+    #       (override datadir?)
 
     list_classified(args.l_imagetype, args.lq_imagetype, args.night)
 
