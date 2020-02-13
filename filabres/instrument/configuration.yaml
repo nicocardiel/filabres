@@ -2,7 +2,7 @@
 
 cafos:
   instname: cafos
-  version: 1.4
+  version: 1.5
   requirements:
     INSTRUME: 'CAFOS 2.2'
   masterkeywords:
@@ -30,20 +30,21 @@ cafos:
     - INSFLNAM   # filter name
     - INSGRID    # grism no.
     - INSGRNAM   # grism name
-  probquantiles:
-    - 0.0250
-    - 0.1587
-    - 0.2500
-    - 0.5000
-    - 0.7500
-    - 0.8413
-    - 0.9750
+  quantkeywords:
+    - QUANT025
+    - QUANT159
+    - QUANT250
+    - QUANT500
+    - QUANT750
+    - QUANT841
+    - QUANT975
   imagetypes:
     bias:
       executable: True
       requirements:
         IMAGETYP: 'bias'
         EXPTIME: 0.0
+        QUANT975.LT.: 1000
       signature:
         - CCDNAME
         - NAXIS1
@@ -56,6 +57,8 @@ cafos:
       requirements:
         IMAGETYP: 'flat'
         INSGRID: 'GRISM-11'
+        QUANT250.GT.: 10000
+        QUANT975.LT.: 60000
       signature:
         - CCDNAME
         - NAXIS1

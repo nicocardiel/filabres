@@ -81,10 +81,12 @@ def load_instrument_configuration(instrument, redustep, verbose=False):
                 if keyword[-lenop:] == operator:
                     keyword = keyword[:-lenop]
                     break
-            if keyword not in instconf['masterkeywords']:
+            validkw = instconf['masterkeywords'] + instconf['quantkeywords']
+            if keyword not in validkw:
                 print('ERROR in configuration.yaml file')
-                print('-> the (requirements) keyword {} is not included in '
-                      'the masterkeywords list'.format(keyword))
+                print('-> the (requirements) keyword {} is not '
+                      'included in the masterkeywords or quantkeywords '
+                      'lists'.format(keyword))
                 raise SystemExit()
 
         # check keywords in signature

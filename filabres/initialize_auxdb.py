@@ -14,7 +14,7 @@ from filabres import LISTDIR
 from filabres import REQ_OPERATORS
 
 
-def classify_image(instconf, header):
+def classify_image(instconf, header, dictquant):
     """
     Classify image in one of the expected types.
 
@@ -29,6 +29,9 @@ def classify_image(instconf, header):
         Instrument configuration. See file configuration.yaml
         for details.
     header: astropy `Header` object
+        Image header.
+    dictquant : dict
+        Measured quantiles in the image.
 
     Returns
     -------
@@ -48,9 +51,13 @@ def classify_image(instconf, header):
                 lenop = len(operator)
                 if keyword[-lenop:] == operator:
                     operatorfound = True
-                    command = 'header[keyword[:-lenop]] ' + \
-                              REQ_OPERATORS[operator] + \
-                              ' requirements[keyword]'
+                    newkeyword = keyword[:-lenop]
+                    if newkeyword in dictquant:
+                        command = 'dictquant[newkeyword] '
+                    else:
+                        command = 'header[newkeyword] '
+                    command += REQ_OPERATORS[operator] + \
+                               ' requirements[keyword]'
                     if not eval(command):
                         typefound = False
                     break
@@ -92,7 +99,8 @@ def initialize_auxdb(datadir, list_of_nights, instconf, verbose=False):
             print('Subdirectory {} not found. Creating it!'.format(LISTDIR))
         os.makedirs(LISTDIR)
 
-    probquantiles = instconf['probquantiles']
+    quantkeywords = instconf['quantkeywords']
+    probquantiles = [float(s[-3:])/1000 for s in quantkeywords]
     # create one subdirectory for each night
     for night in list_of_nights:
         # subdirectory for current night
@@ -134,8 +142,7 @@ def initialize_auxdb(datadir, list_of_nights, instconf, verbose=False):
         # initalize lists with classified images
         for imagetype in instconf['imagetypes']:
             imagedb[imagetype] = dict()
-        imagedb['unknown'] = dict()
-        imagedb['saturated'] = dict()
+        imagedb['unclassified'] = dict()
         imagedb['wrong-instrument'] = dict()
 
         # get relevant keywords for each FITS file and classify it
@@ -186,13 +193,14 @@ def initialize_auxdb(datadir, list_of_nights, instconf, verbose=False):
                         raise SystemExit()
                 # basic image statistics
                 quantiles = np.quantile(data, probquantiles)
-                for i, prob in enumerate(probquantiles):
-                    keyword = 'QUAN{:04d}'.format(int(prob * 10000))
-                    dumdict[keyword] = quantiles[i]
+                dictquant = dict()
+                for i in range(len(quantiles)):
+                    dictquant[quantkeywords[i]] = quantiles[i]
+                dumdict['quantiles'] = dictquant
                 # classify image
-                imagetype = classify_image(instconf, header)
+                imagetype = classify_image(instconf, header, dictquant)
                 if imagetype is None:
-                    imagetype = 'unknown'
+                    imagetype = 'unclassified'
             else:
                 imagetype = 'wrong-instrument'
             # include image in corresponding classification
