@@ -93,16 +93,19 @@ def initialize_auxdb(datadir, list_of_nights, instconf, verbose=False):
     # check for ./lists subdirectory
     if os.path.isdir(LISTDIR):
         if verbose:
-            print('Subdirectory {} found'.format(LISTDIR))
+            print('\nSubdirectory {} found'.format(LISTDIR))
     else:
         if verbose:
-            print('Subdirectory {} not found. Creating it!'.format(LISTDIR))
+            print('\nSubdirectory {} not found. Creating it!'.format(LISTDIR))
         os.makedirs(LISTDIR)
 
     quantkeywords = instconf['quantkeywords']
     probquantiles = [float(s[-3:])/1000 for s in quantkeywords]
     # create one subdirectory for each night
-    for night in list_of_nights:
+    for inight, night in enumerate(list_of_nights):
+        if verbose:
+            print('\n* Working with night {}/{}'.format(inight + 1,
+                                                        len(list_of_nights)))
         # subdirectory for current night
         nightdir = LISTDIR + night
         if os.path.isdir(nightdir):
@@ -159,7 +162,7 @@ def initialize_auxdb(datadir, list_of_nights, instconf, verbose=False):
             except (UserWarning, ResourceWarning) as e:
                 if logfile is None:
                     logfile = open(logfilename, 'wt')
-                    print('* Creating {}'.format(logfilename))
+                    print('-> Creating {}'.format(logfilename))
                 logfile.write('{} while reading {}\n'.format(
                               type(e).__name__, basename))
                 logfile.write('{}\n'.format(e))
@@ -188,9 +191,9 @@ def initialize_auxdb(datadir, list_of_nights, instconf, verbose=False):
                     if keyword in header:
                         dumdict[keyword] = header[keyword]
                     else:
-                        print('ERROR: keyword {} is missing in '
-                              'file {}'.format(keyword, basename))
-                        raise SystemExit()
+                        msg = 'ERROR: keyword {} is missing in ' + \
+                              'file {}'.format(keyword, basename)
+                        raise SystemError(msg)
                 # basic image statistics
                 quantiles = np.quantile(data, probquantiles)
                 dictquant = dict()
@@ -207,9 +210,9 @@ def initialize_auxdb(datadir, list_of_nights, instconf, verbose=False):
             if imagetype in imagedb:
                 imagedb[imagetype][basename] = dumdict
             else:
-                print('ERROR: unexpected image type {} in'
-                      'file {}'.format(imagetype, basename))
-                raise SystemExit()
+                msg = 'ERROR: unexpected image type {} in' + \
+                      'file {}'.format(imagetype, basename)
+                raise SystemError(msg)
 
         # close logfile (if opened)
         if logfile is not None:
@@ -224,17 +227,19 @@ def initialize_auxdb(datadir, list_of_nights, instconf, verbose=False):
                 num = len(imagedb[imagetype])
                 imagedb['metainfo'][label] = num
                 num_doublecheck += num
+                if verbose:
+                    print('{}: {}'.format(label, num))
 
         imagedb['metainfo']['num_doublecheck'] = num_doublecheck
 
         # generate JSON output file
         if verbose:
-            print('* Creating {}'.format(jsonfilename))
+            print('-> Creating {}'.format(jsonfilename))
         with open(jsonfilename, 'w') as outfile:
             json.dump(imagedb, outfile, indent=2)
 
         # double check
         if num_doublecheck != len(list_of_fits):
             print('ERROR: double check in number of files failed!')
-            print('--> see file {}'.format(jsonfilename))
-            raise SystemExit()
+            msg = '--> see file {}'.format(jsonfilename)
+            raise SystemError(msg)

@@ -57,7 +57,7 @@ def run_reduction_step(args_database, redustep, datadir, list_of_nights,
 
     # main database
     if args_database is None:
-        databasefile = 'filabres_db.json'
+        databasefile = 'filabres_db_{}.json'.format(instconf['instname'])
     else:
         databasefile = args_database
     try:
@@ -66,15 +66,15 @@ def run_reduction_step(args_database, redustep, datadir, list_of_nights,
     except FileNotFoundError:
         database = {}
     if verbose:
-        print('* Main database set to {}'.format(databasefile))
+        print('\nMain database set to {}'.format(databasefile))
 
     # check for subdirectory
     if os.path.isdir(redustep):
         if verbose:
-            print('Subdirectory {} found'.format(redustep))
+            print('\nSubdirectory {} found'.format(redustep))
     else:
         if verbose:
-            print('Subdirectory {} not found. Creating it!'.format(redustep))
+            print('\nSubdirectory {} not found. Creating it!'.format(redustep))
         os.makedirs(redustep)
 
     # prepare main database
@@ -85,31 +85,33 @@ def run_reduction_step(args_database, redustep, datadir, list_of_nights,
     maxtimespan_hours = instconf['imagetypes'][redustep]['maxtimespan_hours']
 
     # loop in night
-    for night in list_of_nights:
+    for inight, night in enumerate(list_of_nights):
 
         # read local image database for current night
         jsonfilename = LISTDIR + night + '/imagedb_' + \
                        instconf['instname'] + '.json'
         if verbose:
-            print('* Reading file {}'.format(jsonfilename))
+            print('\n* Working with night {}/{}'.format(inight+1,
+                                                        len(list_of_nights)))
+            print('Reading file {}'.format(jsonfilename))
         try:
             with open(jsonfilename) as jfile:
                 imagedb = json.load(jfile)
         except FileNotFoundError:
             print('ERROR: file {} not found'.format(jsonfilename))
-            print('Try using -rs initialize')
-            raise SystemExit()
+            msg = 'Try using -rs initialize'
+            raise SystemError(msg)
 
         # check version of instrument configuration
         if instconf['version'] != imagedb['metainfo']['instconf']['version']:
-            print('ERROR: different versions of instrument configuration')
-            raise SystemExit()
+            msg = 'ERROR: different versions of instrument configuration'
+            raise SystemError(msg)
 
         # select images of the requested type
         list_of_images = list(imagedb[redustep].keys())
         nlist_of_images = len(list_of_images)
         if verbose:
-            print('* Number of {} images found {}'.format(
+            print('Number of {} images found {}'.format(
                 redustep, nlist_of_images))
 
         if nlist_of_images > 0:
@@ -145,7 +147,7 @@ def run_reduction_step(args_database, redustep, datadir, list_of_nights,
                         list_of_signatures.append(imgsignature)
             if verbose:
                 nsignatures = len(list_of_signatures)
-                print('* Number of different signatures found:', nsignatures)
+                print('Number of different signatures found:', nsignatures)
 
             # select images with a common signature and subdivide this
             # selection into blocks where the images are grouped within
@@ -164,7 +166,7 @@ def run_reduction_step(args_database, redustep, datadir, list_of_nights,
                             datadir + night + '/' + filename)
                 nfiles = len(images_with_fixed_signature)
                 if nfiles == 0:
-                    msg = '* ERROR: unexpected number of {} images = 0'.format(
+                    msg = 'ERROR: unexpected number of {} images = 0'.format(
                           nfiles)
                     raise SystemError(msg)
                 # dictionary indicating if the images with this signature
@@ -214,7 +216,6 @@ def run_reduction_step(args_database, redustep, datadir, list_of_nights,
                                         imgblock.append(key)
                                         mean_mjdobs += t
                     imgblock.sort()
-                    print(imgblock)
                     nfiles = len(imgblock)
                     originf = [os.path.basename(dum) for dum in imgblock]
                     mean_mjdobs /= nfiles
@@ -317,9 +318,9 @@ def run_reduction_step(args_database, redustep, datadir, list_of_nights,
                         database[redustep]['sortedkeys'] = sortedkeys
                     else:
                         if sortedkeys != database[redustep]['sortedkeys']:
-                            print('* ERROR: sortedkeys have changed when'
-                                  'reducing {} images'.format(redustep))
-                            raise SystemExit()
+                            msg = 'ERROR: sortedkeys have changed when' + \
+                                  'reducing {} images'.format(redustep)
+                            raise SystemError(msg)
 
                     # note: the following step must be performed before
                     # saving the combined image; otherwise, the cleanup
@@ -401,7 +402,7 @@ def run_reduction_step(args_database, redustep, datadir, list_of_nights,
         else:
             # skipping night (no images of sought type found)
             if verbose:
-                print('- No {} images found. Skipping night!'.format(redustep))
+                print('No {} images found. Skipping night!'.format(redustep))
 
     # update main database
     with open(databasefile, 'w') as outfile:

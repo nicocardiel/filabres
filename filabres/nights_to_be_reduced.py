@@ -1,7 +1,7 @@
 import fnmatch
 import os
 
-def nights_to_be_reduced(datadir, args_night, verbose=False):
+def nights_to_be_reduced(datadir, args_night, verbose=False, debug=False):
     """Generate list of nights to be reduced.
 
     Parameters
@@ -13,6 +13,8 @@ def nights_to_be_reduced(datadir, args_night, verbose=False):
         within the 'datadir' directory are considered.
     verbose : bool
         If True, display intermediate information.
+    debug : bool
+        If True, display additional debugging information
 
     Returns
     -------
@@ -42,8 +44,8 @@ def nights_to_be_reduced(datadir, args_night, verbose=False):
     list_of_nights.sort()
 
     if verbose:
-        print('* List of nights: {}'.format(list_of_nights))
-    else:
         print('* Number of nights found: {}'.format(len(list_of_nights)))
+        if debug:
+            print('* List of nights: {}'.format(list_of_nights))
 
     return list_of_nights
