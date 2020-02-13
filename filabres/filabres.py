@@ -44,7 +44,7 @@ def main():
     parser.add_argument("-l", "--l_imagetype", type=str,
                         help="list already classified images of the "
                              "selected type in a single line")
-    parser.add_argument("-ls", "--ls_imagetype", type=str,
+    parser.add_argument("-lq", "--lq_imagetype", type=str,
                         help="list already classified images of the "
                              "selected type with quantile information")
     parser.add_argument("-n", "--night", type=str,
@@ -56,8 +56,10 @@ def main():
     args = parser.parse_args()
 
     # ---
+    # ToDo: use pandas to display quantiles in -lq
+    # ToDo: use two types of requirements
 
-    list_classified(args.l_imagetype, args.ls_imagetype, args.night)
+    list_classified(args.l_imagetype, args.lq_imagetype, args.night)
 
     # set verbosity
     verbose = not args.quiet
