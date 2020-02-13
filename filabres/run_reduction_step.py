@@ -87,7 +87,7 @@ def run_reduction_step(args_database, redustep, datadir, list_of_nights,
     # loop in night
     for night in list_of_nights:
 
-        # read local database for current night
+        # read local image database for current night
         jsonfilename = LISTDIR + night + '/imagedb_' + \
                        instconf['instname'] + '.json'
         if verbose:
@@ -184,11 +184,7 @@ def run_reduction_step(args_database, redustep, datadir, list_of_nights,
                         print()
 
                 images_pending = True
-                next_result = 0
                 while images_pending:
-
-                    # running number of next result
-                    next_result += 1
 
                     # select images with the same signature and within the
                     # specified maximum time span
@@ -200,7 +196,7 @@ def run_reduction_step(args_database, redustep, datadir, list_of_nights,
                             if not classified_images[key]:
                                 basename = os.path.basename(key)
                                 t = imagedb[redustep][basename]['MJD-OBS']
-                                mean_mjdobs = t
+                                mean_mjdobs += t
                                 imgblock.append(key)
                                 break
                     else:
@@ -209,14 +205,18 @@ def run_reduction_step(args_database, redustep, datadir, list_of_nights,
                             if not classified_images[key]:
                                 basename = os.path.basename(key)
                                 t = imagedb[redustep][basename]['MJD-OBS']
-                                mean_mjdobs += t
                                 if len(imgblock) == 0:
                                     imgblock.append(key)
                                     t0 = imagedb[redustep][basename]['MJD-OBS']
+                                    mean_mjdobs += t0
                                 else:
                                     if abs(t-t0) < maxtimespan_hours/24:
                                         imgblock.append(key)
+                                        mean_mjdobs += t
+                    imgblock.sort()
+                    print(imgblock)
                     nfiles = len(imgblock)
+                    originf = [os.path.basename(dum) for dum in imgblock]
                     mean_mjdobs /= nfiles
                     if verbose:
                         print('- Number of images with expected signature and '
@@ -233,9 +233,6 @@ def run_reduction_step(args_database, redustep, datadir, list_of_nights,
 
                     # output file name
                     output_header = None
-                    output_filename = nightdir + '/' + redustep
-                    output_filename += '{:06d}.fits'.format(next_result)
-                    print('-> output filename {}'.format(output_filename))
 
                     # store images in temporary data cube
                     for i in range(nfiles):
@@ -314,6 +311,46 @@ def run_reduction_step(args_database, redustep, datadir, list_of_nights,
                               ' yet'.format(redustep)
                         raise SystemError(msg)
 
+                    # generate string with signature values
+                    sortedkeys, ssig = signature_string(signature)
+                    if 'sortedkeys' not in database[redustep]:
+                        database[redustep]['sortedkeys'] = sortedkeys
+                    else:
+                        if sortedkeys != database[redustep]['sortedkeys']:
+                            print('* ERROR: sortedkeys have changed when'
+                                  'reducing {} images'.format(redustep))
+                            raise SystemExit()
+
+                    # note: the following step must be performed before
+                    # saving the combined image; otherwise, the cleanup
+                    # procedure will delete the just created combined image
+                    if ssig not in database[redustep]:
+                        # update main database with new signature if not present
+                        database[redustep][ssig] = dict()
+                    else:
+                        # check that there is not a combined image using any
+                        # of the individual images of imgblock: otherwise, some
+                        # entries of the main database must be removed and the
+                        # associated reduced images deleted
+                        if len(database[redustep][ssig]) > 0:
+                            mjdobs_to_be_deleted = []
+                            for mjdobs in database[redustep][ssig]:
+                                old_originf = \
+                                    database[redustep][ssig][mjdobs]['originf']
+                                # is there intersection?
+                                conflict = list(set(originf) & set(old_originf))
+                                if len(conflict) > 0:
+                                    mjdobs_to_be_deleted.append(mjdobs)
+                                    print('WARNING: deleting previous database'
+                                          ' entry')
+                                    filename = database[redustep][ssig][mjdobs][
+                                        'filename']
+                                    print('Deleting {}'.format(filename))
+                                    if os.path.exists(filename):
+                                        os.remove(filename)
+                            for mjdobs in mjdobs_to_be_deleted:
+                                del database[redustep][ssig][mjdobs]
+
                     # statistical analysis
                     image2d_statsum = statsumm(image2d, rm_nan=True)
                     output_header.add_history('Statistical analysis of combined'
@@ -322,33 +359,28 @@ def run_reduction_step(args_database, redustep, datadir, list_of_nights,
                         output_header.add_history(' - {}: {}'.format(
                             key, image2d_statsum[key]
                         ))
-                    # save output FITS file
+
+                    # save output FITS file using the file name of the first
+                    # image in the block (appending the _red suffix)
+                    output_filename = nightdir + '/' + redustep
+                    dumfile = os.path.basename(imgblock[0])
+                    output_filename += dumfile[:-5] + '_red.fits'
+                    print('-> output filename {}'.format(output_filename))
+
                     hdu = fits.PrimaryHDU(image2d.astype(np.float32),
                                           output_header)
                     hdu.writeto(output_filename, overwrite=True)
-                    # generate string with signature values
-                    sortedkeys, key = signature_string(signature)
-                    if 'sortedkeys' not in database[redustep]:
-                        database[redustep]['sortedkeys'] = sortedkeys
-                    else:
-                        if sortedkeys != database[redustep]['sortedkeys']:
-                            print('* ERROR: sortedkeys have changed when'
-                                  'reducing {} images'.format(redustep))
-                            raise SystemExit()
-                    # update main database with new signature if not present
-                    if key not in database[redustep]:
-                        database[redustep][key] = dict()
+
                     # update database with result using the mean MJD-OBS of the
                     # combined images as index
                     mjdobs = '{:.5f}'.format(mean_mjdobs)
-                    database[redustep][key][mjdobs] = dict()
-                    database[redustep][key][mjdobs]['filename'] = \
+                    database[redustep][ssig][mjdobs] = dict()
+                    database[redustep][ssig][mjdobs]['filename'] = \
                         output_filename
-                    database[redustep][key][mjdobs]['statsumm'] = \
+                    database[redustep][ssig][mjdobs]['statsumm'] = \
                         image2d_statsum
-                    database[redustep][key][mjdobs]['norigin'] = nfiles
-                    database[redustep][key][mjdobs]['originf'] = \
-                        [os.path.basename(dum) for dum in imgblock]
+                    database[redustep][ssig][mjdobs]['norigin'] = nfiles
+                    database[redustep][ssig][mjdobs]['originf'] = originf
 
                     # set to reduced status the images that have been reduced
                     for key in imgblock:
