@@ -18,6 +18,7 @@ import argparse
 
 from .check_tslash import check_tslash
 from .initialize_auxdb import initialize_auxdb
+from .list_classified import list_classified
 from .load_instrument_configuration import load_instrument_configuration
 from .nights_to_be_reduced import nights_to_be_reduced
 from .run_reduction_step import run_reduction_step
@@ -40,6 +41,9 @@ def main():
                         help='data directory')
     parser.add_argument("-db", "--database", type=str,
                         help='database file name (')
+    parser.add_argument("-ls", "--longlist", type=str,
+                        help="list already classified images of the "
+                             "selected type")
     parser.add_argument("-n", "--night", type=str,
                         help="night label (wildcards are valid withing "
                              "quotes)")
@@ -49,6 +53,11 @@ def main():
     args = parser.parse_args()
 
     # ---
+
+    # if -ls is given, list available files and stop the program
+    if args.longlist is not None:
+        list_classified(args.longlist, args.night)
+        raise SystemExit()
 
     # set verbosity
     verbose = not args.quiet

@@ -101,6 +101,7 @@ def initialize_auxdb(datadir, list_of_nights, instconf, verbose=False):
 
     quantkeywords = instconf['quantkeywords']
     probquantiles = [float(s[-3:])/1000 for s in quantkeywords]
+
     # create one subdirectory for each night
     for inight, night in enumerate(list_of_nights):
         if verbose:
