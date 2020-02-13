@@ -1,5 +1,4 @@
 from astropy.io import fits
-from astropy.time import Time
 import datetime
 import json
 import numpy as np
@@ -175,10 +174,11 @@ def run_reduction_step(args_database, redustep, datadir, list_of_nights,
                 for filename in images_with_fixed_signature:
                     classified_images[filename] = False
                 if verbose:
-                    print('- signature:')
+                    print('Signature ({}/{}):'.format(
+                        isignature+1, len(list_of_signatures)))
                     for key in signature:
-                        print(key, signature[key])
-                    print('- Total number of images with this signature:',
+                        print(' - {}: {}'.format(key, signature[key]))
+                    print('Total number of images with this signature:',
                           len(images_with_fixed_signature))
                     if debug:
                         for filename in images_with_fixed_signature:
@@ -194,33 +194,33 @@ def run_reduction_step(args_database, redustep, datadir, list_of_nights,
                     mean_mjdobs = 0.0
                     if maxtimespan_hours == 0:
                         # reduce individual images
-                        for key in classified_images:
-                            if not classified_images[key]:
-                                basename = os.path.basename(key)
+                        for filename in classified_images:
+                            if not classified_images[filename]:
+                                basename = os.path.basename(filename)
                                 t = imagedb[redustep][basename]['MJD-OBS']
                                 mean_mjdobs += t
-                                imgblock.append(key)
+                                imgblock.append(filename)
                                 break
                     else:
                         t0 = None
-                        for key in classified_images:
-                            if not classified_images[key]:
-                                basename = os.path.basename(key)
+                        for filename in classified_images:
+                            if not classified_images[filename]:
+                                basename = os.path.basename(filename)
                                 t = imagedb[redustep][basename]['MJD-OBS']
                                 if len(imgblock) == 0:
-                                    imgblock.append(key)
+                                    imgblock.append(filename)
                                     t0 = imagedb[redustep][basename]['MJD-OBS']
                                     mean_mjdobs += t0
                                 else:
                                     if abs(t-t0) < maxtimespan_hours/24:
-                                        imgblock.append(key)
+                                        imgblock.append(filename)
                                         mean_mjdobs += t
                     imgblock.sort()
                     nfiles = len(imgblock)
                     originf = [os.path.basename(dum) for dum in imgblock]
                     mean_mjdobs /= nfiles
                     if verbose:
-                        print('- Number of images with expected signature and '
+                        print('> Number of images with expected signature and '
                               'within time span:', nfiles)
                         if debug:
                             for filename in imgblock:
@@ -252,21 +252,18 @@ def run_reduction_step(args_database, redustep, datadir, list_of_nights,
                             )
                             output_header.add_history(sys.argv)
                             # avoid warning when saving FITS
-                            if output_header['BLANK']:
+                            if 'BLANK' in output_header:
                                 del output_header['BLANK']
-                            # check MJD-OBS is not negative
-                            mjdobs = output_header['MJD-OBS']
-                            if mjdobs < 0:
-                                tinit = Time(output_header['DATE-OBS'],
-                                             format='isot', scale='utc')
-                                output_header['MJD-OBS'] = tinit.mjd
-                                output_header.add_history(
-                                    'MJD-OBS changed from {} to {:.5f}'.format(
-                                        mjdobs, tinit.mjd
-                                    )
-                                )
-                                print('* WARNING: MJD-OBS change from {} to '
-                                      '{:.5f}'.format(mjdobs, tinit.mjd))
+                            # check for modified keywords when initializing
+                            # the image databases
+                            for keyword in instconf['masterkeywords']:
+                                val1 = output_header[keyword]
+                                basename = os.path.basename(filename)
+                                val2 = imagedb[redustep][basename][keyword]
+                                if val1 != val2:
+                                    output_header[keyword] = val2
+                                    print('WARNING: {} changed from {} to'
+                                          ' {}'.format(keyword, val1, val2))
                             output_header.add_history(
                                 'Using {} images to compute {}:'.format(
                                     nfiles, redustep))

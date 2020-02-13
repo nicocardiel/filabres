@@ -1,4 +1,5 @@
 from astropy.io import fits
+from astropy.time import Time
 import datetime
 import glob
 import json
@@ -56,8 +57,7 @@ def classify_image(instconf, header, dictquant):
                         command = 'dictquant[newkeyword] '
                     else:
                         command = 'header[newkeyword] '
-                    command += REQ_OPERATORS[operator] + \
-                               ' requirements[keyword]'
+                    command += REQ_OPERATORS[operator] + ' requirements[keyword]'
                     if not eval(command):
                         typefound = False
                     break
@@ -190,6 +190,22 @@ def initialize_auxdb(datadir, list_of_nights, instconf, verbose=False):
                 for keyword in instconf['masterkeywords']:
                     if keyword in header:
                         dumdict[keyword] = header[keyword]
+                        # ----------------------------------------
+                        # Fix here any problem with keyword values
+                        # ----------------------------------------
+                        # Fix negative MJD-OBS
+                        if keyword == 'MJD-OBS':
+                            mjdobs = header[keyword]
+                            if mjdobs < 0:
+                                tinit = Time(header['DATE-OBS'],
+                                             format='isot', scale='utc')
+                                dumdict['MJD-OBS'] = tinit.mjd
+                                print(
+                                    'WARNING: MJD-OBS changed from {} to {:.5f}'
+                                    ' in {}'.format(mjdobs,
+                                                    tinit.mjd,
+                                                    filename)
+                                )
                     else:
                         msg = 'ERROR: keyword {} is missing in ' + \
                               'file {}'.format(keyword, basename)
