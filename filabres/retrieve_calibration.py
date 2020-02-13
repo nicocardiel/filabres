@@ -96,13 +96,13 @@ def retrieve_calibration(redustep, signature, mjdobs, database, verbose=False):
         naxis1_ = signature['NAXIS1']
         if naxis1 != signature['NAXIS1']:
             msg = '* ERROR: NAXIS1 does not match: {} vs. {}'.format(
-                  naxis1, naxis1)
+                  naxis1, naxis1_)
             raise SystemError(msg)
     if 'NAXIS2' in signature:
         naxis2_ = signature['NAXIS2']
         if naxis2 != signature['NAXIS2']:
             msg = '* ERROR: NAXIS2 does not match: {} vs. {}'.format(
-                  naxis2, naxis2)
+                  naxis2, naxis2_)
             raise SystemError(msg)
 
     return image2d_cal
