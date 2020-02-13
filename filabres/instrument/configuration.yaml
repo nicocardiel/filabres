@@ -2,7 +2,7 @@
 
 cafos:
   instname: cafos
-  version: 1.5
+  version: 1.6
   requirements:
     INSTRUME: 'CAFOS 2.2'
   masterkeywords:
@@ -52,6 +52,7 @@ cafos:
         - DATASEC
         - CCDBINX
         - CCDBINY
+      maxtimespan_hours: 1
     flat-imaging:
       executable: True
       requirements:
@@ -68,6 +69,7 @@ cafos:
         - CCDBINY
         - INSGRID
         - INSFLID
+      maxtimespan_hours: 1
     flat-spectroscopy:
       executable: False
       requirements:
@@ -82,6 +84,7 @@ cafos:
         - CCDBINY
         - INSGRID
         - INSFLID
+      maxtimespan_hours: 1
     arc:
       executable: False
       requirements:
@@ -96,6 +99,7 @@ cafos:
         - CCDBINY
         - INSGRID
         - INSFLID
+      maxtimespan_hours: 0
     science-imaging:
       executable: False
       requirements:
@@ -110,6 +114,7 @@ cafos:
         - CCDBINY
         - INSGRID
         - INSFLID
+      maxtimespan_hours: 0
     science-spectroscopy:
       executable: False
       requirements:
@@ -124,3 +129,4 @@ cafos:
         - CCDBINY
         - INSGRID
         - INSFLID
+      maxtimespan_hours: 0

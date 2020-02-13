@@ -51,6 +51,8 @@ def run_reduction_step(args_database, redustep, datadir, list_of_nights,
         details.
     verbose : bool
         If True, display intermediate information.
+    debug : bool
+        Display additional debugging information.
     """
 
     # main database
@@ -79,8 +81,12 @@ def run_reduction_step(args_database, redustep, datadir, list_of_nights,
     if redustep not in database:
         database[redustep] = dict()
 
+    # set maxtimespan_hours
+    maxtimespan_hours = instconf['imagetypes'][redustep]['maxtimespan_hours']
+
     # loop in night
     for night in list_of_nights:
+
         # read local database for current night
         jsonfilename = LISTDIR + night + '/imagedb_' + \
                        instconf['instname'] + '.json'
@@ -93,17 +99,22 @@ def run_reduction_step(args_database, redustep, datadir, list_of_nights,
             print('ERROR: file {} not found'.format(jsonfilename))
             print('Try using -rs initialize')
             raise SystemExit()
+
         # check version of instrument configuration
         if instconf['version'] != imagedb['metainfo']['instconf']['version']:
             print('ERROR: different versions of instrument configuration')
             raise SystemExit()
+
         # select images of the requested type
         list_of_images = list(imagedb[redustep].keys())
         nlist_of_images = len(list_of_images)
         if verbose:
             print('* Number of {} images found {}'.format(
                 redustep, nlist_of_images))
+
         if nlist_of_images > 0:
+
+            # create subdirectory to store results for current night
             nightdir = redustep + '/' + night
             if os.path.isdir(nightdir):
                 if verbose:
@@ -113,8 +124,9 @@ def run_reduction_step(args_database, redustep, datadir, list_of_nights,
                     print('Subdirectory {} not found. '
                           'Creating it!'.format(nightdir))
                 os.makedirs(nightdir)
-            signaturekeys = instconf['imagetypes'][redustep]['signature']
+
             # determine number of different signatures
+            signaturekeys = instconf['imagetypes'][redustep]['signature']
             list_of_signatures = []
             for filename in list_of_images:
                 # signature of particular image
@@ -134,7 +146,10 @@ def run_reduction_step(args_database, redustep, datadir, list_of_nights,
             if verbose:
                 nsignatures = len(list_of_signatures)
                 print('* Number of different signatures found:', nsignatures)
-            # select images with a common signature and compute combination
+
+            # select images with a common signature and subdivide this
+            # selection into blocks where the images are grouped within
+            # the indicated time span
             for isignature in range(len(list_of_signatures)):
                 signature = list_of_signatures[isignature]
                 images_with_fixed_signature = []
@@ -149,135 +164,204 @@ def run_reduction_step(args_database, redustep, datadir, list_of_nights,
                             datadir + night + '/' + filename)
                 nfiles = len(images_with_fixed_signature)
                 if nfiles == 0:
-                    print('* ERROR: unexpected number of {} images = 0'.format(
-                        nfiles))
-                    raise SystemExit()
+                    msg = '* ERROR: unexpected number of {} images = 0'.format(
+                          nfiles)
+                    raise SystemError(msg)
+                # dictionary indicating if the images with this signature
+                # have been classified
+                classified_images = dict()
+                for filename in images_with_fixed_signature:
+                    classified_images[filename] = False
                 if verbose:
                     print('- signature:')
                     for key in signature:
                         print(key, signature[key])
-                    print('- Number of images with this signature:',
+                    print('- Total number of images with this signature:',
                           len(images_with_fixed_signature))
                     if debug:
                         for filename in images_with_fixed_signature:
                             print(filename, end=' ')
                         print()
-                # declare temporary cube to store all the images
-                naxis1 = getkey_from_signature(signature, 'NAXIS1')
-                naxis2 = getkey_from_signature(signature, 'NAXIS2')
-                image3d = np.zeros((nfiles, naxis2, naxis1),
-                                   dtype=np.float32)
-                output_header = None
-                output_filename = nightdir + '/' + redustep
-                output_filename += '{:04d}.fits'.format(isignature + 1)
-                print('-> output filename {}'.format(output_filename))
-                for i in range(nfiles):
-                    filename = images_with_fixed_signature[i]
-                    with fits.open(filename) as hdulist:
-                        image_header = hdulist[0].header
-                        image_data = hdulist[0].data
-                    if i == 0:
-                        output_header = image_header
-                        output_header.add_history("---")
-                        output_header.add_history(
-                            'Using filabres v.{}'.format(version))
-                        output_header.add_history(
-                            'Date: ' + str(
-                                datetime.datetime.utcnow().isoformat())
-                        )
-                        output_header.add_history(sys.argv)
-                        # avoid warning when saving FITS
-                        if output_header['BLANK']:
-                            del output_header['BLANK']
-                        # check MJD-OBS is not negative
-                        mjdobs = output_header['MJD-OBS']
-                        if mjdobs < 0:
-                            tinit = Time(output_header['DATE-OBS'],
-                                         format='isot', scale='utc')
-                            output_header['MJD-OBS'] = tinit.mjd
-                            output_header.add_history(
-                                'MJD-OBS changed from {} to {:.5f}'.format(
-                                    mjdobs, tinit.mjd
-                                )
-                            )
-                            print('* WARNING: MJD-OBS change from {} to '
-                                  '{:.5f}'.format(mjdobs, tinit.mjd))
-                        output_header.add_history(
-                            'Using {} images to compute {}:'.format(
-                                nfiles, redustep))
-                    image3d[i, :, :] += image_data
-                    output_header.add_history(
-                        os.path.basename(filename))
-                output_header.add_history('Signature:')
-                for key in signature:
-                    output_header.add_history(
-                        ' - {}: {}'.format(key, signature[key])
-                    )
-                if redustep == 'bias':
-                    # median combination
-                    image2d = np.median(image3d, axis=0)
-                    output_header.add_history(
-                        'Combination method: median'
-                    )
-                elif redustep == 'flat-imaging':
-                    # retrieve and subtract bias
-                    mjdobs = output_header['MJD-OBS']
-                    image2d_bias = retrieve_calibration(
-                        'bias', signature, mjdobs, database,
-                        verbose=verbose
-                    )
-                    if debug:
-                        print('bias level:', np.median(image2d_bias))
+
+                images_pending = True
+                next_result = 0
+                while images_pending:
+
+                    # running number of next result
+                    next_result += 1
+
+                    # select images with the same signature and within the
+                    # specified maximum time span
+                    imgblock = []
+                    mean_mjdobs = 0.0
+                    if maxtimespan_hours == 0:
+                        # reduce individual images
+                        for key in classified_images:
+                            if not classified_images[key]:
+                                basename = os.path.basename(key)
+                                t = imagedb[redustep][basename]['MJD-OBS']
+                                mean_mjdobs = t
+                                imgblock.append(key)
+                                break
+                    else:
+                        t0 = None
+                        for key in classified_images:
+                            if not classified_images[key]:
+                                basename = os.path.basename(key)
+                                t = imagedb[redustep][basename]['MJD-OBS']
+                                mean_mjdobs += t
+                                if len(imgblock) == 0:
+                                    imgblock.append(key)
+                                    t0 = imagedb[redustep][basename]['MJD-OBS']
+                                else:
+                                    if abs(t-t0) < maxtimespan_hours/24:
+                                        imgblock.append(key)
+                    nfiles = len(imgblock)
+                    mean_mjdobs /= nfiles
+                    if verbose:
+                        print('- Number of images with expected signature and '
+                              'within time span:', nfiles)
+                        if debug:
+                            for filename in imgblock:
+                                print(filename)
+
+                    # declare temporary cube to store the images to be combined
+                    naxis1 = getkey_from_signature(signature, 'NAXIS1')
+                    naxis2 = getkey_from_signature(signature, 'NAXIS2')
+                    image3d = np.zeros((nfiles, naxis2, naxis1),
+                                       dtype=np.float32)
+
+                    # output file name
+                    output_header = None
+                    output_filename = nightdir + '/' + redustep
+                    output_filename += '{:06d}.fits'.format(next_result)
+                    print('-> output filename {}'.format(output_filename))
+
+                    # store images in temporary data cube
                     for i in range(nfiles):
-                        # subtract bias
-                        image3d[i, :, :] -= image2d_bias
-                        # normalize by the median value
-                        image3d[i, :, :] /= np.median(image3d[i, :, :])
-                    # median combination of normalized images
-                    image2d = np.median(image3d, axis=0)
-                    # set to 1.0 pixels with values <= 0
-                    image2d[image2d <= 0.0] = 1.0
-                    output_header.add_history(
-                        'Combination method: median of normalized images'
-                    )
-                else:
-                    msg = '* ERROR: combination of {} not implemented' + \
-                          ' yet'.format(redustep)
-                    raise SystemError(msg)
-                # statistical analysis
-                image2d_statsum = statsumm(image2d, rm_nan=True)
-                output_header.add_history('Statistical analysis of combined'
-                                          ' {} image:'.format(redustep))
-                for key in image2d_statsum:
-                    output_header.add_history(' - {}: {}'.format(
-                        key, image2d_statsum[key]
-                    ))
-                # save output FITS file
-                hdu = fits.PrimaryHDU(image2d.astype(np.float32),
-                                      output_header)
-                hdu.writeto(output_filename, overwrite=True)
-                # generate string with signature values
-                sortedkeys, key = signature_string(signature)
-                if 'sortedkeys' not in database[redustep]:
-                    database[redustep]['sortedkeys'] = sortedkeys
-                else:
-                    if sortedkeys != database[redustep]['sortedkeys']:
-                        print('* ERROR: sortedkeys have changed when'
-                              'reducing {} images'.format(redustep))
-                        raise SystemExit()
-                # update main database with new signature if not present
-                if key not in database[redustep]:
-                    database[redustep][key] = dict()
-                # update database with result using MJD-OBS as index
-                mjdobs = '{:.5f}'.format(output_header['MJD-OBS'])
-                database[redustep][key][mjdobs] = dict()
-                database[redustep][key][mjdobs]['filename'] = output_filename
-                database[redustep][key][mjdobs]['statsumm'] = \
-                    image2d_statsum
-                database[redustep][key][mjdobs]['norigin'] = nfiles
-                database[redustep][key][mjdobs]['originf'] = \
-                    [os.path.basename(dum) for dum in
-                     images_with_fixed_signature]
+                        filename = imgblock[i]
+                        with fits.open(filename) as hdulist:
+                            image_header = hdulist[0].header
+                            image_data = hdulist[0].data
+                        if i == 0:
+                            output_header = image_header
+                            output_header.add_history("---")
+                            output_header.add_history(
+                                'Using filabres v.{}'.format(version))
+                            output_header.add_history(
+                                'Date: ' + str(
+                                    datetime.datetime.utcnow().isoformat())
+                            )
+                            output_header.add_history(sys.argv)
+                            # avoid warning when saving FITS
+                            if output_header['BLANK']:
+                                del output_header['BLANK']
+                            # check MJD-OBS is not negative
+                            mjdobs = output_header['MJD-OBS']
+                            if mjdobs < 0:
+                                tinit = Time(output_header['DATE-OBS'],
+                                             format='isot', scale='utc')
+                                output_header['MJD-OBS'] = tinit.mjd
+                                output_header.add_history(
+                                    'MJD-OBS changed from {} to {:.5f}'.format(
+                                        mjdobs, tinit.mjd
+                                    )
+                                )
+                                print('* WARNING: MJD-OBS change from {} to '
+                                      '{:.5f}'.format(mjdobs, tinit.mjd))
+                            output_header.add_history(
+                                'Using {} images to compute {}:'.format(
+                                    nfiles, redustep))
+                        image3d[i, :, :] += image_data
+                        output_header.add_history(
+                            os.path.basename(filename))
+                    output_header.add_history('Signature:')
+                    for key in signature:
+                        output_header.add_history(
+                            ' - {}: {}'.format(key, signature[key])
+                        )
+
+                    # combine images according to their type
+                    if redustep == 'bias':
+                        # median combination
+                        image2d = np.median(image3d, axis=0)
+                        output_header.add_history(
+                            'Combination method: median'
+                        )
+                    elif redustep == 'flat-imaging':
+                        # retrieve and subtract bias
+                        mjdobs = output_header['MJD-OBS']
+                        image2d_bias = retrieve_calibration(
+                            'bias', signature, mjdobs, database,
+                            verbose=verbose
+                        )
+                        if debug:
+                            print('bias level:', np.median(image2d_bias))
+                        for i in range(nfiles):
+                            # subtract bias
+                            image3d[i, :, :] -= image2d_bias
+                            # normalize by the median value
+                            image3d[i, :, :] /= np.median(image3d[i, :, :])
+                        # median combination of normalized images
+                        image2d = np.median(image3d, axis=0)
+                        # set to 1.0 pixels with values <= 0
+                        image2d[image2d <= 0.0] = 1.0
+                        output_header.add_history(
+                            'Combination method: median of normalized images'
+                        )
+                    else:
+                        msg = '* ERROR: combination of {} not implemented' + \
+                              ' yet'.format(redustep)
+                        raise SystemError(msg)
+
+                    # statistical analysis
+                    image2d_statsum = statsumm(image2d, rm_nan=True)
+                    output_header.add_history('Statistical analysis of combined'
+                                              ' {} image:'.format(redustep))
+                    for key in image2d_statsum:
+                        output_header.add_history(' - {}: {}'.format(
+                            key, image2d_statsum[key]
+                        ))
+                    # save output FITS file
+                    hdu = fits.PrimaryHDU(image2d.astype(np.float32),
+                                          output_header)
+                    hdu.writeto(output_filename, overwrite=True)
+                    # generate string with signature values
+                    sortedkeys, key = signature_string(signature)
+                    if 'sortedkeys' not in database[redustep]:
+                        database[redustep]['sortedkeys'] = sortedkeys
+                    else:
+                        if sortedkeys != database[redustep]['sortedkeys']:
+                            print('* ERROR: sortedkeys have changed when'
+                                  'reducing {} images'.format(redustep))
+                            raise SystemExit()
+                    # update main database with new signature if not present
+                    if key not in database[redustep]:
+                        database[redustep][key] = dict()
+                    # update database with result using the mean MJD-OBS of the
+                    # combined images as index
+                    mjdobs = '{:.5f}'.format(mean_mjdobs)
+                    database[redustep][key][mjdobs] = dict()
+                    database[redustep][key][mjdobs]['filename'] = \
+                        output_filename
+                    database[redustep][key][mjdobs]['statsumm'] = \
+                        image2d_statsum
+                    database[redustep][key][mjdobs]['norigin'] = nfiles
+                    database[redustep][key][mjdobs]['originf'] = \
+                        [os.path.basename(dum) for dum in imgblock]
+
+                    # set to reduced status the images that have been reduced
+                    for key in imgblock:
+                        classified_images[key] = True
+
+                    # check if there are still images with the selected
+                    # signature pending to be reduced
+                    images_pending = False
+                    for key in classified_images:
+                        if not classified_images[key]:
+                            images_pending = True
+                            break
+
         else:
             # skipping night (no images of sought type found)
             if verbose:
