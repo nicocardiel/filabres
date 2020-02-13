@@ -128,17 +128,15 @@ def initialize_auxdb(datadir, list_of_nights, instconf, verbose=False):
                     'uuid': str(uuid.uuid1()),
                 },
                 'instconf': instconf
-            },
-            'allimages': dict(),
-            'lists': dict()
+            }
         }
 
         # initalize lists with classified images
         for imagetype in instconf['imagetypes']:
-            imagedb['lists'][imagetype] = []
-        imagedb['lists']['unknown'] = []
-        imagedb['lists']['saturated'] = []
-        imagedb['lists']['wrong-instrument'] = []
+            imagedb[imagetype] = dict()
+        imagedb['unknown'] = dict()
+        imagedb['saturated'] = dict()
+        imagedb['wrong-instrument'] = dict()
 
         # get relevant keywords for each FITS file and classify it
         for filename in list_of_fits:
@@ -176,9 +174,9 @@ def initialize_auxdb(datadir, list_of_nights, instconf, verbose=False):
             for keyword in requirements:
                 if requirements[keyword] != header[keyword]:
                     fileok = False
+            dumdict = dict()
             if fileok:
                 # get master keywords for the current file
-                dumdict = dict()
                 for keyword in instconf['masterkeywords']:
                     if keyword in header:
                         dumdict[keyword] = header[keyword]
@@ -191,7 +189,6 @@ def initialize_auxdb(datadir, list_of_nights, instconf, verbose=False):
                 for i, prob in enumerate(probquantiles):
                     keyword = 'QUAN{:04d}'.format(int(prob * 10000))
                     dumdict[keyword] = quantiles[i]
-                imagedb['allimages'][basename] = dumdict
                 # classify image
                 imagetype = classify_image(instconf, header)
                 if imagetype is None:
@@ -199,8 +196,8 @@ def initialize_auxdb(datadir, list_of_nights, instconf, verbose=False):
             else:
                 imagetype = 'wrong-instrument'
             # include image in corresponding classification
-            if imagetype in imagedb['lists']:
-                imagedb['lists'][imagetype].append(basename)
+            if imagetype in imagedb:
+                imagedb[imagetype][basename] = dumdict
             else:
                 print('ERROR: unexpected image type {} in'
                       'file {}'.format(imagetype, basename))
@@ -213,11 +210,12 @@ def initialize_auxdb(datadir, list_of_nights, instconf, verbose=False):
         # update number of images
         imagedb['metainfo']['num_allimages'] = len(list_of_fits)
         num_doublecheck = 0
-        for imagetype in imagedb['lists']:
-            label = 'num_' + imagetype
-            num = len(imagedb['lists'][imagetype])
-            imagedb['metainfo'][label] = num
-            num_doublecheck += num
+        for imagetype in imagedb:
+            if imagetype != 'metainfo':
+                label = 'num_' + imagetype
+                num = len(imagedb[imagetype])
+                imagedb['metainfo'][label] = num
+                num_doublecheck += num
 
         imagedb['metainfo']['num_doublecheck'] = num_doublecheck
 
