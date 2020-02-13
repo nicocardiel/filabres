@@ -41,9 +41,12 @@ def main():
                         help='data directory')
     parser.add_argument("-db", "--database", type=str,
                         help='database file name (')
-    parser.add_argument("-ls", "--longlist", type=str,
+    parser.add_argument("-l", "--l_imagetype", type=str,
                         help="list already classified images of the "
-                             "selected type")
+                             "selected type in a single line")
+    parser.add_argument("-ls", "--ls_imagetype", type=str,
+                        help="list already classified images of the "
+                             "selected type with quantile information")
     parser.add_argument("-n", "--night", type=str,
                         help="night label (wildcards are valid withing "
                              "quotes)")
@@ -54,10 +57,7 @@ def main():
 
     # ---
 
-    # if -ls is given, list available files and stop the program
-    if args.longlist is not None:
-        list_classified(args.longlist, args.night)
-        raise SystemExit()
+    list_classified(args.l_imagetype, args.ls_imagetype, args.night)
 
     # set verbosity
     verbose = not args.quiet
