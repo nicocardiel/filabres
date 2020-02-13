@@ -2,7 +2,7 @@
 
 cafos:
   instname: cafos
-  version: 1.2
+  version: 1.4
   requirements:
     INSTRUME: 'CAFOS 2.2'
   masterkeywords:
@@ -30,15 +30,20 @@ cafos:
     - INSFLNAM   # filter name
     - INSGRID    # grism no.
     - INSGRNAM   # grism name
-    - NSATURAT   # number of saturated pixels (not present in raw data!)
+  probquantiles:
+    - 0.0250
+    - 0.1587
+    - 0.2500
+    - 0.5000
+    - 0.7500
+    - 0.8413
+    - 0.9750
   imagetypes:
     bias:
       executable: True
       requirements:
         IMAGETYP: 'bias'
         EXPTIME: 0.0
-      saturation_level: 65500
-      nsaturat_max: 2000
       signature:
         - CCDNAME
         - NAXIS1
@@ -51,8 +56,6 @@ cafos:
       requirements:
         IMAGETYP: 'flat'
         INSGRID: 'GRISM-11'
-      saturation_level: 65500
-      nsaturat_max: 2000
       signature:
         - CCDNAME
         - NAXIS1
@@ -67,8 +70,6 @@ cafos:
       requirements:
         IMAGETYP: 'flat'
         INSGRID.NE.: 'GRISM-11'
-      saturation_level: 65500
-      nsaturat_max: 2000
       signature:
         - CCDNAME
         - NAXIS1
@@ -83,8 +84,6 @@ cafos:
       requirements:
         IMAGETYP: 'arc'
         INSGRID.NE.: 'GRISM-11'
-      saturation_level: 65500
-      nsaturat_max: 2000
       signature:
         - CCDNAME
         - NAXIS1
@@ -99,8 +98,6 @@ cafos:
       requirements:
         IMAGETYP: 'science'
         INSGRID: 'GRISM-11'
-      saturation_level: 65500
-      nsaturat_max: 2000
       signature:
         - CCDNAME
         - NAXIS1
@@ -115,8 +112,6 @@ cafos:
       requirements:
         IMAGETYP: 'science'
         INSGRID.NE.: 'GRISM-11'
-      saturation_level: 65500
-      nsaturat_max: 2000
       signature:
         - CCDNAME
         - NAXIS1

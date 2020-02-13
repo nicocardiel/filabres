@@ -43,5 +43,7 @@ def nights_to_be_reduced(datadir, args_night, verbose=False):
 
     if verbose:
         print('* List of nights: {}'.format(list_of_nights))
+    else:
+        print('* Number of nights found: {}'.format(len(list_of_nights)))
 
     return list_of_nights

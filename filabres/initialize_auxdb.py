@@ -2,6 +2,7 @@ from astropy.io import fits
 import datetime
 import glob
 import json
+import numpy as np
 import os
 import sys
 import uuid
@@ -91,6 +92,7 @@ def initialize_auxdb(datadir, list_of_nights, instconf, verbose=False):
             print('Subdirectory {} not found. Creating it!'.format(LISTDIR))
         os.makedirs(LISTDIR)
 
+    probquantiles = instconf['probquantiles']
     # create one subdirectory for each night
     for night in list_of_nights:
         # subdirectory for current night
@@ -114,7 +116,6 @@ def initialize_auxdb(datadir, list_of_nights, instconf, verbose=False):
         jsonfilename = basefilename + '.json'
         logfilename = basefilename + '.log'
         logfile = None
-        ## logging.basicConfig(filename=logfilename, filemode='w')
         imagedb = {
             'metainfo': {
                 'instrument': instconf['instname'],
@@ -136,6 +137,7 @@ def initialize_auxdb(datadir, list_of_nights, instconf, verbose=False):
         for imagetype in instconf['imagetypes']:
             imagedb['lists'][imagetype] = []
         imagedb['lists']['unknown'] = []
+        imagedb['lists']['saturated'] = []
         imagedb['lists']['wrong-instrument'] = []
 
         # get relevant keywords for each FITS file and classify it
@@ -148,6 +150,7 @@ def initialize_auxdb(datadir, list_of_nights, instconf, verbose=False):
             try:
                 with fits.open(filename) as hdul:
                     header = hdul[0].header
+                    data = hdul[0].data
             except (UserWarning, ResourceWarning) as e:
                 if logfile is None:
                     logfile = open(logfilename, 'wt')
@@ -167,12 +170,11 @@ def initialize_auxdb(datadir, list_of_nights, instconf, verbose=False):
                 # ignore warnings
                 with fits.open(filename) as hdul:
                     header = hdul[0].header
-
             # check general instrument requirements
             requirements = instconf['requirements']
             fileok = True
-            for key in requirements:
-                if requirements[key] != header[key]:
+            for keyword in requirements:
+                if requirements[keyword] != header[keyword]:
                     fileok = False
             if fileok:
                 # get master keywords for the current file
@@ -184,6 +186,11 @@ def initialize_auxdb(datadir, list_of_nights, instconf, verbose=False):
                         print('ERROR: keyword {} is missing in '
                               'file {}'.format(keyword, basename))
                         raise SystemExit()
+                # basic image statistics
+                quantiles = np.quantile(data, probquantiles)
+                for i, prob in enumerate(probquantiles):
+                    keyword = 'QUAN{:04d}'.format(int(prob * 10000))
+                    dumdict[keyword] = quantiles[i]
                 imagedb['allimages'][basename] = dumdict
                 # classify image
                 imagetype = classify_image(instconf, header)

@@ -221,6 +221,8 @@ def run_reduction_step(args_database, redustep, datadir, list_of_nights,
                         'bias', signature, mjdobs, database,
                         verbose=verbose
                     )
+                    if debug:
+                        print('bias level:', np.median(image2d_bias))
                     for i in range(nfiles):
                         image3d[i, :, :] -= image2d_bias
                     # ToDo: normalize image

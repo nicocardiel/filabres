@@ -87,19 +87,22 @@ def retrieve_calibration(redustep, signature, mjdobs, database, verbose=False):
             image2d_cal = hdul[0].data
     else:
         print('* ERROR: signature {} not found in main database'.format(key))
+        # ToDo: decide alternative calibration
+        print('PENDING: decide alternative calibration')
+        raise SystemExit()
 
     # double check
     naxis2, naxis1 = image2d_cal.shape
     if 'NAXIS1' in signature:
         naxis1_ = signature['NAXIS1']
         if naxis1 != signature['NAXIS1']:
-            print('* ERROR: NAXIS1 do not match: {} vs. {}'.format(
+            print('* ERROR: NAXIS1 does not match: {} vs. {}'.format(
                 naxis1, naxis1_
             ))
     if 'NAXIS2' in signature:
         naxis2_ = signature['NAXIS2']
         if naxis2 != signature['NAXIS2']:
-            print('* ERROR: NAXIS2 do not match: {} vs. {}'.format(
+            print('* ERROR: NAXIS2 does not match: {} vs. {}'.format(
                 naxis2, naxis2_
             ))
 
