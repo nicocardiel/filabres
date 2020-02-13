@@ -98,7 +98,7 @@ def run_reduction_step(args_database, redustep, datadir, list_of_nights,
             print('ERROR: different versions of instrument configuration')
             raise SystemExit()
         # select images of the requested type
-        list_of_images = imagedb['lists'][redustep]
+        list_of_images = list(imagedb[redustep].keys())
         nlist_of_images = len(list_of_images)
         if verbose:
             print('* Number of {} images found {}'.format(
@@ -119,8 +119,8 @@ def run_reduction_step(args_database, redustep, datadir, list_of_nights,
             for filename in list_of_images:
                 # signature of particular image
                 imgsignature = dict()
-                for key in signaturekeys:
-                    imgsignature[key] = imagedb['allimages'][filename][key]
+                for keyword in signaturekeys:
+                    imgsignature[keyword] = imagedb[redustep][filename][keyword]
                 if len(list_of_signatures) == 0:
                     list_of_signatures.append(imgsignature)
                 else:
@@ -141,8 +141,9 @@ def run_reduction_step(args_database, redustep, datadir, list_of_nights,
                 for filename in list_of_images:
                     # signature of particular image
                     imgsignature = dict()
-                    for key in signaturekeys:
-                        imgsignature[key] = imagedb['allimages'][filename][key]
+                    for keyword in signaturekeys:
+                        imgsignature[keyword] = \
+                            imagedb[redustep][filename][keyword]
                     if imgsignature == signature:
                         images_with_fixed_signature.append(
                             datadir + night + '/' + filename)
@@ -202,7 +203,8 @@ def run_reduction_step(args_database, redustep, datadir, list_of_nights,
                             print('* WARNING: MJD-OBS change from {} to '
                                   '{:.5f}'.format(mjdobs, tinit.mjd))
                         output_header.add_history(
-                            'Computing median {} from:'.format(redustep))
+                            'Using {} images to compute {}:'.format(
+                                nfiles, redustep))
                     image3d[i, :, :] += image_data
                     output_header.add_history(
                         os.path.basename(filename))
@@ -214,6 +216,9 @@ def run_reduction_step(args_database, redustep, datadir, list_of_nights,
                 if redustep == 'bias':
                     # median combination
                     image2d = np.median(image3d, axis=0)
+                    output_header.add_history(
+                        'Combination method: median'
+                    )
                 elif redustep == 'flat-imaging':
                     # retrieve and subtract bias
                     mjdobs = output_header['MJD-OBS']
@@ -229,10 +234,21 @@ def run_reduction_step(args_database, redustep, datadir, list_of_nights,
                     pass
                     # median combination of rescaled images
                     image2d = np.median(image3d, axis=0)
+                    output_header.add_history(
+                        'Combination method: rescaled median'
+                    )
                 else:
-                    print('* ERROR: combination of {} not implemented yet'.format(
-                        redustep))
-                    raise SystemExit()
+                    msg = '* ERROR: combination of {} not implemented' + \
+                          ' yet'.format(redustep)
+                    raise SystemError(msg)
+                # statistical analysis
+                image2d_statsum = statsumm(image2d, rm_nan=True)
+                output_header.add_history('Statistical analysis of combined'
+                                          ' {} image:'.format(redustep))
+                for key in image2d_statsum:
+                    output_header.add_history(' - {}: {}'.format(
+                        key, image2d_statsum[key]
+                    ))
                 # save output FITS file
                 hdu = fits.PrimaryHDU(image2d.astype(np.float32),
                                       output_header)
@@ -254,7 +270,7 @@ def run_reduction_step(args_database, redustep, datadir, list_of_nights,
                 database[redustep][key][mjdobs] = dict()
                 database[redustep][key][mjdobs]['filename'] = output_filename
                 database[redustep][key][mjdobs]['statsumm'] = \
-                    statsumm(image2d, rm_nan=True)
+                    image2d_statsum
                 database[redustep][key][mjdobs]['norigin'] = nfiles
                 database[redustep][key][mjdobs]['originf'] = \
                     [os.path.basename(dum) for dum in
