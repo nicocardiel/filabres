@@ -2,7 +2,7 @@
 
 cafos:
   instname: cafos
-  version: 1.7
+  version: 1.8
   requirements:
     INSTRUME: 'CAFOS 2.2'
   masterkeywords:
@@ -60,7 +60,6 @@ cafos:
         IMAGETYP: 'flat'
         INSGRID: 'GRISM-11'
       requirementx:
-        QUANT250.GT.: 10000
         QUANT975.LT.: 60000
       signature:
         - CCDNAME

@@ -156,10 +156,6 @@ def initialize_auxdb(list_of_nights, instconf, verbose=False):
 
     # create one subdirectory for each night
     for inight, night in enumerate(list_of_nights):
-        if verbose:
-            print(' ')
-        print('* Working with night {} ({}/{})'.format(
-            night, inight + 1, len(list_of_nights)))
         # subdirectory for current night
         nightdir = LISTDIR + night
         if os.path.isdir(nightdir):
@@ -175,6 +171,11 @@ def initialize_auxdb(list_of_nights, instconf, verbose=False):
         filenames = DATADIR + night + '/*.fits'
         list_of_fits = glob.glob(filenames)
         list_of_fits.sort()
+
+        if verbose:
+            print(' ')
+        print('* Working with night {} ({}/{}) ---> {} FITS files'.format(
+            night, inight + 1, len(list_of_nights), len(list_of_fits)))
 
         # generate database for all the files in current night
         basefilename = nightdir + '/imagedb_' + instconf['instname']
@@ -257,12 +258,12 @@ def initialize_auxdb(list_of_nights, instconf, verbose=False):
                                 tinit = Time(header['DATE-OBS'],
                                              format='isot', scale='utc')
                                 dumdict['MJD-OBS'] = tinit.mjd
-                                print(
-                                    'WARNING: MJD-OBS changed from {} to '
-                                    '{:.5f} in {}'.format(mjdobs,
-                                                          tinit.mjd,
-                                                          filename)
-                                )
+                                print('WARNING: MJD-OBS changed from '
+                                      '{} to {:.5f} (wrong value in file '
+                                      '{})'.format(mjdobs,
+                                                   tinit.mjd,
+                                                   filename)
+                                      )
                     else:
                         msg = 'ERROR: keyword {} is missing in ' + \
                               'file {}'.format(keyword, basename)

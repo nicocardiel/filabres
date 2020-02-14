@@ -110,7 +110,8 @@ def list_classified(img1, img2, args_night, args_keyword):
                             print("- required:", colnames_)
                             raise SystemExit()
 
-                    new_df_row = [os.path.basename(outfile)]
+                    # new_df_row = [os.path.basename(outfile)]
+                    new_df_row = [outfile]
                     new_df_row += list(quantiles.values())
                     if lkeyword is not None:
                         for keyword in lkeyword:
