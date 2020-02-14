@@ -249,7 +249,7 @@ def run_reduction_step(args_database, redustep, list_of_nights,
                                 'Date: ' + str(
                                     datetime.datetime.utcnow().isoformat())
                             )
-                            output_header.add_history(sys.argv)
+                            output_header.add_history(str(sys.argv))
                             # avoid warning when saving FITS
                             if 'BLANK' in output_header:
                                 del output_header['BLANK']
@@ -285,10 +285,12 @@ def run_reduction_step(args_database, redustep, list_of_nights,
                     elif redustep == 'flat-imaging':
                         # retrieve and subtract bias
                         mjdobs = output_header['MJD-OBS']
-                        image2d_bias = retrieve_calibration(
+                        image2d_bias, bias_filename = retrieve_calibration(
                             'bias', signature, mjdobs, database,
                             verbose=verbose
                         )
+                        output_header.add_history('Subtracting bias:')
+                        output_header.add_history(bias_filename)
                         if debug:
                             print('bias level:', np.median(image2d_bias))
                         for i in range(nfiles):

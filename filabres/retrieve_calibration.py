@@ -49,7 +49,11 @@ def retrieve_calibration(redustep, signature, mjdobs, database, verbose=False):
     =======
     image2d_cal : numpy 2D array
         Numpy array with the calibration data.
+    calfilename: str
+        Calibration file name
     """
+
+    calfilename = None
 
     # check that the requested calibration is available in the main database
     if redustep not in database:
@@ -81,8 +85,8 @@ def retrieve_calibration(redustep, signature, mjdobs, database, verbose=False):
             print('->   mjdobs.....:', mjdobs)
         ipos = find_nearest(mjdobsarray_float, mjdobs)
         mjdkey = mjdobsarray_str[ipos]
-        filename = database[redustep][key][mjdkey]['filename']
-        with fits.open(filename) as hdul:
+        calfilename = database[redustep][key][mjdkey]['filename']
+        with fits.open(calfilename) as hdul:
             image2d_cal = hdul[0].data
     else:
         print('* ERROR: signature {} not found in main database'.format(key))
@@ -105,4 +109,4 @@ def retrieve_calibration(redustep, signature, mjdobs, database, verbose=False):
                   naxis2, naxis2_)
             raise SystemError(msg)
 
-    return image2d_cal
+    return image2d_cal, calfilename
