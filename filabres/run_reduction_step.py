@@ -85,12 +85,14 @@ def run_reduction_step(args_database, redustep, list_of_nights,
     # loop in night
     for inight, night in enumerate(list_of_nights):
 
+        print('\n* Working with night {} ({}/{})'.format(
+            night, inight + 1, len(list_of_nights))
+        )
+
         # read local image database for current night
-        jsonfilename = LISTDIR + night + '/imagedb_' + \
-                       instconf['instname'] + '.json'
+        jsonfilename = LISTDIR + night + '/imagedb_'
+        jsonfilename += instconf['instname'] + '.json'
         if verbose:
-            print('\n* Working with night {}/{}'.format(inight+1,
-                                                        len(list_of_nights)))
             print('Reading file {}'.format(jsonfilename))
         try:
             with open(jsonfilename) as jfile:
@@ -132,7 +134,8 @@ def run_reduction_step(args_database, redustep, list_of_nights,
                 # signature of particular image
                 imgsignature = dict()
                 for keyword in signaturekeys:
-                    imgsignature[keyword] = imagedb[redustep][filename][keyword]
+                    imgsignature[keyword] = \
+                        imagedb[redustep][filename][keyword]
                 if len(list_of_signatures) == 0:
                     list_of_signatures.append(imgsignature)
                 else:
@@ -324,24 +327,27 @@ def run_reduction_step(args_database, redustep, list_of_nights,
                     # saving the combined image; otherwise, the cleanup
                     # procedure will delete the just created combined image
                     if ssig not in database[redustep]:
-                        # update main database with new signature if not present
+                        # update main database with new signature
+                        # if not present
                         database[redustep][ssig] = dict()
                     else:
                         # check that there is not a combined image using any
-                        # of the individual images of imgblock: otherwise, some
-                        # entries of the main database must be removed and the
-                        # associated reduced images deleted
+                        # of the individual images of imgblock: otherwise,
+                        # some entries of the main database must be removed
+                        # and the associated reduced images deleted
                         if len(database[redustep][ssig]) > 0:
                             mjdobs_to_be_deleted = []
                             for mjdobs in database[redustep][ssig]:
                                 old_originf = \
                                     database[redustep][ssig][mjdobs]['originf']
                                 # is there a conflict?
-                                conflict = list(set(originf) & set(old_originf))
+                                conflict = list(set(originf) &
+                                                set(old_originf))
                                 if len(conflict) > 0:
                                     mjdobs_to_be_deleted.append(mjdobs)
-                                    filename = database[redustep][ssig][mjdobs][
-                                        'filename']
+                                    filename = \
+                                        database[redustep][ssig][mjdobs][
+                                            'filename']
                                     if os.path.exists(filename):
                                         print('Deleting {}'.format(filename))
                                         os.remove(filename)
@@ -356,8 +362,10 @@ def run_reduction_step(args_database, redustep, list_of_nights,
 
                     # statistical analysis
                     image2d_statsum = statsumm(image2d, rm_nan=True)
-                    output_header.add_history('Statistical analysis of combined'
-                                              ' {} image:'.format(redustep))
+                    output_header.add_history(
+                        'Statistical analysis of combined'
+                        ' {} image:'.format(redustep)
+                    )
                     for key in image2d_statsum:
                         output_header.add_history(' - {}: {}'.format(
                             key, image2d_statsum[key]
