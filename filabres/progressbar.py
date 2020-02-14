@@ -6,6 +6,19 @@ def progressbar(count, total, suffix='', bar_len=40):
     Display progress bar.
 
     Based on https://gist.github.com/vladignatyev/06860ec2040cb497f0f3
+
+    Modified to reduce the number of updates.
+
+    Parameters
+    ==========
+    count : int
+        Current index value (within a loop, from 1 to 'total').
+    total: int
+        Maximum value for 'count'
+    suffix : str
+        String to be appended at the end of the line.
+    bar_len : int
+        Bar length.
     """
 
     # clean progress bar when reaching 100%
