@@ -11,6 +11,7 @@ from .signature import signature_string
 from .statsumm import statsumm
 from .version import version
 
+from filabres import DATADIR
 from filabres import LISTDIR
 
 
@@ -30,7 +31,7 @@ class NumpyEncoder(json.JSONEncoder):
         return json.JSONEncoder.default(self, obj)
 
 
-def run_reduction_step(args_database, redustep, datadir, list_of_nights,
+def run_reduction_step(args_database, redustep, list_of_nights,
                        instconf, verbose=False, debug=False):
     """
     Execute reduction step.
@@ -41,8 +42,6 @@ def run_reduction_step(args_database, redustep, datadir, list_of_nights,
         Main database file name.
     redustep : str
         Reduction step to be executed.
-    datadir : str
-        Data directory containing the different nights to be reduced.
     list_of_nights : list
         List of nights matching the selection filter.
     instconf : dict
@@ -162,7 +161,7 @@ def run_reduction_step(args_database, redustep, datadir, list_of_nights,
                             imagedb[redustep][filename][keyword]
                     if imgsignature == signature:
                         images_with_fixed_signature.append(
-                            datadir + night + '/' + filename)
+                            DATADIR + night + '/' + filename)
                 nfiles = len(images_with_fixed_signature)
                 if nfiles == 0:
                     msg = 'ERROR: unexpected number of {} images = 0'.format(

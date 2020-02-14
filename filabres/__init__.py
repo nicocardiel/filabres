@@ -10,4 +10,5 @@ REQ_OPERATORS = {
     '.LE.': '<='
 }
 
+DATADIR = './datadir/'
 LISTDIR = './lists/'

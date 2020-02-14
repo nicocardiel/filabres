@@ -11,6 +11,7 @@ import warnings
 
 from .version import version
 
+from filabres import DATADIR
 from filabres import LISTDIR
 from filabres import REQ_OPERATORS
 
@@ -126,14 +127,12 @@ def classify_image(instconf, header, dictquant):
     return imagetype
 
 
-def initialize_auxdb(datadir, list_of_nights, instconf, verbose=False):
+def initialize_auxdb(list_of_nights, instconf, verbose=False):
     """
     Generate database with relevant keywords for each night.
 
     Parameters
     ----------
-    datadir : str
-        Data directory containing the different nights to be reduced.
     list_of_nights : list
         List of nights matching the selection filter.
     instconf : dict
@@ -158,8 +157,9 @@ def initialize_auxdb(datadir, list_of_nights, instconf, verbose=False):
     # create one subdirectory for each night
     for inight, night in enumerate(list_of_nights):
         if verbose:
-            print('\n* Working with night {}/{}'.format(inight + 1,
-                                                        len(list_of_nights)))
+            print(' ')
+        print('* Working with night {} ({}/{})'.format(
+            night, inight + 1, len(list_of_nights)))
         # subdirectory for current night
         nightdir = LISTDIR + night
         if os.path.isdir(nightdir):
@@ -172,7 +172,7 @@ def initialize_auxdb(datadir, list_of_nights, instconf, verbose=False):
             os.makedirs(nightdir)
 
         # get list of FITS files for current night
-        filenames = datadir + night + '/*.fits'
+        filenames = DATADIR + night + '/*.fits'
         list_of_fits = glob.glob(filenames)
         list_of_fits.sort()
 
@@ -184,7 +184,6 @@ def initialize_auxdb(datadir, list_of_nights, instconf, verbose=False):
         imagedb = {
             'metainfo': {
                 'instrument': instconf['instname'],
-                'datadir': datadir,
                 'night': night,
                 'self': {
                     'creation_date': datetime.datetime.utcnow().isoformat(),
@@ -207,8 +206,6 @@ def initialize_auxdb(datadir, list_of_nights, instconf, verbose=False):
         for filename in list_of_fits:
             # get image header
             basename = os.path.basename(filename)
-            if verbose:
-                print('Working with file {}'.format(basename))
             warningsfound = False
             # initially convert warnings into errors
             warnings.filterwarnings('error')
@@ -261,10 +258,10 @@ def initialize_auxdb(datadir, list_of_nights, instconf, verbose=False):
                                              format='isot', scale='utc')
                                 dumdict['MJD-OBS'] = tinit.mjd
                                 print(
-                                    'WARNING: MJD-OBS changed from {} to {:.5f}'
-                                    ' in {}'.format(mjdobs,
-                                                    tinit.mjd,
-                                                    filename)
+                                    'WARNING: MJD-OBS changed from {} to '
+                                    '{:.5f} in {}'.format(mjdobs,
+                                                          tinit.mjd,
+                                                          filename)
                                 )
                     else:
                         msg = 'ERROR: keyword {} is missing in ' + \
@@ -298,7 +295,6 @@ def initialize_auxdb(datadir, list_of_nights, instconf, verbose=False):
             logfile.close()
 
         # update number of images
-        imagedb['metainfo']['num_allimages'] = len(list_of_fits)
         num_doublecheck = 0
         for imagetype in imagedb:
             if imagetype != 'metainfo':
@@ -309,6 +305,7 @@ def initialize_auxdb(datadir, list_of_nights, instconf, verbose=False):
                 if verbose:
                     print('{}: {}'.format(label, num))
 
+        imagedb['metainfo']['num_allimages'] = len(list_of_fits)
         imagedb['metainfo']['num_doublecheck'] = num_doublecheck
 
         # generate JSON output file

@@ -3,6 +3,7 @@ import json
 import os
 import pandas as pd
 
+from filabres import DATADIR
 from filabres import LISTDIR
 
 
@@ -79,14 +80,13 @@ def list_classified(img1, img2, args_night, args_keyword):
         except FileNotFoundError:
             raise SystemError('File {} not found'.format(jsonfilename))
 
-        datadir = imagedb['metainfo']['datadir']
         night = imagedb['metainfo']['night']
         if imagetype in imagedb:
             for filename in imagedb[imagetype]:
-                outfile = datadir + night + '/' + filename
+                outfile = DATADIR + night + '/' + filename
                 n += 1
                 if img1 is not None:
-                    print(datadir + night + '/' + filename, end=' ')
+                    print(DATADIR + night + '/' + filename, end=' ')
                 else:
                     quantiles = imagedb[imagetype][filename]['quantiles']
                     storedkeywords = imagedb[imagetype][filename]

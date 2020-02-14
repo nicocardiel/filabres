@@ -12,8 +12,16 @@ $ python setup.py install
 It is recommendable to run the code from an empty directory.
 
 ### Initialize the auxiliary image databases
+`filabres` assumes that in the current directory there is a file called
+`datadir` under which the raw FITS files, grouped by nights, are available.
+In most cases, the best option is probably to create a link poiting towards
+the actual location of the data, e.g.
 ```
-$ filabres -i cafos -dd ~/CAFOS2017 -n 17????_t2_CAFOS -rs initialize
+$ ln -s 
+```
+Execute the program to initialize the auxiliary image databases:
+```
+$ filabres -i cafos -n 17????_t2_CAFOS -rs initialize
 ```
 The previous command generates a subdirectory `lists` in the current
 directory, with a tree of observing nights. Within each night a file called
@@ -23,10 +31,10 @@ science-imaging,...) following the requirements described in the file
 
 ### Compute combined bias images
 ```
-$ filabres -i cafos -dd ~/CAFOS2017 -n 17????_t2_CAFOS -rs bias
+$ filabres -i cafos -n 17????_t2_CAFOS -rs bias
 ```
 
 ### Compute combined flat-imaging images
 ```
-$ filabres -i cafos -dd ~/CAFOS2017 -n 17????_t2_CAFOS -rs flat-imaging
+$ filabres -i cafos -n 17????_t2_CAFOS -rs flat-imaging
 ```

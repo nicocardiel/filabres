@@ -37,8 +37,6 @@ def main():
                         help="instrument identification")
     parser.add_argument("-rs", "--reduction_step", type=str,
                         help="reduction step")
-    parser.add_argument("-dd", "--datadir", type=str,
-                        help='data directory')
     parser.add_argument("-db", "--database", type=str,
                         help='database file name (')
     parser.add_argument("-l", "--l_imagetype", type=str,
@@ -60,8 +58,6 @@ def main():
     args = parser.parse_args()
 
     # ---
-    # ToDo: check what happens when moving the raw data into a different
-    #       directory (override datadir?)
 
     list_classified(args.l_imagetype, args.lq_imagetype, args.night,
                     args.keyword)
@@ -78,32 +74,20 @@ def main():
         verbose=False
     )
 
-    # data directory
-    datadir = args.datadir
-    if datadir is None:
-        print('ERROR: -dd/--datadir DATADIR missing!')
-        raise SystemExit()
-    else:
-        # add trailing slash if not present
-        datadir = check_tslash(dir=datadir)
-
     # nights to be reduced
-    list_of_nights = nights_to_be_reduced(datadir=datadir,
-                                          args_night=args.night,
+    list_of_nights = nights_to_be_reduced(args_night=args.night,
                                           verbose=verbose)
 
     # reduction steps
     if redustep == 'initialize':
         # initialize auxiliary databases (one for each observing night)
-        initialize_auxdb(datadir=datadir,
-                         list_of_nights=list_of_nights,
+        initialize_auxdb(list_of_nights=list_of_nights,
                          instconf=instconf,
                          verbose=verbose)
     else:
         # execute reduction step
         run_reduction_step(args_database=args.database,
                            redustep=redustep,
-                           datadir=datadir,
                            list_of_nights=list_of_nights,
                            instconf=instconf,
                            verbose=verbose,
