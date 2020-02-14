@@ -53,8 +53,20 @@ def check_requirements(requirements, header, dictquant):
                     result = False
                 break
         if not operatorfound:
-            if requirements[keyword] != header[keyword]:
-                result = False
+            if isinstance(requirements[keyword], str):
+                if requirements[keyword].lower() != header[keyword].lower():
+                    result = False
+            elif isinstance(requirements[keyword], int):
+                if requirements[keyword] != header[keyword]:
+                    result = False
+            elif isinstance(requirements[keyword], float):
+                if requirements[keyword] != header[keyword]:
+                    result = False
+            else:
+                msg = 'Codify comparison here for {}'.format(
+                    type(requirements[keyword]))
+                raise SystemError(msg)
+
         if not result:
             break
 
@@ -195,9 +207,13 @@ def initialize_auxdb(datadir, list_of_nights, instconf, verbose=False):
         for filename in list_of_fits:
             # get image header
             basename = os.path.basename(filename)
+            if verbose:
+                print('Working with file {}'.format(basename))
             warningsfound = False
             # initially convert warnings into errors
             warnings.filterwarnings('error')
+            header = None
+            data = None
             try:
                 with fits.open(filename) as hdul:
                     header = hdul[0].header
@@ -221,6 +237,7 @@ def initialize_auxdb(datadir, list_of_nights, instconf, verbose=False):
                 # ignore warnings
                 with fits.open(filename) as hdul:
                     header = hdul[0].header
+                    data = hdul[0].data
             # check general instrument requirements
             requirements = instconf['requirements']
             fileok = True
@@ -268,6 +285,9 @@ def initialize_auxdb(datadir, list_of_nights, instconf, verbose=False):
             # include image in corresponding classification
             if imagetype in imagedb:
                 imagedb[imagetype][basename] = dumdict
+                if verbose:
+                    print('File {} classified as <{}>'.format(basename,
+                                                              imagetype))
             else:
                 msg = 'ERROR: unexpected image type {} in' + \
                       'file {}'.format(imagetype, basename)
