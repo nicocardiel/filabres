@@ -55,6 +55,7 @@ def list_classified(img1, img2, args_night):
     list_of_imagedb.sort()
 
     n = 0
+    colnames = None
 
     for jsonfilename in list_of_imagedb:
 
@@ -77,6 +78,12 @@ def list_classified(img1, img2, args_night):
                     if n == 1:
                         colnames = ['file'] + list(quantiles.keys())
                         df = pd.DataFrame(columns=colnames)
+                    else:
+                        colnames_ = ['file'] + list(quantiles.keys())
+                        if colnames_ != colnames:
+                            print("ERROR: number of quantiles do not match")
+                            raise SystemExit()
+
                     df.loc[n-1] = \
                         [os.path.basename(outfile)] + list(quantiles.values())
 
@@ -89,6 +96,6 @@ def list_classified(img1, img2, args_night):
                 pd.set_option('display.max_rows', None)
                 pd.set_option('display.max_columns', None)
                 pd.set_option('display.width', None)
-                print(df.round(1).to_string(index=False))
+                print(df.round(1).to_string(index=True))
 
     raise SystemExit()

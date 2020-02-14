@@ -75,7 +75,10 @@ def load_instrument_configuration(instrument, redustep, verbose=False):
     # different image types are all included in the masterkeywords list
     for imagetype in instconf['imagetypes']:
         # check keywords in requirements
-        for keyword in instconf['imagetypes'][imagetype]['requirements']:
+        allrequirements = \
+            list(instconf['imagetypes'][imagetype]['requirements'].keys()) + \
+            list(instconf['imagetypes'][imagetype]['requirementx'].keys())
+        for keyword in allrequirements:
             for operator in REQ_OPERATORS:
                 lenop = len(operator)
                 if keyword[-lenop:] == operator:

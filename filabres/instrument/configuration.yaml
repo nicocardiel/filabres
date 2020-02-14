@@ -2,7 +2,7 @@
 
 cafos:
   instname: cafos
-  version: 1.6
+  version: 1.7
   requirements:
     INSTRUME: 'CAFOS 2.2'
   masterkeywords:
@@ -43,6 +43,7 @@ cafos:
       executable: True
       requirements:
         IMAGETYP: 'bias'
+      requirementx:
         EXPTIME: 0.0
         QUANT975.LT.: 1000
       signature:
@@ -58,6 +59,7 @@ cafos:
       requirements:
         IMAGETYP: 'flat'
         INSGRID: 'GRISM-11'
+      requirementx:
         QUANT250.GT.: 10000
         QUANT975.LT.: 60000
       signature:
@@ -75,6 +77,8 @@ cafos:
       requirements:
         IMAGETYP: 'flat'
         INSGRID.NE.: 'GRISM-11'
+      requirementx:
+        QUANT975.LT.: 60000
       signature:
         - CCDNAME
         - NAXIS1
@@ -90,6 +94,8 @@ cafos:
       requirements:
         IMAGETYP: 'arc'
         INSGRID.NE.: 'GRISM-11'
+      requirementx:
+        QUANT975.LT.: 60000
       signature:
         - CCDNAME
         - NAXIS1
@@ -99,12 +105,16 @@ cafos:
         - CCDBINY
         - INSGRID
         - INSFLID
+        - RA
+        - DEC
       maxtimespan_hours: 0
     science-imaging:
       executable: False
       requirements:
         IMAGETYP: 'science'
         INSGRID: 'GRISM-11'
+      requirementx:
+        QUANT975.LT.: 60000
       signature:
         - CCDNAME
         - NAXIS1
@@ -114,12 +124,16 @@ cafos:
         - CCDBINY
         - INSGRID
         - INSFLID
+        - RA
+        - DEC
       maxtimespan_hours: 0
     science-spectroscopy:
       executable: False
       requirements:
         IMAGETYP: 'science'
         INSGRID.NE.: 'GRISM-11'
+      requirementx:
+        QUANT975.LT.: 60000
       signature:
         - CCDNAME
         - NAXIS1
@@ -129,4 +143,6 @@ cafos:
         - CCDBINY
         - INSGRID
         - INSFLID
+        - RA
+        - DEC
       maxtimespan_hours: 0

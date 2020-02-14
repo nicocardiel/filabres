@@ -15,6 +15,52 @@ from filabres import LISTDIR
 from filabres import REQ_OPERATORS
 
 
+def check_requirements(requirements, header, dictquant):
+    """
+    Check requirements.
+
+    Parameters
+    ==========
+    requirements : list
+        List of requirements.
+    header: astropy `Header` object
+        Image header.
+    dictquant : dict
+        Measured quantiles in the image.
+
+    Returns
+    =======
+    result : bool
+        True if all the requirements are met.
+    """
+
+    result = True
+
+    for keyword in requirements:
+        operatorfound = False
+        for operator in REQ_OPERATORS:
+            lenop = len(operator)
+            if keyword[-lenop:] == operator:
+                operatorfound = True
+                newkeyword = keyword[:-lenop]
+                if newkeyword in dictquant:
+                    command = 'dictquant[newkeyword] '
+                else:
+                    command = 'header[newkeyword] '
+                command += REQ_OPERATORS[operator]
+                command += ' requirements[keyword]'
+                if not eval(command):
+                    result = False
+                break
+        if not operatorfound:
+            if requirements[keyword] != header[keyword]:
+                result = False
+        if not result:
+            break
+
+    return result
+
+
 def classify_image(instconf, header, dictquant):
     """
     Classify image in one of the expected types.
@@ -43,32 +89,27 @@ def classify_image(instconf, header, dictquant):
 
     imagetype = None
 
+    # check mandatory requirements
     for img in instconf['imagetypes']:
         requirements = instconf['imagetypes'][img]['requirements']
-        typefound = True
-        for keyword in requirements:
-            operatorfound = False
-            for operator in REQ_OPERATORS:
-                lenop = len(operator)
-                if keyword[-lenop:] == operator:
-                    operatorfound = True
-                    newkeyword = keyword[:-lenop]
-                    if newkeyword in dictquant:
-                        command = 'dictquant[newkeyword] '
-                    else:
-                        command = 'header[newkeyword] '
-                    command += REQ_OPERATORS[operator] + ' requirements[keyword]'
-                    if not eval(command):
-                        typefound = False
-                    break
-            if not operatorfound:
-                if requirements[keyword] != header[keyword]:
-                    typefound = False
-            if not typefound:
-                break
+        typefound = check_requirements(requirements, header, dictquant)
         if typefound:
             imagetype = img
             break
+
+    if imagetype is None:
+        return imagetype
+
+    # after having found a valid initial imagetype, check the additional
+    # requirements for this particular imagetype; if any of them fails,
+    # add the prefix 'wrong-' to the initial imagetype
+    requirementx = instconf['imagetypes'][imagetype]['requirementx']
+    if len(requirementx) == 0:
+        return imagetype
+    typefound = check_requirements(requirementx, header, dictquant)
+
+    if not typefound:
+        imagetype = 'wrong-' + imagetype
 
     return imagetype
 
@@ -143,9 +184,10 @@ def initialize_auxdb(datadir, list_of_nights, instconf, verbose=False):
             }
         }
 
-        # initalize lists with classified images
+        # initalize an empty dictionary for each possible image category
         for imagetype in instconf['imagetypes']:
             imagedb[imagetype] = dict()
+            imagedb['wrong-' + imagetype] = dict()
         imagedb['unclassified'] = dict()
         imagedb['wrong-instrument'] = dict()
 
