@@ -6,7 +6,7 @@ import pandas as pd
 from filabres import LISTDIR
 
 
-def list_classified(img1, img2, args_night):
+def list_classified(img1, img2, args_night, args_keyword):
     """
     Display list with already classified images of the selected type
 
@@ -24,8 +24,22 @@ def list_classified(img1, img2, args_night):
         with the quantile information.
     args_night : str or None
         Selected night
+    args_keyword : list or None
+        List with additional keywords to be displayed when img2
+        is not None (otherwise an error is raised). Note that each
+        value in this list is also a list (with a single keyword).
 
     """
+
+    # protections
+    if args_keyword is not None:
+        if img2 is None:
+            print('ERROR: -k KEYWORD is only valid together with -lq')
+            raise SystemExit()
+        else:
+            lkeyword = [item[0].upper() for item in args_keyword]
+    else:
+        lkeyword = None
 
     if img1 is None:
         if img2 is None:
@@ -75,17 +89,33 @@ def list_classified(img1, img2, args_night):
                     print(datadir + night + '/' + filename, end=' ')
                 else:
                     quantiles = imagedb[imagetype][filename]['quantiles']
+                    storedkeywords = imagedb[imagetype][filename]
+                    colnames_ = ['file']
+                    colnames_ += list(quantiles.keys())
+                    if lkeyword is not None:
+                        for keyword in lkeyword:
+                            if keyword not in storedkeywords:
+                                print('ERROR: keyword {} is not stored in '
+                                      'the image database'.format(keyword))
+                                raise SystemExit()
+                            colnames_ += [keyword]
                     if n == 1:
-                        colnames = ['file'] + list(quantiles.keys())
+                        colnames = colnames_
                         df = pd.DataFrame(columns=colnames)
                     else:
-                        colnames_ = ['file'] + list(quantiles.keys())
                         if colnames_ != colnames:
-                            print("ERROR: number of quantiles do not match")
+                            print("ERROR: number of keywords do not match"
+                                  "for file {}".format(filename))
+                            print("- expected:", colnames)
+                            print("- required:", colnames_)
                             raise SystemExit()
 
-                    df.loc[n-1] = \
-                        [os.path.basename(outfile)] + list(quantiles.values())
+                    new_df_row = [os.path.basename(outfile)]
+                    new_df_row += list(quantiles.values())
+                    if lkeyword is not None:
+                        for keyword in lkeyword:
+                            new_df_row += [storedkeywords[keyword]]
+                    df.loc[n-1] = new_df_row
 
     if img1 is not None:
         if n > 0:

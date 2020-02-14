@@ -47,6 +47,10 @@ def main():
     parser.add_argument("-lq", "--lq_imagetype", type=str,
                         help="list already classified images of the "
                              "selected type with quantile information0")
+    parser.add_argument("-k", "--keyword", type=str,
+                        action='append', nargs=1,
+                        help="specify a keyword for the -lq option "
+                             "(ignored otherwise)")
     parser.add_argument("-n", "--night", type=str,
                         help="night label (wildcards are valid withing "
                              "quotes)")
@@ -59,7 +63,8 @@ def main():
     # ToDo: check what happens when moving the raw data into a different
     #       directory (override datadir?)
 
-    list_classified(args.l_imagetype, args.lq_imagetype, args.night)
+    list_classified(args.l_imagetype, args.lq_imagetype, args.night,
+                    args.keyword)
 
     # set verbosity
     verbose = not args.quiet
