@@ -9,6 +9,7 @@ import sys
 import uuid
 import warnings
 
+from .progressbar import progressbar
 from .version import version
 
 from filabres import DATADIR
@@ -204,7 +205,9 @@ def initialize_auxdb(list_of_nights, instconf, verbose=False):
         imagedb['wrong-instrument'] = dict()
 
         # get relevant keywords for each FITS file and classify it
-        for filename in list_of_fits:
+        for ifilename, filename in enumerate(list_of_fits):
+            if not verbose:
+                progressbar(ifilename + 1, len(list_of_fits))
             # get image header
             basename = os.path.basename(filename)
             warningsfound = False
@@ -284,8 +287,9 @@ def initialize_auxdb(list_of_nights, instconf, verbose=False):
             if imagetype in imagedb:
                 imagedb[imagetype][basename] = dumdict
                 if verbose:
-                    print('File {} classified as <{}>'.format(basename,
-                                                              imagetype))
+                    print('File {} ({}/{}) classified as <{}>'.format(
+                        basename, ifilename + 1, len(list_of_fits),
+                        imagetype))
             else:
                 msg = 'ERROR: unexpected image type {} in' + \
                       'file {}'.format(imagetype, basename)
