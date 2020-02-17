@@ -29,24 +29,26 @@ def statsumm(image2d, rm_nan=False, verbose=False):
         x = x[np.logical_not(np.isnan(x))]
     npoints = len(x)
     ok = npoints > 0
-    q15 = float(np.percentile(x, 15.86553)) if ok else 0
-    q25 = float(np.percentile(x, 25)) if ok else 0
-    q50 = float(np.percentile(x, 50)) if ok else 0
-    q75 = float(np.percentile(x, 75)) if ok else 0
-    q84 = float(np.percentile(x, 84.13447)) if ok else 0
-    sigmag = 0.7413 * (q75 - q25)
+    quant025 = float(np.percentile(x, 2.5)) if ok else 0
+    quant159 = float(np.percentile(x, 15.9)) if ok else 0
+    quant250 = float(np.percentile(x, 25.0)) if ok else 0
+    quant500 = float(np.percentile(x, 50.0)) if ok else 0
+    quant750 = float(np.percentile(x, 75.0)) if ok else 0
+    quant841 = float(np.percentile(x, 84.1)) if ok else 0
+    quant975 = float(np.percentile(x, 97.5)) if ok else 0
+    sigmag = 0.7413 * (quant750 - quant250)
     result = {
-        'npoints': npoints,
-        'minimum': float(np.min(x)) if ok else 0,
-        'percentile25': q25,
-        'median': q50,
-        'mean': float(np.mean(x)) if ok else 0,
-        'percentile75': q75,
-        'maximum': float(np.max(x)) if ok else 0,
-        'std': float(np.std(x)) if ok else 0,
-        'robust_std': sigmag,
-        'percentile15': q15,
-        'percentile84': q84
+        'NPOINTS': npoints,
+        'MINIMUM': float(np.min(x)) if ok else 0,
+        'QUANT025': quant025,
+        'QUANT159': quant159,
+        'QUANT250': quant250,
+        'QUANT500': quant500,
+        'QUANT750': quant750,
+        'QUANT841': quant841,
+        'QUANT975': quant975,
+        'MAXIMUM': float(np.max(x)) if ok else 0,
+        'ROBUSTSTD': sigmag,
     }
 
     if verbose:

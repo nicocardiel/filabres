@@ -5,21 +5,24 @@ import yaml
 from filabres import REQ_OPERATORS
 
 
-def load_instrument_configuration(instrument, redustep, verbose=False):
+def load_instrument_configuration(instrument, datadir, redustep,
+                                  verbose=False, debug=False):
     """
     Load instrument configuration from YAML file.
 
     Parameters
     ----------
-    instrument : str or None
-        Instrument-obsmode string identifying the instrument
-        and observing mode. If None, a list with the available
-        instruments and reduction steps is displayed.
+    instrument : str
+        Instrument name.
+    datadir : str
+        Data directory where the original FITS files are stored.
     redustep : str or None
         Reduction step. If None, a list with the available
         instruments and reduction steps is displayed.
     verbose : bool
         If True, display intermediate information.
+    debug : bool
+        If True, display additional debugging information.
 
     Returns
     -------
@@ -29,6 +32,8 @@ def load_instrument_configuration(instrument, redustep, verbose=False):
     """
 
     # load configuration file
+    if verbose:
+        print('* Loading instrument configuration')
     dumdata = pkgutil.get_data('filabres.instrument', 'configuration.yaml')
     dumfile = StringIO(dumdata.decode('utf8'))
     bigdict = yaml.load(dumfile)
@@ -100,7 +105,7 @@ def load_instrument_configuration(instrument, redustep, verbose=False):
                       'the masterkeywords list'.format(keyword))
                 raise SystemExit()
 
-    if verbose:
+    if debug:
         print('* Instrument configuration: {}'.format(instconf))
 
     return instconf

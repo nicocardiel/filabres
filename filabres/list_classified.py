@@ -3,11 +3,10 @@ import json
 import os
 import pandas as pd
 
-from filabres import DATADIR
 from filabres import LISTDIR
 
 
-def list_classified(img1, img2, args_night, args_keyword):
+def list_classified(img1, img2, datadir, args_night, args_keyword):
     """
     Display list with already classified images of the selected type
 
@@ -16,13 +15,15 @@ def list_classified(img1, img2, args_night, args_keyword):
     img1 : str or None
         Image type. It should coincide with any of the available
         image types declared in the instrument configuration file.
-        The file names are listed in a single line, separated by a
-        single blank space.
+        Each file name is displayed in a different line, together
+        with the quantile information.
     img2 : str or None
         Image type. It should coincide with any of the available
         image types declared in the instrument configuration file.
-        Each file name is displayed in a different line, together
-        with the quantile information.
+        The file names are listed in a single line, separated by a
+        single blank space.
+    datadir : str
+        Data directory where the original FITS files are stored.
     args_night : str or None
         Selected night
     args_keyword : list or None
@@ -34,24 +35,24 @@ def list_classified(img1, img2, args_night, args_keyword):
 
     # protections
     if args_keyword is not None:
-        if img2 is None:
-            print('ERROR: -k KEYWORD is only valid together with -lq')
+        if img1 is None:
+            print('ERROR: -k KEYWORD is only valid together with -lc')
             raise SystemExit()
         else:
             lkeyword = [item[0].upper() for item in args_keyword]
     else:
         lkeyword = None
 
-    if img1 is None:
-        if img2 is None:
+    if img2 is None:
+        if img1 is None:
             return
         else:
-            imagetype = img2
-    else:
-        if img2 is None:
             imagetype = img1
+    else:
+        if img1 is None:
+            imagetype = img2
         else:
-            print('ERROR: do not use -l and -ls simultaneously.')
+            print('ERROR: do not use -lc and -lcf simultaneously.')
             raise SystemExit()
 
     df = None  # Avoid PyCharm warning
@@ -83,10 +84,10 @@ def list_classified(img1, img2, args_night, args_keyword):
         night = imagedb['metainfo']['night']
         if imagetype in imagedb:
             for filename in imagedb[imagetype]:
-                outfile = DATADIR + night + '/' + filename
+                outfile = datadir + night + '/' + filename
                 n += 1
-                if img1 is not None:
-                    print(DATADIR + night + '/' + filename, end=' ')
+                if img2 is not None:
+                    print(datadir + night + '/' + filename, end=' ')
                 else:
                     quantiles = imagedb[imagetype][filename]['quantiles']
                     storedkeywords = imagedb[imagetype][filename]
@@ -118,7 +119,7 @@ def list_classified(img1, img2, args_night, args_keyword):
                             new_df_row += [storedkeywords[keyword]]
                     df.loc[n-1] = new_df_row
 
-    if img1 is not None:
+    if img2 is not None:
         if n > 0:
             print()
     else:

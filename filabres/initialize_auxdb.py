@@ -12,7 +12,6 @@ import warnings
 from .progressbar import progressbar
 from .version import version
 
-from filabres import DATADIR
 from filabres import LISTDIR
 from filabres import REQ_OPERATORS
 
@@ -128,7 +127,7 @@ def classify_image(instconf, header, dictquant):
     return imagetype
 
 
-def initialize_auxdb(list_of_nights, instconf, verbose=False):
+def initialize_auxdb(list_of_nights, instconf, datadir, verbose=False):
     """
     Generate database with relevant keywords for each night.
 
@@ -139,6 +138,9 @@ def initialize_auxdb(list_of_nights, instconf, verbose=False):
     instconf : dict
         Instrument configuration. See file configuration.json for
         details.
+    datadir : str
+        Directory where the original FITS data (organized by night)
+        are stored.
     verbose : bool
         If True, display intermediate information.
     """
@@ -169,7 +171,7 @@ def initialize_auxdb(list_of_nights, instconf, verbose=False):
             os.makedirs(nightdir)
 
         # get list of FITS files for current night
-        filenames = DATADIR + night + '/*.fits'
+        filenames = datadir + night + '/*.fits'
         list_of_fits = glob.glob(filenames)
         list_of_fits.sort()
 
