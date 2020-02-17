@@ -302,7 +302,9 @@ def run_reduction_step(args_database, redustep, datadir, list_of_nights,
                             # subtract bias
                             image3d[i, :, :] -= image2d_bias
                             # normalize by the median value
-                            image3d[i, :, :] /= np.median(image3d[i, :, :])
+                            mediansignal = np.median(image3d[i, :, :])
+                            if mediansignal > 0:
+                                image3d[i, :, :] /= mediansignal
                         # median combination of normalized images
                         image2d = np.median(image3d, axis=0)
                         # set to 1.0 pixels with values <= 0
