@@ -59,7 +59,7 @@ def list_classified(img1, img2, datadir, args_night, args_keyword):
 
     # check for ./lists subdirectory
     if not os.path.isdir(LISTDIR):
-        msg = "Subdirectory {} not found"
+        msg = "Subdirectory {} not found".format(LISTDIR)
         raise SystemError(msg)
 
     if args_night is None:
@@ -87,7 +87,7 @@ def list_classified(img1, img2, datadir, args_night, args_keyword):
                 outfile = datadir + night + '/' + filename
                 n += 1
                 if img2 is not None:
-                    print(datadir + night + '/' + filename, end=' ')
+                    print(outfile, end=' ')
                 else:
                     quantiles = imagedb[imagetype][filename]['quantiles']
                     storedkeywords = imagedb[imagetype][filename]

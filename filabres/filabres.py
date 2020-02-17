@@ -19,6 +19,7 @@ import argparse
 from .check_tslash import check_tslash
 from .initialize_auxdb import initialize_auxdb
 from .list_classified import list_classified
+from .list_reduced import list_reduced
 from .load_instrument_configuration import load_instrument_configuration
 from .load_setup import load_setup
 from .nights_to_be_reduced import nights_to_be_reduced
@@ -37,7 +38,7 @@ def main():
     parser.add_argument("-rs", "--reduction_step", type=str,
                         help="reduction step")
     parser.add_argument("-n", "--night", type=str,
-                        help="night label (wildcards are valid withing "
+                        help="night label (wildcards are valid within "
                              "quotes)")
     parser.add_argument("-db", "--database", type=str,
                         help='database file name (')
@@ -49,8 +50,14 @@ def main():
                              "in a single line")
     parser.add_argument("-k", "--keyword", type=str,
                         action='append', nargs=1,
-                        help="specify a keyword for the -lq option "
+                        help="specify a keyword for the -lc option "
                              "(ignored otherwise)")
+    parser.add_argument("-lr", "--lr_imagetype", type=str,
+                        help="list reduced images of the selected type "
+                             "with quantile information")
+    parser.add_argument("-lrf", "--lrf_imagetype", type=str,
+                        help="list reduced images of the selected type "
+                             "in a single line")
     parser.add_argument("-v", "--verbose", action="store_true",
                         help="display intermediate information while running")
     parser.add_argument("--debug", action="store_true",
@@ -69,6 +76,13 @@ def main():
                         datadir=datadir,
                         args_night=args.night,
                         args_keyword=args.keyword)
+
+    if args.lr_imagetype is not None or args.lrf_imagetype is not None:
+        list_reduced(img1=args.lr_imagetype,
+                     img2=args.lrf_imagetype,
+                     instrument=instrument,
+                     args_database=args.database,
+                     args_night=args.night)
 
     # load instrument configuration
     instconf = load_instrument_configuration(

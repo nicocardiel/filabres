@@ -388,6 +388,8 @@ def run_reduction_step(args_database, redustep, datadir, list_of_nights,
                     # combined images as index
                     mjdobs = '{:.5f}'.format(mean_mjdobs)
                     database[redustep][ssig][mjdobs] = dict()
+                    database[redustep][ssig][mjdobs]['night'] = night
+                    database[redustep][ssig][mjdobs]['signature'] = signature
                     database[redustep][ssig][mjdobs]['filename'] = \
                         output_filename
                     database[redustep][ssig][mjdobs]['statsumm'] = \
