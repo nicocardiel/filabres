@@ -23,7 +23,7 @@ from .list_reduced import list_reduced
 from .load_instrument_configuration import load_instrument_configuration
 from .load_setup import load_setup
 from .nights_to_be_reduced import nights_to_be_reduced
-from .run_reduction_step import run_reduction_step
+from .run_calibration_step import run_calibration_step
 
 
 def main():
@@ -40,8 +40,6 @@ def main():
     parser.add_argument("-n", "--night", type=str,
                         help="night label (wildcards are valid within "
                              "quotes)")
-    parser.add_argument("-db", "--database", type=str,
-                        help='database file name (')
     parser.add_argument("-lc", "--lc_imagetype", type=str,
                         help="list classified images of the selected type "
                              "with quantile information")
@@ -81,13 +79,11 @@ def main():
         list_reduced(img1=args.lr_imagetype,
                      img2=args.lrf_imagetype,
                      instrument=instrument,
-                     args_database=args.database,
                      args_night=args.night)
 
     # load instrument configuration
     instconf = load_instrument_configuration(
         instrument=instrument,
-        datadir=datadir,
         redustep=args.reduction_step,
         verbose=args.verbose,
         debug=args.debug
@@ -107,13 +103,18 @@ def main():
                          verbose=args.verbose)
     else:
         # execute reduction step
-        run_reduction_step(args_database=args.database,
-                           redustep=args.reduction_step,
-                           datadir=datadir,
-                           list_of_nights=list_of_nights,
-                           instconf=instconf,
-                           verbose=args.verbose,
-                           debug=args.debug)
+        classification = \
+            instconf['imagetypes'][args.reduction_step]['classification']
+        if classification == 'calibration':
+            run_calibration_step(redustep=args.reduction_step,
+                                 datadir=datadir,
+                                 list_of_nights=list_of_nights,
+                                 instconf=instconf,
+                                 verbose=args.verbose,
+                                 debug=args.debug)
+        else:
+            pass
+        # ToDo: seguir aqui, creando una funcion run_reduction_step(...)
 
     print('* program STOP')
     raise SystemExit()

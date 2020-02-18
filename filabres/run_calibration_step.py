@@ -30,15 +30,13 @@ class NumpyEncoder(json.JSONEncoder):
         return json.JSONEncoder.default(self, obj)
 
 
-def run_reduction_step(args_database, redustep, datadir, list_of_nights,
-                       instconf, verbose=False, debug=False):
+def run_calibration_step(redustep, datadir, list_of_nights,
+                         instconf, verbose=False, debug=False):
     """
     Execute reduction step.
 
     Parameters
     ==========
-    args_database : str or None
-        Main database file name.
     redustep : str
         Reduction step to be executed.
     datadir : str
@@ -55,11 +53,10 @@ def run_reduction_step(args_database, redustep, datadir, list_of_nights,
         Display additional debugging information.
     """
 
-    # main database
-    if args_database is None:
-        databasefile = 'filabres_db_{}.json'.format(instconf['instname'])
-    else:
-        databasefile = args_database
+    instrument = instconf['instname']
+
+    # set expected database
+    databasefile = 'filabres_db_{}_{}.json'.format(instrument, redustep)
     try:
         with open(databasefile) as jfile:
             database = json.load(jfile)
@@ -76,10 +73,6 @@ def run_reduction_step(args_database, redustep, datadir, list_of_nights,
         if verbose:
             print('\nSubdirectory {} not found. Creating it!'.format(redustep))
         os.makedirs(redustep)
-
-    # prepare main database
-    if redustep not in database:
-        database[redustep] = dict()
 
     # set maxtimespan_hours
     maxtimespan_hours = instconf['imagetypes'][redustep]['maxtimespan_hours']
@@ -293,7 +286,7 @@ def run_reduction_step(args_database, redustep, datadir, list_of_nights,
                         mjdobs = output_header['MJD-OBS']
                         # retrieve and subtract bias
                         image2d_bias, bias_filename = retrieve_calibration(
-                            'bias', signature, mjdobs, database,
+                            instrument, 'bias', signature, mjdobs,
                             verbose=verbose
                         )
                         output_header.add_history('Subtracting bias:')
@@ -318,7 +311,7 @@ def run_reduction_step(args_database, redustep, datadir, list_of_nights,
                         mjdobs = output_header['MJD-OBS']
                         # retrieve and subtract bias
                         image2d_bias, bias_filename = retrieve_calibration(
-                            'bias', signature, mjdobs, database,
+                            instrument, 'bias', signature, mjdobs,
                             verbose=verbose
                         )
                         output_header.add_history('Subtracting bias:')
@@ -330,7 +323,7 @@ def run_reduction_step(args_database, redustep, datadir, list_of_nights,
                             image3d[i, :, :] -= image2d_bias
                         # retrieve and divide by flatfield
                         image2d_flat, flat_filename = retrieve_calibration(
-                            'flat-imaging', signature, mjdobs, database,
+                            instrument, 'flat-imaging', signature, mjdobs,
                             verbose=verbose
                         )
                         output_header.add_history('Applying flatfield:')
@@ -353,10 +346,10 @@ def run_reduction_step(args_database, redustep, datadir, list_of_nights,
 
                     # generate string with signature values
                     sortedkeys, ssig = signature_string(signature)
-                    if 'sortedkeys' not in database[redustep]:
-                        database[redustep]['sortedkeys'] = sortedkeys
+                    if 'sortedkeys' not in database:
+                        database['sortedkeys'] = sortedkeys
                     else:
-                        if sortedkeys != database[redustep]['sortedkeys']:
+                        if sortedkeys != database['sortedkeys']:
                             msg = 'ERROR: sortedkeys have changed when' + \
                                   'reducing {} images'.format(redustep)
                             raise SystemError(msg)
@@ -364,6 +357,8 @@ def run_reduction_step(args_database, redustep, datadir, list_of_nights,
                     # note: the following step must be performed before
                     # saving the combined image; otherwise, the cleanup
                     # procedure will delete the just created combined image
+                    if redustep not in database:
+                        database[redustep] = dict()
                     if ssig not in database[redustep]:
                         # update main database with new signature
                         # if not present
@@ -411,7 +406,7 @@ def run_reduction_step(args_database, redustep, datadir, list_of_nights,
 
                     # save output FITS file using the file name of the first
                     # image in the block (appending the _red suffix)
-                    output_filename = nightdir + '/' + redustep
+                    output_filename = nightdir + '/' + redustep + '_'
                     dumfile = os.path.basename(imgblock[0])
                     output_filename += dumfile[:-5] + '_red.fits'
                     print('-> output filename {}'.format(output_filename))

@@ -3,7 +3,7 @@ import json
 import pandas as pd
 
 
-def list_reduced(img1, img2, instrument, args_database, args_night):
+def list_reduced(img1, img2, instrument, args_night):
     """
     Display list with already classified images of the selected type
 
@@ -21,8 +21,6 @@ def list_reduced(img1, img2, instrument, args_database, args_night):
         single blank space.
     instrument : str
         Instrument name.
-    args_database : str or None
-        Main database file name.
     args_night : str or None
         Selected night
     """
@@ -39,11 +37,9 @@ def list_reduced(img1, img2, instrument, args_database, args_night):
             print('ERROR: do not use -lr and -lrf simultaneously.')
             raise SystemExit()
 
-    # main database
-    if args_database is None:
-        databasefile = 'filabres_db_{}.json'.format(instrument)
-    else:
-        databasefile = args_database
+    # read database
+    databasefile = 'filabres_db_{}_{}.json'.format(instrument, imagetype)
+
     try:
         with open(databasefile) as jfile:
             database = json.load(jfile)
@@ -64,7 +60,7 @@ def list_reduced(img1, img2, instrument, args_database, args_night):
 
     n = 0
     colnames = None
-    sortedkeys = database[imagetype]['sortedkeys']
+    sortedkeys = database['sortedkeys']
 
     for ssig in database[imagetype]:
         if ssig == "sortedkeys":

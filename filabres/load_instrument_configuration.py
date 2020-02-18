@@ -5,7 +5,7 @@ import yaml
 from filabres import REQ_OPERATORS
 
 
-def load_instrument_configuration(instrument, datadir, redustep,
+def load_instrument_configuration(instrument, redustep,
                                   verbose=False, debug=False):
     """
     Load instrument configuration from YAML file.
@@ -14,8 +14,6 @@ def load_instrument_configuration(instrument, datadir, redustep,
     ----------
     instrument : str
         Instrument name.
-    datadir : str
-        Data directory where the original FITS files are stored.
     redustep : str or None
         Reduction step. If None, a list with the available
         instruments and reduction steps is displayed.

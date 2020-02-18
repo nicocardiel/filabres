@@ -41,6 +41,7 @@ cafos:
   imagetypes:
     bias:
       executable: True
+      classification: calibration
       requirements:
         IMAGETYP: 'bias'
       requirementx:
@@ -56,6 +57,7 @@ cafos:
       maxtimespan_hours: 1
     flat-imaging:
       executable: True
+      classification: calibration
       requirements:
         IMAGETYP: 'flat'
         INSGRID: 'GRISM-11'
@@ -73,6 +75,7 @@ cafos:
       maxtimespan_hours: 1
     flat-spectroscopy:
       executable: False
+      classification: calibration
       requirements:
         IMAGETYP: 'flat'
         INSGRID.NE.: 'GRISM-11'
@@ -90,6 +93,7 @@ cafos:
       maxtimespan_hours: 1
     arc:
       executable: False
+      classification: calibration
       requirements:
         IMAGETYP: 'arc'
         INSGRID.NE.: 'GRISM-11'
@@ -108,6 +112,7 @@ cafos:
         - DEC
       maxtimespan_hours: 0
     science-imaging:
+      classification: science
       executable: True
       requirements:
         IMAGETYP: 'science'
@@ -127,6 +132,7 @@ cafos:
         - DEC
       maxtimespan_hours: 0
     science-spectroscopy:
+      classification: science
       executable: False
       requirements:
         IMAGETYP: 'science'

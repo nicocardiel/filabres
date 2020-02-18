@@ -1,4 +1,5 @@
 from astropy.io import fits
+import json
 import numpy as np
 
 from .signature import signature_string
@@ -26,12 +27,14 @@ def find_nearest(arraylike, value):
     return ipos
 
 
-def retrieve_calibration(redustep, signature, mjdobs, database, verbose=False):
+def retrieve_calibration(instrument, redustep, signature, mjdobs, verbose=False):
     """
     Retrieve calibration from main database.
 
     Parameters
     ==========
+    instrument : string
+        Instrument name.
     redustep : string
         Reduction step.
     signature : dict()
@@ -40,8 +43,6 @@ def retrieve_calibration(redustep, signature, mjdobs, database, verbose=False):
     mjdobs: float
         Modified Julian Date, use to locate the closest calibration
         available in the main database.
-    database : dict
-        Main database.
     verbose : bool
         If True, display intermediate information.
 
@@ -55,13 +56,27 @@ def retrieve_calibration(redustep, signature, mjdobs, database, verbose=False):
 
     calfilename = None
 
-    # check that the requested calibration is available in the main database
+    # check that the requested calibration is available in the corresponding
+    # calibration database
+    databasefile = 'filabres_db_{}_{}.json'.format(instrument, redustep)
+    try:
+        with open(databasefile) as jfile:
+            database = json.load(jfile)
+    except FileNotFoundError:
+        msg = '* ERROR: {} calibration database not found'.format(databasefile)
+        raise SystemError(msg)
+    if verbose:
+        print('\nMain database set to {}'.format(databasefile))
+
+    # check that the requested calibration is available in the calibration
+    # database
     if redustep not in database:
-        msg = '* ERROR: {} calibration not available in main database'
+        msg = '* ERROR: {} calibration not available in database ' \
+              'file {}'.format(redustep, databasefile)
         raise SystemError(msg)
 
     # generate expected signature for calibration image
-    sortedkeys = database[redustep]['sortedkeys']
+    sortedkeys = database['sortedkeys']
     expected_signature = dict()
     for keyword in sortedkeys:
         if keyword not in signature:
