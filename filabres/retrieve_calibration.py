@@ -104,10 +104,8 @@ def retrieve_calibration(instrument, redustep, signature, mjdobs, verbose=False)
         with fits.open(calfilename) as hdul:
             image2d_cal = hdul[0].data
     else:
-        print('* ERROR: signature {} not found in main database'.format(key))
-        # ToDo: decide alternative calibration
-        msg = 'PENDING: decide alternative calibration'
-        raise SystemError(msg)
+        print('* WARNING: signature {} not found in main database'.format(key))
+        return None, None
 
     # double check
     naxis2, naxis1 = image2d_cal.shape

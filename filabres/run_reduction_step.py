@@ -97,7 +97,7 @@ def run_reduction_step(redustep, datadir, list_of_nights,
                 os.makedirs(nightdir)
 
             # set the expected database: note that for science images, this
-            # database is stored in an independent JSON file for each night
+            # database is stored as an independent JSON file for each night
             databasefile = nightdir + '/'
             databasefile += 'filabres_db_{}_{}.json'.format(instrument,
                                                             redustep)

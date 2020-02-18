@@ -4,6 +4,8 @@ import json
 import os
 import pandas as pd
 
+from .load_instrument_configuration import load_instrument_configuration
+
 
 def list_reduced(img1, img2, instrument, args_night):
     """
@@ -44,12 +46,28 @@ def list_reduced(img1, img2, instrument, args_night):
         msg = "Subdirectory {} not found".format(imagetype)
         raise SystemError(msg)
 
+    # selected nights to be displayed
     if args_night is None:
         night = '*'
     else:
         night = args_night
 
-    expected_databasenames = imagetype + '/' + night + '/'
+    # determine whether the imagetype is a calibration or not
+    instconf = load_instrument_configuration(
+        instrument=instrument,
+        redustep=imagetype
+    )
+    classification = \
+        instconf['imagetypes'][imagetype]['classification']
+
+    if classification == 'calibration':
+        # the database of the reduced calibrations is stored in a single
+        # JSON file
+        expected_databasenames = ''
+    else:
+        # the databases of the reduced science images are stored as
+        # independent JSON files
+        expected_databasenames = imagetype + '/' + night + '/'
     expected_databasenames += 'filabres_db_{}_{}.json'.format(instrument,
                                                               imagetype)
     list_of_databases = glob.glob(expected_databasenames)
