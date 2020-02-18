@@ -55,8 +55,6 @@ def list_classified(img1, img2, datadir, args_night, args_keyword):
             print('ERROR: do not use -lc and -lcf simultaneously.')
             raise SystemExit()
 
-    df = None  # Avoid PyCharm warning
-
     # check for ./lists subdirectory
     if not os.path.isdir(LISTDIR):
         msg = "Subdirectory {} not found".format(LISTDIR)
@@ -72,6 +70,7 @@ def list_classified(img1, img2, datadir, args_night, args_keyword):
 
     n = 0
     colnames = None
+    df = None  # Avoid PyCharm warning
 
     for jsonfilename in list_of_imagedb:
 

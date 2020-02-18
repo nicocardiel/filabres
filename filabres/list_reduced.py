@@ -1,5 +1,7 @@
 import fnmatch
+import glob
 import json
+import os
 import pandas as pd
 
 
@@ -37,35 +39,38 @@ def list_reduced(img1, img2, instrument, args_night):
             print('ERROR: do not use -lr and -lrf simultaneously.')
             raise SystemExit()
 
-    # read database
-    databasefile = 'filabres_db_{}_{}.json'.format(instrument, imagetype)
-
-    try:
-        with open(databasefile) as jfile:
-            database = json.load(jfile)
-    except FileNotFoundError:
-        msg = 'File {} not found'.format(databasefile)
+    # check for ./lists subdirectory
+    if not os.path.isdir(imagetype):
+        msg = "Subdirectory {} not found".format(imagetype)
         raise SystemError(msg)
-
-    df = None  # Avoid PyCharm warning
-
-    # check for imagetype
-    if imagetype not in database:
-        raise SystemExit()
 
     if args_night is None:
         night = '*'
     else:
         night = args_night
 
+    expected_databasenames = imagetype + '/' + night + '/'
+    expected_databasenames += 'filabres_db_{}_{}.json'.format(instrument,
+                                                              imagetype)
+    list_of_databases = glob.glob(expected_databasenames)
+    list_of_databases.sort()
+
     n = 0
     colnames = None
-    sortedkeys = database['sortedkeys']
+    df = None  # Avoid PyCharm warning
 
-    for ssig in database[imagetype]:
-        if ssig == "sortedkeys":
-            pass
-        else:
+    for jsonfilename in list_of_databases:
+
+        try:
+            with open(jsonfilename) as jfile:
+                database = json.load(jfile)
+        except FileNotFoundError:
+            msg = 'File {} not found'.format(jsonfilename)
+            raise SystemError(msg)
+
+        sortedkeys = database['sortedkeys']
+
+        for ssig in database[imagetype]:
             for mjdobs in database[imagetype][ssig]:
                 outfile = database[imagetype][ssig][mjdobs]['filename']
                 nightok = fnmatch.fnmatch(
