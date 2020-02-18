@@ -108,7 +108,7 @@ cafos:
         - DEC
       maxtimespan_hours: 0
     science-imaging:
-      executable: False
+      executable: True
       requirements:
         IMAGETYP: 'science'
         INSGRID: 'GRISM-11'

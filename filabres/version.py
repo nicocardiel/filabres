@@ -1,4 +1,4 @@
-version = '0.2.24'
+version = '0.3.0'
 
 
 def main():

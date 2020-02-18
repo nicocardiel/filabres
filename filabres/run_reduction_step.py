@@ -154,7 +154,7 @@ def run_reduction_step(args_database, redustep, datadir, list_of_nights,
 
             # select images with a common signature and subdivide this
             # selection into blocks where the images are grouped within
-            # the indicated time span
+            # the indicated timespan
             for isignature in range(len(list_of_signatures)):
                 signature = list_of_signatures[isignature]
                 images_with_fixed_signature = []
@@ -235,6 +235,7 @@ def run_reduction_step(args_database, redustep, datadir, list_of_nights,
                     naxis2 = getkey_from_signature(signature, 'NAXIS2')
                     image3d = np.zeros((nfiles, naxis2, naxis1),
                                        dtype=np.float32)
+                    exptime = np.zeros(nfiles, dtype=np.float32)
 
                     # output file name
                     output_header = None
@@ -242,6 +243,8 @@ def run_reduction_step(args_database, redustep, datadir, list_of_nights,
                     # store images in temporary data cube
                     for i in range(nfiles):
                         filename = imgblock[i]
+                        basename = os.path.basename(filename)
+                        exptime[i] = imagedb[redustep][basename]['EXPTIME']
                         with fits.open(filename) as hdulist:
                             image_header = hdulist[0].header
                             image_data = hdulist[0].data
@@ -262,7 +265,6 @@ def run_reduction_step(args_database, redustep, datadir, list_of_nights,
                             # the image databases
                             for keyword in instconf['masterkeywords']:
                                 val1 = output_header[keyword]
-                                basename = os.path.basename(filename)
                                 val2 = imagedb[redustep][basename][keyword]
                                 if val1 != val2:
                                     output_header[keyword] = val2
@@ -288,8 +290,8 @@ def run_reduction_step(args_database, redustep, datadir, list_of_nights,
                             'Combination method: median'
                         )
                     elif redustep == 'flat-imaging':
-                        # retrieve and subtract bias
                         mjdobs = output_header['MJD-OBS']
+                        # retrieve and subtract bias
                         image2d_bias, bias_filename = retrieve_calibration(
                             'bias', signature, mjdobs, database,
                             verbose=verbose
@@ -312,6 +314,38 @@ def run_reduction_step(args_database, redustep, datadir, list_of_nights,
                         output_header.add_history(
                             'Combination method: median of normalized images'
                         )
+                    elif redustep == 'science-imaging':
+                        mjdobs = output_header['MJD-OBS']
+                        # retrieve and subtract bias
+                        image2d_bias, bias_filename = retrieve_calibration(
+                            'bias', signature, mjdobs, database,
+                            verbose=verbose
+                        )
+                        output_header.add_history('Subtracting bias:')
+                        output_header.add_history(bias_filename)
+                        if debug:
+                            print('bias level:', np.median(image2d_bias))
+                        for i in range(nfiles):
+                            # subtract bias
+                            image3d[i, :, :] -= image2d_bias
+                        # retrieve and divide by flatfield
+                        image2d_flat, flat_filename = retrieve_calibration(
+                            'flat-imaging', signature, mjdobs, database,
+                            verbose=verbose
+                        )
+                        output_header.add_history('Applying flatfield:')
+                        output_header.add_history(flat_filename)
+                        if debug:
+                            print('flat level:', np.median(image2d_flat))
+                        for i in range(nfiles):
+                            image3d[i, :, :] /= image2d_flat
+                        # rescale every single image to the exposure time
+                        # of the first image
+                        for i in range(nfiles):
+                            factor = exptime[0]/exptime[i]
+                            image3d[i, :, :] *= factor
+                        # median combination of rescaled images
+                        image2d = np.median(image3d, axis=0)
                     else:
                         msg = '* ERROR: combination of {} not implemented' + \
                               ' yet'.format(redustep)
