@@ -14,22 +14,6 @@ from .version import version
 from filabres import LISTDIR
 
 
-class NumpyEncoder(json.JSONEncoder):
-    """ Special json encoder for numpy types """
-
-    def default(self, obj):
-        if isinstance(obj, (np.int_, np.intc, np.intp, np.int8,
-                            np.int16, np.int32, np.int64, np.uint8,
-                            np.uint16, np.uint32, np.uint64)):
-            return int(obj)
-        elif isinstance(obj, (np.float_, np.float16, np.float32,
-                              np.float64)):
-            return float(obj)
-        elif isinstance(obj, (np.ndarray,)):
-            return obj.tolist()
-        return json.JSONEncoder.default(self, obj)
-
-
 def run_calibration_step(redustep, datadir, list_of_nights,
                          instconf, verbose=False, debug=False):
     """
@@ -55,7 +39,8 @@ def run_calibration_step(redustep, datadir, list_of_nights,
 
     instrument = instconf['instname']
 
-    # set expected database
+    # set the expected database: note that for calibration images, this
+    # database is stored in a single JSON file
     databasefile = 'filabres_db_{}_{}.json'.format(instrument, redustep)
     try:
         with open(databasefile) as jfile:

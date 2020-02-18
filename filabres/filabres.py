@@ -24,6 +24,7 @@ from .load_instrument_configuration import load_instrument_configuration
 from .load_setup import load_setup
 from .nights_to_be_reduced import nights_to_be_reduced
 from .run_calibration_step import run_calibration_step
+from .run_reduction_step import run_reduction_step
 
 
 def main():
@@ -102,7 +103,8 @@ def main():
                          datadir=datadir,
                          verbose=args.verbose)
     else:
-        # execute reduction step
+        # execute reduction step according to the classification of the
+        # reduction step
         classification = \
             instconf['imagetypes'][args.reduction_step]['classification']
         if classification == 'calibration':
@@ -113,8 +115,12 @@ def main():
                                  verbose=args.verbose,
                                  debug=args.debug)
         else:
-            pass
-        # ToDo: seguir aqui, creando una funcion run_reduction_step(...)
+            run_reduction_step(redustep=args.reduction_step,
+                               datadir=datadir,
+                               list_of_nights=list_of_nights,
+                               instconf=instconf,
+                               verbose=args.verbose,
+                               debug=args.debug)
 
     print('* program STOP')
     raise SystemExit()
