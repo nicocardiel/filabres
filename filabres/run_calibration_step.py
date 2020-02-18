@@ -307,38 +307,6 @@ def run_calibration_step(redustep, datadir, list_of_nights,
                         output_header.add_history(
                             'Combination method: median of normalized images'
                         )
-                    elif redustep == 'science-imaging':
-                        mjdobs = output_header['MJD-OBS']
-                        # retrieve and subtract bias
-                        image2d_bias, bias_filename = retrieve_calibration(
-                            instrument, 'bias', signature, mjdobs,
-                            verbose=verbose
-                        )
-                        output_header.add_history('Subtracting bias:')
-                        output_header.add_history(bias_filename)
-                        if debug:
-                            print('bias level:', np.median(image2d_bias))
-                        for i in range(nfiles):
-                            # subtract bias
-                            image3d[i, :, :] -= image2d_bias
-                        # retrieve and divide by flatfield
-                        image2d_flat, flat_filename = retrieve_calibration(
-                            instrument, 'flat-imaging', signature, mjdobs,
-                            verbose=verbose
-                        )
-                        output_header.add_history('Applying flatfield:')
-                        output_header.add_history(flat_filename)
-                        if debug:
-                            print('flat level:', np.median(image2d_flat))
-                        for i in range(nfiles):
-                            image3d[i, :, :] /= image2d_flat
-                        # rescale every single image to the exposure time
-                        # of the first image
-                        for i in range(nfiles):
-                            factor = exptime[0]/exptime[i]
-                            image3d[i, :, :] *= factor
-                        # median combination of rescaled images
-                        image2d = np.median(image3d, axis=0)
                     else:
                         msg = '* ERROR: combination of {} not implemented' + \
                               ' yet'.format(redustep)
