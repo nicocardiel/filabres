@@ -263,38 +263,7 @@ def run_reduction_step(redustep, datadir, list_of_nights,
                         )
 
                     # combine images according to their type
-                    if redustep == 'bias':
-                        # median combination
-                        image2d = np.median(image3d, axis=0)
-                        output_header.add_history(
-                            'Combination method: median'
-                        )
-                    elif redustep == 'flat-imaging':
-                        mjdobs = output_header['MJD-OBS']
-                        # retrieve and subtract bias
-                        image2d_bias, bias_filename = retrieve_calibration(
-                            instrument, 'bias', signature, mjdobs,
-                            verbose=verbose
-                        )
-                        output_header.add_history('Subtracting bias:')
-                        output_header.add_history(bias_filename)
-                        if debug:
-                            print('bias level:', np.median(image2d_bias))
-                        for i in range(nfiles):
-                            # subtract bias
-                            image3d[i, :, :] -= image2d_bias
-                            # normalize by the median value
-                            mediansignal = np.median(image3d[i, :, :])
-                            if mediansignal > 0:
-                                image3d[i, :, :] /= mediansignal
-                        # median combination of normalized images
-                        image2d = np.median(image3d, axis=0)
-                        # set to 1.0 pixels with values <= 0
-                        image2d[image2d <= 0.0] = 1.0
-                        output_header.add_history(
-                            'Combination method: median of normalized images'
-                        )
-                    elif redustep == 'science-imaging':
+                    if redustep == 'science-imaging':
                         mjdobs = output_header['MJD-OBS']
                         # retrieve and subtract bias
                         image2d_bias, bias_filename = retrieve_calibration(
