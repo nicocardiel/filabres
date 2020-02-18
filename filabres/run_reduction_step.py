@@ -397,6 +397,8 @@ def run_reduction_step(redustep, datadir, list_of_nights,
                     else:
                         print('* WARNING: skipping generation of reduced {}'
                               ' with signature {}'.format(redustep, signature))
+                        for dumfile in imgblock:
+                            print(' - {}'.format(dumfile))
                         input('Press <RETURN> to continue...')
 
                     # set to reduced status the images that have been reduced

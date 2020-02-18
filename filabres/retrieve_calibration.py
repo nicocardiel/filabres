@@ -48,12 +48,10 @@ def findclosestquant(mjdobs, database, quantile):
             if result is None:
                 delta_mjdobs = abs(mjdobs - mjdobs_)
                 result = database[ssig][smjd]['statsumm'][quantile]
-                print(mjdobs, mjdobs_, result)
             else:
                 if abs(mjdobs - mjdobs_) < delta_mjdobs:
                     delta_mjdobs = abs(mjdobs - mjdobs_)
                     result = database[ssig][smjd]['statsumm'][quantile]
-                    print(mjdobs, mjdobs_, result)
     return result
 
 
