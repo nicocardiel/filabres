@@ -278,7 +278,8 @@ def initialize_auxdb(list_of_nights, instconf, datadir, verbose=False):
                 dictquant = dict()
                 for i in range(len(quantiles)):
                     dictquant[quantkeywords[i]] = quantiles[i]
-                dumdict['quantiles'] = dictquant
+                for qkw in quantkeywords:
+                    dumdict[qkw] = dictquant[qkw]
                 # classify image
                 imagetype = classify_image(instconf, header, dictquant)
                 if imagetype is None:

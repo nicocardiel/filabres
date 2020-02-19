@@ -11,7 +11,7 @@ def statsumm(image2d, rm_nan=False, verbose=False):
 
     Parameters
     ==========
-    image2d : numpy 2D array
+    image2d : numpy 2D array or None
         Array with input image.
     rm_nan : bool
         If True, filter out NaN values before computing statistics.
@@ -24,10 +24,14 @@ def statsumm(image2d, rm_nan=False, verbose=False):
         Statistical summary in dictionary form.
     """
 
-    x = image2d.flatten()
+    if image2d is None:
+        x = np.array([], dtype=np.float)
+        npoints = 0
+    else:
+        x = image2d.flatten()
+        npoints = len(x)
     if rm_nan:
         x = x[np.logical_not(np.isnan(x))]
-    npoints = len(x)
     ok = npoints > 0
     quant025 = float(np.percentile(x, 2.5)) if ok else 0
     quant159 = float(np.percentile(x, 15.9)) if ok else 0

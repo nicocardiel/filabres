@@ -450,6 +450,11 @@ def run_reduction_step(redustep, datadir, list_of_nights,
                             output_filename
                         database[redustep][ssig][mjdobs]['statsumm'] = \
                             image2d_statsum
+                        dumdict = dict()
+                        for keyword in instconf['masterkeywords']:
+                            dumdict[keyword] = output_header[keyword]
+                        database[redustep][ssig][mjdobs]['masterkeywords'] = \
+                            dumdict
                         database[redustep][ssig][mjdobs]['norigin'] = nfiles
                         database[redustep][ssig][mjdobs]['originf'] = originf
                     else:

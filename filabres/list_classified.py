@@ -3,15 +3,19 @@ import json
 import os
 import pandas as pd
 
+from .load_instrument_configuration import load_instrument_configuration
+
 from filabres import LISTDIR
 
 
-def list_classified(img1, img2, datadir, args_night, args_keyword):
+def list_classified(instrument, img1, img2, datadir, args_night, args_keyword):
     """
     Display list with already classified images of the selected type
 
     Parameters
     ==========
+    instrument : str
+        Instrument name.
     img1 : str or None
         Image type. It should coincide with any of the available
         image types declared in the instrument configuration file.
@@ -41,7 +45,7 @@ def list_classified(img1, img2, datadir, args_night, args_keyword):
         else:
             lkeyword = [item[0].upper() for item in args_keyword]
     else:
-        lkeyword = None
+        lkeyword = []
 
     if img2 is None:
         if img1 is None:
@@ -54,6 +58,33 @@ def list_classified(img1, img2, datadir, args_night, args_keyword):
         else:
             print('ERROR: do not use -lc and -lcf simultaneously.')
             raise SystemExit()
+
+    # load instrument configuration
+    instconf = load_instrument_configuration(
+        instrument=instrument,
+        redustep=imagetype,
+        dontcheckredustep=True
+    )
+
+    # show all valid keywords and exit
+    if lkeyword == ['ALL']:
+        print('Valid keywords:',
+              instconf['masterkeywords'] + instconf['quantkeywords'])
+        raise SystemExit()
+
+    # check imagetype is a valid reduction step
+    basic_imagetypes = list(instconf['imagetypes'].keys())
+    valid_imagetypes = basic_imagetypes + \
+                       ['wrong-' + kwd for kwd in basic_imagetypes] + \
+                       ['wrong-instrument', 'unclassified']
+    if imagetype not in valid_imagetypes:
+        print('ERROR: invalid image type: {}'.format(imagetype))
+        raise SystemExit()
+
+    # display at least NAXIS1 and NAXIS2
+    for kwd in ['NAXIS2', 'NAXIS1']:
+        if kwd not in lkeyword:
+            lkeyword.insert(0, kwd)
 
     # check for ./lists subdirectory
     if not os.path.isdir(LISTDIR):
@@ -88,10 +119,8 @@ def list_classified(img1, img2, datadir, args_night, args_keyword):
                 if img2 is not None:
                     print(outfile, end=' ')
                 else:
-                    quantiles = imagedb[imagetype][filename]['quantiles']
                     storedkeywords = imagedb[imagetype][filename]
                     colnames_ = ['file']
-                    colnames_ += list(quantiles.keys())
                     if lkeyword is not None:
                         for keyword in lkeyword:
                             if keyword not in storedkeywords:
@@ -112,7 +141,6 @@ def list_classified(img1, img2, datadir, args_night, args_keyword):
 
                     # new_df_row = [os.path.basename(outfile)]
                     new_df_row = [outfile]
-                    new_df_row += list(quantiles.values())
                     if lkeyword is not None:
                         for keyword in lkeyword:
                             new_df_row += [storedkeywords[keyword]]
@@ -128,6 +156,8 @@ def list_classified(img1, img2, datadir, args_night, args_keyword):
                 pd.set_option('display.max_columns', None)
                 pd.set_option('display.width', None)
                 pd.set_option('display.max_colwidth', -1)
-                print(df.round(1).to_string(index=True))
-
+                print(df.round(5).to_string(index=False))
+            print('Total: {} files'.format(df.shape[0]))
+        else:
+            print('Total: {} files'.format(0))
     raise SystemExit()

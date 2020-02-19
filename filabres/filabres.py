@@ -64,12 +64,14 @@ def main():
     args = parser.parse_args()
 
     # ---
+    # ToDo: generate log with errors when reducing images
 
     instrument, datadir = load_setup(args.setup, args.verbose)
     datadir = check_tslash(datadir)
 
     if args.lc_imagetype is not None or args.lcf_imagetype is not None:
-        list_classified(img1=args.lc_imagetype,
+        list_classified(instrument=instrument,
+                        img1=args.lc_imagetype,
                         img2=args.lcf_imagetype,
                         datadir=datadir,
                         args_night=args.night,
@@ -79,7 +81,8 @@ def main():
         list_reduced(img1=args.lr_imagetype,
                      img2=args.lrf_imagetype,
                      instrument=instrument,
-                     args_night=args.night)
+                     args_night=args.night,
+                     args_keyword=args.keyword)
 
     # load instrument configuration
     instconf = load_instrument_configuration(

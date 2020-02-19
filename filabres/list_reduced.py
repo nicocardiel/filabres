@@ -5,9 +5,10 @@ import os
 import pandas as pd
 
 from .load_instrument_configuration import load_instrument_configuration
+from .statsumm import statsumm
 
 
-def list_reduced(img1, img2, instrument, args_night):
+def list_reduced(img1, img2, instrument, args_night, args_keyword):
     """
     Display list with already classified images of the selected type
 
@@ -27,7 +28,21 @@ def list_reduced(img1, img2, instrument, args_night):
         Instrument name.
     args_night : str or None
         Selected night
+    args_keyword : list or None
+        List with additional keywords to be displayed when img2
+        is not None (otherwise an error is raised). Note that each
+        value in this list is also a list (with a single keyword).
     """
+
+    # protections
+    if args_keyword is not None:
+        if img1 is None:
+            print('ERROR: -k KEYWORD is only valid together with -lr')
+            raise SystemExit()
+        else:
+            lkeyword = [item[0].upper() for item in args_keyword]
+    else:
+        lkeyword = []
 
     if img2 is None:
         if img1 is None:
@@ -41,7 +56,34 @@ def list_reduced(img1, img2, instrument, args_night):
             print('ERROR: do not use -lr and -lrf simultaneously.')
             raise SystemExit()
 
-    # check for ./lists subdirectory
+    # load instrument configuration
+    instconf = load_instrument_configuration(
+        instrument=instrument,
+        redustep=imagetype,
+        dontcheckredustep=True
+    )
+
+    # show all valid keywords and exit
+    if lkeyword == ['ALL']:
+        print('Valid keywords:',
+              instconf['masterkeywords'] + list(statsumm(None).keys()))
+        raise SystemExit()
+
+    # check imagetype is a valid reduction step
+    basic_imagetypes = list(instconf['imagetypes'].keys())
+    valid_imagetypes = basic_imagetypes + \
+                       ['wrong-' + kwd for kwd in basic_imagetypes] + \
+                       ['wrong-instrument', 'unclassified']
+    if imagetype not in valid_imagetypes:
+        print('ERROR: invalid image type: {}'.format(imagetype))
+        raise SystemExit()
+
+    # display at least NAXIS1 and NAXIS2
+    for kwd in ['NAXIS2', 'NAXIS1']:
+        if kwd not in lkeyword:
+            lkeyword.insert(0, kwd)
+
+    # check for imagetype subdirectory
     if not os.path.isdir(imagetype):
         msg = "Subdirectory {} not found".format(imagetype)
         raise SystemError(msg)
@@ -53,10 +95,6 @@ def list_reduced(img1, img2, instrument, args_night):
         night = args_night
 
     # determine whether the imagetype is a calibration or not
-    instconf = load_instrument_configuration(
-        instrument=instrument,
-        redustep=imagetype
-    )
     classification = \
         instconf['imagetypes'][imagetype]['classification']
 
@@ -86,8 +124,6 @@ def list_reduced(img1, img2, instrument, args_night):
             msg = 'File {} not found'.format(jsonfilename)
             raise SystemError(msg)
 
-        sortedkeys = database['sortedkeys']
-
         for ssig in database[imagetype]:
             for mjdobs in database[imagetype][ssig]:
                 outfile = database[imagetype][ssig][mjdobs]['filename']
@@ -100,10 +136,19 @@ def list_reduced(img1, img2, instrument, args_night):
                     if img2 is not None:
                         print(outfile, end=' ')
                     else:
-                        statsumm = \
+                        storedkeywords = \
+                            database[imagetype][ssig][mjdobs]['masterkeywords']
+                        storedkeywords.update(
                             database[imagetype][ssig][mjdobs]['statsumm']
-                        colnames_ = ['file'] + sortedkeys + ['NORIGIN']
-                        colnames_ += list(statsumm.keys())
+                        )
+                        colnames_ = ['file']
+                        if lkeyword is not None:
+                            for keyword in lkeyword:
+                                if keyword not in storedkeywords:
+                                    print('ERROR: keyword {} is not stored in '
+                                          'the image database'.format(keyword))
+                                    raise SystemExit()
+                                colnames_ += [keyword]
                         if n == 1:
                             colnames = colnames_
                             df = pd.DataFrame(columns=colnames)
@@ -116,14 +161,12 @@ def list_reduced(img1, img2, instrument, args_night):
                                 raise SystemExit()
 
                         # new_df_row = [os.path.basename(outfile)]
-                        norigin = database[imagetype][ssig][mjdobs]['norigin']
                         signature = \
                             database[imagetype][ssig][mjdobs]['signature']
                         new_df_row = [outfile]
-                        for keyword in sortedkeys:
-                            new_df_row += [signature[keyword]]
-                        new_df_row += [norigin]
-                        new_df_row += list(statsumm.values())
+                        if lkeyword is not None:
+                            for keyword in lkeyword:
+                                new_df_row += [storedkeywords[keyword]]
                         df.loc[n-1] = new_df_row
 
     if img2 is not None:
@@ -136,6 +179,9 @@ def list_reduced(img1, img2, instrument, args_night):
                 pd.set_option('display.max_columns', None)
                 pd.set_option('display.width', None)
                 pd.set_option('display.max_colwidth', -1)
-                print(df.round(1).to_string(index=True))
+                print(df.round(5).to_string(index=False))
+            print('Total: {} files'.format(df.shape[0]))
+        else:
+            print('Total: {} files'.format(0))
 
     raise SystemExit()
