@@ -39,7 +39,27 @@ def run_reduction_step(redustep, datadir, list_of_nights,
 
     instrument = instconf['instname']
 
-    # check for subdirectory
+    # classification of the reduction step
+    classification = instconf['imagetypes'][redustep]['classification']
+
+    if classification == 'calibration':
+        # set the results database: note that for calibration images, this
+        # database is stored in a single JSON file in the current directory
+        databasefile = 'filabres_db_{}_{}.json'.format(instrument, redustep)
+        try:
+            with open(databasefile) as jfile:
+                database = json.load(jfile)
+        except FileNotFoundError:
+            database = {}
+        if verbose:
+            print('\nResults database set to {}'.format(databasefile))
+    else:
+        # in this case the database will be stored in separate files (one
+        # for each night)
+        databasefile = None
+        database = None
+
+    # check for subdirectory in current directory to store results
     if os.path.isdir(redustep):
         if verbose:
             print('\nSubdirectory {} found'.format(redustep))
@@ -78,6 +98,7 @@ def run_reduction_step(redustep, datadir, list_of_nights,
 
         # select images of the requested type
         list_of_images = list(imagedb[redustep].keys())
+        list_of_images.sort()
         nlist_of_images = len(list_of_images)
         if verbose:
             print('Number of {} images found {}'.format(
@@ -96,18 +117,19 @@ def run_reduction_step(redustep, datadir, list_of_nights,
                           'Creating it!'.format(nightdir))
                 os.makedirs(nightdir)
 
-            # set the expected database: note that for science images, this
-            # database is stored as an independent JSON file for each night
-            databasefile = nightdir + '/'
-            databasefile += 'filabres_db_{}_{}.json'.format(instrument,
-                                                            redustep)
-            try:
-                with open(databasefile) as jfile:
-                    database = json.load(jfile)
-            except FileNotFoundError:
-                database = {}
-            if verbose:
-                print('\nMain database set to {}'.format(databasefile))
+            if classification != 'calibration':
+                # set the expected database: note that for science images, this
+                # database is stored as an independent JSON file for each night
+                databasefile = nightdir + '/'
+                databasefile += 'filabres_db_{}_{}.json'.format(
+                    instrument, redustep)
+                try:
+                    with open(databasefile) as jfile:
+                        database = json.load(jfile)
+                except FileNotFoundError:
+                    database = {}
+                if verbose:
+                    print('\nResults database set to {}'.format(databasefile))
 
             # determine number of different signatures
             signaturekeys = instconf['imagetypes'][redustep]['signature']
@@ -147,6 +169,7 @@ def run_reduction_step(redustep, datadir, list_of_nights,
                     if imgsignature == signature:
                         images_with_fixed_signature.append(
                             datadir + night + '/' + filename)
+                images_with_fixed_signature.sort()
                 nfiles = len(images_with_fixed_signature)
                 if nfiles == 0:
                     msg = 'ERROR: unexpected number of {} images = 0'.format(
@@ -268,7 +291,42 @@ def run_reduction_step(redustep, datadir, list_of_nights,
 
                     # combine images according to their type
                     image2d = None  # avoid PyCharm error
-                    if redustep == 'science-imaging':
+                    if redustep == 'bias':
+                        # median combination
+                        image2d = np.median(image3d, axis=0)
+                        output_header.add_history(
+                            'Combination method: median'
+                        )
+                        ierr = 0
+                    elif redustep == 'flat-imaging':
+                        mjdobs = output_header['MJD-OBS']
+                        # retrieve and subtract bias
+                        ierr, image2d_bias, bias_filename = \
+                            retrieve_calibration(
+                                instrument, 'bias', signature, mjdobs,
+                                verbose=verbose
+                            )
+                        if ierr == 0:
+                            output_header.add_history('Subtracting bias:')
+                            output_header.add_history(bias_filename)
+                            if debug:
+                                print('bias level:', np.median(image2d_bias))
+                            for i in range(nfiles):
+                                # subtract bias
+                                image3d[i, :, :] -= image2d_bias
+                                # normalize by the median value
+                                mediansignal = np.median(image3d[i, :, :])
+                                if mediansignal > 0:
+                                    image3d[i, :, :] /= mediansignal
+                            # median combination of normalized images
+                            image2d = np.median(image3d, axis=0)
+                            # set to 1.0 pixels with values <= 0
+                            image2d[image2d <= 0.0] = 1.0
+                            output_header.add_history(
+                                'Combination method: median of normalized '
+                                'images'
+                            )
+                    elif redustep == 'science-imaging':
                         mjdobs = output_header['MJD-OBS']
                         # retrieve and subtract bias
                         ierr, image2d_bias, bias_filename = \
@@ -412,11 +470,17 @@ def run_reduction_step(redustep, datadir, list_of_nights,
                         if not classified_images[key]:
                             images_pending = True
                             break
-            # update main database
-            with open(databasefile, 'w') as outfile:
-                json.dump(database, outfile, indent=2)
+            # update results database
+            if classification != 'calibration':
+                with open(databasefile, 'w') as outfile:
+                    json.dump(database, outfile, indent=2)
 
         else:
             # skipping night (no images of sought type found)
             if verbose:
                 print('No {} images found. Skipping night!'.format(redustep))
+
+    # update results database
+    if classification == 'calibration':
+        with open(databasefile, 'w') as outfile:
+            json.dump(database, outfile, indent=2)
