@@ -56,6 +56,9 @@ def main():
     parser.add_argument("-lrf", "--lrf_imagetype", type=str,
                         help="list reduced images of the selected type "
                              "in a single line")
+    parser.add_argument("-nd", "--ndecimal", type=int,
+                        help="Number of decimal places for floats when using "
+                             "-lc or -lr", default=5)
     parser.add_argument("-v", "--verbose", action="store_true",
                         help="display intermediate information while running")
     parser.add_argument("--debug", action="store_true",
@@ -75,14 +78,16 @@ def main():
                         img2=args.lcf_imagetype,
                         datadir=datadir,
                         args_night=args.night,
-                        args_keyword=args.keyword)
+                        args_keyword=args.keyword,
+                        args_ndecimal=args.ndecimal)
 
     if args.lr_imagetype is not None or args.lrf_imagetype is not None:
-        list_reduced(img1=args.lr_imagetype,
+        list_reduced(instrument=instrument,
+                     img1=args.lr_imagetype,
                      img2=args.lrf_imagetype,
-                     instrument=instrument,
                      args_night=args.night,
-                     args_keyword=args.keyword)
+                     args_keyword=args.keyword,
+                     args_ndecimal=args.ndecimal)
 
     # load instrument configuration
     instconf = load_instrument_configuration(

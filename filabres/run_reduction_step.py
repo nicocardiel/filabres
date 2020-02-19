@@ -291,178 +291,174 @@ def run_reduction_step(redustep, datadir, list_of_nights,
 
                     # combine images according to their type
                     image2d = None  # avoid PyCharm error
+                    ierr_bias = None
+                    ierr_flat = None
                     if redustep == 'bias':
                         # median combination
                         image2d = np.median(image3d, axis=0)
                         output_header.add_history(
                             'Combination method: median'
                         )
-                        ierr = 0
                     elif redustep == 'flat-imaging':
                         mjdobs = output_header['MJD-OBS']
                         # retrieve and subtract bias
-                        ierr, image2d_bias, bias_filename = \
+                        ierr_bias, image2d_bias, bias_filename = \
                             retrieve_calibration(
                                 instrument, 'bias', signature, mjdobs,
                                 verbose=verbose
                             )
-                        if ierr == 0:
-                            output_header.add_history('Subtracting bias:')
-                            output_header.add_history(bias_filename)
-                            if debug:
-                                print('bias level:', np.median(image2d_bias))
-                            for i in range(nfiles):
-                                # subtract bias
-                                image3d[i, :, :] -= image2d_bias
-                                # normalize by the median value
-                                mediansignal = np.median(image3d[i, :, :])
-                                if mediansignal > 0:
-                                    image3d[i, :, :] /= mediansignal
-                            # median combination of normalized images
-                            image2d = np.median(image3d, axis=0)
-                            # set to 1.0 pixels with values <= 0
-                            image2d[image2d <= 0.0] = 1.0
-                            output_header.add_history(
-                                'Combination method: median of normalized '
-                                'images'
-                            )
+                        output_header.add_history('Subtracting bias:')
+                        output_header.add_history(bias_filename)
+                        if debug:
+                            print('bias level:', np.median(image2d_bias))
+                        for i in range(nfiles):
+                            # subtract bias
+                            image3d[i, :, :] -= image2d_bias
+                            # normalize by the median value
+                            mediansignal = np.median(image3d[i, :, :])
+                            if mediansignal > 0:
+                                image3d[i, :, :] /= mediansignal
+                        # median combination of normalized images
+                        image2d = np.median(image3d, axis=0)
+                        # set to 1.0 pixels with values <= 0
+                        image2d[image2d <= 0.0] = 1.0
+                        output_header.add_history(
+                            'Combination method: median of normalized '
+                            'images'
+                        )
                     elif redustep == 'science-imaging':
                         mjdobs = output_header['MJD-OBS']
                         # retrieve and subtract bias
-                        ierr, image2d_bias, bias_filename = \
+                        ierr_bias, image2d_bias, bias_filename = \
                             retrieve_calibration(
                                 instrument, 'bias', signature, mjdobs,
                                 verbose=verbose
                             )
-                        if ierr == 0:
-                            output_header.add_history('Subtracting bias:')
-                            output_header.add_history(bias_filename)
-                            if debug:
-                                print('bias level:', np.median(image2d_bias))
-                            for i in range(nfiles):
-                                # subtract bias
-                                image3d[i, :, :] -= image2d_bias
-                            # retrieve and divide by flatfield
-                            ierr, image2d_flat, flat_filename = \
-                                retrieve_calibration(
-                                    instrument, 'flat-imaging', signature,
-                                    mjdobs, verbose=verbose
-                                )
-                            if ierr == 0:
-                                output_header.add_history('Applying flatfield:')
-                                output_header.add_history(flat_filename)
-                                if debug:
-                                    print('flat level:', np.median(image2d_flat))
-                                for i in range(nfiles):
-                                    image3d[i, :, :] /= image2d_flat
-                                # rescale every single image to the exposure time
-                                # of the first image
-                                for i in range(nfiles):
-                                    factor = exptime[0]/exptime[i]
-                                    image3d[i, :, :] *= factor
-                                # median combination of rescaled images
-                                image2d = np.median(image3d, axis=0)
+                        output_header.add_history('Subtracting bias:')
+                        output_header.add_history(bias_filename)
+                        if debug:
+                            print('bias level:', np.median(image2d_bias))
+                        for i in range(nfiles):
+                            # subtract bias
+                            image3d[i, :, :] -= image2d_bias
+                        # retrieve and divide by flatfield
+                        ierr_flat, image2d_flat, flat_filename = \
+                            retrieve_calibration(
+                                instrument, 'flat-imaging', signature,
+                                mjdobs, verbose=verbose
+                            )
+                        output_header.add_history('Applying flatfield:')
+                        output_header.add_history(flat_filename)
+                        if debug:
+                            print('flat level:', np.median(image2d_flat))
+                        for i in range(nfiles):
+                            image3d[i, :, :] /= image2d_flat
+                        # rescale every single image to the exposure time
+                        # of the first image
+                        for i in range(nfiles):
+                            factor = exptime[0]/exptime[i]
+                            image3d[i, :, :] *= factor
+                        # median combination of rescaled images
+                        image2d = np.median(image3d, axis=0)
                     else:
                         msg = '* ERROR: combination of {} not implemented' + \
                               ' yet'.format(redustep)
                         raise SystemError(msg)
 
-                    # generate result only in there are no errors
-                    if ierr == 0:
-                        # generate string with signature values
-                        sortedkeys, ssig = signature_string(signature)
-                        if 'sortedkeys' not in database:
-                            database['sortedkeys'] = sortedkeys
-                        else:
-                            if sortedkeys != database['sortedkeys']:
-                                msg = 'ERROR: sortedkeys have changed when' + \
-                                      'reducing {} images'.format(redustep)
-                                raise SystemError(msg)
-
-                        # note: the following step must be performed before
-                        # saving the combined image; otherwise, the cleanup
-                        # procedure will delete the just created combined image
-                        if redustep not in database:
-                            database[redustep] = dict()
-                        if ssig not in database[redustep]:
-                            # update main database with new signature
-                            # if not present
-                            database[redustep][ssig] = dict()
-                        else:
-                            # check that there is not a combined image using any
-                            # of the individual images of imgblock: otherwise,
-                            # some entries of the main database must be removed
-                            # and the associated reduced images deleted
-                            if len(database[redustep][ssig]) > 0:
-                                mjdobs_to_be_deleted = []
-                                for mjdobs in database[redustep][ssig]:
-                                    old_originf = database[redustep][ssig][
-                                        mjdobs]['originf']
-                                    # is there a conflict?
-                                    conflict = list(set(originf) &
-                                                    set(old_originf))
-                                    if len(conflict) > 0:
-                                        mjdobs_to_be_deleted.append(mjdobs)
-                                        filename = \
-                                            database[redustep][ssig][mjdobs][
-                                                'filename']
-                                        if os.path.exists(filename):
-                                            print('Deleting {}'.format(filename))
-                                            os.remove(filename)
-                                for mjdobs in mjdobs_to_be_deleted:
-                                    print(
-                                        'WARNING: deleting previous database'
-                                        ' entry: {} --> {} --> {}'.format(
-                                            redustep, ssig, mjdobs
-                                        )
-                                    )
-                                    del database[redustep][ssig][mjdobs]
-
-                        # statistical analysis
-                        image2d_statsum = statsumm(image2d, rm_nan=True)
-                        output_header.add_history(
-                            'Statistical analysis of combined'
-                            ' {} image:'.format(redustep)
-                        )
-                        for key in image2d_statsum:
-                            output_header.add_history(' - {}: {}'.format(
-                                key, image2d_statsum[key]
-                            ))
-
-                        # save output FITS file using the file name of the first
-                        # image in the block (appending the _red suffix)
-                        output_filename = nightdir + '/' + redustep + '_'
-                        dumfile = os.path.basename(imgblock[0])
-                        output_filename += dumfile[:-5] + '_red.fits'
-                        print('-> output filename {}'.format(output_filename))
-
-                        hdu = fits.PrimaryHDU(image2d.astype(np.float32),
-                                              output_header)
-                        hdu.writeto(output_filename, overwrite=True)
-
-                        # update database with result using the mean MJD-OBS of
-                        # the combined images as index
-                        mjdobs = '{:.5f}'.format(mean_mjdobs)
-                        database[redustep][ssig][mjdobs] = dict()
-                        database[redustep][ssig][mjdobs]['night'] = night
-                        database[redustep][ssig][mjdobs]['signature'] = signature
-                        database[redustep][ssig][mjdobs]['filename'] = \
-                            output_filename
-                        database[redustep][ssig][mjdobs]['statsumm'] = \
-                            image2d_statsum
-                        dumdict = dict()
-                        for keyword in instconf['masterkeywords']:
-                            dumdict[keyword] = output_header[keyword]
-                        database[redustep][ssig][mjdobs]['masterkeywords'] = \
-                            dumdict
-                        database[redustep][ssig][mjdobs]['norigin'] = nfiles
-                        database[redustep][ssig][mjdobs]['originf'] = originf
+                    # generate string with signature values
+                    sortedkeys, ssig = signature_string(signature)
+                    if 'sortedkeys' not in database:
+                        database['sortedkeys'] = sortedkeys
                     else:
-                        print('* WARNING: skipping generation of reduced {}'
-                              ' with signature {}'.format(redustep, signature))
-                        for dumfile in imgblock:
-                            print(' - {}'.format(dumfile))
-                        input('Press <RETURN> to continue...')
+                        if sortedkeys != database['sortedkeys']:
+                            msg = 'ERROR: sortedkeys have changed when' + \
+                                  'reducing {} images'.format(redustep)
+                            raise SystemError(msg)
+
+                    # note: the following step must be performed before
+                    # saving the combined image; otherwise, the cleanup
+                    # procedure will delete the just created combined image
+                    if redustep not in database:
+                        database[redustep] = dict()
+                    if ssig not in database[redustep]:
+                        # update main database with new signature
+                        # if not present
+                        database[redustep][ssig] = dict()
+                    else:
+                        # check that there is not a combined image using any
+                        # of the individual images of imgblock: otherwise,
+                        # some entries of the main database must be removed
+                        # and the associated reduced images deleted
+                        if len(database[redustep][ssig]) > 0:
+                            mjdobs_to_be_deleted = []
+                            for mjdobs in database[redustep][ssig]:
+                                old_originf = database[redustep][ssig][
+                                    mjdobs]['originf']
+                                # is there a conflict?
+                                conflict = list(set(originf) &
+                                                set(old_originf))
+                                if len(conflict) > 0:
+                                    mjdobs_to_be_deleted.append(mjdobs)
+                                    filename = \
+                                        database[redustep][ssig][mjdobs][
+                                            'filename']
+                                    if os.path.exists(filename):
+                                        print('Deleting {}'.format(filename))
+                                        os.remove(filename)
+                            for mjdobs in mjdobs_to_be_deleted:
+                                print(
+                                    'WARNING: deleting previous database'
+                                    ' entry: {} --> {} --> {}'.format(
+                                        redustep, ssig, mjdobs
+                                    )
+                                )
+                                del database[redustep][ssig][mjdobs]
+
+                    # statistical analysis
+                    image2d_statsum = statsumm(image2d, rm_nan=True)
+                    output_header.add_history(
+                        'Statistical analysis of combined'
+                        ' {} image:'.format(redustep)
+                    )
+                    for key in image2d_statsum:
+                        output_header.add_history(' - {}: {}'.format(
+                            key, image2d_statsum[key]
+                        ))
+
+                    # save output FITS file using the file name of the first
+                    # image in the block (appending the _red suffix)
+                    output_filename = nightdir + '/' + redustep + '_'
+                    dumfile = os.path.basename(imgblock[0])
+                    output_filename += dumfile[:-5] + '_red.fits'
+                    print('-> output filename {}'.format(output_filename))
+
+                    hdu = fits.PrimaryHDU(image2d.astype(np.float32),
+                                          output_header)
+                    hdu.writeto(output_filename, overwrite=True)
+
+                    # update database with result using the mean MJD-OBS of
+                    # the combined images as index
+                    mjdobs = '{:.5f}'.format(mean_mjdobs)
+                    database[redustep][ssig][mjdobs] = dict()
+                    database[redustep][ssig][mjdobs]['night'] = night
+                    database[redustep][ssig][mjdobs]['signature'] = signature
+                    database[redustep][ssig][mjdobs]['filename'] = \
+                        output_filename
+                    database[redustep][ssig][mjdobs]['statsumm'] = \
+                        image2d_statsum
+                    dumdict = dict()
+                    for keyword in instconf['masterkeywords']:
+                        dumdict[keyword] = output_header[keyword]
+                    database[redustep][ssig][mjdobs]['masterkeywords'] = \
+                        dumdict
+                    database[redustep][ssig][mjdobs]['norigin'] = nfiles
+                    database[redustep][ssig][mjdobs]['originf'] = originf
+                    if ierr_bias is not None:
+                        database[redustep][ssig][mjdobs]['ierr_bias'] = \
+                            ierr_bias
+                    if ierr_flat is not None:
+                        database[redustep][ssig][mjdobs]['ierr_flat'] = \
+                            ierr_flat
 
                     # set to reduced status the images that have been reduced
                     for key in imgblock:

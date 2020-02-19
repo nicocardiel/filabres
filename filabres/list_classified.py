@@ -8,7 +8,8 @@ from .load_instrument_configuration import load_instrument_configuration
 from filabres import LISTDIR
 
 
-def list_classified(instrument, img1, img2, datadir, args_night, args_keyword):
+def list_classified(instrument, img1, img2, datadir, args_night,
+                    args_keyword, args_ndecimal=5):
     """
     Display list with already classified images of the selected type
 
@@ -34,7 +35,8 @@ def list_classified(instrument, img1, img2, datadir, args_night, args_keyword):
         List with additional keywords to be displayed when img2
         is not None (otherwise an error is raised). Note that each
         value in this list is also a list (with a single keyword).
-
+    args_ndecimal : int
+        Number of decimal places for floats.
     """
 
     # protections
@@ -46,6 +48,12 @@ def list_classified(instrument, img1, img2, datadir, args_night, args_keyword):
             lkeyword = [item[0].upper() for item in args_keyword]
     else:
         lkeyword = []
+
+    if lkeyword == []:
+        # display at least NAXIS1 and NAXIS2
+        for kwd in ['NAXIS2', 'NAXIS1']:
+            if kwd not in lkeyword:
+                lkeyword.insert(0, kwd)
 
     if img2 is None:
         if img1 is None:
@@ -66,12 +74,6 @@ def list_classified(instrument, img1, img2, datadir, args_night, args_keyword):
         dontcheckredustep=True
     )
 
-    # show all valid keywords and exit
-    if lkeyword == ['ALL']:
-        print('Valid keywords:',
-              instconf['masterkeywords'] + instconf['quantkeywords'])
-        raise SystemExit()
-
     # check imagetype is a valid reduction step
     basic_imagetypes = list(instconf['imagetypes'].keys())
     valid_imagetypes = basic_imagetypes + \
@@ -80,11 +82,6 @@ def list_classified(instrument, img1, img2, datadir, args_night, args_keyword):
     if imagetype not in valid_imagetypes:
         print('ERROR: invalid image type: {}'.format(imagetype))
         raise SystemExit()
-
-    # display at least NAXIS1 and NAXIS2
-    for kwd in ['NAXIS2', 'NAXIS1']:
-        if kwd not in lkeyword:
-            lkeyword.insert(0, kwd)
 
     # check for ./lists subdirectory
     if not os.path.isdir(LISTDIR):
@@ -119,6 +116,12 @@ def list_classified(instrument, img1, img2, datadir, args_night, args_keyword):
                 if img2 is not None:
                     print(outfile, end=' ')
                 else:
+                    # show all valid keywords and exit
+                    if 'ALL' in lkeyword:
+                        valid_keywords = instconf['masterkeywords']
+                        valid_keywords += instconf['quantkeywords']
+                        print('Valid keywords:', valid_keywords)
+                        raise SystemExit()
                     storedkeywords = imagedb[imagetype][filename]
                     colnames_ = ['file']
                     if lkeyword is not None:
@@ -156,7 +159,7 @@ def list_classified(instrument, img1, img2, datadir, args_night, args_keyword):
                 pd.set_option('display.max_columns', None)
                 pd.set_option('display.width', None)
                 pd.set_option('display.max_colwidth', -1)
-                print(df.round(5).to_string(index=False))
+                print(df.round(args_ndecimal).to_string(index=False))
             print('Total: {} files'.format(df.shape[0]))
         else:
             print('Total: {} files'.format(0))
