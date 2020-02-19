@@ -67,7 +67,6 @@ def main():
     args = parser.parse_args()
 
     # ---
-    # ToDo: generate log with errors when reducing images
 
     instrument, datadir = load_setup(args.setup, args.verbose)
     datadir = check_tslash(datadir)
