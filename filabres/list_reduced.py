@@ -134,9 +134,7 @@ def list_reduced(instrument, img1, img2, args_night, args_keyword,
                         # show all valid keywords and exit
                         if 'ALL' in lkeyword:
                             valid_keywords = instconf['masterkeywords']
-                            valid_keywords += list(
-                                minidict[mjdobs]['statsumm'].keys()
-                            )
+                            valid_keywords += list(minidict[mjdobs]['statsumm'].keys())
                             valid_keywords.append('NORIGIN')
                             for kwd in ['ierr_bias', 'ierr_flat']:
                                 if kwd in minidict[mjdobs]:
@@ -149,15 +147,12 @@ def list_reduced(instrument, img1, img2, args_night, args_keyword,
                         storedkeywords.update({'NORIGIN': norigin})
                         for kwd in ['ierr_bias', 'ierr_flat']:
                             if kwd in minidict[mjdobs]:
-                                storedkeywords.update(
-                                    {kwd.upper(): minidict[mjdobs][kwd]}
-                                )
+                                storedkeywords.update({kwd.upper(): minidict[mjdobs][kwd]})
                         colnames_ = ['file']
                         if lkeyword is not None:
                             for keyword in lkeyword:
                                 if keyword not in storedkeywords:
-                                    print('ERROR: keyword {} is not stored in '
-                                          'the image database'.format(keyword))
+                                    print('ERROR: keyword {} is not stored in the image database'.format(keyword))
                                     raise SystemExit()
                                 colnames_ += [keyword]
                         if n == 1:
@@ -165,8 +160,7 @@ def list_reduced(instrument, img1, img2, args_night, args_keyword,
                             df = pd.DataFrame(columns=colnames)
                         else:
                             if colnames_ != colnames:
-                                print("ERROR: number of keywords do not match"
-                                      "for file {}".format(outfile))
+                                print("ERROR: number of keywords do not match for file {}".format(outfile))
                                 print("- expected:", colnames)
                                 print("- required:", colnames_)
                                 raise SystemExit()

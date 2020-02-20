@@ -29,40 +29,25 @@ from .run_reduction_step import run_reduction_step
 def main():
 
     # parse command-line options
-    parser = argparse.ArgumentParser(
-        description="Basic data reduction of CAHA data"
-    )
+    parser = argparse.ArgumentParser(description="Basic data reduction of CAHA data")
 
-    parser.add_argument("-s", "--setup", type=str,
-                        help="filabres setup file name")
-    parser.add_argument("-rs", "--reduction_step", type=str,
-                        help="reduction step")
-    parser.add_argument("-n", "--night", type=str,
-                        help="night label (wildcards are valid within "
-                             "quotes)")
+    parser.add_argument("-s", "--setup", type=str, help="filabres setup file name")
+    parser.add_argument("-rs", "--reduction_step", type=str, help="reduction step")
+    parser.add_argument("-n", "--night", type=str, help="night label (wildcards are valid within quotes)")
     parser.add_argument("-lc", "--lc_imagetype", type=str,
-                        help="list classified images of the selected type "
-                             "with quantile information")
+                        help="list classified images of the selected type with quantile information")
     parser.add_argument("-lcf", "--lcf_imagetype", type=str,
-                        help="list classified images of the selected type "
-                             "in a single line")
-    parser.add_argument("-k", "--keyword", type=str,
-                        action='append', nargs=1,
-                        help="specify a keyword for the -lc option "
-                             "(ignored otherwise)")
+                        help="list classified images of the selected type in a single line")
+    parser.add_argument("-k", "--keyword", type=str, action='append', nargs=1,
+                        help="specify a keyword for the -lc option (ignored otherwise)")
     parser.add_argument("-lr", "--lr_imagetype", type=str,
-                        help="list reduced images of the selected type "
-                             "with quantile information")
+                        help="list reduced images of the selected type with quantile information")
     parser.add_argument("-lrf", "--lrf_imagetype", type=str,
-                        help="list reduced images of the selected type "
-                             "in a single line")
+                        help="list reduced images of the selected type in a single line")
     parser.add_argument("-nd", "--ndecimal", type=int,
-                        help="Number of decimal places for floats when using "
-                             "-lc or -lr", default=5)
-    parser.add_argument("-v", "--verbose", action="store_true",
-                        help="display intermediate information while running")
-    parser.add_argument("--debug", action="store_true",
-                        help="display debugging information")
+                        help="Number of decimal places for floats when using -lc or -lr", default=5)
+    parser.add_argument("-v", "--verbose", action="store_true", help="display intermediate information while running")
+    parser.add_argument("--debug", action="store_true", help="display debugging information")
 
     args = parser.parse_args()
 

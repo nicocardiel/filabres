@@ -55,8 +55,7 @@ def load_instrument_configuration(instrument, redustep,
             # check reduction step
             defined_redusteps = {'initialize': True}
             for img in bigdict[instrument]['imagetypes']:
-                defined_redusteps[img] = \
-                    bigdict[instrument]['imagetypes'][img]['executable']
+                defined_redusteps[img] = bigdict[instrument]['imagetypes'][img]['executable']
             redustep_is_ok = True
             if redustep not in defined_redusteps:
                 redustep_is_ok = False
@@ -67,12 +66,10 @@ def load_instrument_configuration(instrument, redustep,
                 if redustep is None:
                     print('ERROR: missing reduction step!')
                 else:
-                    print('ERROR: invalid or unavailable reduction '
-                          'step: {}'.format(redustep))
+                    print('ERROR: invalid or unavailable reduction step: {}'.format(redustep))
                 print('Initial options are:')
                 for redustep_ in defined_redusteps:
-                    print('-rs/--reduction_step {}  (available: {})'.format(
-                        redustep_, defined_redusteps[redustep_]))
+                    print('-rs/--reduction_step {}  (available: {})'.format(redustep_, defined_redusteps[redustep_]))
                 raise SystemExit()
 
     # define instrument configuration dictionary
@@ -82,8 +79,7 @@ def load_instrument_configuration(instrument, redustep,
     # different image types are all included in the masterkeywords list
     for imagetype in instconf['imagetypes']:
         # check keywords in requirements
-        allrequirements = \
-            list(instconf['imagetypes'][imagetype]['requirements'].keys()) + \
+        allrequirements = list(instconf['imagetypes'][imagetype]['requirements'].keys()) + \
             list(instconf['imagetypes'][imagetype]['requirementx'].keys())
         for keyword in allrequirements:
             for operator in REQ_OPERATORS:
@@ -94,8 +90,7 @@ def load_instrument_configuration(instrument, redustep,
             validkw = instconf['masterkeywords'] + instconf['quantkeywords']
             if keyword not in validkw:
                 print('ERROR in configuration.yaml file')
-                print('-> the (requirements) keyword {} is not '
-                      'included in the masterkeywords or quantkeywords '
+                print('-> the (requirements) keyword {} is not included in the masterkeywords or quantkeywords '
                       'lists'.format(keyword))
                 raise SystemExit()
 
@@ -103,8 +98,7 @@ def load_instrument_configuration(instrument, redustep,
         for keyword in instconf['imagetypes'][imagetype]['signature']:
             if keyword not in instconf['masterkeywords']:
                 print('ERROR in configuration.yaml file')
-                print('-> the (signature) keyword {} is not included in '
-                      'the masterkeywords list'.format(keyword))
+                print('-> the (signature) keyword {} is not included in the masterkeywords list'.format(keyword))
                 raise SystemExit()
 
     if debug:

@@ -74,9 +74,7 @@ def run_reduction_step(redustep, datadir, list_of_nights,
     # loop in night
     for inight, night in enumerate(list_of_nights):
 
-        print('\n* Working with night {} ({}/{})'.format(
-            night, inight + 1, len(list_of_nights))
-        )
+        print('\n* Working with night {} ({}/{})'.format(night, inight + 1, len(list_of_nights)))
 
         # read local image database for current night
         jsonfilename = LISTDIR + night + '/imagedb_'
@@ -101,8 +99,7 @@ def run_reduction_step(redustep, datadir, list_of_nights,
         list_of_images.sort()
         nlist_of_images = len(list_of_images)
         if verbose:
-            print('Number of {} images found {}'.format(
-                redustep, nlist_of_images))
+            print('Number of {} images found {}'.format(redustep, nlist_of_images))
 
         if nlist_of_images > 0:
 
@@ -113,16 +110,14 @@ def run_reduction_step(redustep, datadir, list_of_nights,
                     print('Subdirectory {} found'.format(nightdir))
             else:
                 if verbose:
-                    print('Subdirectory {} not found. '
-                          'Creating it!'.format(nightdir))
+                    print('Subdirectory {} not found. Creating it!'.format(nightdir))
                 os.makedirs(nightdir)
 
             if classification != 'calibration':
                 # set the expected database: note that for science images, this
                 # database is stored as an independent JSON file for each night
                 databasefile = nightdir + '/'
-                databasefile += 'filabres_db_{}_{}.json'.format(
-                    instrument, redustep)
+                databasefile += 'filabres_db_{}_{}.json'.format(instrument, redustep)
                 try:
                     with open(databasefile) as jfile:
                         database = json.load(jfile)
@@ -138,8 +133,7 @@ def run_reduction_step(redustep, datadir, list_of_nights,
                 # signature of particular image
                 imgsignature = dict()
                 for keyword in signaturekeys:
-                    imgsignature[keyword] = \
-                        imagedb[redustep][filename][keyword]
+                    imgsignature[keyword] = imagedb[redustep][filename][keyword]
                 if len(list_of_signatures) == 0:
                     list_of_signatures.append(imgsignature)
                 else:
@@ -164,16 +158,13 @@ def run_reduction_step(redustep, datadir, list_of_nights,
                     # signature of particular image
                     imgsignature = dict()
                     for keyword in signaturekeys:
-                        imgsignature[keyword] = \
-                            imagedb[redustep][filename][keyword]
+                        imgsignature[keyword] = imagedb[redustep][filename][keyword]
                     if imgsignature == signature:
-                        images_with_fixed_signature.append(
-                            datadir + night + '/' + filename)
+                        images_with_fixed_signature.append(datadir + night + '/' + filename)
                 images_with_fixed_signature.sort()
                 nfiles = len(images_with_fixed_signature)
                 if nfiles == 0:
-                    msg = 'ERROR: unexpected number of {} images = 0'.format(
-                          nfiles)
+                    msg = 'ERROR: unexpected number of {} images = 0'.format(nfiles)
                     raise SystemError(msg)
                 # dictionary indicating if the images with this signature
                 # have been classified
@@ -181,12 +172,10 @@ def run_reduction_step(redustep, datadir, list_of_nights,
                 for filename in images_with_fixed_signature:
                     classified_images[filename] = False
                 if verbose:
-                    print('Signature ({}/{}):'.format(
-                        isignature+1, len(list_of_signatures)))
+                    print('Signature ({}/{}):'.format(isignature+1, len(list_of_signatures)))
                     for key in signature:
                         print(' - {}: {}'.format(key, signature[key]))
-                    print('Total number of images with this signature:',
-                          len(images_with_fixed_signature))
+                    print('Total number of images with this signature:', len(images_with_fixed_signature))
                     if debug:
                         for filename in images_with_fixed_signature:
                             print(filename, end=' ')
@@ -231,8 +220,7 @@ def run_reduction_step(redustep, datadir, list_of_nights,
                     originf = [os.path.basename(dum) for dum in imgblock]
                     mean_mjdobs /= nfiles
                     if verbose:
-                        print('> Number of images with expected signature and '
-                              'within time span:', nfiles)
+                        print('> Number of images with expected signature and within time span:', nfiles)
                         if debug:
                             for filename in imgblock:
                                 print(filename)
@@ -240,8 +228,7 @@ def run_reduction_step(redustep, datadir, list_of_nights,
                     # declare temporary cube to store the images to be combined
                     naxis1 = getkey_from_signature(signature, 'NAXIS1')
                     naxis2 = getkey_from_signature(signature, 'NAXIS2')
-                    image3d = np.zeros((nfiles, naxis2, naxis1),
-                                       dtype=np.float32)
+                    image3d = np.zeros((nfiles, naxis2, naxis1), dtype=np.float32)
                     exptime = np.zeros(nfiles, dtype=np.float32)
 
                     # output file name
@@ -258,12 +245,8 @@ def run_reduction_step(redustep, datadir, list_of_nights,
                         if i == 0:
                             output_header = image_header
                             output_header.add_history("---")
-                            output_header.add_history(
-                                'Using filabres v.{}'.format(version))
-                            output_header.add_history(
-                                'Date: ' + str(
-                                    datetime.datetime.utcnow().isoformat())
-                            )
+                            output_header.add_history('Using filabres v.{}'.format(version))
+                            output_header.add_history('Date: ' + str(datetime.datetime.utcnow().isoformat()))
                             output_header.add_history(str(sys.argv))
                             # avoid warning when saving FITS
                             if 'BLANK' in output_header:
@@ -275,35 +258,25 @@ def run_reduction_step(redustep, datadir, list_of_nights,
                                 val2 = imagedb[redustep][basename][keyword]
                                 if val1 != val2:
                                     output_header[keyword] = val2
-                                    print('WARNING: {} changed from {} to'
-                                          ' {}'.format(keyword, val1, val2))
-                            output_header.add_history(
-                                'Using {} images to compute {}:'.format(
-                                    nfiles, redustep))
+                                    print('WARNING: {} changed from {} to {}'.format(keyword, val1, val2))
+                            output_header.add_history('Using {} images to compute {}:'.format(nfiles, redustep))
                         image3d[i, :, :] += image_data
-                        output_header.add_history(
-                            os.path.basename(filename))
+                        output_header.add_history(os.path.basename(filename))
                     output_header.add_history('Signature:')
                     for key in signature:
-                        output_header.add_history(
-                            ' - {}: {}'.format(key, signature[key])
-                        )
+                        output_header.add_history(' - {}: {}'.format(key, signature[key]))
 
                     # combine images according to their type
-                    image2d = None  # avoid PyCharm error
                     ierr_bias = None
                     ierr_flat = None
                     if redustep == 'bias':
                         # median combination
                         image2d = np.median(image3d, axis=0)
-                        output_header.add_history(
-                            'Combination method: median'
-                        )
+                        output_header.add_history('Combination method: median')
                     elif redustep == 'flat-imaging':
                         mjdobs = output_header['MJD-OBS']
                         # retrieve and subtract bias
-                        ierr_bias, image2d_bias, bias_filename = \
-                            retrieve_calibration(
+                        ierr_bias, image2d_bias, bias_filename = retrieve_calibration(
                                 instrument, 'bias', signature, mjdobs,
                                 verbose=verbose
                             )
@@ -322,15 +295,11 @@ def run_reduction_step(redustep, datadir, list_of_nights,
                         image2d = np.median(image3d, axis=0)
                         # set to 1.0 pixels with values <= 0
                         image2d[image2d <= 0.0] = 1.0
-                        output_header.add_history(
-                            'Combination method: median of normalized '
-                            'images'
-                        )
+                        output_header.add_history('Combination method: median of normalized images')
                     elif redustep == 'science-imaging':
                         mjdobs = output_header['MJD-OBS']
                         # retrieve and subtract bias
-                        ierr_bias, image2d_bias, bias_filename = \
-                            retrieve_calibration(
+                        ierr_bias, image2d_bias, bias_filename = retrieve_calibration(
                                 instrument, 'bias', signature, mjdobs,
                                 verbose=verbose
                             )
@@ -342,8 +311,7 @@ def run_reduction_step(redustep, datadir, list_of_nights,
                             # subtract bias
                             image3d[i, :, :] -= image2d_bias
                         # retrieve and divide by flatfield
-                        ierr_flat, image2d_flat, flat_filename = \
-                            retrieve_calibration(
+                        ierr_flat, image2d_flat, flat_filename = retrieve_calibration(
                                 instrument, 'flat-imaging', signature,
                                 mjdobs, verbose=verbose
                             )
@@ -360,16 +328,14 @@ def run_reduction_step(redustep, datadir, list_of_nights,
                                 factor = 1.0
                             else:
                                 if exptime[i] <= 0:
-                                    msg = 'Unexpected EXPTIME={}'.format(
-                                        exptime[i])
+                                    msg = 'Unexpected EXPTIME={}'.format(exptime[i])
                                     raise SystemError(msg)
                                 factor = exptime[0]/exptime[i]
                             image3d[i, :, :] *= factor
                         # median combination of rescaled images
                         image2d = np.median(image3d, axis=0)
                     else:
-                        msg = '* ERROR: combination of {} not implemented' + \
-                              ' yet'.format(redustep)
+                        msg = '* ERROR: combination of {} not implemented yet'.format(redustep)
                         raise SystemError(msg)
 
                     # generate string with signature values
@@ -378,8 +344,7 @@ def run_reduction_step(redustep, datadir, list_of_nights,
                         database['sortedkeys'] = sortedkeys
                     else:
                         if sortedkeys != database['sortedkeys']:
-                            msg = 'ERROR: sortedkeys have changed when' + \
-                                  'reducing {} images'.format(redustep)
+                            msg = 'ERROR: sortedkeys have changed when reducing {} images'.format(redustep)
                             raise SystemError(msg)
 
                     # note: the following step must be performed before
@@ -399,23 +364,17 @@ def run_reduction_step(redustep, datadir, list_of_nights,
                         if len(database[redustep][ssig]) > 0:
                             mjdobs_to_be_deleted = []
                             for mjdobs in database[redustep][ssig]:
-                                old_originf = database[redustep][ssig][
-                                    mjdobs]['originf']
+                                old_originf = database[redustep][ssig][mjdobs]['originf']
                                 # is there a conflict?
-                                conflict = list(set(originf) &
-                                                set(old_originf))
+                                conflict = list(set(originf) & set(old_originf))
                                 if len(conflict) > 0:
                                     mjdobs_to_be_deleted.append(mjdobs)
-                                    filename = \
-                                        database[redustep][ssig][mjdobs][
-                                            'filename']
+                                    filename = database[redustep][ssig][mjdobs]['filename']
                                     if os.path.exists(filename):
                                         print('Deleting {}'.format(filename))
                                         os.remove(filename)
                             for mjdobs in mjdobs_to_be_deleted:
-                                print(
-                                    'WARNING: deleting previous database'
-                                    ' entry: {} --> {} --> {}'.format(
+                                print('WARNING: deleting previous database entry: {} --> {} --> {}'.format(
                                         redustep, ssig, mjdobs
                                     )
                                 )
@@ -423,14 +382,9 @@ def run_reduction_step(redustep, datadir, list_of_nights,
 
                     # statistical analysis
                     image2d_statsum = statsumm(image2d, rm_nan=True)
-                    output_header.add_history(
-                        'Statistical analysis of combined'
-                        ' {} image:'.format(redustep)
-                    )
+                    output_header.add_history('Statistical analysis of combined {} image:'.format(redustep))
                     for key in image2d_statsum:
-                        output_header.add_history(' - {}: {}'.format(
-                            key, image2d_statsum[key]
-                        ))
+                        output_header.add_history(' - {}: {}'.format(key, image2d_statsum[key]))
 
                     # save output FITS file using the file name of the first
                     # image in the block (appending the _red suffix)
@@ -439,8 +393,7 @@ def run_reduction_step(redustep, datadir, list_of_nights,
                     output_filename += dumfile[:-5] + '_red.fits'
                     print('-> output filename {}'.format(output_filename))
 
-                    hdu = fits.PrimaryHDU(image2d.astype(np.float32),
-                                          output_header)
+                    hdu = fits.PrimaryHDU(image2d.astype(np.float32), output_header)
                     hdu.writeto(output_filename, overwrite=True)
 
                     # update database with result using the mean MJD-OBS of
@@ -449,23 +402,18 @@ def run_reduction_step(redustep, datadir, list_of_nights,
                     database[redustep][ssig][mjdobs] = dict()
                     database[redustep][ssig][mjdobs]['night'] = night
                     database[redustep][ssig][mjdobs]['signature'] = signature
-                    database[redustep][ssig][mjdobs]['filename'] = \
-                        output_filename
-                    database[redustep][ssig][mjdobs]['statsumm'] = \
-                        image2d_statsum
+                    database[redustep][ssig][mjdobs]['filename'] = output_filename
+                    database[redustep][ssig][mjdobs]['statsumm'] = image2d_statsum
                     dumdict = dict()
                     for keyword in instconf['masterkeywords']:
                         dumdict[keyword] = output_header[keyword]
-                    database[redustep][ssig][mjdobs]['masterkeywords'] = \
-                        dumdict
+                    database[redustep][ssig][mjdobs]['masterkeywords'] = dumdict
                     database[redustep][ssig][mjdobs]['norigin'] = nfiles
                     database[redustep][ssig][mjdobs]['originf'] = originf
                     if ierr_bias is not None:
-                        database[redustep][ssig][mjdobs]['ierr_bias'] = \
-                            ierr_bias
+                        database[redustep][ssig][mjdobs]['ierr_bias'] = ierr_bias
                     if ierr_flat is not None:
-                        database[redustep][ssig][mjdobs]['ierr_flat'] = \
-                            ierr_flat
+                        database[redustep][ssig][mjdobs]['ierr_flat'] = ierr_flat
 
                     # set to reduced status the images that have been reduced
                     for key in imgblock:

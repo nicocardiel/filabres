@@ -225,8 +225,7 @@ def initialize_auxdb(list_of_nights, instconf, datadir, verbose=False):
                 if logfile is None:
                     logfile = open(logfilename, 'wt')
                     print('-> Creating {}'.format(logfilename))
-                logfile.write('{} while reading {}\n'.format(
-                              type(e).__name__, basename))
+                logfile.write('{} while reading {}\n'.format(type(e).__name__, basename))
                 logfile.write('{}\n'.format(e))
                 print('{} while reading {}'.format(
                     type(e).__name__, basename))
@@ -263,15 +262,10 @@ def initialize_auxdb(list_of_nights, instconf, datadir, verbose=False):
                                 tinit = Time(header['DATE-OBS'],
                                              format='isot', scale='utc')
                                 dumdict['MJD-OBS'] = tinit.mjd
-                                print('WARNING: MJD-OBS changed from '
-                                      '{} to {:.5f} (wrong value in file '
-                                      '{})'.format(mjdobs,
-                                                   tinit.mjd,
-                                                   filename)
-                                      )
+                                print('WARNING: MJD-OBS changed from {} to {:.5f} (wrong value in file '
+                                      '{})'.format(mjdobs, tinit.mjd, filename))
                     else:
-                        msg = 'ERROR: keyword {} is missing in ' + \
-                              'file {}'.format(keyword, basename)
+                        msg = 'ERROR: keyword {} is missing in file {}'.format(keyword, basename)
                         raise SystemError(msg)
                 # basic image statistics
                 quantiles = np.quantile(data, probquantiles)
@@ -294,8 +288,7 @@ def initialize_auxdb(list_of_nights, instconf, datadir, verbose=False):
                         basename, ifilename + 1, len(list_of_fits),
                         imagetype))
             else:
-                msg = 'ERROR: unexpected image type {} in' + \
-                      'file {}'.format(imagetype, basename)
+                msg = 'ERROR: unexpected image type {} in file {}'.format(imagetype, basename)
                 raise SystemError(msg)
 
         # close logfile (if opened)

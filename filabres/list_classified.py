@@ -127,8 +127,7 @@ def list_classified(instrument, img1, img2, datadir, args_night,
                     if lkeyword is not None:
                         for keyword in lkeyword:
                             if keyword not in storedkeywords:
-                                print('ERROR: keyword {} is not stored in '
-                                      'the image database'.format(keyword))
+                                print('ERROR: keyword {} is not stored in the image database'.format(keyword))
                                 raise SystemExit()
                             colnames_ += [keyword]
                     if n == 1:
@@ -136,8 +135,7 @@ def list_classified(instrument, img1, img2, datadir, args_night,
                         df = pd.DataFrame(columns=colnames)
                     else:
                         if colnames_ != colnames:
-                            print("ERROR: number of keywords do not match"
-                                  "for file {}".format(filename))
+                            print("ERROR: number of keywords do not match for file {}".format(filename))
                             print("- expected:", colnames)
                             print("- required:", colnames_)
                             raise SystemExit()
