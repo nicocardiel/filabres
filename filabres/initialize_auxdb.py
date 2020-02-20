@@ -166,8 +166,7 @@ def initialize_auxdb(list_of_nights, instconf, datadir, verbose=False):
                 print('Subdirectory {} found'.format(nightdir))
         else:
             if verbose:
-                print('Subdirectory {} not found. '
-                      'Creating it!'.format(nightdir))
+                print('Subdirectory {} not found. Creating it!'.format(nightdir))
             os.makedirs(nightdir)
 
         # get list of FITS files for current night

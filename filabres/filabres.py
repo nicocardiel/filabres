@@ -31,9 +31,9 @@ def main():
     # parse command-line options
     parser = argparse.ArgumentParser(description="Basic data reduction of CAHA data")
 
-    parser.add_argument("-s", "--setup", type=str, help="filabres setup file name")
     parser.add_argument("-rs", "--reduction_step", type=str, help="reduction step")
     parser.add_argument("-n", "--night", type=str, help="night label (wildcards are valid within quotes)")
+    parser.add_argument("-i", "--interactive", action="store_true", help="enable interactive execution")
     parser.add_argument("-lc", "--lc_imagetype", type=str,
                         help="list classified images of the selected type with quantile information")
     parser.add_argument("-lcf", "--lcf_imagetype", type=str,
@@ -46,6 +46,7 @@ def main():
                         help="list reduced images of the selected type in a single line")
     parser.add_argument("-nd", "--ndecimal", type=int,
                         help="Number of decimal places for floats when using -lc or -lr", default=5)
+    parser.add_argument("-s", "--setup", type=str, help="filabres setup file name")
     parser.add_argument("-v", "--verbose", action="store_true", help="display intermediate information while running")
     parser.add_argument("--debug", action="store_true", help="display debugging information")
 
@@ -96,6 +97,7 @@ def main():
     else:
         # execute reduction step
         run_reduction_step(redustep=args.reduction_step,
+                           interactive=args.interactive,
                            datadir=datadir,
                            list_of_nights=list_of_nights,
                            instconf=instconf,

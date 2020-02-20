@@ -5,6 +5,7 @@ import numpy as np
 import os
 import sys
 
+from .astrometry import astrometry
 from .retrieve_calibration import retrieve_calibration
 from .signature import getkey_from_signature
 from .signature import signature_string
@@ -14,7 +15,7 @@ from .version import version
 from filabres import LISTDIR
 
 
-def run_reduction_step(redustep, datadir, list_of_nights,
+def run_reduction_step(redustep, interactive, datadir, list_of_nights,
                        instconf, verbose=False, debug=False):
     """
     Execute reduction step.
@@ -23,6 +24,8 @@ def run_reduction_step(redustep, datadir, list_of_nights,
     ==========
     redustep : str
         Reduction step to be executed.
+    interactive : bool
+        If True, enable interactive execution (e.g. plots,...).
     datadir : str
         Directory where the original FITS data (organized by night)
         are stored.
@@ -100,6 +103,8 @@ def run_reduction_step(redustep, datadir, list_of_nights,
         nlist_of_images = len(list_of_images)
         if verbose:
             print('Number of {} images found {}'.format(redustep, nlist_of_images))
+
+        indexid = 0  # running number of index files for astrometry
 
         if nlist_of_images > 0:
 
@@ -269,10 +274,12 @@ def run_reduction_step(redustep, datadir, list_of_nights,
                     # combine images according to their type
                     ierr_bias = None
                     ierr_flat = None
+                    # ---------------------------------------------------------
                     if redustep == 'bias':
                         # median combination
                         image2d = np.median(image3d, axis=0)
                         output_header.add_history('Combination method: median')
+                    # ---------------------------------------------------------
                     elif redustep == 'flat-imaging':
                         mjdobs = output_header['MJD-OBS']
                         # retrieve and subtract bias
@@ -296,6 +303,7 @@ def run_reduction_step(redustep, datadir, list_of_nights,
                         # set to 1.0 pixels with values <= 0
                         image2d[image2d <= 0.0] = 1.0
                         output_header.add_history('Combination method: median of normalized images')
+                    # ---------------------------------------------------------
                     elif redustep == 'science-imaging':
                         mjdobs = output_header['MJD-OBS']
                         # retrieve and subtract bias
@@ -334,6 +342,10 @@ def run_reduction_step(redustep, datadir, list_of_nights,
                             image3d[i, :, :] *= factor
                         # median combination of rescaled images
                         image2d = np.median(image3d, axis=0)
+                        # compute astrometry
+                        indexid += 1
+                        astrometry(image2d, output_header, nightdir, interactive, indexid, verbose, debug=False)
+                    # ---------------------------------------------------------
                     else:
                         msg = '* ERROR: combination of {} not implemented yet'.format(redustep)
                         raise SystemError(msg)
@@ -418,6 +430,9 @@ def run_reduction_step(redustep, datadir, list_of_nights,
                     # set to reduced status the images that have been reduced
                     for key in imgblock:
                         classified_images[key] = True
+
+                    if interactive:
+                        input("Press <RETURN> to continue...")
 
                     # check if there are still images with the selected
                     # signature pending to be reduced
