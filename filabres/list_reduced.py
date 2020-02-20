@@ -46,7 +46,7 @@ def list_reduced(instrument, img1, img2, args_night, args_keyword,
     else:
         lkeyword = []
 
-    if lkeyword == []:
+    if len(lkeyword) == 0:
         # display at least NAXIS1 and NAXIS2
         for kwd in ['NAXIS2', 'NAXIS1']:
             if kwd not in lkeyword:
@@ -74,8 +74,8 @@ def list_reduced(instrument, img1, img2, args_night, args_keyword,
     # check imagetype is a valid reduction step
     basic_imagetypes = list(instconf['imagetypes'].keys())
     valid_imagetypes = basic_imagetypes + \
-                       ['wrong-' + kwd for kwd in basic_imagetypes] + \
-                       ['wrong-instrument', 'unclassified']
+        ['wrong-' + kwd for kwd in basic_imagetypes] + \
+        ['wrong-instrument', 'unclassified']
     if imagetype not in valid_imagetypes:
         print('ERROR: invalid image type: {}'.format(imagetype))
         raise SystemExit()
@@ -122,12 +122,10 @@ def list_reduced(instrument, img1, img2, args_night, args_keyword,
             raise SystemError(msg)
 
         for ssig in database[imagetype]:
-            for mjdobs in database[imagetype][ssig]:
-                outfile = database[imagetype][ssig][mjdobs]['filename']
-                nightok = fnmatch.fnmatch(
-                    database[imagetype][ssig][mjdobs]['night'],
-                    night
-                )
+            minidict = database[imagetype][ssig]
+            for mjdobs in minidict:
+                outfile = minidict[mjdobs]['filename']
+                nightok = fnmatch.fnmatch(minidict[mjdobs]['night'], night)
                 if nightok:
                     n += 1
                     if img2 is not None:
@@ -136,25 +134,24 @@ def list_reduced(instrument, img1, img2, args_night, args_keyword,
                         # show all valid keywords and exit
                         if 'ALL' in lkeyword:
                             valid_keywords = instconf['masterkeywords']
-                            valid_keywords += list(database[imagetype][ssig][mjdobs]['statsumm'].keys())
+                            valid_keywords += list(
+                                minidict[mjdobs]['statsumm'].keys()
+                            )
                             valid_keywords.append('NORIGIN')
                             for kwd in ['ierr_bias', 'ierr_flat']:
-                                if kwd in database[imagetype][ssig][mjdobs]:
+                                if kwd in minidict[mjdobs]:
                                     valid_keywords.append(kwd.upper())
                             print('Valid keywords:', valid_keywords)
                             raise SystemExit()
-                        storedkeywords = \
-                            database[imagetype][ssig][mjdobs]['masterkeywords']
-                        storedkeywords.update(
-                            database[imagetype][ssig][mjdobs]['statsumm']
-                        )
-                        norigin = database[imagetype][ssig][mjdobs]['norigin']
+                        storedkeywords = minidict[mjdobs]['masterkeywords']
+                        storedkeywords.update(minidict[mjdobs]['statsumm'])
+                        norigin = minidict[mjdobs]['norigin']
                         storedkeywords.update({'NORIGIN': norigin})
                         for kwd in ['ierr_bias', 'ierr_flat']:
-                            if kwd in database[imagetype][ssig][mjdobs]:
-                                storedkeywords.update({
-                                    kwd.upper(): database[imagetype][ssig][mjdobs][kwd]
-                                })
+                            if kwd in minidict[mjdobs]:
+                                storedkeywords.update(
+                                    {kwd.upper(): minidict[mjdobs][kwd]}
+                                )
                         colnames_ = ['file']
                         if lkeyword is not None:
                             for keyword in lkeyword:

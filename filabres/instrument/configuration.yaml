@@ -118,6 +118,7 @@ cafos:
         IMAGETYP: 'science'
         INSGRID: 'GRISM-11'
       requirementx:
+        EXPTIME.GT.: 0
         QUANT975.LT.: 60000
       signature:
         - CCDNAME
@@ -138,6 +139,7 @@ cafos:
         IMAGETYP: 'science'
         INSGRID.NE.: 'GRISM-11'
       requirementx:
+        EXPTIME.GT.: 0
         QUANT975.LT.: 60000
       signature:
         - CCDNAME

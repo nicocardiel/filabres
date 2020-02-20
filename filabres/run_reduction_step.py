@@ -356,7 +356,14 @@ def run_reduction_step(redustep, datadir, list_of_nights,
                         # rescale every single image to the exposure time
                         # of the first image
                         for i in range(nfiles):
-                            factor = exptime[0]/exptime[i]
+                            if exptime[0] == exptime[i]:
+                                factor = 1.0
+                            else:
+                                if exptime[i] <= 0:
+                                    msg = 'Unexpected EXPTIME={}'.format(
+                                        exptime[i])
+                                    raise SystemError(msg)
+                                factor = exptime[0]/exptime[i]
                             image3d[i, :, :] *= factor
                         # median combination of rescaled images
                         image2d = np.median(image3d, axis=0)
