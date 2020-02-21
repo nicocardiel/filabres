@@ -1,7 +1,7 @@
 import numpy as np
 
 
-def statsumm(image2d, rm_nan=False, verbose=False):
+def statsumm(image2d, header=None, redustep=None, rm_nan=False, verbose=False):
     """
     Compute statistical summary of 2D image.
 
@@ -13,6 +13,10 @@ def statsumm(image2d, rm_nan=False, verbose=False):
     ==========
     image2d : numpy 2D array or None
         Array with input image.
+    header : astropy header or None
+        Header to be updated
+    redustep : str
+        Reduction step.
     rm_nan : bool
         If True, filter out NaN values before computing statistics.
     verbose : bool
@@ -57,5 +61,10 @@ def statsumm(image2d, rm_nan=False, verbose=False):
 
     if verbose:
         print(result)
+
+    if header is not None:
+        header.add_history('Statistical analysis of combined {} image:'.format(redustep))
+        for key in result:
+            header.add_history(' - {}: {}'.format(key, result[key]))
 
     return result

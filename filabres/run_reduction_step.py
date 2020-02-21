@@ -230,6 +230,56 @@ def run_reduction_step(redustep, interactive, datadir, list_of_nights,
                             for filename in imgblock:
                                 print(filename)
 
+                    # note: the following step must be performed before
+                    # saving the combined image; otherwise, the cleanup
+                    # procedure will delete the just created combined image
+                    if redustep not in database:
+                        database[redustep] = dict()
+                    # generate string with signature values
+                    sortedkeys, ssig = signature_string(signature)
+                    if 'sortedkeys' not in database:
+                        database['sortedkeys'] = sortedkeys
+                    else:
+                        if sortedkeys != database['sortedkeys']:
+                            msg = 'ERROR: sortedkeys have changed when reducing {} images'.format(redustep)
+                            raise SystemError(msg)
+
+                    if ssig not in database[redustep]:
+                        # update main database with new signature
+                        # if not present
+                        database[redustep][ssig] = dict()
+                    else:
+                        # check that there is not a combined image using any
+                        # of the individual images of imgblock: otherwise,
+                        # some entries of the main database must be removed
+                        # and the associated reduced images deleted
+                        if len(database[redustep][ssig]) > 0:
+                            mjdobs_to_be_deleted = []
+                            for mjdobs in database[redustep][ssig]:
+                                old_originf = database[redustep][ssig][mjdobs]['originf']
+                                # is there a conflict?
+                                conflict = list(set(originf) & set(old_originf))
+                                if len(conflict) > 0:
+                                    mjdobs_to_be_deleted.append(mjdobs)
+                                    filename = database[redustep][ssig][mjdobs]['filename']
+                                    if os.path.exists(filename):
+                                        print('Deleting {}'.format(filename))
+                                        os.remove(filename)
+                            for mjdobs in mjdobs_to_be_deleted:
+                                print('WARNING: deleting previous database entry: {} --> {} --> {}'.format(
+                                        redustep, ssig, mjdobs
+                                    )
+                                )
+                                del database[redustep][ssig][mjdobs]
+
+                    # define output FITS file using the file name of the first
+                    # image in the block (appending the _red suffix)
+                    output_filename = nightdir + '/' + redustep + '_'
+                    dumfile = os.path.basename(imgblock[0])
+                    output_filename += dumfile[:-5] + '_red.fits'
+                    if verbose:
+                        print('-> output filename will be {}'.format(output_filename))
+
                     # declare temporary cube to store the images to be combined
                     naxis1 = getkey_from_signature(signature, 'NAXIS1')
                     naxis2 = getkey_from_signature(signature, 'NAXIS2')
@@ -279,6 +329,11 @@ def run_reduction_step(redustep, interactive, datadir, list_of_nights,
                         # median combination
                         image2d = np.median(image3d, axis=0)
                         output_header.add_history('Combination method: median')
+                        # compute statistical analysis and update the image header
+                        image2d_statsum = statsumm(image2d, output_header, redustep, rm_nan=True)
+                        # save result
+                        hdu = fits.PrimaryHDU(image2d.astype(np.float32), output_header)
+                        hdu.writeto(output_filename, overwrite=True)
                     # ---------------------------------------------------------
                     elif redustep == 'flat-imaging':
                         mjdobs = output_header['MJD-OBS']
@@ -303,6 +358,11 @@ def run_reduction_step(redustep, interactive, datadir, list_of_nights,
                         # set to 1.0 pixels with values <= 0
                         image2d[image2d <= 0.0] = 1.0
                         output_header.add_history('Combination method: median of normalized images')
+                        # compute statistical analysis and update the image header
+                        image2d_statsum = statsumm(image2d, output_header, redustep, rm_nan=True)
+                        # save result
+                        hdu = fits.PrimaryHDU(image2d.astype(np.float32), output_header)
+                        hdu.writeto(output_filename, overwrite=True)
                     # ---------------------------------------------------------
                     elif redustep == 'science-imaging':
                         mjdobs = output_header['MJD-OBS']
@@ -342,71 +402,16 @@ def run_reduction_step(redustep, interactive, datadir, list_of_nights,
                             image3d[i, :, :] *= factor
                         # median combination of rescaled images
                         image2d = np.median(image3d, axis=0)
-                        # compute astrometry
+                        # compute statistical analysis and update the image header
+                        image2d_statsum = statsumm(image2d, output_header, redustep, rm_nan=True)
+                        # compute astrometry: note that the function generates
+                        # the output file
                         indexid += 1
                         astrometry(image2d, output_header, nightdir, interactive, indexid, verbose, debug=False)
                     # ---------------------------------------------------------
                     else:
                         msg = '* ERROR: combination of {} not implemented yet'.format(redustep)
                         raise SystemError(msg)
-
-                    # generate string with signature values
-                    sortedkeys, ssig = signature_string(signature)
-                    if 'sortedkeys' not in database:
-                        database['sortedkeys'] = sortedkeys
-                    else:
-                        if sortedkeys != database['sortedkeys']:
-                            msg = 'ERROR: sortedkeys have changed when reducing {} images'.format(redustep)
-                            raise SystemError(msg)
-
-                    # note: the following step must be performed before
-                    # saving the combined image; otherwise, the cleanup
-                    # procedure will delete the just created combined image
-                    if redustep not in database:
-                        database[redustep] = dict()
-                    if ssig not in database[redustep]:
-                        # update main database with new signature
-                        # if not present
-                        database[redustep][ssig] = dict()
-                    else:
-                        # check that there is not a combined image using any
-                        # of the individual images of imgblock: otherwise,
-                        # some entries of the main database must be removed
-                        # and the associated reduced images deleted
-                        if len(database[redustep][ssig]) > 0:
-                            mjdobs_to_be_deleted = []
-                            for mjdobs in database[redustep][ssig]:
-                                old_originf = database[redustep][ssig][mjdobs]['originf']
-                                # is there a conflict?
-                                conflict = list(set(originf) & set(old_originf))
-                                if len(conflict) > 0:
-                                    mjdobs_to_be_deleted.append(mjdobs)
-                                    filename = database[redustep][ssig][mjdobs]['filename']
-                                    if os.path.exists(filename):
-                                        print('Deleting {}'.format(filename))
-                                        os.remove(filename)
-                            for mjdobs in mjdobs_to_be_deleted:
-                                print('WARNING: deleting previous database entry: {} --> {} --> {}'.format(
-                                        redustep, ssig, mjdobs
-                                    )
-                                )
-                                del database[redustep][ssig][mjdobs]
-
-                    # statistical analysis
-                    image2d_statsum = statsumm(image2d, rm_nan=True)
-                    output_header.add_history('Statistical analysis of combined {} image:'.format(redustep))
-                    for key in image2d_statsum:
-                        output_header.add_history(' - {}: {}'.format(key, image2d_statsum[key]))
-
-                    # save output FITS file using the file name of the first
-                    # image in the block (appending the _red suffix)
-                    output_filename = nightdir + '/' + redustep + '_'
-                    dumfile = os.path.basename(imgblock[0])
-                    output_filename += dumfile[:-5] + '_red.fits'
-                    print('-> output filename {}'.format(output_filename))
-
-                    hdu = fits.PrimaryHDU(image2d.astype(np.float32), output_header)
-                    hdu.writeto(output_filename, overwrite=True)
 
                     # update database with result using the mean MJD-OBS of
                     # the combined images as index

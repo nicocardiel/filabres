@@ -2,7 +2,7 @@
 
 cafos:
   instname: cafos
-  version: 1.8
+  version: 1.9
   requirements:
     INSTRUME: 'CAFOS 2.2'
   masterkeywords:
@@ -114,6 +114,7 @@ cafos:
     science-imaging:
       classification: science
       executable: True
+      maxfieldview_arcmin: 16
       requirements:
         IMAGETYP: 'science'
         INSGRID: 'GRISM-11'
