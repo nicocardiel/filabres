@@ -10,8 +10,8 @@ import pyvo
 import subprocess
 
 
-def astrometry(image2d, header, nightdir, interactive, indexid,
-               verbose, debug=False):
+def astrometry(image2d, header, nightdir, output_filename,
+               interactive, indexid, verbose, debug=False):
     """
     Compute astrometric solution of image.
 
@@ -27,6 +27,8 @@ def astrometry(image2d, header, nightdir, interactive, indexid,
     nightdir : str
         Directory where the raw image is stored and the auxiliary
         images created by astrometry will be placed.
+    output_filename : str
+        Output file name.
     interactive : bool
         If True, enable interactive execution (e.g. plots,...).
     indexid : int
@@ -180,9 +182,10 @@ def astrometry(image2d, header, nightdir, interactive, indexid,
     if verbose:
         print(command)
     p = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, close_fds=True)
-    if verbose:
-        print(p.stdout.read().decode('utf-8'))
+    pout = p.stdout.read().decode('utf-8')
     p.stdout.close()
+    if verbose:
+        print(pout)
 
     # update JSON file with central coordinates of fields already calibrated
     ccbase[subdir] = {'ra': c_fk5_j2000.ra.degree, 'dec': c_fk5_j2000.dec.degree}
@@ -192,16 +195,16 @@ def astrometry(image2d, header, nightdir, interactive, indexid,
     command = 'cp {}/{}/index-image.fits {}/work/'.format(nightdir, subdir, nightdir)
     if verbose:
         print(command)
-        input('paused here!')
     p = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, close_fds=True)
-    if verbose:
-        print(p.stdout.read().decode('utf-8'))
+    pout = p.stdout.read().decode('utf-8')
     p.stdout.close()
+    if verbose:
+        print(pout)
 
     # save temporary FITS file
-    output_filename = '{}/xxx.fits'.format(workdir)
+    tmpfilename = '{}/xxx.fits'.format(workdir)
     hdu = fits.PrimaryHDU(image2d.astype(np.float32), header)
-    hdu.writeto(output_filename, overwrite=True)
+    hdu.writeto(tmpfilename, overwrite=True)
 
     # solve field
     command = 'cd {}; '.format(workdir)
@@ -212,15 +215,22 @@ def astrometry(image2d, header, nightdir, interactive, indexid,
     command += ' --radius 1 xxx.fits'.format(nightdir)
     if verbose:
         print(command)
-    input("Press <RETURN> to continue...")
     p = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, close_fds=True)
-    if verbose:
-        print(p.stdout.read().decode('utf-8'))
+    pout = p.stdout.read().decode('utf-8')
     p.stdout.close()
+    if verbose:
+        print(pout)
 
-    # load wcs from file
-    w = WCS('{}/xxx.wcs'.format(workdir))
-    print(w.printwcs())
+    # open result and update header
+    result_filename = '{}/xxx.new'.format(workdir)
+    with fits.open(result_filename) as hdul:
+        newheader = hdul[0].header
+    newheader.add_comment('Astrometric solution computed')
+    # save result
+    hdu = fits.PrimaryHDU(image2d.astype(np.float32), newheader)
+    hdu.writeto(output_filename, overwrite=True)
+    if verbose:
+        print('File {} created'.format(output_filename))
 
-    header.add_history('Computing astrometric solution:')
-    header.update(w.to_header(relax=True))
+    if interactive:
+        input("Press <RETURN> to continue...")

@@ -407,7 +407,8 @@ def run_reduction_step(redustep, interactive, datadir, list_of_nights,
                         # compute astrometry: note that the function generates
                         # the output file
                         indexid += 1
-                        astrometry(image2d, output_header, nightdir, interactive, indexid, verbose, debug=False)
+                        astrometry(image2d, output_header, nightdir, output_filename,
+                                   interactive, indexid, verbose, debug=False)
                     # ---------------------------------------------------------
                     else:
                         msg = '* ERROR: combination of {} not implemented yet'.format(redustep)
