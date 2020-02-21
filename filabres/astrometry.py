@@ -10,6 +10,59 @@ import pyvo
 import subprocess
 
 
+def retrieve_gaia(ra_deg, dec_deg, radius_deg, magnitude, loggaia):
+    """
+    Retrieve GAIA data.
+
+    Cone search around ra_deg, dec_deg, within a radius given by
+    radius_deg, and within a given limiting magnitude.
+
+    Parameters
+    ==========
+    ra_deg : float
+        Right ascension of the central point.
+    dec_deg : float
+        Declination of the central point.
+    radius_deg : float
+        Radius of the cone search.
+    magnitude : float
+        Limiting magnitude.
+    loggaia : file handler
+        Log file to store intermediate results.
+
+    Results
+    =======
+    gaia_query_line : str
+        Full query.
+    tap_result : TAPResults instance
+        Result of the cone search
+    """
+    gaia_query_line1 = 'SELECT TOP 2000 source_id, ref_epoch, ' \
+                       'ra, ra_error, dec, dec_error, ' \
+                       'parallax, parallax_error, ' \
+                       'pmra, pmra_error, pmdec, pmdec_error, ' \
+                       'phot_g_mean_mag, bp_rp, ' \
+                       'radial_velocity, radial_velocity_error, ' \
+                       'a_g_val'
+    gaia_query_line2 = 'FROM gdr2.gaia_source'
+    gaia_query_line3 = '''WHERE CONTAINS(POINT('ICRS',gaiadr2.gaia_source.ra,gaiadr2.gaia_source.dec), ''' + \
+                       '''CIRCLE('ICRS',''' + \
+                       '{},{},{}'.format(ra_deg, dec_deg, radius_deg) + \
+                       '))=1'
+    gaia_query_line4 = 'AND phot_g_mean_mag < {}'.format(magnitude)
+    gaia_query_line = gaia_query_line1 + ' ' + gaia_query_line2 + ' ' + gaia_query_line3 + ' ' + gaia_query_line4
+
+    loggaia.write('Querying GAIA data with phot_g_mean_mag={:.2f}\n'.format(magnitude))
+
+    loggaia.write(gaia_query_line + '\n')
+    # retrieve GAIA data using the Table Access Protocol;
+    # see specific details for retrieval of GAIA data in
+    # https://gaia.aip.de/cms/documentation/tap-interface/
+    tap_service = pyvo.dal.TAPService('https://gaia.aip.de/tap')
+    tap_result = tap_service.run_sync(gaia_query_line)
+    return gaia_query_line, tap_result
+
+
 def astrometry(image2d, header, maxfieldview_arcmin, fieldfactor,
                initial_phot_g_mean_mag,
                nightdir, output_filename,
@@ -138,48 +191,23 @@ def astrometry(image2d, header, maxfieldview_arcmin, fieldfactor,
         loggaia = open(loggaianame, 'wt')
         if verbose:
             print('-> Creating {}'.format(loggaianame))
+        loggaia.write('Querying GAIA data...\n')
         # generate query for GAIA
         search_radius_arcmin = fieldfactor * maxfieldview_arcmin
         search_radius_degree = search_radius_arcmin / 60
-        gaia_query_line1 = 'SELECT TOP 2000 source_id, ref_epoch, ' \
-                           'ra, ra_error, dec, dec_error, ' \
-                           'parallax, parallax_error, ' \
-                           'pmra, pmra_error, pmdec, pmdec_error, ' \
-                           'phot_g_mean_mag, bp_rp, ' \
-                           'radial_velocity, radial_velocity_error, ' \
-                           'a_g_val'
-        gaia_query_line2 = 'FROM gdr2.gaia_source'
-        gaia_query_line3 = '''WHERE CONTAINS(POINT('ICRS',gaiadr2.gaia_source.ra,gaiadr2.gaia_source.dec), ''' + \
-                           '''CIRCLE('ICRS',''' + \
-                           '{},{},{}'.format(c_fk5_j2000.ra.degree, c_fk5_j2000.dec.degree, search_radius_degree) + \
-                           '))=1'
         # loop in phot_g_mean_mag
         # ---
         mag_minimum = 0
-        gaia_query_line4 = 'AND phot_g_mean_mag < {}'.format(mag_minimum)
-        gaia_query = gaia_query_line1 + ' ' + gaia_query_line2 + ' ' + gaia_query_line3 + ' ' + gaia_query_line4
-        loggaia.write('Querying GAIA data...\n')
-        loggaia.write(gaia_query + '\n')
-        # retrieve GAIA data using the Table Access Protocol;
-        # see specific details for retrieval of GAIA data in
-        # https://gaia.aip.de/cms/documentation/tap-interface/
-        tap_service = pyvo.dal.TAPService('https://gaia.aip.de/tap')
-        tap_result = tap_service.run_sync(gaia_query)
+        gaia_query_line, tap_result = retrieve_gaia(c_fk5_j2000.ra.deg, c_fk5_j2000.dec.deg, search_radius_degree,
+                                                    mag_minimum, loggaia)
         nobjects_mag_minimum = len(tap_result)
         print('nobjects_mag_minimum:', nobjects_mag_minimum)
         if nobjects_mag_minimum >= 2000:
             raise SystemError('Unexpected')
         # ---
         mag_maximum = 30
-        gaia_query_line4 = 'AND phot_g_mean_mag < {}'.format(mag_maximum)
-        gaia_query = gaia_query_line1 + ' ' + gaia_query_line2 + ' ' + gaia_query_line3 + ' ' + gaia_query_line4
-        loggaia.write('Querying GAIA data...\n')
-        loggaia.write(gaia_query + '\n')
-        # retrieve GAIA data using the Table Access Protocol;
-        # see specific details for retrieval of GAIA data in
-        # https://gaia.aip.de/cms/documentation/tap-interface/
-        tap_service = pyvo.dal.TAPService('https://gaia.aip.de/tap')
-        tap_result = tap_service.run_sync(gaia_query)
+        gaia_query_line, tap_result = retrieve_gaia(c_fk5_j2000.ra.deg, c_fk5_j2000.dec.deg, search_radius_degree,
+                                                    mag_maximum, loggaia)
         nobjects_mag_maximum = len(tap_result)
         print('nobjects_mag_maximum:', nobjects_mag_maximum)
         if nobjects_mag_maximum < 2000:
@@ -191,18 +219,10 @@ def astrometry(image2d, header, maxfieldview_arcmin, fieldfactor,
         tap_result = None  # avoid PyCharm warning
         while loop_in_gaia:
             niter += 1
-            mag_medium = (mag_minimum + mag_maximum) / 2
             loggaia.write('Iteration {}\n'.format(niter))
-            loggaia.write('Trying GAIA with phot_g_mean_mag={:.2f}\n'.format(mag_medium))
-            gaia_query_line4 = 'AND phot_g_mean_mag < {}'.format(mag_medium)
-            gaia_query = gaia_query_line1 + ' ' + gaia_query_line2 + ' ' + gaia_query_line3 + ' ' + gaia_query_line4
-            loggaia.write('Querying GAIA data...\n')
-            loggaia.write(gaia_query + '\n')
-            # retrieve GAIA data using the Table Access Protocol;
-            # see specific details for retrieval of GAIA data in
-            # https://gaia.aip.de/cms/documentation/tap-interface/
-            tap_service = pyvo.dal.TAPService('https://gaia.aip.de/tap')
-            tap_result = tap_service.run_sync(gaia_query)
+            mag_medium = (mag_minimum + mag_maximum) / 2
+            gaia_query_line, tap_result = retrieve_gaia(c_fk5_j2000.ra.deg, c_fk5_j2000.dec.deg, search_radius_degree,
+                                                        mag_medium, loggaia)
             nobjects = len(tap_result)
             print('mag_medium, nobjects:', mag_medium, nobjects)
             if nobjects < 2000:
@@ -254,10 +274,7 @@ def astrometry(image2d, header, maxfieldview_arcmin, fieldfactor,
         # save GAIA objects in FITS binary table
         hdr = fits.Header()
         hdr.add_history('GAIA objets selected with following query:')
-        hdr.add_history(gaia_query_line1)
-        hdr.add_history(gaia_query_line2)
-        hdr.add_history(gaia_query_line3)
-        hdr.add_history(gaia_query_line4)
+        hdr.add_history(gaia_query_line)
         hdr.add_history('---')
         hdr.add_history('Note that RA and DEC have been corrected from proper motion')
         primary_hdu = fits.PrimaryHDU(header=hdr)
