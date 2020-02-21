@@ -124,6 +124,13 @@ def astrometry(image2d, header, maxfieldview_arcmin, fieldfactor,
     subdir = 'index{:06d}'.format(indexid)
     # create path to subdir
     newsubdir = nightdir + '/' + subdir
+    if os.path.isdir(newsubdir):
+        if verbose:
+            print('Subdirectory {} found'.format(newsubdir))
+    else:
+        if verbose:
+            print('Subdirectory {} not found. Creating it!'.format(newsubdir))
+        os.makedirs(newsubdir)
 
     if retrieve_new_gaia_data:
         # generate additional logfile for retrieval of GAIA data
@@ -147,17 +154,47 @@ def astrometry(image2d, header, maxfieldview_arcmin, fieldfactor,
                            '{},{},{}'.format(c_fk5_j2000.ra.degree, c_fk5_j2000.dec.degree, search_radius_degree) + \
                            '))=1'
         # loop in phot_g_mean_mag
-        phot_g_mean_mag = initial_phot_g_mean_mag
+        # ---
+        mag_minimum = 0
+        gaia_query_line4 = 'AND phot_g_mean_mag < {}'.format(mag_minimum)
+        gaia_query = gaia_query_line1 + ' ' + gaia_query_line2 + ' ' + gaia_query_line3 + ' ' + gaia_query_line4
+        loggaia.write('Querying GAIA data...\n')
+        loggaia.write(gaia_query + '\n')
+        # retrieve GAIA data using the Table Access Protocol;
+        # see specific details for retrieval of GAIA data in
+        # https://gaia.aip.de/cms/documentation/tap-interface/
+        tap_service = pyvo.dal.TAPService('https://gaia.aip.de/tap')
+        tap_result = tap_service.run_sync(gaia_query)
+        nobjects_mag_minimum = len(tap_result)
+        print('nobjects_mag_minimum:', nobjects_mag_minimum)
+        if nobjects_mag_minimum >= 2000:
+            raise SystemError('Unexpected')
+        # ---
+        mag_maximum = 30
+        gaia_query_line4 = 'AND phot_g_mean_mag < {}'.format(mag_maximum)
+        gaia_query = gaia_query_line1 + ' ' + gaia_query_line2 + ' ' + gaia_query_line3 + ' ' + gaia_query_line4
+        loggaia.write('Querying GAIA data...\n')
+        loggaia.write(gaia_query + '\n')
+        # retrieve GAIA data using the Table Access Protocol;
+        # see specific details for retrieval of GAIA data in
+        # https://gaia.aip.de/cms/documentation/tap-interface/
+        tap_service = pyvo.dal.TAPService('https://gaia.aip.de/tap')
+        tap_result = tap_service.run_sync(gaia_query)
+        nobjects_mag_maximum = len(tap_result)
+        print('nobjects_mag_maximum:', nobjects_mag_maximum)
+        if nobjects_mag_maximum < 2000:
+            raise SystemError('Unexpected')
+        # ---
         loop_in_gaia = True
-        nobjects_previous = 0
         niter = 0
         nitermax = 50
         tap_result = None  # avoid PyCharm warning
         while loop_in_gaia:
             niter += 1
+            mag_medium = (mag_minimum + mag_maximum) / 2
             loggaia.write('Iteration {}\n'.format(niter))
-            loggaia.write('Trying GAIA with phot_g_mean_mag={:.2f}\n'.format(phot_g_mean_mag))
-            gaia_query_line4 = 'AND phot_g_mean_mag < {}'.format(phot_g_mean_mag)
+            loggaia.write('Trying GAIA with phot_g_mean_mag={:.2f}\n'.format(mag_medium))
+            gaia_query_line4 = 'AND phot_g_mean_mag < {}'.format(mag_medium)
             gaia_query = gaia_query_line1 + ' ' + gaia_query_line2 + ' ' + gaia_query_line3 + ' ' + gaia_query_line4
             loggaia.write('Querying GAIA data...\n')
             loggaia.write(gaia_query + '\n')
@@ -166,23 +203,20 @@ def astrometry(image2d, header, maxfieldview_arcmin, fieldfactor,
             # https://gaia.aip.de/cms/documentation/tap-interface/
             tap_service = pyvo.dal.TAPService('https://gaia.aip.de/tap')
             tap_result = tap_service.run_sync(gaia_query)
-            loggaia.write(str(tap_result.to_table()) + '\n')
             nobjects = len(tap_result)
-            loggaia.write('nobjects, nobjects_previous: {}, {}\n'.format(nobjects, nobjects_previous))
+            print('mag_medium, nobjects:', mag_medium, nobjects)
             if nobjects < 2000:
-                if nobjects_previous >= 2000:
+                if mag_maximum - mag_minimum < 0.1:
                     loop_in_gaia = False
                 else:
-                    nobjects_previous = nobjects
-                    phot_g_mean_mag += 0.1
+                    mag_minimum = mag_medium
             else:
-                nobjects_previous = nobjects
-                phot_g_mean_mag -= 0.1
+                mag_maximum = mag_medium
             if niter > nitermax:
                 loggaia.write('ERROR: nitermax reached while retrieving GAIA data')
                 loop_in_gaia = False
-            print('Borrar: ', niter, nobjects, nobjects_previous)
 
+        loggaia.write(str(tap_result.to_table()) + '\n')
         loggaia.close()
 
         if verbose:
@@ -216,14 +250,6 @@ def astrometry(image2d, header, maxfieldview_arcmin, fieldfactor,
             else:
                 ra_corrected.append(ra)
                 dec_corrected.append(dec)
-
-        if os.path.isdir(newsubdir):
-            if verbose:
-                print('Subdirectory {} found'.format(newsubdir))
-        else:
-            if verbose:
-                print('Subdirectory {} not found. Creating it!'.format(newsubdir))
-            os.makedirs(newsubdir)
 
         # save GAIA objects in FITS binary table
         hdr = fits.Header()
