@@ -104,8 +104,6 @@ def run_reduction_step(redustep, interactive, datadir, list_of_nights,
         if verbose:
             print('Number of {} images found {}'.format(redustep, nlist_of_images))
 
-        indexid = 0  # running number of index files for astrometry
-
         if nlist_of_images > 0:
 
             # create subdirectory to store results for current night
@@ -406,9 +404,16 @@ def run_reduction_step(redustep, interactive, datadir, list_of_nights,
                         image2d_statsum = statsumm(image2d, output_header, redustep, rm_nan=True)
                         # compute astrometry: note that the function generates
                         # the output file
-                        indexid += 1
-                        astrometry(image2d, output_header, nightdir, output_filename,
-                                   interactive, indexid, verbose, debug=False)
+                        if 'maxfieldview_arcmin' in instconf['imagetypes'][redustep]:
+                            maxfieldview_arcmin = instconf['imagetypes'][redustep]['maxfieldview_arcmin']
+                        else:
+                            msg = 'maxfieldview_arcmin missing in instrument configuration'
+                            raise SystemError(msg)
+                        astrometry(image2d=image2d, header=output_header,
+                                   maxfieldview_arcmin=maxfieldview_arcmin, fieldfactor=1.1,
+                                   initial_phot_g_mean_mag=16,
+                                   nightdir=nightdir, output_filename=output_filename,
+                                   interactive=interactive, verbose=verbose, debug=False)
                     # ---------------------------------------------------------
                     else:
                         msg = '* ERROR: combination of {} not implemented yet'.format(redustep)
