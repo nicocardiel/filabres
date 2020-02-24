@@ -38,13 +38,13 @@ def retrieve_gaia(ra_deg, dec_deg, radius_deg, magnitude, loggaia):
     tap_result : TAPResults instance
         Result of the cone search
     """
-    gaia_query_line1 = 'SELECT TOP 2000 source_id, ref_epoch, ' \
+    gaia_query_line1 = 'SELECT TOP {} source_id, ref_epoch, ' \
                        'ra, ra_error, dec, dec_error, ' \
                        'parallax, parallax_error, ' \
                        'pmra, pmra_error, pmdec, pmdec_error, ' \
                        'phot_g_mean_mag, bp_rp, ' \
                        'radial_velocity, radial_velocity_error, ' \
-                       'a_g_val'
+                       'a_g_val'.format(NMAXGAIA)
     gaia_query_line2 = 'FROM gdr2.gaia_source'
     gaia_query_line3 = '''WHERE CONTAINS(POINT('ICRS',gaiadr2.gaia_source.ra,gaiadr2.gaia_source.dec), ''' + \
                        '''CIRCLE('ICRS',''' + \
@@ -203,7 +203,7 @@ def astrometry(image2d, header, maxfieldview_arcmin, fieldfactor,
         nobjects_mag_minimum = len(tap_result)
         if verbose:
             print('-> Gaia data: magnitude, nobjects: {:.3f}, {}'.format(mag_minimum, nobjects_mag_minimum))
-        if nobjects_mag_minimum >= 2000:
+        if nobjects_mag_minimum >= NMAXGAIA:
             raise SystemError('Unexpected')
         # ---
         mag_maximum = 30
@@ -212,7 +212,7 @@ def astrometry(image2d, header, maxfieldview_arcmin, fieldfactor,
         nobjects_mag_maximum = len(tap_result)
         if verbose:
             print('-> Gaia data: magnitude, nobjects: {:.3f}, {}'.format(mag_maximum, nobjects_mag_maximum))
-        if nobjects_mag_maximum < 2000:
+        if nobjects_mag_maximum < NMAXGAIA:
             raise SystemError('Unexpected')
         # ---
         loop_in_gaia = True
@@ -228,7 +228,7 @@ def astrometry(image2d, header, maxfieldview_arcmin, fieldfactor,
             nobjects = len(tap_result)
             if verbose:
                 print('-> Gaia data: magnitude, nobjects: {:.3f}, {}'.format(mag_medium, nobjects))
-            if nobjects < 2000:
+            if nobjects < NMAXGAIA:
                 if mag_maximum - mag_minimum < 0.1:
                     loop_in_gaia = False
                 else:
@@ -246,6 +246,8 @@ def astrometry(image2d, header, maxfieldview_arcmin, fieldfactor,
             print('Querying GAIA data: {} objects found'.format(len(tap_result)))
 
         # proper motion correction
+        if verbose:
+            print('-> Applying proper motion correction...')
         source_id = []
         ra_corrected = []
         dec_corrected = []
@@ -287,16 +289,24 @@ def astrometry(image2d, header, maxfieldview_arcmin, fieldfactor,
         col4 = fits.Column(name='phot_g_mean_mag', format='E', array=phot_g_mean_mag)
         hdu = fits.BinTableHDU.from_columns([col1, col2, col3, col4])
         hdul = fits.HDUList([primary_hdu, hdu])
-        hdul.writeto(nightdir + '/' + subdir + '/GaiaDR2-query.fits', overwrite=True)
+        outfilename = nightdir + '/' + subdir + '/GaiaDR2-query.fits'
+        hdul.writeto(outfilename, overwrite=True)
+        if verbose:
+            print('-> Saving {}'.format(outfilename))
 
-        # ToDo: refine -P value when executing build-astrometry-index
         # generate index file with GAIA data
         command = 'build-astrometry-index -i {}/{}/GaiaDR2-query.fits'.format(nightdir, subdir)
         command += ' -o {}/{}/index-image.fits'.format(nightdir, subdir)
         command += ' -A ra -D dec -S phot_g_mean_mag'
-        command += ' -P 2 -E -I {}'.format(indexid)
+        pvalue = int((np.log(maxfieldview_arcmin)-np.log(6))/np.log(np.sqrt(2)) + 0.5)
+        if pvalue < 0:
+            pvalue = 0
+        elif pvalue > 19:
+            pvalue = 19
+        command += ' -P {}'.format(pvalue)
+        command += ' -E -I {}'.format(indexid)
         if verbose:
-            print(command)
+            print('$ {}'.format(command))
         logfile.write('$ {}\n'.format(command))
         p = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, close_fds=True)
         pout = p.stdout.read().decode('utf-8')
@@ -318,11 +328,11 @@ def astrometry(image2d, header, maxfieldview_arcmin, fieldfactor,
         msg = 'Reusing previously computed index file {}/index-image.fits'.format(subdir)
         logfile.write(msg + '\n')
         if verbose:
-            print(msg)
+            print('-> {}'.format(msg))
 
     command = 'cp {}/{}/index-image.fits {}/work/'.format(nightdir, subdir, nightdir)
     if verbose:
-        print(command)
+        print('$ {}'.format(command))
     logfile.write('$ {}\n'.format(command))
     p = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, close_fds=True)
     pout = p.stdout.read().decode('utf-8')
@@ -343,7 +353,7 @@ def astrometry(image2d, header, maxfieldview_arcmin, fieldfactor,
     command += ' --dec ' + str(c_fk5_j2000.dec.degree)
     command += ' --radius 1 xxx.fits'.format(nightdir)
     if verbose:
-        print(command)
+        print('$ {}'.format(command))
     p = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, close_fds=True)
     pout = p.stdout.read().decode('utf-8')
     p.stdout.close()
@@ -361,7 +371,7 @@ def astrometry(image2d, header, maxfieldview_arcmin, fieldfactor,
     hdu = fits.PrimaryHDU(image2d.astype(np.float32), newheader)
     hdu.writeto(output_filename, overwrite=True)
     if verbose:
-        print('File {} created'.format(output_filename))
+        print('-> file {} created'.format(output_filename))
 
     if interactive:
         input("Press <RETURN> to continue...")

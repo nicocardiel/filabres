@@ -225,7 +225,7 @@ def run_reduction_step(redustep, interactive, datadir, list_of_nights,
                     originf = [os.path.basename(dum) for dum in imgblock]
                     mean_mjdobs /= nfiles
                     if verbose:
-                        print('> Number of images with expected signature and within time span:', nfiles)
+                        print('-> Number of images with expected signature and within time span:', nfiles)
                         if debug:
                             for filename in imgblock:
                                 print(filename)
