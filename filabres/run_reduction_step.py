@@ -339,7 +339,7 @@ def run_reduction_step(redustep, interactive, datadir, list_of_nights,
                         mjdobs = output_header['MJD-OBS']
                         # retrieve and subtract bias
                         ierr_bias, image2d_bias, bias_filename = retrieve_calibration(
-                                instrument, 'bias', signaturekeys, signature, mjdobs,
+                                instrument, 'bias', signature, mjdobs,
                                 verbose=verbose
                             )
                         output_header.add_history('Subtracting bias:')
@@ -368,7 +368,7 @@ def run_reduction_step(redustep, interactive, datadir, list_of_nights,
                         mjdobs = output_header['MJD-OBS']
                         # retrieve and subtract bias
                         ierr_bias, image2d_bias, bias_filename = retrieve_calibration(
-                                instrument, 'bias', signaturekeys, signature, mjdobs,
+                                instrument, 'bias', signature, mjdobs,
                                 verbose=verbose
                             )
                         output_header.add_history('Subtracting bias:')
@@ -380,7 +380,7 @@ def run_reduction_step(redustep, interactive, datadir, list_of_nights,
                             image3d[i, :, :] -= image2d_bias
                         # retrieve and divide by flatfield
                         ierr_flat, image2d_flat, flat_filename = retrieve_calibration(
-                                instrument, 'flat-imaging', signaturekeys, signature,
+                                instrument, 'flat-imaging', signature,
                                 mjdobs, verbose=verbose
                             )
                         output_header.add_history('Applying flatfield:')
