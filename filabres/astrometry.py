@@ -8,6 +8,8 @@ import os
 import pyvo
 import subprocess
 
+NMAXGAIA = 2000
+
 
 def retrieve_gaia(ra_deg, dec_deg, radius_deg, magnitude, loggaia):
     """
@@ -29,7 +31,7 @@ def retrieve_gaia(ra_deg, dec_deg, radius_deg, magnitude, loggaia):
     loggaia : file handler
         Log file to store intermediate results.
 
-    Results
+    Returns
     =======
     gaia_query_line : str
         Full query.
@@ -63,7 +65,6 @@ def retrieve_gaia(ra_deg, dec_deg, radius_deg, magnitude, loggaia):
 
 
 def astrometry(image2d, header, maxfieldview_arcmin, fieldfactor,
-               initial_phot_g_mean_mag,
                nightdir, output_filename,
                interactive, verbose, debug=False):
     """
@@ -156,17 +157,17 @@ def astrometry(image2d, header, maxfieldview_arcmin, fieldfactor,
     retrieve_new_gaia_data = True
     if len(ccbase) > 0:
         indexid = len(ccbase) + 1
-        for id in ccbase:
-            x = ccbase[id]['x']
-            y = ccbase[id]['y']
-            z = ccbase[id]['z']
-            search_radius_arcmin = ccbase[id]['search_radius_arcmin']
+        for i in ccbase:
+            x = ccbase[i]['x']
+            y = ccbase[i]['y']
+            z = ccbase[i]['z']
+            search_radius_arcmin = ccbase[i]['search_radius_arcmin']
             # angular distance (radians)
             dist_rad = np.arccos(x * xj2000 + y * yj2000 + z * zj2000)
             # angular distance (arcmin)
-            dist_arcmin =  dist_rad * 180 / np.pi * 60
+            dist_arcmin = dist_rad * 180 / np.pi * 60
             if maxfieldview_arcmin + dist_arcmin < search_radius_arcmin:
-                indexid = int(id[-6:])
+                indexid = int(i[-6:])
                 retrieve_new_gaia_data = False
                 break
     else:
@@ -200,7 +201,8 @@ def astrometry(image2d, header, maxfieldview_arcmin, fieldfactor,
         gaia_query_line, tap_result = retrieve_gaia(c_fk5_j2000.ra.deg, c_fk5_j2000.dec.deg, search_radius_degree,
                                                     mag_minimum, loggaia)
         nobjects_mag_minimum = len(tap_result)
-        print('nobjects_mag_minimum:', nobjects_mag_minimum)
+        if verbose:
+            print('-> Gaia data: magnitude, nobjects: {:.3f}, {}'.format(mag_minimum, nobjects_mag_minimum))
         if nobjects_mag_minimum >= 2000:
             raise SystemError('Unexpected')
         # ---
@@ -208,7 +210,8 @@ def astrometry(image2d, header, maxfieldview_arcmin, fieldfactor,
         gaia_query_line, tap_result = retrieve_gaia(c_fk5_j2000.ra.deg, c_fk5_j2000.dec.deg, search_radius_degree,
                                                     mag_maximum, loggaia)
         nobjects_mag_maximum = len(tap_result)
-        print('nobjects_mag_maximum:', nobjects_mag_maximum)
+        if verbose:
+            print('-> Gaia data: magnitude, nobjects: {:.3f}, {}'.format(mag_maximum, nobjects_mag_maximum))
         if nobjects_mag_maximum < 2000:
             raise SystemError('Unexpected')
         # ---
@@ -223,7 +226,8 @@ def astrometry(image2d, header, maxfieldview_arcmin, fieldfactor,
             gaia_query_line, tap_result = retrieve_gaia(c_fk5_j2000.ra.deg, c_fk5_j2000.dec.deg, search_radius_degree,
                                                         mag_medium, loggaia)
             nobjects = len(tap_result)
-            print('mag_medium, nobjects:', mag_medium, nobjects)
+            if verbose:
+                print('-> Gaia data: magnitude, nobjects: {:.3f}, {}'.format(mag_medium, nobjects))
             if nobjects < 2000:
                 if mag_maximum - mag_minimum < 0.1:
                     loop_in_gaia = False

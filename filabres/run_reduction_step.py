@@ -413,7 +413,6 @@ def run_reduction_step(redustep, interactive, datadir, list_of_nights,
                             raise SystemError(msg)
                         astrometry(image2d=image2d, header=output_header,
                                    maxfieldview_arcmin=maxfieldview_arcmin, fieldfactor=1.1,
-                                   initial_phot_g_mean_mag=16,
                                    nightdir=nightdir, output_filename=output_filename,
                                    interactive=interactive, verbose=verbose, debug=False)
                     # ---------------------------------------------------------
