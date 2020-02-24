@@ -55,7 +55,7 @@ def findclosestquant(mjdobs, database, quantile):
     return result
 
 
-def retrieve_calibration(instrument, redustep, signature, mjdobs,
+def retrieve_calibration(instrument, redustep, signaturekeys, signature, mjdobs,
                          verbose=False):
     """
     Retrieve calibration from main database.
@@ -66,6 +66,8 @@ def retrieve_calibration(instrument, redustep, signature, mjdobs,
         Instrument name.
     redustep : string
         Reduction step.
+    signaturekeys : list()
+        Signature keywords.
     signature : dict()
         Signature of the image to be calibrated. The selected
         calibration must have the expected signature.
@@ -121,7 +123,7 @@ def retrieve_calibration(instrument, redustep, signature, mjdobs,
             msg = '* ERROR: keyword {} not present in {} calibration'.format(keyword, redustep)
             raise SystemError(msg)
         expected_signature[keyword] = signature[keyword]
-    sortedkeys_, ssig = signature_string(expected_signature)
+    ssig = signature_string(signaturekeys, expected_signature)
 
     # check that the calibration key is available in the main database
     if ssig in database[redustep]:

@@ -21,30 +21,28 @@ def getkey_from_signature(signature, key):
         return signature[key]
 
 
-def signature_string(signature):
+def signature_string(signaturekeys, signature):
     """
     Return signature string.
 
     Parameters
     ==========
+    signaturekeys : list
+        Sorted list of keywords.
     signature : dict
         Signature dictionary. Note that the keywords are not expected
         to be sorted.
 
     Returns
     =======
-    sortedkeys : list
-        List of signature keys in alphabetic order.
     output : str
         String sequence with the values of the different signature
-        keywords in alphabetic order.
+        keywords, preserving .
     """
 
-    sortedkeys = list(signature.keys())
-    sortedkeys.sort()
     output = ''
-    for i, key in enumerate(sortedkeys):
+    for i, key in enumerate(signaturekeys):
         if i != 0:
             output += '__'
         output += str(signature[key])
-    return sortedkeys, output
+    return output

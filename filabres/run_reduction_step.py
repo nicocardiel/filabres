@@ -74,6 +74,9 @@ def run_reduction_step(redustep, interactive, datadir, list_of_nights,
     # set maxtimespan_hours
     maxtimespan_hours = instconf['imagetypes'][redustep]['maxtimespan_hours']
 
+    # define signature keys
+    signaturekeys = instconf['imagetypes'][redustep]['signature']
+
     # loop in night
     for inight, night in enumerate(list_of_nights):
 
@@ -130,7 +133,6 @@ def run_reduction_step(redustep, interactive, datadir, list_of_nights,
                     print('\nResults database set to {}'.format(databasefile))
 
             # determine number of different signatures
-            signaturekeys = instconf['imagetypes'][redustep]['signature']
             list_of_signatures = []
             for filename in list_of_images:
                 # signature of particular image
@@ -176,7 +178,7 @@ def run_reduction_step(redustep, interactive, datadir, list_of_nights,
                     classified_images[filename] = False
                 if verbose:
                     print('Signature ({}/{}):'.format(isignature+1, len(list_of_signatures)))
-                    for key in signature:
+                    for key in signaturekeys:
                         print(' - {}: {}'.format(key, signature[key]))
                     print('Total number of images with this signature:', len(images_with_fixed_signature))
                     if debug:
@@ -234,12 +236,12 @@ def run_reduction_step(redustep, interactive, datadir, list_of_nights,
                     if redustep not in database:
                         database[redustep] = dict()
                     # generate string with signature values
-                    sortedkeys, ssig = signature_string(signature)
-                    if 'sortedkeys' not in database:
-                        database['sortedkeys'] = sortedkeys
+                    ssig = signature_string(signaturekeys, signature)
+                    if 'signaturekeys' not in database:
+                        database['signaturekeys'] = signaturekeys
                     else:
-                        if sortedkeys != database['sortedkeys']:
-                            msg = 'ERROR: sortedkeys have changed when reducing {} images'.format(redustep)
+                        if signaturekeys != database['signaturekeys']:
+                            msg = 'ERROR: signaturekeys have changed when reducing {} images'.format(redustep)
                             raise SystemError(msg)
 
                     if ssig not in database[redustep]:
@@ -337,7 +339,7 @@ def run_reduction_step(redustep, interactive, datadir, list_of_nights,
                         mjdobs = output_header['MJD-OBS']
                         # retrieve and subtract bias
                         ierr_bias, image2d_bias, bias_filename = retrieve_calibration(
-                                instrument, 'bias', signature, mjdobs,
+                                instrument, 'bias', signaturekeys, signature, mjdobs,
                                 verbose=verbose
                             )
                         output_header.add_history('Subtracting bias:')
@@ -366,7 +368,7 @@ def run_reduction_step(redustep, interactive, datadir, list_of_nights,
                         mjdobs = output_header['MJD-OBS']
                         # retrieve and subtract bias
                         ierr_bias, image2d_bias, bias_filename = retrieve_calibration(
-                                instrument, 'bias', signature, mjdobs,
+                                instrument, 'bias', signaturekeys, signature, mjdobs,
                                 verbose=verbose
                             )
                         output_header.add_history('Subtracting bias:')
@@ -378,7 +380,7 @@ def run_reduction_step(redustep, interactive, datadir, list_of_nights,
                             image3d[i, :, :] -= image2d_bias
                         # retrieve and divide by flatfield
                         ierr_flat, image2d_flat, flat_filename = retrieve_calibration(
-                                instrument, 'flat-imaging', signature,
+                                instrument, 'flat-imaging', signaturekeys, signature,
                                 mjdobs, verbose=verbose
                             )
                         output_header.add_history('Applying flatfield:')

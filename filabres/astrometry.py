@@ -1,5 +1,4 @@
 from astropy import units as u
-from astropy.wcs import WCS
 from astropy.coordinates import SkyCoord, FK5
 from astropy.io import fits
 from astropy.time import Time

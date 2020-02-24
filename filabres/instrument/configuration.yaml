@@ -55,7 +55,7 @@ cafos:
         - DATASEC
         - CCDBINX
         - CCDBINY
-      1maxtimespan_hours:
+      maxtimespan_hours: 1
     flat-imaging:
       executable: True
       classification: calibration
