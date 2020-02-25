@@ -3,7 +3,6 @@ from astropy.coordinates import SkyCoord, FK5
 from astropy.io import fits
 from astropy.time import Time
 import json
-import matplotlib.pyplot as plt
 import numpy as np
 import os
 import pyvo
@@ -14,6 +13,7 @@ from .ximshow import ximshow
 from .pause_debugplot import pause_debugplot
 
 NMAXGAIA = 2000
+SATURATION_LEVEL = 60000
 
 
 def retrieve_gaia(ra_deg, dec_deg, radius_deg, magnitude, loggaia):
@@ -173,7 +173,7 @@ def astrometry(image2d, mask2d, header, maxfieldview_arcmin, fieldfactor,
             dist_rad = np.arccos(x * xj2000 + y * yj2000 + z * zj2000)
             # angular distance (arcmin)
             dist_arcmin = dist_rad * 180 / np.pi * 60
-            if maxfieldview_arcmin + dist_arcmin < search_radius_arcmin:
+            if (maxfieldview_arcmin / 2) + dist_arcmin < search_radius_arcmin:
                 indexid = int(i[-6:])
                 retrieve_new_gaia_data = False
                 break
@@ -200,7 +200,7 @@ def astrometry(image2d, mask2d, header, maxfieldview_arcmin, fieldfactor,
             print('-> Creating {}'.format(loggaianame))
         loggaia.write('Querying GAIA data...\n')
         # generate query for GAIA
-        search_radius_arcmin = fieldfactor * maxfieldview_arcmin
+        search_radius_arcmin = fieldfactor * (maxfieldview_arcmin / 2)
         search_radius_degree = search_radius_arcmin / 60
         # loop in phot_g_mean_mag
         # ---
@@ -220,12 +220,12 @@ def astrometry(image2d, mask2d, header, maxfieldview_arcmin, fieldfactor,
         if verbose:
             print('-> Gaia data: magnitude, nobjects: {:.3f}, {}'.format(mag_maximum, nobjects_mag_maximum))
         if nobjects_mag_maximum < NMAXGAIA:
-            raise SystemError('Unexpected')
+            loop_in_gaia = False
+        else:
+            loop_in_gaia = True
         # ---
-        loop_in_gaia = True
         niter = 0
         nitermax = 50
-        tap_result = None  # avoid PyCharm warning
         while loop_in_gaia:
             niter += 1
             loggaia.write('Iteration {}\n'.format(niter))
@@ -355,10 +355,30 @@ def astrometry(image2d, mask2d, header, maxfieldview_arcmin, fieldfactor,
     p.stdout.close()
     logfile.write(pout + '\n')
 
-    ax = ximshow(image2d, show=False)
+    """
+    # SEP work
+    bkg = sep.Background(image2d, mask=-mask2d, maskthresh=-0.5)
+    bkg_image2d = bkg.back()
+    ax = ximshow(bkg_image2d, title='bkg_image2d', show=False)
     pause_debugplot(debugplot=12, pltshow=True)
-
-    bkg = sep.Background(image2d, mask=mask2d)
+    bkg_rms2d = bkg.rms()
+    ax = ximshow(bkg_rms2d, title='bkg_rms2d', show=False)
+    pause_debugplot(debugplot=12, pltshow=True)
+    image2d_sub = image2d - bkg_image2d
+    objects = sep.extract(image2d_sub, 2.0, err=np.median(bkg_rms2d))
+    ax = ximshow(image2d_sub, title='image2d_sub (nobjects={})'.format(len(objects)), cmap='gray', show=False)
+    ax.plot(objects['x'] + 1, objects['y'] + 1, 'g+')
+    from matplotlib.patches import Ellipse
+    for i in range(len(objects)):
+        e = Ellipse(xy=(objects['x'][i]+1, objects['y'][i]+1),
+                    width=6*objects['a'][i],
+                    height=6*objects['b'][i],
+                    angle=objects['theta'][i] * 180. / np.pi)
+        e.set_facecolor('none')
+        e.set_edgecolor('red')
+        ax.add_artist(e)
+    pause_debugplot(debugplot=12, pltshow=True)
+    """
 
     # save temporary FITS file
     tmpfilename = '{}/xxx.fits'.format(workdir)
@@ -367,31 +387,91 @@ def astrometry(image2d, mask2d, header, maxfieldview_arcmin, fieldfactor,
 
     # solve field
     command = 'cd {}\n'.format(workdir)
-    command += 'solve-field -l 300'
+    command += 'solve-field -p'
     command += ' --config myastrometry.cfg --overwrite'.format(newsubdir)
     command += ' --ra ' + str(c_fk5_j2000.ra.degree)
     command += ' --dec ' + str(c_fk5_j2000.dec.degree)
-    command += ' --radius 1 xxx.fits'.format(nightdir)
+    command += ' --radius {}'.format(maxfieldview_arcmin / 120)
+    command += ' xxx.fits'
     if verbose:
-        print('$ {}'.format(command))
+        sdum = '$ {}'.format(command)
+        print(sdum.replace('\n', '\n$ '))
+    logfile.write('$ {}\n'.format(command))
     p = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, close_fds=True)
     pout = p.stdout.read().decode('utf-8')
     p.stdout.close()
     logfile.write(pout + '\n')
 
+    # check for saturated objects
+    with fits.open('{}/xxx.axy'.format(workdir), 'update') as hdul_table:
+        tbl = hdul_table[1].data
+        isaturated = np.where(tbl['FLUX'] > SATURATION_LEVEL)[0]
+        if len(isaturated) > 0:
+            if verbose:
+                print(isaturated)
+                print('Number of saturated objects found: {}/{}'.format(len(isaturated), tbl.shape[0]))
+                for i in isaturated:
+                    print('Saturated object: {}'.format(tbl[i]))
+            hdul_table[1].data = np.delete(tbl, isaturated)
+
+    if len(isaturated) > 0:
+        # rerun code
+        naxis2, naxis1 = image2d.shape
+        command = 'cd {}\n'.format(workdir)
+        command += 'solve-field -p'
+        command += ' --config myastrometry.cfg --continue'.format(newsubdir)
+        command += ' --width {} --height {}'.format(naxis1, naxis2)
+        command += ' --x-column X --y-column Y --sort-column FLUX'
+        command += ' --ra ' + str(c_fk5_j2000.ra.degree)
+        command += ' --dec ' + str(c_fk5_j2000.dec.degree)
+        command += ' --radius {}'.format(maxfieldview_arcmin / 120)
+        command += ' xxx.axy'
+        if verbose:
+            sdum = '$ {}'.format(command)
+            print(sdum.replace('\n', '\n$ '))
+        logfile.write('$ {}\n'.format(command))
+        p = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, close_fds=True)
+        pout = p.stdout.read().decode('utf-8')
+        p.stdout.close()
+        logfile.write(pout + '\n')
+        #
+        command = 'cd {}\n'.format(workdir)
+        command += 'new-wcs -i xxx.fits -w xxx.wcs -o xxx.new -d'
+        if verbose:
+            sdum = '$ {}'.format(command)
+            print(sdum.replace('\n', '\n$ '))
+        logfile.write('$ {}\n'.format(command))
+        p = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, close_fds=True)
+        pout = p.stdout.read().decode('utf-8')
+        p.stdout.close()
+        logfile.write(pout + '\n')
+
+    # convert RA, DEC from GAIA objects into X, Y coordinates
+    command = 'wcs-rd2xy -w {0}/xxx.wcs -i {0}/GaiaDR2-query.fits -o {0}/gaia-xy.fits'.format(workdir)
+    if verbose:
+        print('$ {}'.format(command))
+    logfile.write('$ {}\n'.format(command))
+    p = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, close_fds=True)
+    pout = p.stdout.read().decode('utf-8')
+    p.stdout.close()
+    logfile.write(pout + '\n')
+    with fits.open('{}/gaia-xy.fits'.format(workdir)) as hdul_table:
+        gaiaxy = hdul_table[1].data
+
     # load corr file
     corrfilename = '{}/xxx.corr'.format(workdir)
     with fits.open(corrfilename) as hdul_table:
-        tbl_header = hdul_table[1].header
         tbl = hdul_table[1].data
     ntargets = tbl.shape[0]
     medianerr = np.sqrt(np.median((tbl.index_x - tbl.field_x)**2 + (tbl.index_y - tbl.field_y)**2))
     if verbose:
         print('Number of targest found: {}'.format(ntargets))
-        print('Median error (arcsec)..: {}'.format(medianerr))
-    logfile.write('Median error (arcsec): {}\n'.format(medianerr))
+        print('Median error (pixels)..: {}'.format(medianerr))
+    logfile.write('Number of targest found: {}\n'.format(ntargets))
+    logfile.write('Median error (pixels): {}\n'.format(medianerr))
     if interactive:
-        ax = ximshow(image2d, show=False)
+        ax = ximshow(image2d, cmap='gray', show=False)
+        ax.plot(gaiaxy.X, gaiaxy.Y, 'ro', fillstyle='none', alpha=0.2)
         for i in range(ntargets):
             if i == 0:
                 label = 'field'
@@ -421,6 +501,3 @@ def astrometry(image2d, mask2d, header, maxfieldview_arcmin, fieldfactor,
     hdu.writeto(output_filename, overwrite=True)
     if verbose:
         print('-> file {} created'.format(output_filename))
-
-    if interactive:
-        input("Press <RETURN> to continue...")

@@ -1,7 +1,8 @@
 from scipy.signal import medfilt2d
+from scipy.ndimage import gaussian_filter
 
 
-def maskfromflat(image2d_flat, kernel_size=11, threshold=0.3):
+def maskfromflat(image2d_flat, kernel_size=11, threshold=0.5):
     """
     Generate mask from flatfield.
 
@@ -21,7 +22,13 @@ def maskfromflat(image2d_flat, kernel_size=11, threshold=0.3):
         Mask corresponding to useful region.
     """
 
+    # median filter to remove isolated bad pixels
     mask2d = medfilt2d(image2d_flat, kernel_size=kernel_size)
+    # set mask according to threshold
     mask2d[mask2d < threshold] = 0.0
     mask2d[mask2d > 0.9 * threshold] = 1.0
+    # enlarge the masked region
+    mask2d = gaussian_filter(mask2d, sigma=5)
+    mask2d[mask2d < 0.99] = 0.0
+    # return result
     return mask2d

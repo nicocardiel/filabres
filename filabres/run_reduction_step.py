@@ -450,9 +450,6 @@ def run_reduction_step(redustep, interactive, datadir, list_of_nights,
                     for key in imgblock:
                         classified_images[key] = True
 
-                    if interactive:
-                        input("Press <RETURN> to continue...")
-
                     # check if there are still images with the selected
                     # signature pending to be reduced
                     images_pending = False
