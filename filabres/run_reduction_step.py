@@ -6,6 +6,7 @@ import os
 import sys
 
 from .astrometry import astrometry
+from .maskfromflat import maskfromflat
 from .retrieve_calibration import retrieve_calibration
 from .signature import getkey_from_signature
 from .signature import signature_string
@@ -389,6 +390,10 @@ def run_reduction_step(redustep, interactive, datadir, list_of_nights,
                             print('flat level:', np.median(image2d_flat))
                         for i in range(nfiles):
                             image3d[i, :, :] /= image2d_flat
+                        # generate useful region mask from flatfield
+                        mask2d = maskfromflat(image2d_flat)
+                        if debug:
+                            print('masked pixels: {}/{}'.format(np.sum(mask2d == 0.0), naxis1 * naxis2))
                         # rescale every single image to the exposure time
                         # of the first image
                         for i in range(nfiles):
@@ -402,6 +407,8 @@ def run_reduction_step(redustep, interactive, datadir, list_of_nights,
                             image3d[i, :, :] *= factor
                         # median combination of rescaled images
                         image2d = np.median(image3d, axis=0)
+                        # apply useful region mask
+                        image2d *= mask2d
                         # compute statistical analysis and update the image header
                         image2d_statsum = statsumm(image2d, output_header, redustep, rm_nan=True)
                         # compute astrometry: note that the function generates

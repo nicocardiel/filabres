@@ -3,6 +3,7 @@ from astropy.coordinates import SkyCoord, FK5
 from astropy.io import fits
 from astropy.time import Time
 import json
+import matplotlib.pyplot as plt
 import numpy as np
 import os
 import pyvo
@@ -330,6 +331,15 @@ def astrometry(image2d, header, maxfieldview_arcmin, fieldfactor,
         if verbose:
             print('-> {}'.format(msg))
 
+    command = 'cp {}/{}/GaiaDR2-query.fits {}/work/'.format(nightdir, subdir, nightdir)
+    if verbose:
+        print('$ {}'.format(command))
+    logfile.write('$ {}\n'.format(command))
+    p = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, close_fds=True)
+    pout = p.stdout.read().decode('utf-8')
+    p.stdout.close()
+    logfile.write(pout + '\n')
+
     command = 'cp {}/{}/index-image.fits {}/work/'.format(nightdir, subdir, nightdir)
     if verbose:
         print('$ {}'.format(command))
@@ -347,7 +357,7 @@ def astrometry(image2d, header, maxfieldview_arcmin, fieldfactor,
     # solve field
     # ToDo: pensar en como evitar detectar objetos espureos fuera del campo de vision
     command = 'cd {}\n'.format(workdir)
-    command += 'solve-field -p -l 300'
+    command += 'solve-field -l 300'
     command += ' --config myastrometry.cfg --overwrite'.format(newsubdir)
     command += ' --ra ' + str(c_fk5_j2000.ra.degree)
     command += ' --dec ' + str(c_fk5_j2000.dec.degree)
@@ -358,6 +368,41 @@ def astrometry(image2d, header, maxfieldview_arcmin, fieldfactor,
     pout = p.stdout.read().decode('utf-8')
     p.stdout.close()
     logfile.write(pout + '\n')
+
+    # load corr file
+    corrfilename = '{}/xxx.corr'.format(workdir)
+    with fits.open(corrfilename) as hdul_table:
+        tbl_header = hdul_table[1].header
+        tbl = hdul_table[1].data
+    ntargets = tbl.shape[0]
+    medianerr = np.sqrt(np.median((tbl.index_x - tbl.field_x)**2 + (tbl.index_y - tbl.field_y)**2))
+    if verbose:
+        print('Number of targest found: {}'.format(ntargets))
+        print('Median error (arcsec)..: {}'.format(medianerr))
+    logfile.write('Median error (arcsec): {}\n'.format(medianerr))
+    if interactive:
+        fig, ax = plt.subplots(1, 1, figsize=(6, 6))
+        bgnd = np.median(tbl.BACKGROUND)
+        naxis2, naxis1 = image2d.shape
+        im_show = ax.imshow(image2d, cmap="hot", aspect='equal', vmin=0.5*bgnd, vmax=2*bgnd,
+                            interpolation='nearest', origin='low', extent=[0.5, naxis1 + 0.5, 0.5, naxis2 + 0.5])
+
+        ax.grid(False)
+        for i in range(ntargets):
+            if i == 0:
+                label = 'field'
+            else:
+                label = None
+            ax.plot(tbl.field_x[i], tbl.field_y[i], 'bo',
+                    fillstyle='none', markersize=np.log(tbl.FLUX[i] / 5), label=label)
+            if i == 0:
+                label = 'index'
+            else:
+                label = None
+            ax.plot(tbl.index_x[i], tbl.index_y[i], 'g+',
+                    fillstyle='none', markersize=np.log(tbl.FLUX[i] / 5), label=label)
+        ax.legend()
+        plt.show()
 
     # close logfile
     logfile.close()
