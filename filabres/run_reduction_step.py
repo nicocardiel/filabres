@@ -418,7 +418,7 @@ def run_reduction_step(redustep, interactive, datadir, list_of_nights,
                         else:
                             msg = 'maxfieldview_arcmin missing in instrument configuration'
                             raise SystemError(msg)
-                        astrometry(image2d=image2d, header=output_header,
+                        astrometry(image2d=image2d, mask2d=mask2d, header=output_header,
                                    maxfieldview_arcmin=maxfieldview_arcmin, fieldfactor=1.1,
                                    nightdir=nightdir, output_filename=output_filename,
                                    interactive=interactive, verbose=verbose, debug=False)

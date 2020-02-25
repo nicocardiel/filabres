@@ -7,7 +7,11 @@ import matplotlib.pyplot as plt
 import numpy as np
 import os
 import pyvo
+import sep
 import subprocess
+
+from .ximshow import ximshow
+from .pause_debugplot import pause_debugplot
 
 NMAXGAIA = 2000
 
@@ -65,7 +69,7 @@ def retrieve_gaia(ra_deg, dec_deg, radius_deg, magnitude, loggaia):
     return gaia_query_line, tap_result
 
 
-def astrometry(image2d, header, maxfieldview_arcmin, fieldfactor,
+def astrometry(image2d, mask2d, header, maxfieldview_arcmin, fieldfactor,
                nightdir, output_filename,
                interactive, verbose, debug=False):
     """
@@ -77,6 +81,8 @@ def astrometry(image2d, header, maxfieldview_arcmin, fieldfactor,
     ==========
     image2d : numpy 2D array
         Image to be calibrated.
+    mask2d : numpy 2D array
+        Useful region mask.
     header: astropy header
         Initial header of the image prior to the astrometric
         calibration.
@@ -349,13 +355,17 @@ def astrometry(image2d, header, maxfieldview_arcmin, fieldfactor,
     p.stdout.close()
     logfile.write(pout + '\n')
 
+    ax = ximshow(image2d, show=False)
+    pause_debugplot(debugplot=12, pltshow=True)
+
+    bkg = sep.Background(image2d, mask=mask2d)
+
     # save temporary FITS file
     tmpfilename = '{}/xxx.fits'.format(workdir)
     hdu = fits.PrimaryHDU(image2d.astype(np.float32), header)
     hdu.writeto(tmpfilename, overwrite=True)
 
     # solve field
-    # ToDo: pensar en como evitar detectar objetos espureos fuera del campo de vision
     command = 'cd {}\n'.format(workdir)
     command += 'solve-field -l 300'
     command += ' --config myastrometry.cfg --overwrite'.format(newsubdir)
@@ -381,13 +391,7 @@ def astrometry(image2d, header, maxfieldview_arcmin, fieldfactor,
         print('Median error (arcsec)..: {}'.format(medianerr))
     logfile.write('Median error (arcsec): {}\n'.format(medianerr))
     if interactive:
-        fig, ax = plt.subplots(1, 1, figsize=(6, 6))
-        bgnd = np.median(tbl.BACKGROUND)
-        naxis2, naxis1 = image2d.shape
-        im_show = ax.imshow(image2d, cmap="hot", aspect='equal', vmin=0.5*bgnd, vmax=2*bgnd,
-                            interpolation='nearest', origin='low', extent=[0.5, naxis1 + 0.5, 0.5, naxis2 + 0.5])
-
-        ax.grid(False)
+        ax = ximshow(image2d, show=False)
         for i in range(ntargets):
             if i == 0:
                 label = 'field'
@@ -402,7 +406,7 @@ def astrometry(image2d, header, maxfieldview_arcmin, fieldfactor,
             ax.plot(tbl.index_x[i], tbl.index_y[i], 'g+',
                     fillstyle='none', markersize=np.log(tbl.FLUX[i] / 5), label=label)
         ax.legend()
-        plt.show()
+        pause_debugplot(debugplot=12, pltshow=True)
 
     # close logfile
     logfile.close()
