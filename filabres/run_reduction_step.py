@@ -117,6 +117,13 @@ def run_reduction_step(redustep, interactive, datadir, list_of_nights,
 
             # determine number of different signatures
             for filename in list_of_images:
+                # define input file name
+                input_filename = datadir + night + '/' + filename
+                # define output FITS file name
+                output_filename = nightdir + '/' + redustep + '_'
+                output_filename += filename[:-5] + '_red.fits'
+                if verbose:
+                    print('-> output filename will be {}'.format(output_filename))
                 # signature of particular image
                 imgsignature = dict()
                 for keyword in signaturekeys:
@@ -134,19 +141,12 @@ def run_reduction_step(redustep, interactive, datadir, list_of_nights,
                         msg = 'ERROR: signaturekeys have changed when reducing {} images'.format(redustep)
                         raise SystemError(msg)
 
-                # define output FITS file using the file name of the first
-                # image in the block (appending the _red suffix)
-                output_filename = nightdir + '/' + redustep + '_'
-                output_filename += filename[:-5] + '_red.fits'
-                if verbose:
-                    print('-> output filename will be {}'.format(output_filename))
-
                 # declare temporary cube to store the images to be combined
                 naxis1 = getkey_from_signature(imgsignature, 'NAXIS1')
                 naxis2 = getkey_from_signature(imgsignature, 'NAXIS2')
                 image2d_saturpix = np.zeros((naxis2, naxis1), dtype=np.bool)
 
-                with fits.open(datadir + night + '/' + filename) as hdulist:
+                with fits.open(input_filename) as hdulist:
                     image_header = hdulist[0].header
                     image2d = hdulist[0].data.astype(float)
                 output_header = image_header

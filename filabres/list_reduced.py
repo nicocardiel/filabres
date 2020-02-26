@@ -121,11 +121,62 @@ def list_reduced(instrument, img1, img2, args_night, args_keyword,
             msg = 'File {} not found'.format(jsonfilename)
             raise SystemError(msg)
 
-        for ssig in database[imagetype]:
-            minidict = database[imagetype][ssig]
-            for mjdobs in minidict:
-                outfile = minidict[mjdobs]['filename']
-                nightok = fnmatch.fnmatch(minidict[mjdobs]['night'], night)
+        if classification == 'calibration':
+            for ssig in database[imagetype]:
+                minidict = database[imagetype][ssig]
+                for mjdobs in minidict:
+                    outfile = minidict[mjdobs]['filename']
+                    nightok = fnmatch.fnmatch(minidict[mjdobs]['night'], night)
+                    if nightok:
+                        n += 1
+                        if img2 is not None:
+                            print(outfile, end=' ')
+                        else:
+                            # show all valid keywords and exit
+                            if 'ALL' in lkeyword:
+                                valid_keywords = instconf['masterkeywords']
+                                valid_keywords += list(minidict[mjdobs]['statsumm'].keys())
+                                valid_keywords.append('NORIGIN')
+                                for kwd in ['ierr_bias', 'ierr_flat']:
+                                    if kwd in minidict[mjdobs]:
+                                        valid_keywords.append(kwd.upper())
+                                print('Valid keywords:', valid_keywords)
+                                raise SystemExit()
+                            storedkeywords = minidict[mjdobs]['masterkeywords']
+                            storedkeywords.update(minidict[mjdobs]['statsumm'])
+                            norigin = minidict[mjdobs]['norigin']
+                            storedkeywords.update({'NORIGIN': norigin})
+                            for kwd in ['ierr_bias', 'ierr_flat']:
+                                if kwd in minidict[mjdobs]:
+                                    storedkeywords.update({kwd.upper(): minidict[mjdobs][kwd]})
+                            colnames_ = ['file']
+                            if lkeyword is not None:
+                                for keyword in lkeyword:
+                                    if keyword not in storedkeywords:
+                                        print('ERROR: keyword {} is not stored in the image database'.format(keyword))
+                                        raise SystemExit()
+                                    colnames_ += [keyword]
+                            if n == 1:
+                                colnames = colnames_
+                                df = pd.DataFrame(columns=colnames)
+                            else:
+                                if colnames_ != colnames:
+                                    print("ERROR: number of keywords do not match for file {}".format(outfile))
+                                    print("- expected:", colnames)
+                                    print("- required:", colnames_)
+                                    raise SystemExit()
+
+                            # new_df_row = [os.path.basename(outfile)]
+                            new_df_row = [outfile]
+                            if lkeyword is not None:
+                                for keyword in lkeyword:
+                                    new_df_row += [storedkeywords[keyword]]
+                            df.loc[n-1] = new_df_row
+        elif classification == 'science':
+            for filename in database[imagetype]:
+                minidict = database[imagetype][filename]
+                outfile = minidict['filename']
+                nightok = fnmatch.fnmatch(minidict['night'], night)
                 if nightok:
                     n += 1
                     if img2 is not None:
@@ -134,20 +185,17 @@ def list_reduced(instrument, img1, img2, args_night, args_keyword,
                         # show all valid keywords and exit
                         if 'ALL' in lkeyword:
                             valid_keywords = instconf['masterkeywords']
-                            valid_keywords += list(minidict[mjdobs]['statsumm'].keys())
-                            valid_keywords.append('NORIGIN')
+                            valid_keywords += list(minidict['statsumm'].keys())
                             for kwd in ['ierr_bias', 'ierr_flat']:
-                                if kwd in minidict[mjdobs]:
+                                if kwd in minidict:
                                     valid_keywords.append(kwd.upper())
                             print('Valid keywords:', valid_keywords)
                             raise SystemExit()
-                        storedkeywords = minidict[mjdobs]['masterkeywords']
-                        storedkeywords.update(minidict[mjdobs]['statsumm'])
-                        norigin = minidict[mjdobs]['norigin']
-                        storedkeywords.update({'NORIGIN': norigin})
+                        storedkeywords = minidict['masterkeywords']
+                        storedkeywords.update(minidict['statsumm'])
                         for kwd in ['ierr_bias', 'ierr_flat']:
-                            if kwd in minidict[mjdobs]:
-                                storedkeywords.update({kwd.upper(): minidict[mjdobs][kwd]})
+                            if kwd in minidict:
+                                storedkeywords.update({kwd.upper(): minidict[kwd]})
                         colnames_ = ['file']
                         if lkeyword is not None:
                             for keyword in lkeyword:
@@ -170,7 +218,10 @@ def list_reduced(instrument, img1, img2, args_night, args_keyword,
                         if lkeyword is not None:
                             for keyword in lkeyword:
                                 new_df_row += [storedkeywords[keyword]]
-                        df.loc[n-1] = new_df_row
+                        df.loc[n - 1] = new_df_row
+        else:
+            msg = 'Unexpected classification {}'.format(classification)
+            raise SystemError(msg)
 
     if img2 is not None:
         if n > 0:
