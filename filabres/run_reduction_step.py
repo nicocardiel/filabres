@@ -5,9 +5,9 @@ import numpy as np
 import os
 import sys
 
-from .astrometry import astrometry
 from .maskfromflat import maskfromflat
 from .retrieve_calibration import retrieve_calibration
+from .run_astrometry import run_astrometry
 from .signature import getkey_from_signature
 from .statsumm import statsumm
 from .version import version
@@ -116,7 +116,8 @@ def run_reduction_step(redustep, interactive, datadir, list_of_nights,
                 print('\nResults database set to {}'.format(databasefile))
 
             # determine number of different signatures
-            for filename in list_of_images:
+            # ToDo: remove limit in loop
+            for filename in list_of_images[:2]:
                 # define input file name
                 input_filename = datadir + night + '/' + filename
                 # define output FITS file name
@@ -205,17 +206,17 @@ def run_reduction_step(redustep, interactive, datadir, list_of_nights,
                     image2d *= mask2d
                     # compute statistical analysis and update the image header
                     image2d_statsum = statsumm(image2d, output_header, redustep, rm_nan=True)
-                    # compute astrometry: note that the function generates the output file
+                    # compute run_astrometry: note that the function generates the output file
                     if 'maxfieldview_arcmin' in instconf['imagetypes'][redustep]:
                         maxfieldview_arcmin = instconf['imagetypes'][redustep]['maxfieldview_arcmin']
                     else:
                         msg = 'maxfieldview_arcmin missing in instrument configuration'
                         raise SystemError(msg)
-                    astrometry(image2d=image2d, mask2d=mask2d, saturpix=image2d_saturpix,
-                               header=output_header,
-                               maxfieldview_arcmin=maxfieldview_arcmin, fieldfactor=1.1,
-                               nightdir=nightdir, output_filename=output_filename,
-                               interactive=interactive, verbose=verbose, debug=False)
+                    run_astrometry(image2d=image2d, mask2d=mask2d, saturpix=image2d_saturpix,
+                                   header=output_header,
+                                   maxfieldview_arcmin=maxfieldview_arcmin, fieldfactor=1.1,
+                                   nightdir=nightdir, output_filename=output_filename,
+                                   interactive=interactive, verbose=verbose, debug=False)
                 # ---------------------------------------------------------
                 else:
                     msg = '* ERROR: combination of {} not implemented yet'.format(redustep)

@@ -2,9 +2,11 @@ from astropy import units as u
 from astropy.coordinates import SkyCoord, FK5
 from astropy.io import fits
 from astropy.time import Time
+from astropy.wcs import WCS
 import json
 import numpy as np
 import os
+import pkgutil
 import pyvo
 import sep
 import subprocess
@@ -68,10 +70,10 @@ def retrieve_gaia(ra_deg, dec_deg, radius_deg, magnitude, loggaia):
     return gaia_query_line, tap_result
 
 
-def astrometry(image2d, mask2d, saturpix,
-               header, maxfieldview_arcmin, fieldfactor,
-               nightdir, output_filename,
-               interactive, verbose, debug=False):
+def run_astrometry(image2d, mask2d, saturpix,
+                   header, maxfieldview_arcmin, fieldfactor,
+                   nightdir, output_filename,
+                   interactive, verbose, debug=False):
     """
     Compute astrometric solution of image.
 
@@ -96,7 +98,7 @@ def astrometry(image2d, mask2d, saturpix,
         in order to facilitate the reuse of the downloaded GAIA data.
     nightdir : str or None
         Directory where the raw image is stored and the auxiliary
-        images created by astrometry will be placed.
+        images created by run_astrometry will be placed.
     output_filename : str or None
         Output file name.
     interactive : bool or None
@@ -119,12 +121,13 @@ def astrometry(image2d, mask2d, saturpix,
         if verbose:
             print('Subdirectory {} not found. Creating it!'.format(workdir))
         os.makedirs(workdir)
-        # generate myastrometry.cfg
-        cfgfile = '{}/myastrometry.cfg'.format(workdir)
-        with open(cfgfile, 'wt') as f:
-            f.write('add_path .\nindex index-image')
-            if verbose:
-                print('Creating configuration file {}'.format(cfgfile))
+
+    # generate myastrometry.cfg
+    cfgfile = '{}/myastrometry.cfg'.format(workdir)
+    with open(cfgfile, 'wt') as f:
+        f.write('add_path .\nindex index-image')
+        if verbose:
+            print('Creating configuration file {}'.format(cfgfile))
 
     # define and open logfile
     logfilename = '{}/astrometry.log'.format(workdir)
@@ -452,6 +455,10 @@ def astrometry(image2d, mask2d, saturpix,
         p.stdout.close()
         logfile.write(pout + '\n')
 
+    # read GaiaDR2 table
+    with fits.open('{}/GaiaDR2-query.fits'.format(workdir)) as hdul_table:
+        gaiadr2 = hdul_table[1].data
+
     # convert RA, DEC from GAIA objects into X, Y coordinates
     command = 'wcs-rd2xy -w {0}/xxx.wcs -i {0}/GaiaDR2-query.fits -o {0}/gaia-xy.fits'.format(workdir)
     if verbose:
@@ -478,6 +485,9 @@ def astrometry(image2d, mask2d, saturpix,
     if interactive:
         ax = ximshow(image2d, cmap='gray', show=False)
         ax.plot(gaiaxy.X, gaiaxy.Y, 'ro', fillstyle='none', alpha=0.2)
+        w = WCS('{}/xxx.wcs'.format(workdir))
+        xplot, yplot = w.all_world2pix(gaiadr2.ra, gaiadr2.dec, 1)
+        ax.plot(xplot, yplot, 'c+', alpha=1.0)
         for i in range(ntargets):
             if i == 0:
                 label = 'field'
@@ -494,16 +504,53 @@ def astrometry(image2d, mask2d, saturpix,
         ax.legend()
         pause_debugplot(debugplot=12, pltshow=True)
 
-    # close logfile
-    logfile.close()
-
     # open result and update header
     result_filename = '{}/xxx.new'.format(workdir)
     with fits.open(result_filename) as hdul:
         newheader = hdul[0].header
     newheader.add_comment('Astrometric solution computed')
+
+    # copy configuration files for astrometric
+    conffiles = ['default.param', 'config.sex', 'config.scamp']
+    for filename in conffiles:
+        dumdata = pkgutil.get_data('filabres.astromatic', filename)
+        txtfilename = '{}/{}'.format(workdir, filename)
+        print('Generating {}'.format(txtfilename))
+        with open(txtfilename, 'wt') as f:
+            f.write(str(dumdata.decode('utf8')))
+
+    # run sextractor
+    command = 'cd {}\n'.format(workdir)
+    command += 'sex xxx.new -c config.sex -CATALOG_NAME xxx.ldac'
+    if verbose:
+        sdum = '$ {}'.format(command)
+        print(sdum.replace('\n', '\n$ '))
+    logfile.write('$ {}\n'.format(command))
+    p = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, close_fds=True)
+    pout = p.stdout.read().decode('utf-8')
+    p.stdout.close()
+    logfile.write(pout + '\n')
+
+    # run scamp
+    command = 'cd {}\n'.format(workdir)
+    command += 'scamp xxx.ldac -c config.scamp'
+    if verbose:
+        sdum = '$ {}'.format(command)
+        print(sdum.replace('\n', '\n$ '))
+    logfile.write('$ {}\n'.format(command))
+    p = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, close_fds=True)
+    pout = p.stdout.read().decode('utf-8')
+    p.stdout.close()
+    logfile.write(pout + '\n')
+
+    # ToDo: copy xxx.head in newheader after removing SIP parameters
+    # ToDo: change RA---TAN to RA---TPV and DEC--TAN to DEC---TPV
+
     # save result
     hdu = fits.PrimaryHDU(image2d.astype(np.float32), newheader)
     hdu.writeto(output_filename, overwrite=True)
     if verbose:
         print('-> file {} created'.format(output_filename))
+
+    # close logfile
+    logfile.close()

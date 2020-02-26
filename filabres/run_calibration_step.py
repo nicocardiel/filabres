@@ -5,7 +5,7 @@ import numpy as np
 import os
 import sys
 
-from .astrometry import astrometry
+from .run_astrometry import run_astrometry
 from .maskfromflat import maskfromflat
 from .retrieve_calibration import retrieve_calibration
 from .signature import getkey_from_signature
