@@ -13,7 +13,6 @@ from .ximshow import ximshow
 from .pause_debugplot import pause_debugplot
 
 NMAXGAIA = 2000
-SATURATION_LEVEL = 60000
 
 
 def retrieve_gaia(ra_deg, dec_deg, radius_deg, magnitude, loggaia):
@@ -69,7 +68,8 @@ def retrieve_gaia(ra_deg, dec_deg, radius_deg, magnitude, loggaia):
     return gaia_query_line, tap_result
 
 
-def astrometry(image2d, mask2d, header, maxfieldview_arcmin, fieldfactor,
+def astrometry(image2d, mask2d, saturpix,
+               header, maxfieldview_arcmin, fieldfactor,
                nightdir, output_filename,
                interactive, verbose, debug=False):
     """
@@ -83,6 +83,8 @@ def astrometry(image2d, mask2d, header, maxfieldview_arcmin, fieldfactor,
         Image to be calibrated.
     mask2d : numpy 2D array
         Useful region mask.
+    saturpix : numpy 2D array
+        Array storing the location of saturated pixels in the raw data.
     header: astropy header
         Initial header of the image prior to the astrometric
         calibration.
@@ -405,10 +407,14 @@ def astrometry(image2d, mask2d, header, maxfieldview_arcmin, fieldfactor,
     # check for saturated objects
     with fits.open('{}/xxx.axy'.format(workdir), 'update') as hdul_table:
         tbl = hdul_table[1].data
-        isaturated = np.where(tbl['FLUX'] > SATURATION_LEVEL)[0]
+        isaturated = []
+        for i in range(tbl.shape[0]):
+            ix = int(tbl['X'][i] + 0.5)
+            iy = int(tbl['Y'][i] + 0.5)
+            if saturpix[iy, ix]:
+                isaturated.append(i)
         if len(isaturated) > 0:
             if verbose:
-                print(isaturated)
                 print('Number of saturated objects found: {}/{}'.format(len(isaturated), tbl.shape[0]))
                 for i in isaturated:
                     print('Saturated object: {}'.format(tbl[i]))

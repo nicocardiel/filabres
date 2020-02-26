@@ -14,6 +14,7 @@ from .statsumm import statsumm
 from .version import version
 
 from filabres import LISTDIR
+SATURATION_LEVEL = 65000
 
 
 def run_reduction_step(redustep, interactive, datadir, list_of_nights,
@@ -285,6 +286,7 @@ def run_reduction_step(redustep, interactive, datadir, list_of_nights,
                     naxis1 = getkey_from_signature(signature, 'NAXIS1')
                     naxis2 = getkey_from_signature(signature, 'NAXIS2')
                     image3d = np.zeros((nfiles, naxis2, naxis1), dtype=np.float32)
+                    image2d_saturpix = np.zeros((naxis2, naxis1), dtype=np.bool)
                     exptime = np.zeros(nfiles, dtype=np.float32)
 
                     # output file name
@@ -317,6 +319,8 @@ def run_reduction_step(redustep, interactive, datadir, list_of_nights,
                                     print('WARNING: {} changed from {} to {}'.format(keyword, val1, val2))
                             output_header.add_history('Using {} images to compute {}:'.format(nfiles, redustep))
                         image3d[i, :, :] += image_data
+                        saturpix = np.where(image_data >= SATURATION_LEVEL)
+                        image2d_saturpix[saturpix] = True
                         output_header.add_history(os.path.basename(filename))
                     output_header.add_history('Signature:')
                     for key in signature:
@@ -418,7 +422,8 @@ def run_reduction_step(redustep, interactive, datadir, list_of_nights,
                         else:
                             msg = 'maxfieldview_arcmin missing in instrument configuration'
                             raise SystemError(msg)
-                        astrometry(image2d=image2d, mask2d=mask2d, header=output_header,
+                        astrometry(image2d=image2d, mask2d=mask2d, saturpix=image2d_saturpix,
+                                   header=output_header,
                                    maxfieldview_arcmin=maxfieldview_arcmin, fieldfactor=1.1,
                                    nightdir=nightdir, output_filename=output_filename,
                                    interactive=interactive, verbose=verbose, debug=False)
