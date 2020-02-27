@@ -314,9 +314,6 @@ def run_calibration_step(redustep, datadir, list_of_nights,
                             output_header.add_history('Combination method: median')
                             # compute statistical analysis and update the image header
                             image2d_statsum = statsumm(image2d, output_header, redustep, rm_nan=True)
-                            # save result
-                            hdu = fits.PrimaryHDU(image2d.astype(np.float32), output_header)
-                            hdu.writeto(output_filename, overwrite=True)
                         # ---------------------------------------------------------
                         elif redustep == 'flat-imaging':
                             mjdobs = output_header['MJD-OBS']
@@ -343,13 +340,15 @@ def run_calibration_step(redustep, datadir, list_of_nights,
                             output_header.add_history('Combination method: median of normalized images')
                             # compute statistical analysis and update the image header
                             image2d_statsum = statsumm(image2d, output_header, redustep, rm_nan=True)
-                            # save result
-                            hdu = fits.PrimaryHDU(image2d.astype(np.float32), output_header)
-                            hdu.writeto(output_filename, overwrite=True)
                         # ---------------------------------------------------------
                         else:
                             msg = '* ERROR: combination of {} not implemented yet'.format(redustep)
                             raise SystemError(msg)
+
+                        # save result
+                        hdu = fits.PrimaryHDU(image2d.astype(np.float32), output_header)
+                        hdu.writeto(output_filename, overwrite=True)
+                        print('Creating {} with signature {}'.format(output_filename, ssig))
 
                         # update database with result using the mean MJD-OBS of
                         # the combined images as index

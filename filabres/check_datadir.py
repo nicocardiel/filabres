@@ -43,3 +43,5 @@ def check_datadir(datadir):
             print('* File {} appears in:'.format(basename))
             for filename in all_files[basename]:
                 print(filename)
+    else:
+        print('There are not repeated files')
