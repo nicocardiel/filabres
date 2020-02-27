@@ -3,6 +3,7 @@ from astropy.coordinates import SkyCoord, FK5
 from astropy.io import fits
 from astropy.time import Time
 from astropy.wcs import WCS
+from astropy.wcs.utils import proj_plane_pixel_scales
 import json
 import numpy as np
 import os
@@ -385,6 +386,9 @@ def run_astrometry(image2d, mask2d, saturpix,
     pause_debugplot(debugplot=12, pltshow=True)
     """
 
+    # image dimensions
+    naxis2, naxis1 = image2d.shape
+
     # save temporary FITS file
     tmpfilename = '{}/xxx.fits'.format(workdir)
     hdu = fits.PrimaryHDU(image2d.astype(np.float32), header)
@@ -425,7 +429,6 @@ def run_astrometry(image2d, mask2d, saturpix,
 
     if len(isaturated) > 0:
         # rerun code
-        naxis2, naxis1 = image2d.shape
         command = 'cd {}\n'.format(workdir)
         command += 'solve-field -p'
         command += ' --config myastrometry.cfg --continue'.format(newsubdir)
@@ -455,52 +458,38 @@ def run_astrometry(image2d, mask2d, saturpix,
         p.stdout.close()
         logfile.write(pout + '\n')
 
-    # read GaiaDR2 table
+    # read GaiaDR2 table and convert RA, DEC to X, Y
+    # (note: the same result can be accomplished using the command-line program:
+    # $ wcs-rd2xy -w xxx.wcs -i GaiaDR2-query.fits -o gaia-xy.fits)
     with fits.open('{}/GaiaDR2-query.fits'.format(workdir)) as hdul_table:
         gaiadr2 = hdul_table[1].data
+    w = WCS('{}/xxx.wcs'.format(workdir))
+    xgaia, ygaia = w.all_world2pix(gaiadr2.ra, gaiadr2.dec, 1)
 
-    # convert RA, DEC from GAIA objects into X, Y coordinates
-    command = 'wcs-rd2xy -w {0}/xxx.wcs -i {0}/GaiaDR2-query.fits -o {0}/gaia-xy.fits'.format(workdir)
+    # compute pixel scale (mean in both axis) in arcsec/pix
+    pixel_scale_arcsec_pix = np.mean(proj_plane_pixel_scales(w)*3600)
     if verbose:
-        print('$ {}'.format(command))
-    logfile.write('$ {}\n'.format(command))
-    p = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, close_fds=True)
-    pout = p.stdout.read().decode('utf-8')
-    p.stdout.close()
-    logfile.write(pout + '\n')
-    with fits.open('{}/gaia-xy.fits'.format(workdir)) as hdul_table:
-        gaiaxy = hdul_table[1].data
+        print('-> pixel scale (arcsec/pix): {}'.format(pixel_scale_arcsec_pix))
 
     # load corr file
     corrfilename = '{}/xxx.corr'.format(workdir)
     with fits.open(corrfilename) as hdul_table:
-        tbl = hdul_table[1].data
-    ntargets = tbl.shape[0]
-    medianerr = np.sqrt(np.median((tbl.index_x - tbl.field_x)**2 + (tbl.index_y - tbl.field_y)**2))
+        tcorr = hdul_table[1].data
+    ntargets = tcorr.shape[0]
+    medianerr = np.sqrt(np.median((tcorr.index_x - tcorr.field_x)**2 + (tcorr.index_y - tcorr.field_y)**2))
+    medianerr *= pixel_scale_arcsec_pix
     if verbose:
-        print('Number of targest found: {}'.format(ntargets))
-        print('Median error (pixels)..: {}'.format(medianerr))
-    logfile.write('Number of targest found: {}\n'.format(ntargets))
-    logfile.write('Median error (pixels): {}\n'.format(medianerr))
+        print('astrometry.net> Number of targest found: {}'.format(ntargets))
+        print('astrometry.net> Median error (arcsec)..: {}'.format(medianerr))
+    logfile.write('astrometry.net> Number of targest found: {}\n'.format(ntargets))
+    logfile.write('astrometry.net> Median error (arcsec): {}\n'.format(medianerr))
     if interactive:
         ax = ximshow(image2d, cmap='gray', show=False)
-        ax.plot(gaiaxy.X, gaiaxy.Y, 'ro', fillstyle='none', alpha=0.2)
-        w = WCS('{}/xxx.wcs'.format(workdir))
-        xplot, yplot = w.all_world2pix(gaiadr2.ra, gaiadr2.dec, 1)
-        ax.plot(xplot, yplot, 'c+', alpha=1.0)
-        for i in range(ntargets):
-            if i == 0:
-                label = 'field'
-            else:
-                label = None
-            ax.plot(tbl.field_x[i], tbl.field_y[i], 'bo',
-                    fillstyle='none', markersize=np.log(tbl.FLUX[i] / 5), label=label)
-            if i == 0:
-                label = 'index'
-            else:
-                label = None
-            ax.plot(tbl.index_x[i], tbl.index_y[i], 'g+',
-                    fillstyle='none', markersize=np.log(tbl.FLUX[i] / 5), label=label)
+        ax.plot(tcorr.field_x, tcorr.field_y, 'bo', fillstyle='none', markersize=10, label='astnet_peaks')
+        ax.plot(xgaia, ygaia, 'mx', alpha=0.2, markersize=10, label='astnet_predicted_gaiacat')
+        ax.plot(tcorr.index_x, tcorr.index_y, 'g+', markersize=10, label='astnet_predicted_peaks')
+        ax.set_xlim([min(np.min(xgaia), -0.5), max(np.max(xgaia), naxis1+0.5)])
+        ax.set_ylim([min(np.min(ygaia), -0.5), max(np.max(ygaia), naxis2+0.5)])
         ax.legend()
         pause_debugplot(debugplot=12, pltshow=True)
 
