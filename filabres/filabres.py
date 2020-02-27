@@ -16,6 +16,7 @@ This code is hosted at: https://github.com/nicocardiel/filabres
 
 import argparse
 
+from .check_datadir import check_datadir
 from .check_tslash import check_tslash
 from .initialize_auxdb import initialize_auxdb
 from .list_classified import list_classified
@@ -32,7 +33,9 @@ def main():
     # parse command-line options
     parser = argparse.ArgumentParser(description="Basic data reduction of CAHA data")
 
+    parser.add_argument("--check", action="store_true", help="check original FITS files in DATADIR are not repeated")
     parser.add_argument("-rs", "--reduction_step", type=str, help="reduction step")
+    parser.add_argument("-f", "--force", action="store_true", help="force reduction of already reduced files")
     parser.add_argument("-n", "--night", type=str, help="night label (wildcards are valid within quotes)")
     parser.add_argument("-i", "--interactive", action="store_true", help="enable interactive execution")
     parser.add_argument("-lc", "--lc_imagetype", type=str,
@@ -57,6 +60,11 @@ def main():
 
     instrument, datadir = load_setup(args.setup, args.verbose)
     datadir = check_tslash(datadir)
+
+    if args.check:
+        check_datadir(datadir)
+        print('* program STOP')
+        raise SystemExit()
 
     if args.lc_imagetype is not None or args.lcf_imagetype is not None:
         list_classified(instrument=instrument,
@@ -94,6 +102,7 @@ def main():
         initialize_auxdb(list_of_nights=list_of_nights,
                          instconf=instconf,
                          datadir=datadir,
+                         force=args.force,
                          verbose=args.verbose)
     else:
         classification = instconf['imagetypes'][args.reduction_step]['classification']
@@ -102,6 +111,7 @@ def main():
                                  datadir=datadir,
                                  list_of_nights=list_of_nights,
                                  instconf=instconf,
+                                 force=args.force,
                                  verbose=args.verbose,
                                  debug=args.debug)
         elif classification == 'science':
@@ -110,6 +120,7 @@ def main():
                                datadir=datadir,
                                list_of_nights=list_of_nights,
                                instconf=instconf,
+                               force=args.force,
                                verbose=args.verbose,
                                debug=args.debug)
         else:

@@ -127,7 +127,7 @@ def classify_image(instconf, header, dictquant):
     return imagetype
 
 
-def initialize_auxdb(list_of_nights, instconf, datadir, verbose=False):
+def initialize_auxdb(list_of_nights, instconf, datadir, force, verbose=False):
     """
     Generate database with relevant keywords for each night.
 
@@ -141,6 +141,8 @@ def initialize_auxdb(list_of_nights, instconf, datadir, verbose=False):
     datadir : str
         Directory where the original FITS data (organized by night)
         are stored.
+    force : bool
+        If True, recompute JSON file.
     verbose : bool
         If True, display intermediate information.
     """
@@ -182,140 +184,145 @@ def initialize_auxdb(list_of_nights, instconf, datadir, verbose=False):
         # generate database for all the files in current night
         basefilename = nightdir + '/imagedb_' + instconf['instname']
         jsonfilename = basefilename + '.json'
-        logfilename = basefilename + '.log'
-        logfile = None
-        imagedb = {
-            'metainfo': {
-                'instrument': instconf['instname'],
-                'night': night,
-                'self': {
-                    'creation_date': datetime.datetime.utcnow().isoformat(),
-                    'thisfile': os.getcwd() + jsonfilename[1:],
-                    'origin': sys.argv[0] + ', v.' + version,
-                    'uuid': str(uuid.uuid1()),
-                },
-                'instconf': instconf
+        execute_night = True
+        if os.path.exists(jsonfilename) and not force:
+            execute_night = False
+            print('File {} already exists: skipping directory.'.format(jsonfilename))
+        if execute_night:
+            logfilename = basefilename + '.log'
+            logfile = None
+            imagedb = {
+                'metainfo': {
+                    'instrument': instconf['instname'],
+                    'night': night,
+                    'self': {
+                        'creation_date': datetime.datetime.utcnow().isoformat(),
+                        'thisfile': os.getcwd() + jsonfilename[1:],
+                        'origin': sys.argv[0] + ', v.' + version,
+                        'uuid': str(uuid.uuid1()),
+                    },
+                    'instconf': instconf
+                }
             }
-        }
 
-        # initalize an empty dictionary for each possible image category
-        for imagetype in instconf['imagetypes']:
-            imagedb[imagetype] = dict()
-            imagedb['wrong-' + imagetype] = dict()
-        imagedb['unclassified'] = dict()
-        imagedb['wrong-instrument'] = dict()
+            # initalize an empty dictionary for each possible image category
+            for imagetype in instconf['imagetypes']:
+                imagedb[imagetype] = dict()
+                imagedb['wrong-' + imagetype] = dict()
+            imagedb['unclassified'] = dict()
+            imagedb['wrong-instrument'] = dict()
 
-        # get relevant keywords for each FITS file and classify it
-        for ifilename, filename in enumerate(list_of_fits):
-            if not verbose:
-                progressbar(ifilename + 1, len(list_of_fits))
-            # get image header
-            basename = os.path.basename(filename)
-            warningsfound = False
-            # initially convert warnings into errors
-            warnings.filterwarnings('error')
-            header = None
-            data = None
-            try:
-                with fits.open(filename) as hdul:
-                    header = hdul[0].header
-                    data = hdul[0].data
-            except (UserWarning, ResourceWarning) as e:
-                if logfile is None:
-                    logfile = open(logfilename, 'wt')
-                    print('-> Creating {}'.format(logfilename))
-                logfile.write('{} while reading {}\n'.format(type(e).__name__, basename))
-                logfile.write('{}\n'.format(e))
-                print('{} while reading {}'.format(
-                    type(e).__name__, basename))
-                print(str(e))
-                warningsfound = True
-                # ignore warnings from here to avoid the messages:
-                # Exception ignored in:...
-                # ResourceWarning: unclosed file...
-                warnings.filterwarnings('ignore')
-            if warningsfound:
-                # ignore warnings
-                with fits.open(filename) as hdul:
-                    header = hdul[0].header
-                    data = hdul[0].data
-            # check general instrument requirements
-            requirements = instconf['requirements']
-            fileok = True
-            for keyword in requirements:
-                if requirements[keyword] != header[keyword]:
-                    fileok = False
-            dumdict = dict()
-            if fileok:
-                # get master keywords for the current file
-                for keyword in instconf['masterkeywords']:
-                    if keyword in header:
-                        dumdict[keyword] = header[keyword]
-                        # ----------------------------------------
-                        # Fix here any problem with keyword values
-                        # ----------------------------------------
-                        # Fix negative MJD-OBS
-                        if keyword == 'MJD-OBS':
-                            mjdobs = header[keyword]
-                            if mjdobs < 0:
-                                tinit = Time(header['DATE-OBS'],
-                                             format='isot', scale='utc')
-                                dumdict['MJD-OBS'] = tinit.mjd
-                                print('WARNING: MJD-OBS changed from {} to {:.5f} (wrong value in file '
-                                      '{})'.format(mjdobs, tinit.mjd, filename))
-                    else:
-                        msg = 'ERROR: keyword {} is missing in file {}'.format(keyword, basename)
-                        raise SystemError(msg)
-                # basic image statistics
-                quantiles = np.quantile(data, probquantiles)
-                dictquant = dict()
-                for i in range(len(quantiles)):
-                    dictquant[quantkeywords[i]] = quantiles[i]
-                for qkw in quantkeywords:
-                    dumdict[qkw] = dictquant[qkw]
-                # classify image
-                imagetype = classify_image(instconf, header, dictquant)
-                if imagetype is None:
-                    imagetype = 'unclassified'
-            else:
-                imagetype = 'wrong-instrument'
-            # include image in corresponding classification
-            if imagetype in imagedb:
-                imagedb[imagetype][basename] = dumdict
-                if verbose:
-                    print('File {} ({}/{}) classified as <{}>'.format(
-                        basename, ifilename + 1, len(list_of_fits),
-                        imagetype))
-            else:
-                msg = 'ERROR: unexpected image type {} in file {}'.format(imagetype, basename)
+            # get relevant keywords for each FITS file and classify it
+            for ifilename, filename in enumerate(list_of_fits):
+                if not verbose:
+                    progressbar(ifilename + 1, len(list_of_fits))
+                # get image header
+                basename = os.path.basename(filename)
+                warningsfound = False
+                # initially convert warnings into errors
+                warnings.filterwarnings('error')
+                header = None
+                data = None
+                try:
+                    with fits.open(filename) as hdul:
+                        header = hdul[0].header
+                        data = hdul[0].data
+                except (UserWarning, ResourceWarning) as e:
+                    if logfile is None:
+                        logfile = open(logfilename, 'wt')
+                        print('-> Creating {}'.format(logfilename))
+                    logfile.write('{} while reading {}\n'.format(type(e).__name__, basename))
+                    logfile.write('{}\n'.format(e))
+                    print('{} while reading {}'.format(
+                        type(e).__name__, basename))
+                    print(str(e))
+                    warningsfound = True
+                    # ignore warnings from here to avoid the messages:
+                    # Exception ignored in:...
+                    # ResourceWarning: unclosed file...
+                    warnings.filterwarnings('ignore')
+                if warningsfound:
+                    # ignore warnings
+                    with fits.open(filename) as hdul:
+                        header = hdul[0].header
+                        data = hdul[0].data
+                # check general instrument requirements
+                requirements = instconf['requirements']
+                fileok = True
+                for keyword in requirements:
+                    if requirements[keyword] != header[keyword]:
+                        fileok = False
+                dumdict = dict()
+                if fileok:
+                    # get master keywords for the current file
+                    for keyword in instconf['masterkeywords']:
+                        if keyword in header:
+                            dumdict[keyword] = header[keyword]
+                            # ----------------------------------------
+                            # Fix here any problem with keyword values
+                            # ----------------------------------------
+                            # Fix negative MJD-OBS
+                            if keyword == 'MJD-OBS':
+                                mjdobs = header[keyword]
+                                if mjdobs < 0:
+                                    tinit = Time(header['DATE-OBS'],
+                                                 format='isot', scale='utc')
+                                    dumdict['MJD-OBS'] = tinit.mjd
+                                    print('WARNING: MJD-OBS changed from {} to {:.5f} (wrong value in file '
+                                          '{})'.format(mjdobs, tinit.mjd, filename))
+                        else:
+                            msg = 'ERROR: keyword {} is missing in file {}'.format(keyword, basename)
+                            raise SystemError(msg)
+                    # basic image statistics
+                    quantiles = np.quantile(data, probquantiles)
+                    dictquant = dict()
+                    for i in range(len(quantiles)):
+                        dictquant[quantkeywords[i]] = quantiles[i]
+                    for qkw in quantkeywords:
+                        dumdict[qkw] = dictquant[qkw]
+                    # classify image
+                    imagetype = classify_image(instconf, header, dictquant)
+                    if imagetype is None:
+                        imagetype = 'unclassified'
+                else:
+                    imagetype = 'wrong-instrument'
+                # include image in corresponding classification
+                if imagetype in imagedb:
+                    imagedb[imagetype][basename] = dumdict
+                    if verbose:
+                        print('File {} ({}/{}) classified as <{}>'.format(
+                            basename, ifilename + 1, len(list_of_fits),
+                            imagetype))
+                else:
+                    msg = 'ERROR: unexpected image type {} in file {}'.format(imagetype, basename)
+                    raise SystemError(msg)
+
+            # close logfile (if opened)
+            if logfile is not None:
+                logfile.close()
+
+            # update number of images
+            num_doublecheck = 0
+            for imagetype in imagedb:
+                if imagetype != 'metainfo':
+                    label = 'num_' + imagetype
+                    num = len(imagedb[imagetype])
+                    imagedb['metainfo'][label] = num
+                    num_doublecheck += num
+                    if verbose:
+                        print('{}: {}'.format(label, num))
+
+            imagedb['metainfo']['num_allimages'] = len(list_of_fits)
+            imagedb['metainfo']['num_doublecheck'] = num_doublecheck
+
+            # generate JSON output file
+            if verbose:
+                print('-> Creating {}'.format(jsonfilename))
+            with open(jsonfilename, 'w') as outfile:
+                json.dump(imagedb, outfile, indent=2)
+
+            # double check
+            if num_doublecheck != len(list_of_fits):
+                print('ERROR: double check in number of files failed!')
+                msg = '--> see file {}'.format(jsonfilename)
                 raise SystemError(msg)
-
-        # close logfile (if opened)
-        if logfile is not None:
-            logfile.close()
-
-        # update number of images
-        num_doublecheck = 0
-        for imagetype in imagedb:
-            if imagetype != 'metainfo':
-                label = 'num_' + imagetype
-                num = len(imagedb[imagetype])
-                imagedb['metainfo'][label] = num
-                num_doublecheck += num
-                if verbose:
-                    print('{}: {}'.format(label, num))
-
-        imagedb['metainfo']['num_allimages'] = len(list_of_fits)
-        imagedb['metainfo']['num_doublecheck'] = num_doublecheck
-
-        # generate JSON output file
-        if verbose:
-            print('-> Creating {}'.format(jsonfilename))
-        with open(jsonfilename, 'w') as outfile:
-            json.dump(imagedb, outfile, indent=2)
-
-        # double check
-        if num_doublecheck != len(list_of_fits):
-            print('ERROR: double check in number of files failed!')
-            msg = '--> see file {}'.format(jsonfilename)
-            raise SystemError(msg)

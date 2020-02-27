@@ -17,7 +17,7 @@ from filabres import LISTDIR
 
 
 def run_calibration_step(redustep, datadir, list_of_nights,
-                         instconf, verbose=False, debug=False):
+                         instconf, force, verbose=False, debug=False):
     """
     Execute reduction step.
 
@@ -33,6 +33,8 @@ def run_calibration_step(redustep, datadir, list_of_nights,
     instconf : dict
         Instrument configuration. See file configuration.json for
         details.
+    force : bool
+        If True, recompute reduction of calibration images.
     verbose : bool
         If True, display intermediate information.
     debug : bool
@@ -165,7 +167,6 @@ def run_calibration_step(redustep, datadir, list_of_nights,
 
                 images_pending = True
                 while images_pending:
-
                     # select images with the same signature and within the
                     # specified maximum time span
                     imgblock = []
@@ -207,161 +208,167 @@ def run_calibration_step(redustep, datadir, list_of_nights,
                             for filename in imgblock:
                                 print(filename)
 
-                    # note: the following step must be performed before
-                    # saving the combined image; otherwise, the cleanup
-                    # procedure will delete the just created combined image
-                    if redustep not in database:
-                        database[redustep] = dict()
-                    # generate string with signature values
-                    ssig = signature_string(signaturekeys, signature)
-                    if 'signaturekeys' not in database:
-                        database['signaturekeys'] = signaturekeys
-                    else:
-                        if signaturekeys != database['signaturekeys']:
-                            msg = 'ERROR: signaturekeys have changed when reducing {} images'.format(redustep)
-                            raise SystemError(msg)
-
-                    if ssig not in database[redustep]:
-                        # update main database with new signature if not present
-                        database[redustep][ssig] = dict()
-                    else:
-                        # check that there is not a combined image using any
-                        # of the individual images of imgblock: otherwise,
-                        # some entries of the main database must be removed
-                        # and the associated reduced images deleted
-                        if len(database[redustep][ssig]) > 0:
-                            mjdobs_to_be_deleted = []
-                            for mjdobs in database[redustep][ssig]:
-                                old_originf = database[redustep][ssig][mjdobs]['originf']
-                                # is there a conflict?
-                                conflict = list(set(originf) & set(old_originf))
-                                if len(conflict) > 0:
-                                    mjdobs_to_be_deleted.append(mjdobs)
-                                    filename = database[redustep][ssig][mjdobs]['filename']
-                                    if os.path.exists(filename):
-                                        print('Deleting {}'.format(filename))
-                                        os.remove(filename)
-                            for mjdobs in mjdobs_to_be_deleted:
-                                print('WARNING: deleting previous database entry: {} --> {} --> {}'.format(
-                                        redustep, ssig, mjdobs
-                                    )
-                                )
-                                del database[redustep][ssig][mjdobs]
-
                     # define output FITS file using the file name of the first
                     # image in the block (appending the _red suffix)
                     output_filename = nightdir + '/' + redustep + '_'
                     dumfile = os.path.basename(imgblock[0])
                     output_filename += dumfile[:-5] + '_red.fits'
-                    if verbose:
-                        print('-> output filename will be {}'.format(output_filename))
+                    execute_reduction = True
+                    if os.path.exists(output_filename) and not force:
+                        execute_reduction = False
+                        print('File {} already exists: skipping reduction.'.format(output_filename))
 
-                    # declare temporary cube to store the images to be combined
-                    naxis1 = getkey_from_signature(signature, 'NAXIS1')
-                    naxis2 = getkey_from_signature(signature, 'NAXIS2')
-                    image3d = np.zeros((nfiles, naxis2, naxis1), dtype=np.float32)
-                    exptime = np.zeros(nfiles, dtype=np.float32)
+                    if execute_reduction:
+                        if verbose:
+                            print('-> output filename will be {}'.format(output_filename))
 
-                    # output file name
-                    output_header = None
+                        # note: the following step must be performed before
+                        # saving the combined image; otherwise, the cleanup
+                        # procedure will delete the just created combined image
+                        if redustep not in database:
+                            database[redustep] = dict()
+                        # generate string with signature values
+                        ssig = signature_string(signaturekeys, signature)
+                        if 'signaturekeys' not in database:
+                            database['signaturekeys'] = signaturekeys
+                        else:
+                            if signaturekeys != database['signaturekeys']:
+                                msg = 'ERROR: signaturekeys have changed when reducing {} images'.format(redustep)
+                                raise SystemError(msg)
 
-                    # store images in temporary data cube
-                    for i in range(nfiles):
-                        filename = imgblock[i]
-                        basename = os.path.basename(filename)
-                        exptime[i] = imagedb[redustep][basename]['EXPTIME']
-                        with fits.open(filename) as hdulist:
-                            image_header = hdulist[0].header
-                            image_data = hdulist[0].data
-                        if i == 0:
-                            output_header = image_header
-                            output_header.add_history("---")
-                            output_header.add_history('Using filabres v.{}'.format(version))
-                            output_header.add_history('Date: ' + str(datetime.datetime.utcnow().isoformat()))
-                            output_header.add_history(str(sys.argv))
-                            # avoid warning when saving FITS
-                            if 'BLANK' in output_header:
-                                del output_header['BLANK']
-                            # check for modified keywords when initializing
-                            # the image databases
-                            for keyword in instconf['masterkeywords']:
-                                val1 = output_header[keyword]
-                                val2 = imagedb[redustep][basename][keyword]
-                                if val1 != val2:
-                                    output_header[keyword] = val2
-                                    print('WARNING: {} changed from {} to {}'.format(keyword, val1, val2))
-                            output_header.add_history('Using {} images to compute {}:'.format(nfiles, redustep))
-                        image3d[i, :, :] += image_data
-                        output_header.add_history(os.path.basename(filename))
-                    output_header.add_history('Signature:')
-                    for key in signature:
-                        output_header.add_history(' - {}: {}'.format(key, signature[key]))
+                        if ssig not in database[redustep]:
+                            # update main database with new signature if not present
+                            database[redustep][ssig] = dict()
+                        else:
+                            # check that there is not a combined image using any
+                            # of the individual images of imgblock: otherwise,
+                            # some entries of the main database must be removed
+                            # and the associated reduced images deleted
+                            if len(database[redustep][ssig]) > 0:
+                                mjdobs_to_be_deleted = []
+                                for mjdobs in database[redustep][ssig]:
+                                    old_originf = database[redustep][ssig][mjdobs]['originf']
+                                    # is there a conflict?
+                                    conflict = list(set(originf) & set(old_originf))
+                                    if len(conflict) > 0:
+                                        mjdobs_to_be_deleted.append(mjdobs)
+                                        filename = database[redustep][ssig][mjdobs]['filename']
+                                        if os.path.exists(filename):
+                                            print('Deleting {}'.format(filename))
+                                            os.remove(filename)
+                                for mjdobs in mjdobs_to_be_deleted:
+                                    print('WARNING: deleting previous database entry: {} --> {} --> {}'.format(
+                                            redustep, ssig, mjdobs
+                                        )
+                                    )
+                                    del database[redustep][ssig][mjdobs]
 
-                    # combine images according to their type
-                    ierr_bias = None
-                    ierr_flat = None
-                    # ---------------------------------------------------------
-                    if redustep == 'bias':
-                        # median combination
-                        image2d = np.median(image3d, axis=0)
-                        output_header.add_history('Combination method: median')
-                        # compute statistical analysis and update the image header
-                        image2d_statsum = statsumm(image2d, output_header, redustep, rm_nan=True)
-                        # save result
-                        hdu = fits.PrimaryHDU(image2d.astype(np.float32), output_header)
-                        hdu.writeto(output_filename, overwrite=True)
-                    # ---------------------------------------------------------
-                    elif redustep == 'flat-imaging':
-                        mjdobs = output_header['MJD-OBS']
-                        # retrieve and subtract bias
-                        ierr_bias, image2d_bias, bias_filename = retrieve_calibration(
-                                instrument, 'bias', signature, mjdobs,
-                                verbose=verbose
-                            )
-                        output_header.add_history('Subtracting bias:')
-                        output_header.add_history(bias_filename)
-                        if debug:
-                            print('bias level:', np.median(image2d_bias))
+                        # declare temporary cube to store the images to be combined
+                        naxis1 = getkey_from_signature(signature, 'NAXIS1')
+                        naxis2 = getkey_from_signature(signature, 'NAXIS2')
+                        image3d = np.zeros((nfiles, naxis2, naxis1), dtype=np.float32)
+                        exptime = np.zeros(nfiles, dtype=np.float32)
+
+                        # output file name
+                        output_header = None
+
+                        # store images in temporary data cube
                         for i in range(nfiles):
-                            # subtract bias
-                            image3d[i, :, :] -= image2d_bias
-                            # normalize by the median value
-                            mediansignal = np.median(image3d[i, :, :])
-                            if mediansignal > 0:
-                                image3d[i, :, :] /= mediansignal
-                        # median combination of normalized images
-                        image2d = np.median(image3d, axis=0)
-                        # set to 1.0 pixels with values <= 0
-                        image2d[image2d <= 0.0] = 1.0
-                        output_header.add_history('Combination method: median of normalized images')
-                        # compute statistical analysis and update the image header
-                        image2d_statsum = statsumm(image2d, output_header, redustep, rm_nan=True)
-                        # save result
-                        hdu = fits.PrimaryHDU(image2d.astype(np.float32), output_header)
-                        hdu.writeto(output_filename, overwrite=True)
-                    # ---------------------------------------------------------
-                    else:
-                        msg = '* ERROR: combination of {} not implemented yet'.format(redustep)
-                        raise SystemError(msg)
+                            filename = imgblock[i]
+                            basename = os.path.basename(filename)
+                            exptime[i] = imagedb[redustep][basename]['EXPTIME']
+                            with fits.open(filename) as hdulist:
+                                image_header = hdulist[0].header
+                                image_data = hdulist[0].data
+                            if i == 0:
+                                output_header = image_header
+                                output_header.add_history("---")
+                                output_header.add_history('Using filabres v.{}'.format(version))
+                                output_header.add_history('Date: ' + str(datetime.datetime.utcnow().isoformat()))
+                                output_header.add_history(str(sys.argv))
+                                # avoid warning when saving FITS
+                                if 'BLANK' in output_header:
+                                    del output_header['BLANK']
+                                # check for modified keywords when initializing
+                                # the image databases
+                                for keyword in instconf['masterkeywords']:
+                                    val1 = output_header[keyword]
+                                    val2 = imagedb[redustep][basename][keyword]
+                                    if val1 != val2:
+                                        output_header[keyword] = val2
+                                        print('WARNING: {} changed from {} to {}'.format(keyword, val1, val2))
+                                output_header.add_history('Using {} images to compute {}:'.format(nfiles, redustep))
+                            image3d[i, :, :] += image_data
+                            output_header.add_history(os.path.basename(filename))
+                        output_header.add_history('Signature:')
+                        for key in signature:
+                            output_header.add_history(' - {}: {}'.format(key, signature[key]))
 
-                    # update database with result using the mean MJD-OBS of
-                    # the combined images as index
-                    mjdobs = '{:.5f}'.format(mean_mjdobs)
-                    database[redustep][ssig][mjdobs] = dict()
-                    database[redustep][ssig][mjdobs]['night'] = night
-                    database[redustep][ssig][mjdobs]['signature'] = signature
-                    database[redustep][ssig][mjdobs]['filename'] = output_filename
-                    database[redustep][ssig][mjdobs]['statsumm'] = image2d_statsum
-                    dumdict = dict()
-                    for keyword in instconf['masterkeywords']:
-                        dumdict[keyword] = output_header[keyword]
-                    database[redustep][ssig][mjdobs]['masterkeywords'] = dumdict
-                    database[redustep][ssig][mjdobs]['norigin'] = nfiles
-                    database[redustep][ssig][mjdobs]['originf'] = originf
-                    if ierr_bias is not None:
-                        database[redustep][ssig][mjdobs]['ierr_bias'] = ierr_bias
-                    if ierr_flat is not None:
-                        database[redustep][ssig][mjdobs]['ierr_flat'] = ierr_flat
+                        # combine images according to their type
+                        ierr_bias = None
+                        ierr_flat = None
+                        # ---------------------------------------------------------
+                        if redustep == 'bias':
+                            # median combination
+                            image2d = np.median(image3d, axis=0)
+                            output_header.add_history('Combination method: median')
+                            # compute statistical analysis and update the image header
+                            image2d_statsum = statsumm(image2d, output_header, redustep, rm_nan=True)
+                            # save result
+                            hdu = fits.PrimaryHDU(image2d.astype(np.float32), output_header)
+                            hdu.writeto(output_filename, overwrite=True)
+                        # ---------------------------------------------------------
+                        elif redustep == 'flat-imaging':
+                            mjdobs = output_header['MJD-OBS']
+                            # retrieve and subtract bias
+                            ierr_bias, image2d_bias, bias_filename = retrieve_calibration(
+                                    instrument, 'bias', signature, mjdobs,
+                                    verbose=verbose
+                                )
+                            output_header.add_history('Subtracting bias:')
+                            output_header.add_history(bias_filename)
+                            if debug:
+                                print('bias level:', np.median(image2d_bias))
+                            for i in range(nfiles):
+                                # subtract bias
+                                image3d[i, :, :] -= image2d_bias
+                                # normalize by the median value
+                                mediansignal = np.median(image3d[i, :, :])
+                                if mediansignal > 0:
+                                    image3d[i, :, :] /= mediansignal
+                            # median combination of normalized images
+                            image2d = np.median(image3d, axis=0)
+                            # set to 1.0 pixels with values <= 0
+                            image2d[image2d <= 0.0] = 1.0
+                            output_header.add_history('Combination method: median of normalized images')
+                            # compute statistical analysis and update the image header
+                            image2d_statsum = statsumm(image2d, output_header, redustep, rm_nan=True)
+                            # save result
+                            hdu = fits.PrimaryHDU(image2d.astype(np.float32), output_header)
+                            hdu.writeto(output_filename, overwrite=True)
+                        # ---------------------------------------------------------
+                        else:
+                            msg = '* ERROR: combination of {} not implemented yet'.format(redustep)
+                            raise SystemError(msg)
+
+                        # update database with result using the mean MJD-OBS of
+                        # the combined images as index
+                        mjdobs = '{:.5f}'.format(mean_mjdobs)
+                        database[redustep][ssig][mjdobs] = dict()
+                        database[redustep][ssig][mjdobs]['night'] = night
+                        database[redustep][ssig][mjdobs]['signature'] = signature
+                        database[redustep][ssig][mjdobs]['filename'] = output_filename
+                        database[redustep][ssig][mjdobs]['statsumm'] = image2d_statsum
+                        dumdict = dict()
+                        for keyword in instconf['masterkeywords']:
+                            dumdict[keyword] = output_header[keyword]
+                        database[redustep][ssig][mjdobs]['masterkeywords'] = dumdict
+                        database[redustep][ssig][mjdobs]['norigin'] = nfiles
+                        database[redustep][ssig][mjdobs]['originf'] = originf
+                        if ierr_bias is not None:
+                            database[redustep][ssig][mjdobs]['ierr_bias'] = ierr_bias
+                        if ierr_flat is not None:
+                            database[redustep][ssig][mjdobs]['ierr_flat'] = ierr_flat
 
                     # set to reduced status the images that have been reduced
                     for key in imgblock:
