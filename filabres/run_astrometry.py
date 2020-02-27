@@ -493,7 +493,7 @@ def run_astrometry(image2d, mask2d, saturpix,
     logfile.write('astrometry.net> Number of targest found: {}\n'.format(ntargets))
     logfile.write('astrometry.net> Median error (arcsec): {}\n'.format(medianerr))
 
-    # plot with astrometry.net solution
+    # plot 1: X and Y errors
     pp = PdfPages('{}/astrometry1.pdf'.format(workdir))
     fig, ax = plt.subplots(1, 1, figsize=(11.7, 8.3))
     ax.plot(delta_x, delta_y, 'bo', alpha=0.5)
@@ -513,7 +513,7 @@ def run_astrometry(image2d, mask2d, saturpix,
     pp.savefig()
     if interactive:
         plt.show()
-
+    # plot 2: image with identified objects
     ax = ximshow(image2d, cmap='gray', show=False, figuredict={'figsize': (11.7, 8.3)},
                  title='astrometry.net (npoints={}, medianerr={:.3f} arcsec)'.format(ntargets, medianerr))
     ax.plot(tcorr.field_x, tcorr.field_y, 'bo', fillstyle='none', markersize=10, label='astnet_peaks')
@@ -527,7 +527,6 @@ def run_astrometry(image2d, mask2d, saturpix,
     pp.savefig()
     if interactive:
         pause_debugplot(debugplot=12, pltshow=True)
-
     pp.close()
     plt.close()
 
@@ -570,8 +569,48 @@ def run_astrometry(image2d, mask2d, saturpix,
     p.stdout.close()
     logfile.write(pout + '\n')
 
-    # ToDo: copy xxx.head in newheader after removing SIP parameters
-    # ToDo: change RA---TAN to RA---TPV and DEC--TAN to DEC---TPV
+    # remove SIP parameters in newheader
+    newheader['comment'] = '--Deleting Astrometry.net WCS solution-- '
+    sip_param = []
+    for p in ['', 'P']:
+        for c in ['A', 'B']:
+            sip_param += ['{}{}_ORDER'.format(c,p)]
+            sip_param += ['{}{}_{}_{}'.format(c, p, i, j) for i in range(3) for j in range(3) if i + j < 3]
+    for kwd in sip_param:
+        kwd_value = newheader[kwd]
+        kwd_comment = newheader.comments[kwd]
+        newheader['comment'] = 'deleted {:8} = {:20} / {}'.format(kwd, kwd_value, kwd_comment)
+        del newheader[kwd]
+
+    # set the TPV solution obtained with sextractor+scamp
+    newheader['history'] = '--Deleting Astrometry.net WCS solution--'
+    newheader['history'] = '--Computing new solution with SEXTRACTOR+SCAMP--'
+    with open('{}/xxx.head'.format(workdir)) as tpvfile:
+        tpvheader = tpvfile.readlines()
+    for line in tpvheader:
+        kwd = line[:8].strip()
+        if kwd.find('END') > -1:
+            break
+        if kwd == 'COMMENT':
+            pass  # Avoid problem with non-standard ASCII characters
+        elif kwd == 'HISTORY':
+            newheader[kwd] = line[11:].rstrip()
+        else:
+            # note the blank spaces to avoid problem with "S/N"
+            kwd_value, kwd_comment = line[11:].split(' / ')
+            try:
+                value = float(kwd_value.replace('\'', ' '))
+            except ValueError:
+                value = kwd_value.replace('\'', ' ')
+            newheader[kwd] = (value, kwd_comment.rstrip())
+
+    # if RADECSYS present, delete it (RADESYS has been set by SCAMP)
+    if 'RADECSYS' in newheader:
+        del newheader['RADECSYS']
+
+    # set CTYPE1 and CTYPE2 from 'RA---TAN' and 'DEC--TAN' to 'RA---TPV' and 'DEC--TPV'
+    newheader['CTYPE1'] = 'RA---TPV'
+    newheader['CTYPE2'] = 'DEC--TPV'
 
     # save result
     hdu = fits.PrimaryHDU(image2d.astype(np.float32), newheader)
@@ -581,3 +620,5 @@ def run_astrometry(image2d, mask2d, saturpix,
 
     # close logfile
     logfile.close()
+
+    input('Pending plots with SCAMP solution')
