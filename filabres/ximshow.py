@@ -40,7 +40,7 @@ def ximshow(image2d, title=None, show=True,
             image_bbox=None, first_pixel=(1, 1),
             crpix1=None, crval1=None, cdelt1=None,
             ds9regfile=None,
-            geometry=(0, 0, 640, 480), figuredict=None,
+            geometry=None, figuredict=None,
             tight_layout=True,
             debugplot=0, using_jupyter=False):
     """Auxiliary function to display a numpy 2d array.

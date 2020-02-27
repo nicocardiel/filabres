@@ -5,6 +5,7 @@ from astropy.time import Time
 from astropy.wcs import WCS
 from astropy.wcs.utils import proj_plane_pixel_scales
 import json
+from matplotlib.backends.backend_pdf import PdfPages
 import matplotlib.pyplot as plt
 import numpy as np
 import os
@@ -478,36 +479,57 @@ def run_astrometry(image2d, mask2d, saturpix,
     with fits.open(corrfilename) as hdul_table:
         tcorr = hdul_table[1].data
     ntargets = tcorr.shape[0]
-    medianerr = np.sqrt(np.median((tcorr.index_x - tcorr.field_x)**2 + (tcorr.index_y - tcorr.field_y)**2))
-    medianerr *= pixel_scale_arcsec_pix
+    delta_x = (tcorr.index_x - tcorr.field_x) * pixel_scale_arcsec_pix
+    delta_y = (tcorr.index_y - tcorr.field_y) * pixel_scale_arcsec_pix
+    delta_r = np.sqrt(delta_x * delta_x + delta_y * delta_y)
+    rorder = np.argsort(delta_r)
+    medianerr = np.median(delta_r)
     if verbose:
         print('astrometry.net> Number of targest found: {}'.format(ntargets))
         print('astrometry.net> Median error (arcsec)..: {}'.format(medianerr))
+        for i, iorder in enumerate(rorder):
+            if delta_r[iorder] > 2 * medianerr:
+                print('-> outlier point #{}, delta_r (arcsec): {}'.format(i+1, delta_r[iorder]))
     logfile.write('astrometry.net> Number of targest found: {}\n'.format(ntargets))
     logfile.write('astrometry.net> Median error (arcsec): {}\n'.format(medianerr))
-    # ToDo: plot number of object
+
+    # plot with astrometry.net solution
+    pp = PdfPages('{}/astrometry1.pdf'.format(workdir))
+    fig, ax = plt.subplots(1, 1, figsize=(11.7, 8.3))
+    ax.plot(delta_x, delta_y, 'bo', alpha=0.5)
+    for i, iorder in enumerate(rorder):
+        ax.text(delta_x[iorder], delta_y[iorder], str(i+1), fontsize=15)
+    circle1 = plt.Circle((0,0), medianerr, color='r', fill=False)
+    circle2 = plt.Circle((0,0), 2*medianerr, color='r', fill=False)
+    rmax = medianerr*2.1
+    ax.add_artist(circle1)
+    ax.add_artist(circle2)
+    ax.set_xlim([-rmax, rmax])
+    ax.set_ylim([-rmax, rmax])
+    ax.set_xlabel('delta X (arcsec): predicted - peak')
+    ax.set_ylabel('delta Y (arcsec): predicted - peak')
+    ax.set_title('astrometry.net (npoints={}, medianerr={:.3f} arcsec)'.format(ntargets, medianerr))
+    ax.set_aspect('equal', 'box')
+    pp.savefig()
     if interactive:
-        fig, ax = plt.subplots(1, 1)
-        ax.plot((tcorr.index_x-tcorr.field_x)*pixel_scale_arcsec_pix,
-                (tcorr.index_y-tcorr.field_y)*pixel_scale_arcsec_pix, 'bo', alpha=0.5)
-        circle1 = plt.Circle((0,0), medianerr, color='r', fill=False)
-        circle2 = plt.Circle((0,0), 2*medianerr, color='r', fill=False)
-        rmax = medianerr*2.1
-        ax.add_artist(circle1)
-        ax.add_artist(circle2)
-        ax.set_xlim([-rmax, rmax])
-        ax.set_ylim([-rmax, rmax])
-        ax.set_aspect('equal', 'box')
+        plt.show()
+
+    ax = ximshow(image2d, cmap='gray', show=False, figuredict={'figsize': (11.7, 8.3)},
+                 title='astrometry.net (npoints={}, medianerr={:.3f} arcsec)'.format(ntargets, medianerr))
+    ax.plot(tcorr.field_x, tcorr.field_y, 'bo', fillstyle='none', markersize=10, label='astnet_peaks')
+    for i, iorder in enumerate(rorder):
+        ax.text(tcorr.field_x[iorder], tcorr.field_y[iorder], str(i + 1), fontsize=15, color='blue')
+    ax.plot(xgaia, ygaia, 'mx', alpha=0.2, markersize=10, label='astnet_predicted_gaiacat')
+    ax.plot(tcorr.index_x, tcorr.index_y, 'g+', markersize=10, label='astnet_predicted_peaks')
+    ax.set_xlim([min(np.min(xgaia), -0.5), max(np.max(xgaia), naxis1 + 0.5)])
+    ax.set_ylim([min(np.min(ygaia), -0.5), max(np.max(ygaia), naxis2 + 0.5)])
+    ax.legend()
+    pp.savefig()
+    if interactive:
         pause_debugplot(debugplot=12, pltshow=True)
-        #
-        ax = ximshow(image2d, cmap='gray', show=False)
-        ax.plot(tcorr.field_x, tcorr.field_y, 'bo', fillstyle='none', markersize=10, label='astnet_peaks')
-        ax.plot(xgaia, ygaia, 'mx', alpha=0.2, markersize=10, label='astnet_predicted_gaiacat')
-        ax.plot(tcorr.index_x, tcorr.index_y, 'g+', markersize=10, label='astnet_predicted_peaks')
-        ax.set_xlim([min(np.min(xgaia), -0.5), max(np.max(xgaia), naxis1+0.5)])
-        ax.set_ylim([min(np.min(ygaia), -0.5), max(np.max(ygaia), naxis2+0.5)])
-        ax.legend()
-        pause_debugplot(debugplot=12, pltshow=True)
+
+    pp.close()
+    plt.close()
 
     # open result and update header
     result_filename = '{}/xxx.new'.format(workdir)
