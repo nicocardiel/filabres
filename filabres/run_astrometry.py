@@ -5,6 +5,7 @@ from astropy.time import Time
 from astropy.wcs import WCS
 from astropy.wcs.utils import proj_plane_pixel_scales
 import json
+import matplotlib.pyplot as plt
 import numpy as np
 import os
 import pkgutil
@@ -469,7 +470,8 @@ def run_astrometry(image2d, mask2d, saturpix,
     # compute pixel scale (mean in both axis) in arcsec/pix
     pixel_scale_arcsec_pix = np.mean(proj_plane_pixel_scales(w)*3600)
     if verbose:
-        print('-> pixel scale (arcsec/pix): {}'.format(pixel_scale_arcsec_pix))
+        print('astrometry.net> pixel scale (arcsec/pix): {}'.format(pixel_scale_arcsec_pix))
+    logfile.write('astrometry.net> pixel scale (arcsec/pix): {}\n'.format(pixel_scale_arcsec_pix))
 
     # load corr file
     corrfilename = '{}/xxx.corr'.format(workdir)
@@ -483,7 +485,21 @@ def run_astrometry(image2d, mask2d, saturpix,
         print('astrometry.net> Median error (arcsec)..: {}'.format(medianerr))
     logfile.write('astrometry.net> Number of targest found: {}\n'.format(ntargets))
     logfile.write('astrometry.net> Median error (arcsec): {}\n'.format(medianerr))
+    # ToDo: plot number of object
     if interactive:
+        fig, ax = plt.subplots(1, 1)
+        ax.plot((tcorr.index_x-tcorr.field_x)*pixel_scale_arcsec_pix,
+                (tcorr.index_y-tcorr.field_y)*pixel_scale_arcsec_pix, 'bo', alpha=0.5)
+        circle1 = plt.Circle((0,0), medianerr, color='r', fill=False)
+        circle2 = plt.Circle((0,0), 2*medianerr, color='r', fill=False)
+        rmax = medianerr*2.1
+        ax.add_artist(circle1)
+        ax.add_artist(circle2)
+        ax.set_xlim([-rmax, rmax])
+        ax.set_ylim([-rmax, rmax])
+        ax.set_aspect('equal', 'box')
+        pause_debugplot(debugplot=12, pltshow=True)
+        #
         ax = ximshow(image2d, cmap='gray', show=False)
         ax.plot(tcorr.field_x, tcorr.field_y, 'bo', fillstyle='none', markersize=10, label='astnet_peaks')
         ax.plot(xgaia, ygaia, 'mx', alpha=0.2, markersize=10, label='astnet_predicted_gaiacat')
