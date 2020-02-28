@@ -118,8 +118,7 @@ def run_reduction_step(redustep, interactive, datadir, list_of_nights,
                 print('\nResults database set to {}'.format(databasefile))
 
             # determine number of different signatures
-            # ToDo: remove limit in loop
-            for filename in list_of_images[:2]:
+            for filename in list_of_images:
                 # define input file name
                 input_filename = datadir + night + '/' + filename
                 # define output FITS file name
@@ -131,8 +130,7 @@ def run_reduction_step(redustep, interactive, datadir, list_of_nights,
                     print('File {} already exists: skipping reduction.'.format(output_filename))
 
                 if execute_reduction:
-                    if verbose:
-                        print('-> output filename will be {}'.format(output_filename))
+                    print('-> output filename will be {}'.format(output_filename))
                     # signature of particular image
                     imgsignature = dict()
                     for keyword in signaturekeys:

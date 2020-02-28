@@ -11,12 +11,68 @@ import numpy as np
 import os
 import pkgutil
 import pyvo
+import re
 import subprocess
 
 from .ximshow import ximshow
 from .pause_debugplot import pause_debugplot
 
 NMAXGAIA = 2000
+
+
+class ToLogFile:
+    def __init__(self, workdir, verbose):
+        self.filename = '{}/astrometry.log'.format(workdir)
+        self.logfile = open(self.filename, 'wt')
+        self.verbose = verbose
+
+    def print(self, line):
+        if self.verbose:
+            print(line)
+        self.logfile.write(line + '\n')
+
+    def close(self):
+        self.logfile.close()
+
+
+class CmdExecute:
+    def __init__(self, logfile):
+        self.logfile = logfile
+
+    def run(self, command, cwd=None):
+        # define regex to filter out ANSI escape sequences
+        ansi_regex = r'\x1b(' \
+                     r'(\[\??\d+[hl])|' \
+                     r'([=<>a-kzNM78])|' \
+                     r'([\(\)][a-b0-2])|' \
+                     r'(\[\d{0,2}[ma-dgkjqi])|' \
+                     r'(\[\d+;\d+[hfy]?)|' \
+                     r'(\[;?[hf])|' \
+                     r'(#[3-68])|' \
+                     r'([01356]n)|' \
+                     r'(O[mlnp-z]?)|' \
+                     r'(/Z)|' \
+                     r'(\d+)|' \
+                     r'(\[\?\d;\d0c)|' \
+                     r'(\d;\dR))'
+        ansi_escape = re.compile(ansi_regex, flags=re.IGNORECASE)
+
+        self.logfile.print('$ {}'.format(command))
+        p = subprocess.Popen(command.split(), cwd=cwd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        pout = p.stdout.read().decode('utf-8')
+        perr = p.stderr.read().decode('utf-8')
+        p.stdout.close()
+        p.stderr.close()
+        if pout != '':
+            if command[:4] == 'sex ':
+                self.logfile.print(ansi_escape.sub('', str(pout)))
+            else:
+                self.logfile.print(pout)
+        if perr != '':
+            if command[:4] == 'sex ':
+                self.logfile.print(ansi_escape.sub('', str(perr)))
+            else:
+                self.logfile.print(perr)
 
 
 def retrieve_gaia(ra_deg, dec_deg, radius_deg, magnitude, loggaia):
@@ -104,7 +160,7 @@ def plot_astrometry(image2d, peak_x, peak_y, pred_x, pred_y, xcatag, ycatag,
         Work subdirectory.
     interactive : bool or None
         If True, enable interactive execution (e.g. plots,...).
-    logfile : file handler
+    logfile : ToLogFile instance
         Log file where the astrometric calibration information is
         stored.
     suffix : str
@@ -122,15 +178,11 @@ def plot_astrometry(image2d, peak_x, peak_y, pred_x, pred_y, xcatag, ycatag,
     delta_r = np.sqrt(delta_x * delta_x + delta_y * delta_y)
     rorder = np.argsort(delta_r)
     meanerr = np.mean(delta_r)
-    if verbose:
-        print('astrometry-{}> Number of targest found: {}'.format(suffix, ntargets))
-        print('astrometry-{}> Mean error (arcsec)....: {}'.format(suffix, meanerr))
-        for i, iorder in enumerate(rorder):
-            if delta_r[iorder] > 3 * meanerr:
-                print('-> outlier point #{}, delta_r (arcsec): {}'.format(i+1, delta_r[iorder]))
-    logfile.write('astrometry-{}> Number of targest found: {}\n'.format(suffix, ntargets))
-    logfile.write('astrometry-{}> Mean error (arcsec)....: {}\n'.format(suffix, meanerr))
-
+    logfile.print('astrometry-{}> Number of targest found: {}'.format(suffix, ntargets))
+    logfile.print('astrometry-{}> Mean error (arcsec)....: {}'.format(suffix, meanerr))
+    for i, iorder in enumerate(rorder):
+        if delta_r[iorder] > 3 * meanerr:
+            logfile.print('-> outlier point #{}, delta_r (arcsec): {}'.format(i+1, delta_r[iorder]))
 
     # plot 1: X and Y errors
     pp = PdfPages('{}/astrometry-{}.pdf'.format(workdir, suffix))
@@ -300,11 +352,12 @@ def run_astrometry(image2d, mask2d, saturpix,
         if verbose:
             print('Creating configuration file {}'.format(cfgfile))
 
-    # define and open logfile
-    logfilename = '{}/astrometry.log'.format(workdir)
-    logfile = open(logfilename, 'wt')
-    if verbose:
-        print('-> Creating {}'.format(logfilename))
+    # define ToLogFile object
+    logfile = ToLogFile(workdir=workdir, verbose=verbose)
+    logfile.print('-> Creating {}'.format(logfile.filename))
+
+    # define CmdExecute object
+    cmd = CmdExecute(logfile)
 
     # remove deprecated WCS keywords:
     for kwd in ['pc001001', 'pc001002', 'pc002001', 'pc002002']:
@@ -319,9 +372,9 @@ def run_astrometry(image2d, mask2d, saturpix,
                              dec=dec_initial * u.degree,
                              frame='fk5', equinox=Time(dateobs))
     c_fk5_j2000 = c_fk5_dateobs.transform_to(FK5(equinox='J2000'))
-    logfile.write('Central coordinates:\n')
-    logfile.write(str(c_fk5_dateobs) + '\n')
-    logfile.write(str(c_fk5_j2000) + '\n')
+    logfile.print('Central coordinates:')
+    logfile.print(str(c_fk5_dateobs))
+    logfile.print(str(c_fk5_j2000))
     ra_center = c_fk5_j2000.ra.deg * np.pi / 180
     dec_center = c_fk5_j2000.dec.deg * np.pi / 180
     xj2000 = np.cos(ra_center) * np.cos(dec_center)
@@ -488,13 +541,7 @@ def run_astrometry(image2d, mask2d, saturpix,
             pvalue = 19
         command += ' -P {}'.format(pvalue)
         command += ' -E -I {}'.format(indexid)
-        if verbose:
-            print('$ {}'.format(command))
-        logfile.write('$ {}\n'.format(command))
-        p = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, close_fds=True)
-        pout = p.stdout.read().decode('utf-8')
-        p.stdout.close()
-        logfile.write(pout + '\n')
+        cmd.run(command)
 
         # update JSON file with central coordinates of fields already calibrated
         ccbase[subdir] = {
@@ -509,27 +556,15 @@ def run_astrometry(image2d, mask2d, saturpix,
             json.dump(ccbase, outfile, indent=2)
     else:
         msg = 'Reusing previously computed index file {}/index-image.fits'.format(subdir)
-        logfile.write(msg + '\n')
+        logfile.print(msg)
         if verbose:
             print('-> {}'.format(msg))
 
     command = 'cp {}/{}/GaiaDR2-query.fits {}/work/'.format(nightdir, subdir, nightdir)
-    if verbose:
-        print('$ {}'.format(command))
-    logfile.write('$ {}\n'.format(command))
-    p = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, close_fds=True)
-    pout = p.stdout.read().decode('utf-8')
-    p.stdout.close()
-    logfile.write(pout + '\n')
+    cmd.run(command)
 
     command = 'cp {}/{}/index-image.fits {}/work/'.format(nightdir, subdir, nightdir)
-    if verbose:
-        print('$ {}'.format(command))
-    logfile.write('$ {}\n'.format(command))
-    p = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, close_fds=True)
-    pout = p.stdout.read().decode('utf-8')
-    p.stdout.close()
-    logfile.write(pout + '\n')
+    cmd.run(command)
 
     # image dimensions
     naxis2, naxis1 = image2d.shape
@@ -541,21 +576,13 @@ def run_astrometry(image2d, mask2d, saturpix,
     hdu.writeto(tmpfilename, overwrite=True)
 
     # solve field
-    command = 'cd {}\n'.format(workdir)
-    command += 'solve-field -p'
+    command = 'solve-field -p'
     command += ' --config myastrometry.cfg --overwrite'.format(newsubdir)
     command += ' --ra ' + str(c_fk5_j2000.ra.degree)
     command += ' --dec ' + str(c_fk5_j2000.dec.degree)
     command += ' --radius {}'.format(maxfieldview_arcmin / 120)
     command += ' xxx.fits'
-    if verbose:
-        sdum = '$ {}'.format(command)
-        print(sdum.replace('\n', '\n$ '))
-    logfile.write('$ {}\n'.format(command))
-    p = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, close_fds=True)
-    pout = p.stdout.read().decode('utf-8')
-    p.stdout.close()
-    logfile.write(pout + '\n')
+    cmd.run(command, cwd=workdir)
 
     # check for saturated objects
     with fits.open('{}/xxx.axy'.format(workdir), 'update') as hdul_table:
@@ -575,8 +602,7 @@ def run_astrometry(image2d, mask2d, saturpix,
 
     if len(isaturated) > 0:
         # rerun code
-        command = 'cd {}\n'.format(workdir)
-        command += 'solve-field -p'
+        command = 'solve-field -p'
         command += ' --config myastrometry.cfg --continue'.format(newsubdir)
         command += ' --width {} --height {}'.format(naxis1, naxis2)
         command += ' --x-column X --y-column Y --sort-column FLUX'
@@ -584,25 +610,10 @@ def run_astrometry(image2d, mask2d, saturpix,
         command += ' --dec ' + str(c_fk5_j2000.dec.degree)
         command += ' --radius {}'.format(maxfieldview_arcmin / 120)
         command += ' xxx.axy'
-        if verbose:
-            sdum = '$ {}'.format(command)
-            print(sdum.replace('\n', '\n$ '))
-        logfile.write('$ {}\n'.format(command))
-        p = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, close_fds=True)
-        pout = p.stdout.read().decode('utf-8')
-        p.stdout.close()
-        logfile.write(pout + '\n')
+        cmd.run(command, cwd=workdir)
         #
-        command = 'cd {}\n'.format(workdir)
-        command += 'new-wcs -i xxx.fits -w xxx.wcs -o xxx.new -d'
-        if verbose:
-            sdum = '$ {}'.format(command)
-            print(sdum.replace('\n', '\n$ '))
-        logfile.write('$ {}\n'.format(command))
-        p = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, close_fds=True)
-        pout = p.stdout.read().decode('utf-8')
-        p.stdout.close()
-        logfile.write(pout + '\n')
+        command = 'new-wcs -i xxx.fits -w xxx.wcs -o xxx.new -d'
+        cmd.run(command, cwd=workdir)
 
     # read GaiaDR2 table and convert RA, DEC to X, Y
     # (note: the same result can be accomplished using the command-line program:
@@ -613,9 +624,7 @@ def run_astrometry(image2d, mask2d, saturpix,
     xgaia, ygaia = w.all_world2pix(gaiadr2.ra, gaiadr2.dec, 1)
     # compute pixel scale (mean in both axis) in arcsec/pix
     pixel_scales_arcsec_pix = proj_plane_pixel_scales(w)*3600
-    if verbose:
-        print('astrometry.net> pixel scales (arcsec/pix): {}'.format(pixel_scales_arcsec_pix))
-    logfile.write('astrometry.net> pixel scales (arcsec/pix): {}\n'.format(pixel_scales_arcsec_pix))
+    logfile.print('astrometry.net> pixel scales (arcsec/pix): {}'.format(pixel_scales_arcsec_pix))
 
     # load corr file
     corrfilename = '{}/xxx.corr'.format(workdir)
@@ -645,33 +654,17 @@ def run_astrometry(image2d, mask2d, saturpix,
     for filename in conffiles:
         dumdata = pkgutil.get_data('filabres.astromatic', filename)
         txtfilename = '{}/{}'.format(workdir, filename)
-        print('Generating {}'.format(txtfilename))
+        logfile.print('Generating {}'.format(txtfilename))
         with open(txtfilename, 'wt') as f:
             f.write(str(dumdata.decode('utf8')))
 
     # run sextractor
-    command = 'cd {}\n'.format(workdir)
-    command += 'sex xxx.new -c config.sex -CATALOG_NAME xxx.ldac'
-    if verbose:
-        sdum = '$ {}'.format(command)
-        print(sdum.replace('\n', '\n$ '))
-    logfile.write('$ {}\n'.format(command))
-    p = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, close_fds=True)
-    pout = p.stdout.read().decode('utf-8')
-    p.stdout.close()
-    logfile.write(pout + '\n')
+    command = 'sex xxx.new -c config.sex -CATALOG_NAME xxx.ldac'
+    cmd.run(command, cwd=workdir)
 
     # run scamp
-    command = 'cd {}\n'.format(workdir)
-    command += 'scamp xxx.ldac -c config.scamp'
-    if verbose:
-        sdum = '$ {}'.format(command)
-        print(sdum.replace('\n', '\n$ '))
-    logfile.write('$ {}\n'.format(command))
-    p = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, close_fds=True)
-    pout = p.stdout.read().decode('utf-8')
-    p.stdout.close()
-    logfile.write(pout + '\n')
+    command = 'scamp xxx.ldac -c config.scamp'
+    cmd.run(command, cwd=workdir)
 
     # remove SIP parameters in newheader
     newheader['history'] = '--Deleting SIP from Astrometry.net WCS solution--'
@@ -759,9 +752,7 @@ def run_astrometry(image2d, mask2d, saturpix,
     w = WCS(output_filename)
     # compute pixel scale (mean in both axis) in arcsec/pix
     pixel_scales_arcsec_pix = proj_plane_pixel_scales(w)*3600
-    if verbose:
-        print('astrometry> pixel scales (arcsec/pix): {}'.format(pixel_scales_arcsec_pix))
-    logfile.write('astrometry> pixel scales (arcsec/pix): {}\n'.format(pixel_scales_arcsec_pix))
+    logfile.print('astrometry> pixel scales (arcsec/pix): {}'.format(pixel_scales_arcsec_pix))
 
     # load peak location from catalogue
     peak_x, peak_y = load_scamp_cat('full', workdir, verbose)
