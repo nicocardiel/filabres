@@ -11,7 +11,6 @@ import numpy as np
 import os
 import pkgutil
 import pyvo
-import sep
 import subprocess
 
 from .ximshow import ximshow
@@ -71,6 +70,101 @@ def retrieve_gaia(ra_deg, dec_deg, radius_deg, magnitude, loggaia):
     tap_service = pyvo.dal.TAPService('https://gaia.aip.de/tap')
     tap_result = tap_service.run_sync(gaia_query_line)
     return gaia_query_line, tap_result
+
+
+def plot_astrometry(image2d, peak_x, peak_y, pred_x, pred_y, xcatag, ycatag,
+                    pixel_scales_arcsec_pix, workdir, interactive, logfile, verbose):
+    """
+    Generate plots with the results of the astrometric calibration.
+
+    Parameters
+    ==========
+    image2d : numpy 2D array
+        Image to be calibrated.
+    peak_x : numpy 1D array
+        Measured X coordinate of the detected objects.
+    peak_y : numpy 1D array
+        Measured Y coordinate of the detected objects.
+    pred_x : numpy 1D array
+        X coordinate of the detected objects predicted by the
+        astrometric calibration.
+    pred_y : numpy 1D array
+        X coordinate of the detected objects predicted by the
+        astrometric calibration.
+    xcatag : numpy 1D array
+        X coordinate of the full catalog of objects as
+        predicted by the astrometric calibration.
+    ycatag : numpy 1D array
+        X coordinate of the full catalog of objects as
+        predicted by the astrometric calibration.
+    pixel_scales_arcsec_pix : numpy 1D array
+        X and Y pixel scales, in arcsec/pix.
+    workdir : str
+        Work subdirectory.
+    interactive : bool or None
+        If True, enable interactive execution (e.g. plots,...).
+    logfile : file handler
+        Log file where the astrometric calibration information is
+        stored.
+    verbose : bool or None
+        If True, display intermediate information.
+    """
+
+    ntargets = len(peak_x)
+    naxis2, naxis1 = image2d.shape
+
+    mean_pixel_scale_arcsec_pix = np.mean(pixel_scales_arcsec_pix)
+    delta_x = (pred_x - peak_x) * mean_pixel_scale_arcsec_pix
+    delta_y = (pred_y - peak_y) * mean_pixel_scale_arcsec_pix
+    delta_r = np.sqrt(delta_x * delta_x + delta_y * delta_y)
+    rorder = np.argsort(delta_r)
+    medianerr = np.median(delta_r)
+    if verbose:
+        print('astrometry.net> Number of targest found: {}'.format(ntargets))
+        print('astrometry.net> Median error (arcsec)..: {}'.format(medianerr))
+        for i, iorder in enumerate(rorder):
+            if delta_r[iorder] > 2 * medianerr:
+                print('-> outlier point #{}, delta_r (arcsec): {}'.format(i+1, delta_r[iorder]))
+    logfile.write('astrometry.net> Number of targest found: {}\n'.format(ntargets))
+    logfile.write('astrometry.net> Median error (arcsec): {}\n'.format(medianerr))
+
+
+    # plot 1: X and Y errors
+    pp = PdfPages('{}/astrometry_ini.pdf'.format(workdir))
+    fig, ax = plt.subplots(1, 1, figsize=(11.7, 8.3))
+    ax.plot(delta_x, delta_y, 'bo', alpha=0.5)
+    for i, iorder in enumerate(rorder):
+        ax.text(delta_x[iorder], delta_y[iorder], str(i+1), fontsize=15)
+    circle1 = plt.Circle((0,0), medianerr, color='r', fill=False)
+    circle2 = plt.Circle((0,0), 2*medianerr, color='r', fill=False)
+    rmax = medianerr*2.1
+    ax.add_artist(circle1)
+    ax.add_artist(circle2)
+    ax.set_xlim([-rmax, rmax])
+    ax.set_ylim([-rmax, rmax])
+    ax.set_xlabel('delta X (arcsec): predicted - peak')
+    ax.set_ylabel('delta Y (arcsec): predicted - peak')
+    ax.set_title('astrometry.net (npoints={}, medianerr={:.3f} arcsec)'.format(ntargets, medianerr))
+    ax.set_aspect('equal', 'box')
+    pp.savefig()
+    if interactive:
+        plt.show()
+    # plot 2: image with identified objects
+    ax = ximshow(image2d, cmap='gray', show=False, figuredict={'figsize': (11.7, 8.3)},
+                 title='astrometry.net (npoints={}, medianerr={:.3f} arcsec)'.format(ntargets, medianerr))
+    ax.plot(peak_x, peak_y, 'bo', fillstyle='none', markersize=10, label='peaks')
+    for i, iorder in enumerate(rorder):
+        ax.text(peak_x[iorder], peak_y[iorder], str(i + 1), fontsize=15, color='blue')
+    ax.plot(xcatag, ycatag, 'mx', alpha=0.2, markersize=10, label='predicted_gaiacat')
+    ax.plot(pred_x, pred_y, 'g+', markersize=10, label='predicted_peaks')
+    ax.set_xlim([min(np.min(xcatag), -0.5), max(np.max(xcatag), naxis1 + 0.5)])
+    ax.set_ylim([min(np.min(ycatag), -0.5), max(np.max(ycatag), naxis2 + 0.5)])
+    ax.legend()
+    pp.savefig()
+    if interactive:
+        pause_debugplot(debugplot=12, pltshow=True)
+    pp.close()
+    plt.close()
 
 
 def run_astrometry(image2d, mask2d, saturpix,
@@ -363,36 +457,12 @@ def run_astrometry(image2d, mask2d, saturpix,
     p.stdout.close()
     logfile.write(pout + '\n')
 
-    """
-    # SEP work
-    bkg = sep.Background(image2d, mask=-mask2d, maskthresh=-0.5)
-    bkg_image2d = bkg.back()
-    ax = ximshow(bkg_image2d, title='bkg_image2d', show=False)
-    pause_debugplot(debugplot=12, pltshow=True)
-    bkg_rms2d = bkg.rms()
-    ax = ximshow(bkg_rms2d, title='bkg_rms2d', show=False)
-    pause_debugplot(debugplot=12, pltshow=True)
-    image2d_sub = image2d - bkg_image2d
-    objects = sep.extract(image2d_sub, 2.0, err=np.median(bkg_rms2d))
-    ax = ximshow(image2d_sub, title='image2d_sub (nobjects={})'.format(len(objects)), cmap='gray', show=False)
-    ax.plot(objects['x'] + 1, objects['y'] + 1, 'g+')
-    from matplotlib.patches import Ellipse
-    for i in range(len(objects)):
-        e = Ellipse(xy=(objects['x'][i]+1, objects['y'][i]+1),
-                    width=6*objects['a'][i],
-                    height=6*objects['b'][i],
-                    angle=objects['theta'][i] * 180. / np.pi)
-        e.set_facecolor('none')
-        e.set_edgecolor('red')
-        ax.add_artist(e)
-    pause_debugplot(debugplot=12, pltshow=True)
-    """
-
     # image dimensions
     naxis2, naxis1 = image2d.shape
 
     # save temporary FITS file
     tmpfilename = '{}/xxx.fits'.format(workdir)
+    header.add_history('--Computing Astrometry.net WCS solution--')
     hdu = fits.PrimaryHDU(image2d.astype(np.float32), header)
     hdu.writeto(tmpfilename, overwrite=True)
 
@@ -467,74 +537,31 @@ def run_astrometry(image2d, mask2d, saturpix,
         gaiadr2 = hdul_table[1].data
     w = WCS('{}/xxx.wcs'.format(workdir))
     xgaia, ygaia = w.all_world2pix(gaiadr2.ra, gaiadr2.dec, 1)
-
     # compute pixel scale (mean in both axis) in arcsec/pix
-    pixel_scale_arcsec_pix = np.mean(proj_plane_pixel_scales(w)*3600)
+    pixel_scales_arcsec_pix = proj_plane_pixel_scales(w)*3600
     if verbose:
-        print('astrometry.net> pixel scale (arcsec/pix): {}'.format(pixel_scale_arcsec_pix))
-    logfile.write('astrometry.net> pixel scale (arcsec/pix): {}\n'.format(pixel_scale_arcsec_pix))
+        print('astrometry.net> pixel scales (arcsec/pix): {}'.format(pixel_scales_arcsec_pix))
+    logfile.write('astrometry.net> pixel scales (arcsec/pix): {}\n'.format(pixel_scales_arcsec_pix))
 
     # load corr file
     corrfilename = '{}/xxx.corr'.format(workdir)
     with fits.open(corrfilename) as hdul_table:
         tcorr = hdul_table[1].data
-    ntargets = tcorr.shape[0]
-    delta_x = (tcorr.index_x - tcorr.field_x) * pixel_scale_arcsec_pix
-    delta_y = (tcorr.index_y - tcorr.field_y) * pixel_scale_arcsec_pix
-    delta_r = np.sqrt(delta_x * delta_x + delta_y * delta_y)
-    rorder = np.argsort(delta_r)
-    medianerr = np.median(delta_r)
-    if verbose:
-        print('astrometry.net> Number of targest found: {}'.format(ntargets))
-        print('astrometry.net> Median error (arcsec)..: {}'.format(medianerr))
-        for i, iorder in enumerate(rorder):
-            if delta_r[iorder] > 2 * medianerr:
-                print('-> outlier point #{}, delta_r (arcsec): {}'.format(i+1, delta_r[iorder]))
-    logfile.write('astrometry.net> Number of targest found: {}\n'.format(ntargets))
-    logfile.write('astrometry.net> Median error (arcsec): {}\n'.format(medianerr))
 
-    # plot 1: X and Y errors
-    pp = PdfPages('{}/astrometry1.pdf'.format(workdir))
-    fig, ax = plt.subplots(1, 1, figsize=(11.7, 8.3))
-    ax.plot(delta_x, delta_y, 'bo', alpha=0.5)
-    for i, iorder in enumerate(rorder):
-        ax.text(delta_x[iorder], delta_y[iorder], str(i+1), fontsize=15)
-    circle1 = plt.Circle((0,0), medianerr, color='r', fill=False)
-    circle2 = plt.Circle((0,0), 2*medianerr, color='r', fill=False)
-    rmax = medianerr*2.1
-    ax.add_artist(circle1)
-    ax.add_artist(circle2)
-    ax.set_xlim([-rmax, rmax])
-    ax.set_ylim([-rmax, rmax])
-    ax.set_xlabel('delta X (arcsec): predicted - peak')
-    ax.set_ylabel('delta Y (arcsec): predicted - peak')
-    ax.set_title('astrometry.net (npoints={}, medianerr={:.3f} arcsec)'.format(ntargets, medianerr))
-    ax.set_aspect('equal', 'box')
-    pp.savefig()
-    if interactive:
-        plt.show()
-    # plot 2: image with identified objects
-    ax = ximshow(image2d, cmap='gray', show=False, figuredict={'figsize': (11.7, 8.3)},
-                 title='astrometry.net (npoints={}, medianerr={:.3f} arcsec)'.format(ntargets, medianerr))
-    ax.plot(tcorr.field_x, tcorr.field_y, 'bo', fillstyle='none', markersize=10, label='astnet_peaks')
-    for i, iorder in enumerate(rorder):
-        ax.text(tcorr.field_x[iorder], tcorr.field_y[iorder], str(i + 1), fontsize=15, color='blue')
-    ax.plot(xgaia, ygaia, 'mx', alpha=0.2, markersize=10, label='astnet_predicted_gaiacat')
-    ax.plot(tcorr.index_x, tcorr.index_y, 'g+', markersize=10, label='astnet_predicted_peaks')
-    ax.set_xlim([min(np.min(xgaia), -0.5), max(np.max(xgaia), naxis1 + 0.5)])
-    ax.set_ylim([min(np.min(ygaia), -0.5), max(np.max(ygaia), naxis2 + 0.5)])
-    ax.legend()
-    pp.savefig()
-    if interactive:
-        pause_debugplot(debugplot=12, pltshow=True)
-    pp.close()
-    plt.close()
+    plot_astrometry(
+        image2d=image2d,
+        peak_x=tcorr.field_x, peak_y=tcorr.field_y,
+        pred_x=tcorr.index_x, pred_y=tcorr.index_y,
+        xcatag=xgaia, ycatag=ygaia,
+        pixel_scales_arcsec_pix=pixel_scales_arcsec_pix,
+        workdir=workdir,
+        interactive=interactive, logfile=logfile, verbose=verbose
+    )
 
     # open result and update header
     result_filename = '{}/xxx.new'.format(workdir)
     with fits.open(result_filename) as hdul:
         newheader = hdul[0].header
-    newheader.add_comment('Astrometric solution computed')
 
     # copy configuration files for astrometric
     conffiles = ['default.param', 'config.sex', 'config.scamp']
@@ -570,7 +597,8 @@ def run_astrometry(image2d, mask2d, saturpix,
     logfile.write(pout + '\n')
 
     # remove SIP parameters in newheader
-    newheader['comment'] = '--Deleting Astrometry.net WCS solution-- '
+    newheader['history'] = '--Deleting SIP from Astrometry.net WCS solution--'
+    newheader.add_comment('--Deleted SIP from Astrometry.net WCS solution--')
     sip_param = []
     for p in ['', 'P']:
         for c in ['A', 'B']:
@@ -581,9 +609,41 @@ def run_astrometry(image2d, mask2d, saturpix,
         kwd_comment = newheader.comments[kwd]
         newheader['comment'] = 'deleted {:8} = {:20} / {}'.format(kwd, kwd_value, kwd_comment)
         del newheader[kwd]
+    # remove HISTORY and COMMENT entries from astrometry.net
+    with fits.open('{}/xxx.wcs'.format(workdir)) as hdul:
+        oldheader = hdul[0].header
+    for kwd in ['HISTORY', 'COMMENT']:
+        for itemval in oldheader[kwd]:
+            try:
+                idel = list(newheader.values()).index(itemval)
+            except ValueError:
+                idel = -1
+            if idel > -1:
+                del newheader[idel]
+    # delete additional comment lines
+    tobedeleted = ['Original key: "END"',
+                   '--Start of Astrometry.net WCS solution--',
+                   '--Put in by the new-wcs program--',
+                   '--End of Astrometry.net WCS--',
+                   '--(Put in by the new-wcs program)--']
+    for item in tobedeleted:
+        try:
+            idel = list(newheader.values()).index(item)
+        except ValueError:
+            idel = -1
+        if idel > -1:
+            del newheader[idel]
+    # remove blank COMMENTS
+    idel = 0
+    while idel > -1:
+        try:
+            idel = list(newheader.values()).index('')
+        except ValueError:
+            idel = -1
+        if idel > -1:
+            del newheader[idel]
 
     # set the TPV solution obtained with sextractor+scamp
-    newheader['history'] = '--Deleting Astrometry.net WCS solution--'
     newheader['history'] = '--Computing new solution with SEXTRACTOR+SCAMP--'
     with open('{}/xxx.head'.format(workdir)) as tpvfile:
         tpvheader = tpvfile.readlines()
@@ -594,7 +654,7 @@ def run_astrometry(image2d, mask2d, saturpix,
         if kwd == 'COMMENT':
             pass  # Avoid problem with non-standard ASCII characters
         elif kwd == 'HISTORY':
-            newheader[kwd] = line[11:].rstrip()
+            newheader[kwd] = line[10:].rstrip()
         else:
             # note the blank spaces to avoid problem with "S/N"
             kwd_value, kwd_comment = line[11:].split(' / ')
@@ -621,4 +681,5 @@ def run_astrometry(image2d, mask2d, saturpix,
     # close logfile
     logfile.close()
 
+    # ToDo: add missing plots
     input('Pending plots with SCAMP solution')
