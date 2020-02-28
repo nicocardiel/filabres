@@ -73,7 +73,8 @@ def retrieve_gaia(ra_deg, dec_deg, radius_deg, magnitude, loggaia):
 
 
 def plot_astrometry(image2d, peak_x, peak_y, pred_x, pred_y, xcatag, ycatag,
-                    pixel_scales_arcsec_pix, workdir, interactive, logfile, verbose):
+                    pixel_scales_arcsec_pix, workdir, interactive, logfile,
+                    suffix, verbose):
     """
     Generate plots with the results of the astrometric calibration.
 
@@ -106,6 +107,8 @@ def plot_astrometry(image2d, peak_x, peak_y, pred_x, pred_y, xcatag, ycatag,
     logfile : file handler
         Log file where the astrometric calibration information is
         stored.
+    suffix : str
+        Suffix to be appended to PDF output.
     verbose : bool or None
         If True, display intermediate information.
     """
@@ -118,40 +121,43 @@ def plot_astrometry(image2d, peak_x, peak_y, pred_x, pred_y, xcatag, ycatag,
     delta_y = (pred_y - peak_y) * mean_pixel_scale_arcsec_pix
     delta_r = np.sqrt(delta_x * delta_x + delta_y * delta_y)
     rorder = np.argsort(delta_r)
-    medianerr = np.median(delta_r)
+    meanerr = np.mean(delta_r)
     if verbose:
-        print('astrometry.net> Number of targest found: {}'.format(ntargets))
-        print('astrometry.net> Median error (arcsec)..: {}'.format(medianerr))
+        print('astrometry-{}> Number of targest found: {}'.format(suffix, ntargets))
+        print('astrometry-{}> Mean error (arcsec)....: {}'.format(suffix, meanerr))
         for i, iorder in enumerate(rorder):
-            if delta_r[iorder] > 2 * medianerr:
+            if delta_r[iorder] > 3 * meanerr:
                 print('-> outlier point #{}, delta_r (arcsec): {}'.format(i+1, delta_r[iorder]))
-    logfile.write('astrometry.net> Number of targest found: {}\n'.format(ntargets))
-    logfile.write('astrometry.net> Median error (arcsec): {}\n'.format(medianerr))
+    logfile.write('astrometry-{}> Number of targest found: {}\n'.format(suffix, ntargets))
+    logfile.write('astrometry-{}> Mean error (arcsec)....: {}\n'.format(suffix, meanerr))
 
 
     # plot 1: X and Y errors
-    pp = PdfPages('{}/astrometry_ini.pdf'.format(workdir))
+    pp = PdfPages('{}/astrometry-{}.pdf'.format(workdir, suffix))
     fig, ax = plt.subplots(1, 1, figsize=(11.7, 8.3))
     ax.plot(delta_x, delta_y, 'bo', alpha=0.5)
+    rmax = meanerr*3.1
     for i, iorder in enumerate(rorder):
-        ax.text(delta_x[iorder], delta_y[iorder], str(i+1), fontsize=15)
-    circle1 = plt.Circle((0,0), medianerr, color='r', fill=False)
-    circle2 = plt.Circle((0,0), 2*medianerr, color='r', fill=False)
-    rmax = medianerr*2.1
+        if abs(delta_x[iorder]) < rmax and abs(delta_y[iorder]) < rmax:
+            ax.text(delta_x[iorder], delta_y[iorder], str(i+1), fontsize=15)
+    circle1 = plt.Circle((0,0), meanerr, color='r', fill=False)
+    circle2 = plt.Circle((0,0), 2*meanerr, color='r', fill=False)
+    circle3 = plt.Circle((0,0), 3*meanerr, color='r', fill=False)
     ax.add_artist(circle1)
     ax.add_artist(circle2)
+    ax.add_artist(circle3)
     ax.set_xlim([-rmax, rmax])
     ax.set_ylim([-rmax, rmax])
     ax.set_xlabel('delta X (arcsec): predicted - peak')
     ax.set_ylabel('delta Y (arcsec): predicted - peak')
-    ax.set_title('astrometry.net (npoints={}, medianerr={:.3f} arcsec)'.format(ntargets, medianerr))
+    ax.set_title('astrometry.net (npoints={}, meanerr={:.3f} arcsec)'.format(ntargets, meanerr))
     ax.set_aspect('equal', 'box')
     pp.savefig()
     if interactive:
         plt.show()
     # plot 2: image with identified objects
     ax = ximshow(image2d, cmap='gray', show=False, figuredict={'figsize': (11.7, 8.3)},
-                 title='astrometry.net (npoints={}, medianerr={:.3f} arcsec)'.format(ntargets, medianerr))
+                 title='astrometry.net (npoints={}, meanerr={:.3f} arcsec)'.format(ntargets, meanerr))
     ax.plot(peak_x, peak_y, 'bo', fillstyle='none', markersize=10, label='peaks')
     for i, iorder in enumerate(rorder):
         ax.text(peak_x[iorder], peak_y[iorder], str(i + 1), fontsize=15, color='blue')
@@ -165,6 +171,74 @@ def plot_astrometry(image2d, peak_x, peak_y, pred_x, pred_y, xcatag, ycatag,
         pause_debugplot(debugplot=12, pltshow=True)
     pp.close()
     plt.close()
+
+
+def load_scamp_cat(catalogue, workdir, verbose):
+    """
+    Load X, Y coordinates from catalogue generated with SCAMP
+
+    Parameters
+    ==========
+    catalogue : str
+        Catalogue to be read. It must be 'full' or 'merged'.
+    workdir : str
+        Work subdirectory.
+    verbose : bool or None
+        If True, display intermediate information.
+
+    Returns
+    =======
+    col1, col2 : numpy 1D arrays
+        X, Y coordinates of the peaks (only if catalogue is 'full').
+        RA, DEC coordinates of the peaks (only if catalogue is 'merged').
+    """
+
+    if catalogue not in ['full', 'merged']:
+        msg = 'Invalid catalogue description: {}'.format(catalogue)
+        raise SystemError(msg)
+
+    filename = '{}/{}_1.cat'.format(workdir, catalogue)
+    with open(filename, 'rt') as f:
+        fulltxt = f.readlines()
+
+    if verbose:
+        print('Reading {}'.format(filename))
+
+    # determine relevant column numbers
+    if catalogue == 'full':
+        colnames = ['X_IMAGE', 'Y_IMAGE', 'CATALOG_NUMBER']
+    else:
+        colnames = ['ALPHA_J2000', 'DELTA_J2000']
+    ncol = []
+    for col in colnames:
+        ii = None
+        for i, line in enumerate(fulltxt):
+            if col in line:
+                ii = i + 1
+                break
+        if ii is None:
+            msg = '{} not found in {}'.format(col, filename)
+            raise SystemError(msg)
+        if verbose:
+            print('{} is located in column #{}'.format(col, ii))
+        ncol.append(ii - 1)
+
+    # read full data set
+    fulltable = np.genfromtxt(filename)
+
+    if catalogue == 'full':
+        # delete invalid rows (those with CATALOG_NUMBER == 0)
+        valid_rows = np.where(fulltable[:, ncol[2]] != 0)[0]
+        if verbose:
+            print('Number of objects read: {}'.format(len(valid_rows)))
+        newtable = fulltable[valid_rows, :]
+    else:
+        newtable = fulltable
+
+    col1 = newtable[:, ncol[0]]
+    col2 = newtable[:, ncol[1]]
+
+    return col1, col2
 
 
 def run_astrometry(image2d, mask2d, saturpix,
@@ -548,6 +622,7 @@ def run_astrometry(image2d, mask2d, saturpix,
     with fits.open(corrfilename) as hdul_table:
         tcorr = hdul_table[1].data
 
+    # generate plots
     plot_astrometry(
         image2d=image2d,
         peak_x=tcorr.field_x, peak_y=tcorr.field_y,
@@ -555,7 +630,9 @@ def run_astrometry(image2d, mask2d, saturpix,
         xcatag=xgaia, ycatag=ygaia,
         pixel_scales_arcsec_pix=pixel_scales_arcsec_pix,
         workdir=workdir,
-        interactive=interactive, logfile=logfile, verbose=verbose
+        interactive=interactive, logfile=logfile,
+        suffix='net',
+        verbose=verbose
     )
 
     # open result and update header
@@ -678,8 +755,39 @@ def run_astrometry(image2d, mask2d, saturpix,
     if verbose:
         print('-> file {} created'.format(output_filename))
 
+    # load WCS computed with SCAMP
+    w = WCS(output_filename)
+    # compute pixel scale (mean in both axis) in arcsec/pix
+    pixel_scales_arcsec_pix = proj_plane_pixel_scales(w)*3600
+    if verbose:
+        print('astrometry> pixel scales (arcsec/pix): {}'.format(pixel_scales_arcsec_pix))
+    logfile.write('astrometry> pixel scales (arcsec/pix): {}\n'.format(pixel_scales_arcsec_pix))
+
+    # load peak location from catalogue
+    peak_x, peak_y = load_scamp_cat('full', workdir, verbose)
+    peak_ra, peak_dec = load_scamp_cat('merged', workdir, verbose)
+    pred_x, pred_y = w.wcs_world2pix(peak_ra, peak_dec, 1)
+
+    # predict expected location of GAIA data
+    with fits.open('{}/GaiaDR2-query.fits'.format(workdir)) as hdul_table:
+        gaiadr2 = hdul_table[1].data
+    xgaia, ygaia = w.wcs_world2pix(gaiadr2.ra, gaiadr2.dec, 1)
+
+    # generate plots
+    plot_astrometry(
+        image2d=image2d,
+        peak_x=peak_x, peak_y=peak_y,
+        pred_x=pred_x, pred_y=pred_y,
+        xcatag=xgaia, ycatag=ygaia,
+        pixel_scales_arcsec_pix=pixel_scales_arcsec_pix,
+        workdir=workdir,
+        interactive=interactive, logfile=logfile,
+        suffix='scamp',
+        verbose=verbose
+    )
+
     # close logfile
     logfile.close()
 
-    # ToDo: add missing plots
-    input('Pending plots with SCAMP solution')
+    if interactive:
+        input('Press <RETURN> to continue...')

@@ -18,12 +18,12 @@ ASTREF_CATALOG         GAIA-DR2        # NONE, FILE, USNO-A1,USNO-A2,USNO-B1,
 ASTREF_BAND            DEFAULT         # Photom. band for astr.ref.magnitudes
                                        # or DEFAULT, BLUEST, or REDDEST
 ASTREFMAG_LIMITS       -99.0,99.0      # Select magnitude range in ASTREF_BAND
-SAVE_REFCATALOG        Y               # Save ref catalogs in FITS-LDAC format?
+SAVE_REFCATALOG        N               # Save ref catalogs in FITS-LDAC format?
 REFOUT_CATPATH         .               # Save path for reference catalogs
  
 #--------------------------- Merged output catalogs ---------------------------
  
-MERGEDOUTCAT_TYPE      NONE            # NONE, ASCII_HEAD, ASCII, FITS_LDAC
+MERGEDOUTCAT_TYPE      ASCII_HEAD      # NONE, ASCII_HEAD, ASCII, FITS_LDAC
 MERGEDOUTCAT_NAME      merged.cat      # Merged output catalog filename
  
 #--------------------------- Full output catalogs ---------------------------
@@ -92,7 +92,7 @@ AHEADER_SUFFIX         .ahead          # Filename extension for additional
                                        # INPUT headers
 HEADER_SUFFIX          .head           # Filename extension for OUTPUT headers
 VERBOSE_TYPE           NORMAL          # QUIET, NORMAL, LOG or FULL
-WRITE_XML              Y               # Write XML file (Y/N)?
+WRITE_XML              N               # Write XML file (Y/N)?
 XML_NAME               scamp.xml       # Filename for XML output
 NTHREADS               0               # Number of simultaneous threads for
                                        # the SMP version of SCAMP
