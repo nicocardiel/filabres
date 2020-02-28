@@ -131,7 +131,8 @@ def retrieve_gaia(ra_deg, dec_deg, radius_deg, magnitude, loggaia):
     return gaia_query_line, tap_result
 
 
-def plot_astrometry(image2d, peak_x, peak_y, pred_x, pred_y, xcatag, ycatag,
+def plot_astrometry(output_filename, image2d,
+                    peak_x, peak_y, pred_x, pred_y, xcatag, ycatag,
                     pixel_scales_arcsec_pix, workdir, interactive, logfile,
                     suffix, verbose):
     """
@@ -139,6 +140,8 @@ def plot_astrometry(image2d, peak_x, peak_y, pred_x, pred_y, xcatag, ycatag,
 
     Parameters
     ==========
+    output_filename : str or None
+        Output file name.
     image2d : numpy 2D array
         Image to be calibrated.
     peak_x : numpy 1D array
@@ -187,9 +190,12 @@ def plot_astrometry(image2d, peak_x, peak_y, pred_x, pred_y, xcatag, ycatag,
         if delta_r[iorder] > 3 * meanerr:
             logfile.print('-> outlier point #{}, delta_r (arcsec): {}'.format(i+1, delta_r[iorder]))
 
+    plot_suptitle = '[File: {}]'.format(os.path.basename(output_filename))
+    plot_title = 'astrometry-{} (npoints={}, meanerr={:.3f} arcsec)'.format(suffix, ntargets, meanerr)
     # plot 1: X and Y errors
     pp = PdfPages('{}/astrometry-{}.pdf'.format(workdir, suffix))
     fig, ax = plt.subplots(1, 1, figsize=(11.7, 8.3))
+    fig.suptitle(plot_suptitle)
     ax.plot(delta_x, delta_y, 'bo', alpha=0.5)
     rmax = meanerr*3.1
     for i, iorder in enumerate(rorder):
@@ -205,14 +211,14 @@ def plot_astrometry(image2d, peak_x, peak_y, pred_x, pred_y, xcatag, ycatag,
     ax.set_ylim([-rmax, rmax])
     ax.set_xlabel('delta X (arcsec): predicted - peak')
     ax.set_ylabel('delta Y (arcsec): predicted - peak')
-    ax.set_title('astrometry.net (npoints={}, meanerr={:.3f} arcsec)'.format(ntargets, meanerr))
+    ax.set_title(plot_title)
     ax.set_aspect('equal', 'box')
     pp.savefig()
     if interactive:
         plt.show()
     # plot 2: image with identified objects
     ax = ximshow(image2d, cmap='gray', show=False, figuredict={'figsize': (11.7, 8.3)},
-                 title='astrometry.net (npoints={}, meanerr={:.3f} arcsec)'.format(ntargets, meanerr))
+                 title=plot_title, tight_layout=False)
     ax.plot(peak_x, peak_y, 'bo', fillstyle='none', markersize=10, label='peaks')
     for i, iorder in enumerate(rorder):
         ax.text(peak_x[iorder], peak_y[iorder], str(i + 1), fontsize=15, color='blue')
@@ -221,9 +227,10 @@ def plot_astrometry(image2d, peak_x, peak_y, pred_x, pred_y, xcatag, ycatag,
     ax.set_xlim([min(np.min(xcatag), -0.5), max(np.max(xcatag), naxis1 + 0.5)])
     ax.set_ylim([min(np.min(ycatag), -0.5), max(np.max(ycatag), naxis2 + 0.5)])
     ax.legend()
+    plt.suptitle(plot_suptitle)
     pp.savefig()
     if interactive:
-        pause_debugplot(debugplot=12, pltshow=True)
+        pause_debugplot(debugplot=12, pltshow=True, tight_layout=False)
     pp.close()
     plt.close()
 
@@ -407,12 +414,8 @@ def run_astrometry(image2d, mask2d, saturpix,
     subdir = 'index{:06d}'.format(indexid)
     # create path to subdir
     newsubdir = nightdir + '/' + subdir
-    if os.path.isdir(newsubdir):
-        if verbose:
-            print('Subdirectory {} found'.format(newsubdir))
-    else:
-        if verbose:
-            print('Subdirectory {} not found. Creating it!'.format(newsubdir))
+    if not os.path.isdir(newsubdir):
+        logfile.print('Subdirectory {} not found. Creating it!'.format(newsubdir))
         os.makedirs(newsubdir)
 
     if retrieve_new_gaia_data:
@@ -548,11 +551,10 @@ def run_astrometry(image2d, mask2d, saturpix,
         }
         with open(jsonfilename, 'w') as outfile:
             json.dump(ccbase, outfile, indent=2)
+
     else:
-        msg = 'Reusing previously computed index file {}/index-image.fits'.format(subdir)
-        logfile.print(msg)
-        if verbose:
-            print('-> {}'.format(msg))
+        # copying the previously computed WCS image
+        logfile.print('Reusing previously downloaded GAIA catalogue and index')
 
     command = 'cp {}/{}/GaiaDR2-query.fits {}/work/'.format(nightdir, subdir, nightdir)
     cmd.run(command)
@@ -605,9 +607,15 @@ def run_astrometry(image2d, mask2d, saturpix,
         command += ' --radius {}'.format(maxfieldview_arcmin / 120)
         command += ' xxx.axy'
         cmd.run(command, cwd=workdir)
-        #
+        # insert new WCS into image header
         command = 'new-wcs -i xxx.fits -w xxx.wcs -o xxx.new -d'
         cmd.run(command, cwd=workdir)
+
+    """Esto sobra
+    # store WCS image
+    command = 'cp xxx.wcs ../{}/'.format(subdir)
+    cmd.run(command, cwd=workdir)
+    """
 
     # read GaiaDR2 table and convert RA, DEC to X, Y
     # (note: the same result can be accomplished using the command-line program:
@@ -627,6 +635,7 @@ def run_astrometry(image2d, mask2d, saturpix,
 
     # generate plots
     plot_astrometry(
+        output_filename=output_filename,
         image2d=image2d,
         peak_x=tcorr.field_x, peak_y=tcorr.field_y,
         pred_x=tcorr.index_x, pred_y=tcorr.index_y,
@@ -760,6 +769,7 @@ def run_astrometry(image2d, mask2d, saturpix,
 
     # generate plots
     plot_astrometry(
+        output_filename=output_filename,
         image2d=image2d,
         peak_x=peak_x, peak_y=peak_y,
         pred_x=pred_x, pred_y=pred_y,
