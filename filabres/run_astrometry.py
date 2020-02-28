@@ -29,7 +29,8 @@ class ToLogFile:
     def print(self, line):
         if self.verbose:
             print(line)
-        self.logfile.write(line + '\n')
+        if not self.logfile.closed:
+            self.logfile.write(line + '\n')
 
     def close(self):
         self.logfile.close()
@@ -57,6 +58,8 @@ class CmdExecute:
                      r'(\d;\dR))'
         ansi_escape = re.compile(ansi_regex, flags=re.IGNORECASE)
 
+        if cwd is not None:
+            self.logfile.print('[Working in {}]'.format(cwd))
         self.logfile.print('$ {}'.format(command))
         p = subprocess.Popen(command.split(), cwd=cwd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         pout = p.stdout.read().decode('utf-8')
@@ -332,32 +335,23 @@ def run_astrometry(image2d, mask2d, saturpix,
         Display additional debugging information.
     """
 
-    if verbose:
-        print('\nPerforming astrometric calibration')
-
     # creating work subdirectory
     workdir = nightdir + '/work'
-    if os.path.isdir(workdir):
-        if verbose:
-            print('Subdirectory {} found'.format(workdir))
-    else:
-        if verbose:
-            print('Subdirectory {} not found. Creating it!'.format(workdir))
+    if not os.path.isdir(workdir):
         os.makedirs(workdir)
+
+    # define ToLogFile object
+    logfile = ToLogFile(workdir=workdir, verbose=verbose)
+    logfile.print('Astrometric calibration of {}'.format(output_filename))
+
+    # define CmdExecute object
+    cmd = CmdExecute(logfile)
 
     # generate myastrometry.cfg
     cfgfile = '{}/myastrometry.cfg'.format(workdir)
     with open(cfgfile, 'wt') as f:
         f.write('add_path .\nindex index-image')
-        if verbose:
-            print('Creating configuration file {}'.format(cfgfile))
-
-    # define ToLogFile object
-    logfile = ToLogFile(workdir=workdir, verbose=verbose)
-    logfile.print('-> Creating {}'.format(logfile.filename))
-
-    # define CmdExecute object
-    cmd = CmdExecute(logfile)
+        logfile.print('Creating configuration file {}'.format(cfgfile))
 
     # remove deprecated WCS keywords:
     for kwd in ['pc001001', 'pc001002', 'pc002001', 'pc002002']:
@@ -779,6 +773,20 @@ def run_astrometry(image2d, mask2d, saturpix,
 
     # close logfile
     logfile.close()
+
+    # storing PDF files in corresponding subdirectory
+    basename = os.path.basename(output_filename)
+    backupsubdir = basename[:-5]
+    backupsubdirfull = '{}/{}'.format(nightdir, backupsubdir)
+    if os.path.isdir(backupsubdirfull):
+        if verbose:
+            print('Subdirectory {} found'.format(backupsubdirfull))
+    else:
+        if verbose:
+            print('Subdirectory {} not found. Creating it!'.format(backupsubdirfull))
+        os.makedirs(backupsubdirfull)
+    command = 'cp astrometry-net.pdf astrometry-scamp.pdf astrometry.log ../{}/'.format(backupsubdir)
+    cmd.run(command, cwd=workdir)
 
     if interactive:
         input('Press <RETURN> to continue...')
