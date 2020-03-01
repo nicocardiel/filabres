@@ -4,6 +4,7 @@ from astropy.io import fits
 from astropy.time import Time
 from astropy.wcs import WCS
 from astropy.wcs.utils import proj_plane_pixel_scales
+import glob
 import json
 from matplotlib.backends.backend_pdf import PdfPages
 import matplotlib.pyplot as plt
@@ -344,8 +345,17 @@ def run_astrometry(image2d, mask2d, saturpix,
 
     # creating work subdirectory
     workdir = nightdir + '/work'
+
     if not os.path.isdir(workdir):
         os.makedirs(workdir)
+    else:
+        filelist = glob.glob('{}/*'.format(workdir))
+        print('Removing previous files: {}'.format(filelist))
+        for filepath in filelist:
+            try:
+                os.remove(filepath)
+            except:
+                print("Error while deleting file : ", filepath)
 
     # define ToLogFile object
     logfile = ToLogFile(workdir=workdir, verbose=verbose)
