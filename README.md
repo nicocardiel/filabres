@@ -2,16 +2,32 @@
 
 Automatic Data Reduction Pipeline for CAHA data.
 
-To install the code, clone the repository and execute:
+### Installing the code
+
+To install the code, clone the repository 
+```
+$ git clone https://github.com/nicocardiel/filabres
+```
+and execute:
 ```
 $ cd filabres
 $ python setup.py build
 $ python setup.py install
 ```
 
-It is recommendable to run the code from an empty directory.
+To update the code with the latest version, move the installation
+directory, retrieve the last changes in the code and reinstall it:
+```
+$ cd filabres
+$ git pull
+$ python setup.py build
+$ python setup.py install
+```
 
 ### Create `setup_filabres.yaml`
+
+It is recommendable to run the code from an empty directory.
+
 Before executing filabres, make sure that there is a file in the 
 current directory called `setup_filabres.yaml`. This file simply contains
 a couple of definitions: the instrument name and the directory where
@@ -41,13 +57,22 @@ $ ls /Users/cardiel/CAFOS2017
 170519_t2_CAFOS/ 170731_t2_CAFOS/ 171101_t2_CAFOS/
 ```  
 
+### Check that there are no duplicated images
+
+```
+$ filabres --check
+```
+If there are duplicated images, the duplicated files must be removed before
+initializing the image databases.
+
 ### Initialize the auxiliary image databases
 Execute the program to initialize the auxiliary image databases:
 ```
 $ filabres -rs initialize
 ```
 The `-rs/--reduction_step` argument indicates the reduction step that must
-be executed by the program.
+be executed by the program (add `-v/--verbose` to execute the program with
+ increased verbosity).
 
 The previous command will initialize the auxiliary image databases for
 all the available nights under the `datadir` directory. If you are
@@ -63,17 +88,57 @@ directory, with a tree of observing nights. Within each night a file called
 science-imaging,...) following the requirements described in the file 
 `filabes/instrument/configuration.yaml`.
 
+The `-lc/--lc_imagetype` argument allows to list the images assigned 
+within each possible category
+(i.e. bias, flat-imaging, science-imaging, unclassified,...):
+```
+$ filabres -lc bias
+```
+Additional keyword information can be included by using `-k <keyword>`:
+```
+$ filabres -lc bias -k object -k ra -k dec
+```
+(note: `-k all` display all the available keywords)
+
+It is useful to check for `unclassified` and `wrong-instrument`,
+`wrong-bias`, `wrong-flat-imaging`, etc.
+```
+$ filabres -lc unclassfied
+$ filabres -lc wrong-instrument
+$ filabres -lc wrong-bias
+$ filabres -lc wrong-flat-imaging
+$ filabres -lc wrong-science-imaging
+...
+```
+
 ### Compute combined bias images
 ```
 $ filabres -n 17????_t2_CAFOS -rs bias
+```
+The reduced bias frames can also be listed using `-lr/--lr_imagetype`:
+```
+$ filabres -lr bias
+```
+Again, it is also possible to list the values of particular keywords:
+```
+$ filabres -lr bias -k quant500 -k robuststd -k norigin
 ```
 
 ### Compute combined flat-imaging images
 ```
 $ filabres -n 17????_t2_CAFOS -rs flat-imaging
 ```
+Check for problems with bias subtraction when reducing the flat images:
+```
+$ filabres -lr flat-imaging -k ierr_bias'
+$ filabres -lr flat-imaging -k ierr_bias | awk '($2 != 0) {print}'
+```
 
 ### Reduce the science images
 ```
-$ filabres -n 17????_t2_CAFOS -rs science-imaging
+$ filabres -n 17????_t2_CAFOS -rs science-imaging -v -i
 ```
+In this case the `-i/--interactive` argument indicates that intermediate
+results (with some plots) are must be shown.
+
+
