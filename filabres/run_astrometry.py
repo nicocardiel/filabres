@@ -135,7 +135,7 @@ def retrieve_gaia(ra_deg, dec_deg, radius_deg, magnitude, loggaia):
 def plot_astrometry(output_filename, image2d,
                     peak_x, peak_y, pred_x, pred_y, xcatag, ycatag,
                     pixel_scales_arcsec_pix, workdir, interactive, logfile,
-                    suffix, verbose):
+                    suffix):
     """
     Generate plots with the results of the astrometric calibration.
 
@@ -172,8 +172,6 @@ def plot_astrometry(output_filename, image2d,
         stored.
     suffix : str
         Suffix to be appended to PDF output.
-    verbose : bool or None
-        If True, display intermediate information.
     """
 
     ntargets = len(peak_x)
@@ -197,14 +195,14 @@ def plot_astrometry(output_filename, image2d,
     pp = PdfPages('{}/astrometry-{}.pdf'.format(workdir, suffix))
     fig, ax = plt.subplots(1, 1, figsize=(11.7, 8.3))
     fig.suptitle(plot_suptitle)
-    ax.plot(delta_x, delta_y, 'bo', alpha=0.5)
-    rmax = meanerr*3.1
+    ax.plot(delta_x, delta_y, 'mo', alpha=0.5)
+    rmax = 2.0  # arcsec
     for i, iorder in enumerate(rorder):
         if abs(delta_x[iorder]) < rmax and abs(delta_y[iorder]) < rmax:
             ax.text(delta_x[iorder], delta_y[iorder], str(i+1), fontsize=15)
-    circle1 = plt.Circle((0,0), meanerr, color='r', fill=False)
-    circle2 = plt.Circle((0,0), 2*meanerr, color='r', fill=False)
-    circle3 = plt.Circle((0,0), 3*meanerr, color='r', fill=False)
+    circle1 = plt.Circle((0, 0), 0.5, color='b', fill=False)
+    circle2 = plt.Circle((0, 0), 1.0, color='g', fill=False)
+    circle3 = plt.Circle((0, 0), 1.5, color='r', fill=False)
     ax.add_artist(circle1)
     ax.add_artist(circle2)
     ax.add_artist(circle3)
@@ -217,7 +215,22 @@ def plot_astrometry(output_filename, image2d,
     pp.savefig()
     if interactive:
         plt.show()
-    # plot 2: image with identified objects
+    # plots 2 and 3: histograms with deviations in the X and Y axis
+    for iplot in [1, 2]:
+        fig, ax = plt.subplots(1, 1, figsize=(11.7, 8.3))
+        fig.suptitle(plot_suptitle)
+        if iplot == 1:
+            ax.hist(delta_x, 30)
+            ax.set_xlabel('delta X (arcsec): predicted - peak')
+        else:
+            ax.hist(delta_y, 30)
+            ax.set_xlabel('delta Y (arcsec): predicted - peak')
+        ax.set_ylabel('Number of targets')
+        ax.set_title(plot_title)
+        pp.savefig()
+        if interactive:
+            plt.show()
+    # plot 3: image with identified objects
     ax = ximshow(image2d, cmap='gray', show=False, figuredict={'figsize': (11.7, 8.3)},
                  title=plot_title, tight_layout=False)
     ax.plot(peak_x, peak_y, 'bo', fillstyle='none', markersize=10, label='peaks')
@@ -350,7 +363,7 @@ def run_astrometry(image2d, mask2d, saturpix,
         os.makedirs(workdir)
     else:
         filelist = glob.glob('{}/*'.format(workdir))
-        print('Removing previous files: {}'.format(filelist))
+        print('\nRemoving previous files: {}'.format(filelist))
         for filepath in filelist:
             try:
                 os.remove(filepath)
@@ -359,7 +372,7 @@ def run_astrometry(image2d, mask2d, saturpix,
 
     # define ToLogFile object
     logfile = ToLogFile(workdir=workdir, verbose=verbose)
-    logfile.print('Astrometric calibration of {}'.format(output_filename))
+    logfile.print('\nAstrometric calibration of {}'.format(output_filename))
 
     # define CmdExecute object
     cmd = CmdExecute(logfile)
@@ -621,12 +634,6 @@ def run_astrometry(image2d, mask2d, saturpix,
         command = 'new-wcs -i xxx.fits -w xxx.wcs -o xxx.new -d'
         cmd.run(command, cwd=workdir)
 
-    """Esto sobra
-    # store WCS image
-    command = 'cp xxx.wcs ../{}/'.format(subdir)
-    cmd.run(command, cwd=workdir)
-    """
-
     # read GaiaDR2 table and convert RA, DEC to X, Y
     # (note: the same result can be accomplished using the command-line program:
     # $ wcs-rd2xy -w xxx.wcs -i GaiaDR2-query.fits -o gaia-xy.fits)
@@ -653,8 +660,7 @@ def run_astrometry(image2d, mask2d, saturpix,
         pixel_scales_arcsec_pix=pixel_scales_arcsec_pix,
         workdir=workdir,
         interactive=interactive, logfile=logfile,
-        suffix='net',
-        verbose=verbose
+        suffix='net'
     )
 
     # open result and update header
@@ -685,7 +691,7 @@ def run_astrometry(image2d, mask2d, saturpix,
     sip_param = []
     for p in ['', 'P']:
         for c in ['A', 'B']:
-            sip_param += ['{}{}_ORDER'.format(c,p)]
+            sip_param += ['{}{}_ORDER'.format(c, p)]
             sip_param += ['{}{}_{}_{}'.format(c, p, i, j) for i in range(3) for j in range(3) if i + j < 3]
     for kwd in sip_param:
         kwd_value = newheader[kwd]
@@ -787,14 +793,13 @@ def run_astrometry(image2d, mask2d, saturpix,
         pixel_scales_arcsec_pix=pixel_scales_arcsec_pix,
         workdir=workdir,
         interactive=interactive, logfile=logfile,
-        suffix='scamp',
-        verbose=verbose
+        suffix='scamp'
     )
 
     # close logfile
     logfile.close()
 
-    # storing PDF files in corresponding subdirectory
+    # storing relevant files in corresponding subdirectory
     basename = os.path.basename(output_filename)
     backupsubdir = basename[:-5]
     backupsubdirfull = '{}/{}'.format(nightdir, backupsubdir)
@@ -805,8 +810,12 @@ def run_astrometry(image2d, mask2d, saturpix,
         if verbose:
             print('Subdirectory {} not found. Creating it!'.format(backupsubdirfull))
         os.makedirs(backupsubdirfull)
-    command = 'cp astrometry-net.pdf astrometry-scamp.pdf astrometry.log ../{}/'.format(backupsubdir)
-    cmd.run(command, cwd=workdir)
+    tobesaved = ['astrometry-net.pdf', 'astrometry-scamp.pdf', 'astrometry.log', 'xxx.new']
+    for filepath in tobesaved:
+        command = 'cp {} ../{}/'.format(filepath, backupsubdir)
+        cmd.run(command, cwd=workdir)
 
     if interactive:
-        input('Press <RETURN> to continue...')
+        ckey = input("Press 'x' + RETURN to stop, or simply RETURN to continue... ")
+        if ckey.lower() == 'x':
+            raise SystemExit()
