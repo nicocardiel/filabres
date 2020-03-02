@@ -151,7 +151,7 @@ results (with some plots) are must be shown.
 
 Check for problems with bias, flatfielding or astrometric calibration:
 ```
-$ filabres -lr science-imaging -k ierr_bias -k ierr_flat -k ierr_astr -k all
+$ filabres -lr science-imaging -k ierr_bias -k ierr_flat -k ierr_astr
 ```
 
 
