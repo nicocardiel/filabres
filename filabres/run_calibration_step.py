@@ -307,7 +307,7 @@ def run_calibration_step(redustep, datadir, list_of_nights,
 
                         # combine images according to their type
                         ierr_bias = None
-                        ierr_flat = None
+                        delta_mjd_bias = None
                         # ---------------------------------------------------------
                         if redustep == 'bias':
                             # median combination
@@ -319,7 +319,7 @@ def run_calibration_step(redustep, datadir, list_of_nights,
                         elif redustep == 'flat-imaging':
                             mjdobs = output_header['MJD-OBS']
                             # retrieve and subtract bias
-                            ierr_bias, image2d_bias, bias_filename = retrieve_calibration(
+                            ierr_bias, delta_mjd_bias, image2d_bias, bias_filename = retrieve_calibration(
                                     instrument, 'bias', signature, mjdobs,
                                     verbose=verbose
                                 )
@@ -367,8 +367,8 @@ def run_calibration_step(redustep, datadir, list_of_nights,
                         database[redustep][ssig][mjdobs]['originf'] = originf
                         if ierr_bias is not None:
                             database[redustep][ssig][mjdobs]['ierr_bias'] = ierr_bias
-                        if ierr_flat is not None:
-                            database[redustep][ssig][mjdobs]['ierr_flat'] = ierr_flat
+                        if delta_mjd_bias is not None:
+                            database[redustep][ssig][mjdobs]['delta_mjd_bias'] = delta_mjd_bias
 
                     # set to reduced status the images that have been reduced
                     for key in imgblock:

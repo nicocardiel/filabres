@@ -108,7 +108,7 @@ def list_reduced(instrument, img1, img2, args_night, args_keyword,
     list_of_databases = glob.glob(expected_databasenames)
     list_of_databases.sort()
 
-    ierr_kwd = ['ierr_bias', 'ierr_flat', 'ierr_astr']
+    ierr_kwd = ['ierr_bias', 'delta_mjd_bias', 'ierr_flat', 'delta_mjd_flat', 'ierr_astr']
 
     n = 0
     colnames = None

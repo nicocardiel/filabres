@@ -31,7 +31,6 @@ from .run_reduction_step import run_reduction_step
 # ToDo:
 #       hacer un fichero plano con imágenes a ignorar
 #       bias: poner restricción en STD robusta
-#       science: meter delta tiempo (de las calibraciones) en la base de datos de imágenes científicas reducidas
 
 def main():
 

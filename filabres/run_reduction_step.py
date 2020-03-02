@@ -187,7 +187,7 @@ def run_reduction_step(redustep, interactive, datadir, list_of_nights,
                     if redustep == 'science-imaging':
                         mjdobs = output_header['MJD-OBS']
                         # retrieve and subtract bias
-                        ierr_bias, image2d_bias, bias_filename = retrieve_calibration(
+                        ierr_bias, delta_mjd_bias, image2d_bias, bias_filename = retrieve_calibration(
                                 instrument, 'bias', imgsignature, mjdobs,
                                 verbose=verbose
                             )
@@ -197,7 +197,7 @@ def run_reduction_step(redustep, interactive, datadir, list_of_nights,
                             print('bias level:', np.median(image2d_bias))
                         image2d -= image2d_bias
                         # retrieve and divide by flatfield
-                        ierr_flat, image2d_flat, flat_filename = retrieve_calibration(
+                        ierr_flat, delta_mjd_flat, image2d_flat, flat_filename = retrieve_calibration(
                                 instrument, 'flat-imaging', imgsignature,
                                 mjdobs, verbose=verbose
                             )
@@ -244,7 +244,9 @@ def run_reduction_step(redustep, interactive, datadir, list_of_nights,
                         dumdict[keyword] = output_header[keyword]
                     database[redustep][filename]['masterkeywords'] = dumdict
                     database[redustep][filename]['ierr_bias'] = ierr_bias
+                    database[redustep][filename]['delta_mjd_bias'] = delta_mjd_bias
                     database[redustep][filename]['ierr_flat'] = ierr_flat
+                    database[redustep][filename]['delta_mjd_flat'] = delta_mjd_flat
                     database[redustep][filename]['ierr_astr'] = ierr_astr
 
                 # update results database

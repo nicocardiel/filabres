@@ -39,6 +39,14 @@ def findclosestquant(mjdobs, database, quantile):
         calibration images.
     quantile : str
         Quantile being sought.
+
+    Returns
+    =======
+    delta_mjdobs : float
+        Time interval (days) between the desired MJD-OBS and the one
+        corresponding to the retrieved calibration.
+    result : float
+        Requested quantile value
     """
     result = None
     delta_mjdobs = None
@@ -46,17 +54,18 @@ def findclosestquant(mjdobs, database, quantile):
         for smjd in database[ssig].keys():
             mjdobs_ = float(smjd)
             if result is None:
-                delta_mjdobs = abs(mjdobs - mjdobs_)
+                delta_mjdobs = mjdobs_ - mjdobs
+                delta_mjdobs_abs = abs(delta_mjdobs)
                 result = database[ssig][smjd]['statsumm'][quantile]
             else:
-                if abs(mjdobs - mjdobs_) < delta_mjdobs:
-                    delta_mjdobs = abs(mjdobs - mjdobs_)
+                if abs(mjdobs - mjdobs_) < delta_mjdobs_abs:
+                    delta_mjdobs = mjdobs_ - mjdobs
+                    delta_mjdobs_abs = abs(delta_mjdobs)
                     result = database[ssig][smjd]['statsumm'][quantile]
-    return result
+    return delta_mjdobs, result
 
 
-def retrieve_calibration(instrument, redustep, signature, mjdobs,
-                         verbose=False):
+def retrieve_calibration(instrument, redustep, signature, mjdobs, verbose=False):
     """
     Retrieve calibration from main database.
 
@@ -79,6 +88,9 @@ def retrieve_calibration(instrument, redustep, signature, mjdobs,
     =======
     ierr : int
         Error status value. 0: no error. 1: calibration not found.
+    delta_mjd : float
+        Time interval (days) between the desired MJD-OBS and the one
+        corresponding to the retrieved calibration.
     image2d_cal : numpy 2D array
         Numpy array with the calibration data.
     calfilename: str
@@ -130,11 +142,14 @@ def retrieve_calibration(instrument, redustep, signature, mjdobs,
                 redustep, ssig))
         mjdobsarray_str = np.array([strmjd for strmjd in database[redustep][ssig].keys()])
         mjdobsarray_float = np.array([float(strmjd) for strmjd in database[redustep][ssig].keys()])
-        if verbose:
-            print('->   mjdobsarray:', mjdobsarray_float)
-            print('->   mjdobs.....:', mjdobs)
         ipos = find_nearest(mjdobsarray_float, mjdobs)
         mjdkey = mjdobsarray_str[ipos]
+        delta_mjd = float(mjdkey) - mjdobs
+        if verbose:
+            print('->   mjdobsarray.......:', mjdobsarray_float)
+            print('->   looking for mjdobs:', mjdobs)
+            print('->   nearest value is..:', mjdkey)
+            print('->   delta_mjd (days)..:', delta_mjd)
         calfilename = database[redustep][ssig][mjdkey]['filename']
         with fits.open(calfilename) as hdul:
             image2d_cal = hdul[0].data
@@ -145,15 +160,16 @@ def retrieve_calibration(instrument, redustep, signature, mjdobs,
         if redustep == 'bias':
             if naxis1_ is not None and naxis2_ is not None:
                 image2d_cal = np.ones((naxis2_, naxis1_), dtype=np.float)
-                closestbias = findclosestquant(mjdobs, database[redustep], 'QUANT500')
+                delta_mjd, closestbias = findclosestquant(mjdobs, database[redustep], 'QUANT500')
                 image2d_cal *= closestbias
                 calfilename = 'None (closest bias with different signature)'
-                return ierr, image2d_cal, calfilename
+                return ierr, delta_mjd, image2d_cal, calfilename
         elif redustep == 'flat-imaging':
             if naxis1_ is not None and naxis2_ is not None:
+                delta_mjd = 0.0
                 image2d_cal = np.ones((naxis2_, naxis1_), dtype=np.float)
                 calfilename = 'None (flat image with ones)'
-                return ierr, image2d_cal, calfilename
+                return ierr, delta_mjd, image2d_cal, calfilename
         raise SystemError('No alternative implemented in this case!')
 
     # double check
@@ -167,4 +183,4 @@ def retrieve_calibration(instrument, redustep, signature, mjdobs,
             msg = '* ERROR: NAXIS2 does not match: {} vs. {}'.format(naxis2, naxis2_)
             raise SystemError(msg)
 
-    return ierr, image2d_cal, calfilename
+    return ierr, delta_mjd, image2d_cal, calfilename

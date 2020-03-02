@@ -172,10 +172,16 @@ frames:
 ```
 $ filabres -n 17????_t2_CAFOS -rs flat-imaging
 ```
-Check for problems with bias subtraction when reducing the flat images (by
-displaying the keyword `IERR_BIAS`):
+Check for problems with bias subtraction when reducing the flat images by
+displaying the keyword `IERR_BIAS` (that should be zero if there were not any
+problem) and the keyword `DELTA_MJD_BIAS` (time interval, in days, between
+the retrieved bias calibration and the corresponding flat image) :
 ```
-$ filabres -lr flat-imaging -k ierr_bias
+$ filabres -lr flat-imaging -k ierr_bias -k delta_mjd_bias
+```
+The use of `awk` can help to quickly check for values of `IERR_BIAS` different
+from zero:
+``` 
 $ filabres -lr flat-imaging -k ierr_bias | awk '($2 != 0) {print}'
 ```
 
