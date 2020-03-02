@@ -105,20 +105,22 @@ def run_reduction_step(redustep, interactive, datadir, list_of_nights,
                     print('Subdirectory {} not found. Creating it!'.format(nightdir))
                 os.makedirs(nightdir)
 
-            # set the expected database: note that for science images, this
-            # database is stored as an independent JSON file for each night
-            databasefile = nightdir + '/'
-            databasefile += 'filabres_db_{}_{}.json'.format(instrument, redustep)
-            try:
-                with open(databasefile) as jfile:
-                    database = json.load(jfile)
-            except FileNotFoundError:
-                database = {}
-            if verbose:
-                print('\nResults database set to {}'.format(databasefile))
-
-            # determine number of different signatures
+            # execute reduction for all the selected files
             for filename in list_of_images:
+                # set the expected database: note that for science images, this
+                # database is stored as an independent JSON file for each night
+                # which is read and updated after the reduction of every single
+                # image
+                databasefile = nightdir + '/'
+                databasefile += 'filabres_db_{}_{}.json'.format(instrument, redustep)
+                try:
+                    with open(databasefile) as jfile:
+                        database = json.load(jfile)
+                except FileNotFoundError:
+                    database = {}
+                if verbose:
+                    print('\nResults database set to {}'.format(databasefile))
+
                 # define input file name
                 input_filename = datadir + night + '/' + filename
                 # define output FITS file name
@@ -218,11 +220,13 @@ def run_reduction_step(redustep, interactive, datadir, list_of_nights,
                         else:
                             msg = 'maxfieldview_arcmin missing in instrument configuration'
                             raise SystemError(msg)
-                        run_astrometry(image2d=image2d, mask2d=mask2d, saturpix=image2d_saturpix,
-                                       header=output_header,
-                                       maxfieldview_arcmin=maxfieldview_arcmin, fieldfactor=1.1,
-                                       nightdir=nightdir, output_filename=output_filename,
-                                       interactive=interactive, verbose=verbose, debug=False)
+                        ierr_astr = run_astrometry(
+                            image2d=image2d, mask2d=mask2d, saturpix=image2d_saturpix,
+                            header=output_header,
+                            maxfieldview_arcmin=maxfieldview_arcmin, fieldfactor=1.1,
+                            nightdir=nightdir, output_filename=output_filename,
+                            interactive=interactive, verbose=verbose, debug=False
+                        )
                     # ---------------------------------------------------------
                     else:
                         msg = '* ERROR: combination of {} not implemented yet'.format(redustep)
@@ -239,14 +243,18 @@ def run_reduction_step(redustep, interactive, datadir, list_of_nights,
                     for keyword in instconf['masterkeywords']:
                         dumdict[keyword] = output_header[keyword]
                     database[redustep][filename]['masterkeywords'] = dumdict
-                    if ierr_bias is not None:
-                        database[redustep][filename]['ierr_bias'] = ierr_bias
-                    if ierr_flat is not None:
-                        database[redustep][filename]['ierr_flat'] = ierr_flat
+                    database[redustep][filename]['ierr_bias'] = ierr_bias
+                    database[redustep][filename]['ierr_flat'] = ierr_flat
+                    database[redustep][filename]['ierr_astr'] = ierr_astr
 
-            # update results database
-            with open(databasefile, 'w') as outfile:
-                json.dump(database, outfile, indent=2)
+                # update results database
+                with open(databasefile, 'w') as outfile:
+                    json.dump(database, outfile, indent=2)
+
+                if interactive:
+                    ckey = input("Press 'x' + RETURN to stop, or simply RETURN to continue... ")
+                    if ckey.lower() == 'x':
+                        raise SystemExit()
 
         else:
             # skipping night (no images of sought type found)

@@ -124,7 +124,7 @@ def main():
                                verbose=args.verbose,
                                debug=args.debug)
         else:
-            msg ='Invalid reduction step: {}'.format(args.reduction_step)
+            msg = 'Invalid reduction step: {}'.format(args.reduction_step)
             raise SystemError(msg)
 
     print('* program STOP')

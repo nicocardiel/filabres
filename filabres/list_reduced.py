@@ -108,6 +108,8 @@ def list_reduced(instrument, img1, img2, args_night, args_keyword,
     list_of_databases = glob.glob(expected_databasenames)
     list_of_databases.sort()
 
+    ierr_kwd = ['ierr_bias', 'ierr_flat', 'ierr_astr']
+
     n = 0
     colnames = None
     df = None  # Avoid PyCharm warning
@@ -137,7 +139,7 @@ def list_reduced(instrument, img1, img2, args_night, args_keyword,
                                 valid_keywords = instconf['masterkeywords']
                                 valid_keywords += list(minidict[mjdobs]['statsumm'].keys())
                                 valid_keywords.append('NORIGIN')
-                                for kwd in ['ierr_bias', 'ierr_flat']:
+                                for kwd in ierr_kwd:
                                     if kwd in minidict[mjdobs]:
                                         valid_keywords.append(kwd.upper())
                                 print('Valid keywords:', valid_keywords)
@@ -146,7 +148,7 @@ def list_reduced(instrument, img1, img2, args_night, args_keyword,
                             storedkeywords.update(minidict[mjdobs]['statsumm'])
                             norigin = minidict[mjdobs]['norigin']
                             storedkeywords.update({'NORIGIN': norigin})
-                            for kwd in ['ierr_bias', 'ierr_flat']:
+                            for kwd in ierr_kwd:
                                 if kwd in minidict[mjdobs]:
                                     storedkeywords.update({kwd.upper(): minidict[mjdobs][kwd]})
                             colnames_ = ['file']
@@ -186,14 +188,14 @@ def list_reduced(instrument, img1, img2, args_night, args_keyword,
                         if 'ALL' in lkeyword:
                             valid_keywords = instconf['masterkeywords']
                             valid_keywords += list(minidict['statsumm'].keys())
-                            for kwd in ['ierr_bias', 'ierr_flat']:
+                            for kwd in ierr_kwd:
                                 if kwd in minidict:
                                     valid_keywords.append(kwd.upper())
                             print('Valid keywords:', valid_keywords)
                             raise SystemExit()
                         storedkeywords = minidict['masterkeywords']
                         storedkeywords.update(minidict['statsumm'])
-                        for kwd in ['ierr_bias', 'ierr_flat']:
+                        for kwd in ierr_kwd:
                             if kwd in minidict:
                                 storedkeywords.update({kwd.upper(): minidict[kwd]})
                         colnames_ = ['file']

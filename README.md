@@ -2,6 +2,14 @@
 
 Automatic Data Reduction Pipeline for CAHA data.
 
+The astrometric calibration is performed using the following auxiliary
+packages:
+- astrometry.net: http://astrometry.net/doc/readme.html
+- sextractor + scamp from the astromatic.net: https://www.astromatic.net/software
+
+Note that both software packages must be installed in your system for
+filabres to work properly.
+
 ### Installing the code
 
 To install the code, clone the repository 
@@ -140,5 +148,10 @@ $ filabres -n 17????_t2_CAFOS -rs science-imaging -v -i
 ```
 In this case the `-i/--interactive` argument indicates that intermediate
 results (with some plots) are must be shown.
+
+Check for problems with bias, flatfielding or astrometric calibration:
+```
+$ filabres -lr science-imaging -k ierr_bias -k ierr_flat -k ierr_astr -k all
+```
 
 

@@ -354,7 +354,15 @@ def run_astrometry(image2d, mask2d, saturpix,
         If True, display intermediate information.
     debug : bool or None
         Display additional debugging information.
+
+    Returns
+    =======
+    ierr_astr : int
+        Error status value. 0: no error. 1: error while performing
+        astrometric calibration.
     """
+
+    ierr_astr = 0
 
     # creating work subdirectory
     workdir = nightdir + '/work'
@@ -685,6 +693,13 @@ def run_astrometry(image2d, mask2d, saturpix,
     command = 'scamp xxx.ldac -c config.scamp'
     cmd.run(command, cwd=workdir)
 
+    # check there is a useful result
+    if os.path.exists('{}/xxx.head'.format(workdir)):
+        pass
+    else:
+        ierr_astr = 1
+        return
+
     # remove SIP parameters in newheader
     newheader['history'] = '--Deleting SIP from Astrometry.net WCS solution--'
     newheader.add_comment('--Deleted SIP from Astrometry.net WCS solution--')
@@ -815,7 +830,4 @@ def run_astrometry(image2d, mask2d, saturpix,
         command = 'cp {} ../{}/'.format(filepath, backupsubdir)
         cmd.run(command, cwd=workdir)
 
-    if interactive:
-        ckey = input("Press 'x' + RETURN to stop, or simply RETURN to continue... ")
-        if ckey.lower() == 'x':
-            raise SystemExit()
+    return ierr_astr
