@@ -32,6 +32,8 @@ from .run_reduction_step import run_reduction_step
 #       identificar keywords que puedan indicar el encendido de lámparas de calibración
 #       hacer un fichero plano con imágenes a ignorar
 #       bias: poner restricción en STD robusta
+#       salvar tabla de objetos de sextractor,...
+#       medir PSFs con astromatic
 
 def main():
 
