@@ -29,6 +29,7 @@ from .run_reduction_step import run_reduction_step
 
 
 # ToDo:
+#       identificar keywords que puedan indicar el encendido de lámparas de calibración
 #       hacer un fichero plano con imágenes a ignorar
 #       bias: poner restricción en STD robusta
 

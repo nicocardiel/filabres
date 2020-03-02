@@ -2,7 +2,7 @@
 
 cafos:
   instname: cafos
-  version: 2.1
+  version: 2.2
   requirements:
     INSTRUME: 'CAFOS 2.2'
   masterkeywords:
@@ -27,10 +27,28 @@ cafos:
     - CCDBINX    # Binning factor along X
     - CCDBINY    # Binning factor along Y
     - IMAGETYP   # Type of observation
+    - INSTRMOD   # instrument mode
+    - INSAPID    #
+    - INSTRSCL   # scale [arcsec/pixel]
+    - INSTRPIX   # pixel size (microns)
+    - INSTRPX0   # pixel at x=0
+    - INSTRPY0   # pixel at y=0
     - INSFLID    # filter no.
     - INSFLNAM   # filter name
     - INSGRID    # grism no.
     - INSGRNAM   # grism name
+    - INSGRROT   # grism angle
+    - INSGRWL0   # central lambda [nm]
+    - INSGRRES   # resolution [nm/pix]
+    - INSPOFPI   #
+    - INSPOROT   # rotator position
+    - INSFPZ     # z value
+    - INSFPWL    # lambda [nm]
+    - INSFPDWL   # delta lambda [nm]
+    - INSFPORD   # interference order
+    - INSCALST   # Calib IN (True/False)
+    - INSCALID   # lamb comb.
+    - INSCALNM   # calibration names
   imagetypes:
     bias:
       executable: True
