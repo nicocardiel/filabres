@@ -150,8 +150,7 @@ def run_calibration_step(redustep, datadir, list_of_nights,
                 if nfiles == 0:
                     msg = 'ERROR: unexpected number of {} images = 0'.format(nfiles)
                     raise SystemError(msg)
-                # dictionary indicating if the images with this signature
-                # have been classified
+                # dictionary indicating whether the images with this signature have been classified
                 classified_images = dict()
                 for filename in images_with_fixed_signature:
                     classified_images[filename] = False
@@ -192,6 +191,8 @@ def run_calibration_step(redustep, datadir, list_of_nights,
                                     imgblock.append(filename)
                                     t0 = imagedb[redustep][basename]['MJD-OBS']
                                     mean_mjdobs += t0
+                                    if verbose:
+                                        print(' - {}'.format(filename))
                                 else:
                                     if abs(t-t0) < maxtimespan_hours/24:
                                         if verbose:
