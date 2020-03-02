@@ -37,7 +37,7 @@ def load_instrument_configuration(instrument, redustep,
         print('* Loading instrument configuration')
     dumdata = pkgutil.get_data('filabres.instrument', 'configuration.yaml')
     dumfile = StringIO(dumdata.decode('utf8'))
-    bigdict = yaml.load(dumfile)
+    bigdict = yaml.load(dumfile, Loader=yaml.FullLoader)
 
     # check instrument and reduction step
     available_instruments = list(bigdict.keys())

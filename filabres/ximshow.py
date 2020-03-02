@@ -103,7 +103,8 @@ def ximshow(image2d, title=None, show=True,
 
     """
 
-    from numina.array.display.matplotlib_qt import plt
+    # from numina.array.display.matplotlib_qt import plt
+    import matplotlib.pyplot as plt
 
     if not show and using_jupyter:
         plt.ioff()
@@ -568,7 +569,8 @@ def ximshow_file(singlefile,
 
     if pdf is not None:
         if show:
-            from numina.array.display.matplotlib_qt import plt
+            # from numina.array.display.matplotlib_qt import plt
+            import matplotlib.pyplot as plt
             plt.tight_layout()
             pdf.savefig()
         else:
@@ -881,7 +883,8 @@ def main(args=None):
         from matplotlib.backends.backend_pdf import PdfPages
         pdf = PdfPages(args.pdffile.name)
     else:
-        from numina.array.display.matplotlib_qt import plt
+        # from numina.array.display.matplotlib_qt import plt
+        import matplotlib.pyplot as plt
         pdf = None
 
     for myfile, extnum in zip(list_fits_files, list_extnum):

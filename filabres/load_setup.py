@@ -23,7 +23,7 @@ def load_setup(setupfile, verbose=False):
     if setupfile is None:
         setupfile = 'setup_filabres.yaml'
     with open(setupfile) as yamlfile:
-        setupdata = yaml.load(yamlfile)
+        setupdata = yaml.load(yamlfile, Loader=yaml.Full)
 
     instrument = setupdata['instrument']
     datadir = setupdata['datadir']
