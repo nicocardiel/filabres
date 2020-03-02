@@ -28,9 +28,10 @@ from .run_calibration_step import run_calibration_step
 from .run_reduction_step import run_reduction_step
 
 
-# ToDo: hacer un fichero plano con imágenes a ignorar
+# ToDo:
+#       hacer un fichero plano con imágenes a ignorar
 #       bias: poner restricción en STD robusta
-#        science: meter delta tiempo (de las calibraciones)
+#       science: meter delta tiempo (de las calibraciones)
 
 def main():
 

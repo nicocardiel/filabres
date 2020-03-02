@@ -10,7 +10,7 @@ packages:
 Note that both software packages must be installed in your system for
 filabres to work properly.
 
-### Installing the code
+## Installing the code
 
 To install the code, clone the repository 
 ```
@@ -32,7 +32,7 @@ $ python setup.py build
 $ python setup.py install
 ```
 
-### Create `setup_filabres.yaml`
+## Create `setup_filabres.yaml`
 
 It is recommendable to run the code from an empty directory.
 
@@ -65,7 +65,7 @@ $ ls /Users/cardiel/CAFOS2017
 170519_t2_CAFOS/ 170731_t2_CAFOS/ 171101_t2_CAFOS/
 ```  
 
-### Check that there are no duplicated images
+## Check that there are no duplicated images
 
 ```
 $ filabres --check
@@ -73,7 +73,7 @@ $ filabres --check
 If there are duplicated images, the duplicated files must be removed before
 initializing the image databases.
 
-### Initialize the auxiliary image databases
+## Initialize the auxiliary image databases
 Execute the program to initialize the auxiliary image databases:
 ```
 $ filabres -rs initialize
@@ -94,7 +94,9 @@ The previous command generates a subdirectory `lists` in the current
 directory, with a tree of observing nights. Within each night a file called
 `imagedb_cafos.json` stores the image classification (i.e., bias, flat-imaging,
 science-imaging,...) following the requirements described in the file 
-`filabes/instrument/configuration.yaml`.
+`filabres/instrument/configuration.yaml`.
+
+### Checking the image classification
 
 The `-lc/--lc_imagetype` argument allows to list the images assigned 
 within each possible category
@@ -108,22 +110,54 @@ $ filabres -lc bias -k object -k ra -k dec
 ```
 (note: `-k all` display all the available keywords)
 
-It is useful to check for `unclassified` and `wrong-instrument`,
-`wrong-bias`, `wrong-flat-imaging`, etc.
+It is useful to check for `wrong-instrument`, `unclassified`,
+`wrong-bias`, `wrong-flat-imaging`, etc. For example, checking for 
+`wrong-instrument`:
 ```
-$ filabres -lc unclassfied
 $ filabres -lc wrong-instrument
+```
+Hopefully none.
+
+Then, check for `unclassified`:
+```
+$ filabres -lc unclassified
+```
+If some images have been classified under this category, it is useful to 
+display additional relevant information:
+```
+$ filabres -lc unclassified -k naxis1 -k naxis2 -k object
+```
+Finally, check for wrong images in any of the expected categories reserved
+for bias, flat, science, etc.:
+```
 $ filabres -lc wrong-bias
 $ filabres -lc wrong-flat-imaging
 $ filabres -lc wrong-science-imaging
 ...
 ```
+If there are images classified in any of those categories, it is useful to
+check for the image signal (quantile information), object name, exposure 
+time, etc. For example:
+```
+$ filabres -lc wrong-science-imaging -k object -k quant500 -k quant975 -k exptime -k imagetyp
+```
+can reveal bias images with exposure time equal to 0.0, but with the keyword
+`IMAGETYP` erroneously set to `science`, or saturated images (with `QUANT975`
+too close to the saturation limit).
 
-### Compute combined bias images
+## Compute combined bias images
+The reduction of all the bias images can be launch using:
 ```
 $ filabres -n 17????_t2_CAFOS -rs bias
 ```
-The reduced bias frames can also be listed using `-lr/--lr_imagetype`:
+The execution of the reduction can be restricted to a subset of images by 
+indicating the suitable nights (with the parameter `-n/--night`)
+```
+$ filabres -n 17????_t2_CAFOS -rs bias
+```
+Additional verbosity can be obtained using `-v/--verbose`.
+
+Once computed, the reduced bias frames can be listed using `-lr/--lr_imagetype`:
 ```
 $ filabres -lr bias
 ```
@@ -132,17 +166,20 @@ Again, it is also possible to list the values of particular keywords:
 $ filabres -lr bias -k quant500 -k robuststd -k norigin
 ```
 
-### Compute combined flat-imaging images
+## Compute combined flat-imaging images
+The reduction of flat images is similar to the reduction of the previous bias
+frames:
 ```
 $ filabres -n 17????_t2_CAFOS -rs flat-imaging
 ```
-Check for problems with bias subtraction when reducing the flat images:
+Check for problems with bias subtraction when reducing the flat images (by
+displaying the keyword `IERR_BIAS`):
 ```
-$ filabres -lr flat-imaging -k ierr_bias'
+$ filabres -lr flat-imaging -k ierr_bias
 $ filabres -lr flat-imaging -k ierr_bias | awk '($2 != 0) {print}'
 ```
 
-### Reduce the science images
+## Reduce the science images
 ```
 $ filabres -n 17????_t2_CAFOS -rs science-imaging -v -i
 ```
