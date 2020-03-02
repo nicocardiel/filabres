@@ -65,12 +65,12 @@ $ ls /Users/cardiel/CAFOS2017
 170519_t2_CAFOS/ 170731_t2_CAFOS/ 171101_t2_CAFOS/
 ```  
 
-## Check that there are no duplicated images
+## Check that there are no duplicate images
 
 ```
 $ filabres --check
 ```
-If there are duplicated images, the duplicated files must be removed before
+If there are duplicate images, the duplicate files must be removed before
 initializing the image databases.
 
 ## Initialize the auxiliary image databases
@@ -106,7 +106,7 @@ $ filabres -lc bias
 ```
 Additional keyword information can be included by using `-k <keyword>`:
 ```
-$ filabres -lc bias -k object -k ra -k dec
+$ filabres -lc bias -k quant500 -k robuststd -k date
 ```
 (note: `-k all` display all the available keywords)
 

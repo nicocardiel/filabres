@@ -4,6 +4,7 @@ import os
 import pandas as pd
 
 from .load_instrument_configuration import load_instrument_configuration
+from .statsumm import statsumm
 
 from filabres import LISTDIR
 
@@ -119,7 +120,7 @@ def list_classified(instrument, img1, img2, datadir, args_night,
                     # show all valid keywords and exit
                     if 'ALL' in lkeyword:
                         valid_keywords = instconf['masterkeywords']
-                        valid_keywords += instconf['quantkeywords']
+                        valid_keywords += list(statsumm(image2d=None).keys())
                         print('Valid keywords:', valid_keywords)
                         raise SystemExit()
                     storedkeywords = imagedb[imagetype][filename]

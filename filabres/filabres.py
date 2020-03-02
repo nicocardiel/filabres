@@ -29,9 +29,10 @@ from .run_reduction_step import run_reduction_step
 
 
 # ToDo:
+#       corregir error al mostrar lotes de imágnenes (falta la primera!)
 #       hacer un fichero plano con imágenes a ignorar
 #       bias: poner restricción en STD robusta
-#       science: meter delta tiempo (de las calibraciones)
+#       science: meter delta tiempo (de las calibraciones) en la base de datos de imágenes científicas reducidas
 
 def main():
 

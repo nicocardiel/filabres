@@ -2,6 +2,8 @@ import pkgutil
 from six import StringIO
 import yaml
 
+from .statsumm import statsumm
+
 from filabres import REQ_OPERATORS
 
 
@@ -75,8 +77,11 @@ def load_instrument_configuration(instrument, redustep,
     # define instrument configuration dictionary
     instconf = bigdict[instrument]
 
+
     # check that the keywords of the requirements and the signature of the
     # different image types are all included in the masterkeywords list
+    # or in the statistical summary
+    statkeywords = list(statsumm(image2d=None).keys())
     for imagetype in instconf['imagetypes']:
         # check keywords in requirements
         allrequirements = list(instconf['imagetypes'][imagetype]['requirements'].keys()) + \
@@ -87,11 +92,11 @@ def load_instrument_configuration(instrument, redustep,
                 if keyword[-lenop:] == operator:
                     keyword = keyword[:-lenop]
                     break
-            validkw = instconf['masterkeywords'] + instconf['quantkeywords']
+            validkw = instconf['masterkeywords'] + statkeywords
             if keyword not in validkw:
                 print('ERROR in configuration.yaml file')
-                print('-> the (requirements) keyword {} is not included in the masterkeywords or quantkeywords '
-                      'lists'.format(keyword))
+                print('-> the (requirements) keyword {} is not included in the masterkeywords list '
+                      'nor in the statistical keyword list '.format(keyword, statkeywords))
                 raise SystemExit()
 
         # check keywords in signature

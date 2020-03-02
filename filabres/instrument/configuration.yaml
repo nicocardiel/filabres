@@ -2,7 +2,7 @@
 
 cafos:
   instname: cafos
-  version: 2.0
+  version: 2.1
   requirements:
     INSTRUME: 'CAFOS 2.2'
   masterkeywords:
@@ -31,14 +31,6 @@ cafos:
     - INSFLNAM   # filter name
     - INSGRID    # grism no.
     - INSGRNAM   # grism name
-  quantkeywords:
-    - QUANT025
-    - QUANT159
-    - QUANT250
-    - QUANT500
-    - QUANT750
-    - QUANT841
-    - QUANT975
   imagetypes:
     bias:
       executable: True

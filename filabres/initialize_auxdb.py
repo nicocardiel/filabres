@@ -3,13 +3,13 @@ from astropy.time import Time
 import datetime
 import glob
 import json
-import numpy as np
 import os
 import sys
 import uuid
 import warnings
 
 from .progressbar import progressbar
+from .statsumm import statsumm
 from .version import version
 
 from filabres import LISTDIR
@@ -156,9 +156,6 @@ def initialize_auxdb(list_of_nights, instconf, datadir, force, verbose=False):
             print('\nSubdirectory {} not found. Creating it!'.format(LISTDIR))
         os.makedirs(LISTDIR)
 
-    quantkeywords = instconf['quantkeywords']
-    probquantiles = [float(s[-3:])/1000 for s in quantkeywords]
-
     # create one subdirectory for each night
     for inight, night in enumerate(list_of_nights):
         # subdirectory for current night
@@ -274,11 +271,8 @@ def initialize_auxdb(list_of_nights, instconf, datadir, force, verbose=False):
                             msg = 'ERROR: keyword {} is missing in file {}'.format(keyword, basename)
                             raise SystemError(msg)
                     # basic image statistics
-                    quantiles = np.quantile(data, probquantiles)
-                    dictquant = dict()
-                    for i in range(len(quantiles)):
-                        dictquant[quantkeywords[i]] = quantiles[i]
-                    for qkw in quantkeywords:
+                    dictquant = statsumm(data, rm_nan=True)
+                    for qkw in dictquant.keys():
                         dumdict[qkw] = dictquant[qkw]
                     # classify image
                     imagetype = classify_image(instconf, header, dictquant)

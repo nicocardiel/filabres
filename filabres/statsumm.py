@@ -1,7 +1,7 @@
 import numpy as np
 
 
-def statsumm(image2d, header=None, redustep=None, rm_nan=False, verbose=False):
+def statsumm(image2d=None, header=None, redustep=None, rm_nan=False, verbose=False):
     """
     Compute statistical summary of 2D image.
 
@@ -12,7 +12,9 @@ def statsumm(image2d, header=None, redustep=None, rm_nan=False, verbose=False):
     Parameters
     ==========
     image2d : numpy 2D array or None
-        Array with input image.
+        Array with input image. If None, the function still works
+        returning a dictionary with all the fields set to zero, which
+        is useful to get the list of available results.
     header : astropy header or None
         Header to be updated
     redustep : str
@@ -47,7 +49,7 @@ def statsumm(image2d, header=None, redustep=None, rm_nan=False, verbose=False):
     sigmag = 0.7413 * (quant750 - quant250)
     result = {
         'NPOINTS': npoints,
-        'MINIMUM': float(np.min(x)) if ok else 0,
+        'FMINIMUM': float(np.min(x)) if ok else 0,
         'QUANT025': quant025,
         'QUANT159': quant159,
         'QUANT250': quant250,
@@ -55,7 +57,7 @@ def statsumm(image2d, header=None, redustep=None, rm_nan=False, verbose=False):
         'QUANT750': quant750,
         'QUANT841': quant841,
         'QUANT975': quant975,
-        'MAXIMUM': float(np.max(x)) if ok else 0,
+        'FMAXIMUM': float(np.max(x)) if ok else 0,
         'ROBUSTSTD': sigmag,
     }
 
