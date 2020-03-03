@@ -28,7 +28,8 @@ def list_classified(instrument, img, listmode, datadir, args_night,
     listmode : str
         List mode:
         - long: each file in a single line with additional keywords
-        - basic: each file in a single line without the file path
+        - basic: each file in a single line without the file path and
+                 without additional keywords
         - singleline: all the files in a single line without additional keywords
     datadir : str
         Data directory where the original FITS files are stored.
@@ -53,7 +54,7 @@ def list_classified(instrument, img, listmode, datadir, args_night,
 
     # protections
     if listmode in ["basic", "singleline"]:
-        msg= None
+        msg = None
         if args_keyword is not None:
             msg = 'ERROR: -k KEYWORD is invalid with --listmode {}'.format(listmode)
         if args_keyword_sort is not None:
@@ -91,8 +92,8 @@ def list_classified(instrument, img, listmode, datadir, args_night,
     # check imagetype is a valid reduction step
     basic_imagetypes = list(instconf['imagetypes'].keys())
     valid_imagetypes = basic_imagetypes + \
-                       ['wrong-' + kwd for kwd in basic_imagetypes] + \
-                       ['wrong-instrument', 'unclassified']
+        ['wrong-' + kwd for kwd in basic_imagetypes] + \
+        ['wrong-instrument', 'unclassified']
 
     if img is None or img == []:
         imagetype = None
@@ -127,7 +128,7 @@ def list_classified(instrument, img, listmode, datadir, args_night,
 
     n = 0
     colnames = None
-    df = None  # Avoid PyCharm warning
+    df = None
 
     for jsonfilename in list_of_imagedb:
 
@@ -144,7 +145,9 @@ def list_classified(instrument, img, listmode, datadir, args_night,
                 n += 1
                 if listmode == "singleline":
                     print(outfile, end=' ')
-                else:
+                elif listmode == "basic":
+                    print(' - {}'.format(os.path.basename(outfile)))
+                elif listmode == "long":
                     # show all valid keywords and exit
                     if 'ALL' in lkeyword:
                         valid_keywords = instconf['masterkeywords']
@@ -169,24 +172,25 @@ def list_classified(instrument, img, listmode, datadir, args_night,
                             print("- required:", colnames_)
                             raise SystemExit()
 
-                    if listmode == "long":
-                        new_df_row = [outfile]
-                    elif listmode == "basic":
-                        new_df_row = [os.path.basename(outfile)]
-                    else:
-                        msg = 'Unexpected listmode {}'.format(listmode)
-                        raise SystemError(msg)
+                    new_df_row = [outfile]
                     if lkeyword is not None:
                         for keyword in lkeyword:
                             new_df_row += [storedkeywords[keyword]]
                     df.loc[n-1] = new_df_row
+                else:
+                    msg = 'Unexpected listmode {}'.format(listmode)
+                    raise SystemError(msg)
 
     if listmode == "singleline":
         if n > 0:
             print()
+    elif listmode == "basic":
+        print('Total: {} files'.format(n))
     else:
         if df is not None:
             if df.shape[0] > 0:
+                # start dataframe index at 1 instead of 0
+                df.index += 1
                 if args_keyword_sort is not None:
                     kwds = [item[0].upper() for item in args_keyword_sort]
                     kwds.append('file')
@@ -195,25 +199,25 @@ def list_classified(instrument, img, listmode, datadir, args_night,
                 pd.set_option('display.max_columns', None)
                 pd.set_option('display.width', None)
                 pd.set_option('display.max_colwidth', -1)
-                print(df.round(args_ndecimal).to_string(index=False))
+                print(df.round(args_ndecimal).to_string(index=True))
             print('Total: {} files'.format(df.shape[0]))
         else:
             print('Total: {} files'.format(0))
 
-    if df is not None:
-        if df.shape[0] > 0:
-            # scatter plots
-            if args_plotxy:
-                # remove the 'file' column and convert to float the remaining columns
-                scatter_matrix(df.drop(['file'], axis=1).astype(float, errors='ignore'))
-                print('Press "q" to continue...', end='')
-                plt.suptitle('classified {} ({} files)'.format(imagetype, df.shape[0]))
-                plt.tight_layout(rect=(0, 0, 1, 0.95))
-                plt.show()
-                print('')
-            # display images
-            if args_plotimage:
-                for filename in df['file']:
-                    ximshow_file(filename, debugplot=12)
+        if df is not None:
+            if df.shape[0] > 0:
+                # scatter plots
+                if args_plotxy:
+                    # remove the 'file' column and convert to float the remaining columns
+                    scatter_matrix(df.drop(['file'], axis=1).astype(float, errors='ignore'))
+                    print('Press "q" to continue...', end='')
+                    plt.suptitle('classified {} ({} files)'.format(imagetype, df.shape[0]))
+                    plt.tight_layout(rect=(0, 0, 1, 0.95))
+                    plt.show()
+                    print('')
+                # display images
+                if args_plotimage:
+                    for filename in df['file']:
+                        ximshow_file(filename, debugplot=12)
 
     raise SystemExit()
