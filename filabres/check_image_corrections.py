@@ -34,25 +34,32 @@ class ImageCorrections(object):
             for i, d in enumerate(self.corrections):
                 if 'night' in d:
                     night = d['night']
-                    # check that the night exists
-                    nightdir = datadir + night
-                    if os.path.isdir(nightdir):
-                        pass
+                    if 'enabled' in d:
+                        enabled = d['enabled']
                     else:
-                        msg = 'Night {} not found'.format(nightdir)
-                        raise SystemError(msg)
-                    # check that the corresponding files also exist
-                    list_of_files = d['files']
-                    for filename in list_of_files:
-                        filepath = datadir + night + '/' + filename
-                        if os.path.isfile(filepath):
+                        enabled = True
+                    if enabled:
+                        # check that the night exists
+                        nightdir = datadir + night
+                        if os.path.isdir(nightdir):
                             pass
                         else:
-                            msg = 'ERROR: file {} not found'.format(filepath)
+                            msg = 'Night {} not found'.format(nightdir)
                             raise SystemError(msg)
-                    self.nights.add(night)
-                    if verbose:
-                        print('- night {} has {} files with corrections'.format(night, len(list_of_files)))
+                        # check that the corresponding files also exist
+                        list_of_files = d['files']
+                        for filename in list_of_files:
+                            filepath = datadir + night + '/' + filename
+                            if os.path.isfile(filepath):
+                                pass
+                            else:
+                                msg = 'ERROR: file {} not found'.format(filepath)
+                                raise SystemError(msg)
+                        self.nights.add(night)
+                        if verbose:
+                            print('- night {} has {} files with corrections'.format(night, len(list_of_files)))
+                    else:
+                        print('- ignoring image corrections in night {}'.format(night))
                 else:
                     msg = 'Missing "night" keyword in block #{} of {}'.format(i+1, image_corrections_file)
                     raise SystemError(msg)
