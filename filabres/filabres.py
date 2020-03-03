@@ -29,8 +29,7 @@ from .run_reduction_step import run_reduction_step
 
 
 # ToDo:
-#       incluir --display en -lc/-lr con llamada a ximshow
-#       hacer un fichero plano con imágenes a ignorar o keywords a cambiar
+#       hacer un fichero YAML con imágenes a ignorar o keywords a cambiar
 #       bias: poner restricción en STD robusta?
 #       salvar tabla de objetos de sextractor,...
 #       medir PSFs con astromatic
@@ -48,12 +47,10 @@ def main():
     parser.add_argument("-i", "--interactive", action="store_true", help="enable interactive execution")
     parser.add_argument("-lc", "--lc_imagetype", type=str, nargs='*',
                         help="list classified images of the selected type with quantile information")
-    parser.add_argument("-lcf", "--lcf_imagetype", type=str, nargs='*',
-                        help="list classified images of the selected type in a single line")
     parser.add_argument("-lr", "--lr_imagetype", type=str, nargs='*',
                         help="list reduced images of the selected type with quantile information")
-    parser.add_argument("-lrf", "--lrf_imagetype", type=str, nargs='*',
-                        help="list reduced images of the selected type in a single line")
+    parser.add_argument("-lm", "--listmode", type=str, help="display mode for list of files",
+                        choices=["long", "singleline", "basic"], default="long")
     parser.add_argument("-k", "--keyword", type=str, action='append', nargs=1,
                         help="keyword for the -lc/-lr option")
     parser.add_argument("-ks", "--keyword_sort", type=str, action='append', nargs=1,
@@ -70,7 +67,7 @@ def main():
 
     # ---
 
-    instrument, datadir = load_setup(args.setup, args.verbose)
+    instrument, datadir, image_corrections_file = load_setup(args.setup, args.verbose)
     datadir = check_tslash(datadir)
 
     if args.check:
@@ -78,10 +75,10 @@ def main():
         print('* program STOP')
         raise SystemExit()
 
-    if args.lc_imagetype is not None or args.lcf_imagetype is not None:
+    if args.lc_imagetype is not None:
         list_classified(instrument=instrument,
-                        img1=args.lc_imagetype,
-                        img2=args.lcf_imagetype,
+                        img=args.lc_imagetype,
+                        listmode=args.listmode,
                         datadir=datadir,
                         args_night=args.night,
                         args_keyword=args.keyword,
@@ -92,8 +89,8 @@ def main():
 
     if args.lr_imagetype is not None or args.lrf_imagetype is not None:
         list_reduced(instrument=instrument,
-                     img1=args.lr_imagetype,
-                     img2=args.lrf_imagetype,
+                     img=args.lr_imagetype,
+                     listmode=args.listmode,
                      args_night=args.night,
                      args_keyword=args.keyword,
                      args_keyword_sort=args.keyword_sort,
@@ -121,6 +118,7 @@ def main():
                          instconf=instconf,
                          datadir=datadir,
                          force=args.force,
+                         image_corrections_file=image_corrections_file,
                          verbose=args.verbose)
     else:
         classification = instconf['imagetypes'][args.reduction_step]['classification']

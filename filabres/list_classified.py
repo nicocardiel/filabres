@@ -12,7 +12,7 @@ from .ximshow import ximshow_file
 from filabres import LISTDIR
 
 
-def list_classified(instrument, img1, img2, datadir, args_night,
+def list_classified(instrument, img, listmode, datadir, args_night,
                     args_keyword, args_keyword_sort, args_plotxy,
                     args_plotimage, args_ndecimal=5):
     """
@@ -22,16 +22,14 @@ def list_classified(instrument, img1, img2, datadir, args_night,
     ==========
     instrument : str
         Instrument name.
-    img1 : str or None
+    img : str or None
         Image type. It should coincide with any of the available
         image types declared in the instrument configuration file.
-        Each file name is displayed in a different line, together
-        with the quantile information.
-    img2 : str or None
-        Image type. It should coincide with any of the available
-        image types declared in the instrument configuration file.
-        The file names are listed in a single line, separated by a
-        single blank space.
+    listmode : str
+        List mode:
+        - long: each file in a single line with additional keywords
+        - basic: each file in a single line without the file path
+        - singleline: all the files in a single line without additional keywords
     datadir : str
         Data directory where the original FITS files are stored.
     args_night : str or None
@@ -54,25 +52,34 @@ def list_classified(instrument, img1, img2, datadir, args_night,
     """
 
     # protections
+    if listmode in ["basic", "singleline"]:
+        msg= None
+        if args_keyword is not None:
+            msg = 'ERROR: -k KEYWORD is invalid with --listmode {}'.format(listmode)
+        if args_keyword_sort is not None:
+            msg = 'ERROR: -ks KEYWORD is invalid with --listmode {}'.format(listmode)
+        if args_plotxy:
+            msg = 'ERROR: -pxy KEYWORD is invalid with --listmode {}'.format(listmode)
+        if msg is not None:
+            raise SystemError(msg)
+
     if args_keyword is not None:
-        if img1 is None:
-            print('ERROR: -k KEYWORD is only valid together with -lc')
-            raise SystemExit()
-        else:
-            lkeyword = [item[0].upper() for item in args_keyword]
+        lkeyword = [item[0].upper() for item in args_keyword]
     else:
         lkeyword = []
+
     if args_keyword_sort is not None:
         for item in args_keyword_sort:
             kwd = item[0].upper()
             if kwd not in lkeyword:
                 lkeyword.append(kwd)
 
-    if lkeyword == []:
-        # display at least NAXIS1 and NAXIS2
-        for kwd in ['NAXIS2', 'NAXIS1']:
-            if kwd not in lkeyword:
-                lkeyword.insert(0, kwd)
+    if len(lkeyword) == 0:
+        if listmode == "long":
+            # display at least NAXIS1 and NAXIS2
+            for kwd in ['NAXIS2', 'NAXIS1']:
+                if kwd not in lkeyword:
+                    lkeyword.insert(0, kwd)
 
     # load instrument configuration
     instconf = load_instrument_configuration(
@@ -87,25 +94,14 @@ def list_classified(instrument, img1, img2, datadir, args_night,
                        ['wrong-' + kwd for kwd in basic_imagetypes] + \
                        ['wrong-instrument', 'unclassified']
 
-    if img2 is None or img2 == []:
-        if img1 is None or img1 == []:
+    if img is None or img == []:
+        imagetype = None
+    else:
+        if len(img) > 1:
+            print('ERROR: multiple image types given')
             imagetype = None
         else:
-            if len(img1) > 1:
-                print('ERROR: multiple image types given')
-                imagetype = None
-            else:
-                imagetype = img1[0]
-    else:
-        if img1 is None or img1 == []:
-            if len(img2) > 1:
-                print('ERROR: multiple image types given')
-                imagetype = None
-            else:
-                imagetype = img2[0]
-        else:
-            print('ERROR: do not use -lc and -lcf simultaneously.')
-            raise SystemExit()
+            imagetype = img[0]
 
     if imagetype is not None:
         if imagetype not in valid_imagetypes:
@@ -146,7 +142,7 @@ def list_classified(instrument, img1, img2, datadir, args_night,
             for filename in imagedb[imagetype]:
                 outfile = datadir + night + '/' + filename
                 n += 1
-                if img2 is not None:
+                if listmode == "singleline":
                     print(outfile, end=' ')
                 else:
                     # show all valid keywords and exit
@@ -173,14 +169,19 @@ def list_classified(instrument, img1, img2, datadir, args_night,
                             print("- required:", colnames_)
                             raise SystemExit()
 
-                    # new_df_row = [os.path.basename(outfile)]
-                    new_df_row = [outfile]
+                    if listmode == "long":
+                        new_df_row = [outfile]
+                    elif listmode == "basic":
+                        new_df_row = [os.path.basename(outfile)]
+                    else:
+                        msg = 'Unexpected listmode {}'.format(listmode)
+                        raise SystemError(msg)
                     if lkeyword is not None:
                         for keyword in lkeyword:
                             new_df_row += [storedkeywords[keyword]]
                     df.loc[n-1] = new_df_row
 
-    if img2 is not None:
+    if listmode == "singleline":
         if n > 0:
             print()
     else:
@@ -199,18 +200,20 @@ def list_classified(instrument, img1, img2, datadir, args_night,
         else:
             print('Total: {} files'.format(0))
 
-    if df.shape[0] > 0:
-        if args_plotxy:
-            # remove the 'file' column and convert to float the remaining columns
-            scatter_matrix(df.drop(['file'], axis=1).astype(float, errors='ignore'))
-            print('Press "q" to continue...', end='')
-            plt.suptitle('classified {} ({} files)'.format(imagetype, df.shape[0]))
-            plt.tight_layout(rect=(0, 0, 1, 0.95))
-            plt.show()
-            print('')
-
-        if args_plotimage:
-            for filename in df['file']:
-                ximshow_file(filename, debugplot=12)
+    if df is not None:
+        if df.shape[0] > 0:
+            # scatter plots
+            if args_plotxy:
+                # remove the 'file' column and convert to float the remaining columns
+                scatter_matrix(df.drop(['file'], axis=1).astype(float, errors='ignore'))
+                print('Press "q" to continue...', end='')
+                plt.suptitle('classified {} ({} files)'.format(imagetype, df.shape[0]))
+                plt.tight_layout(rect=(0, 0, 1, 0.95))
+                plt.show()
+                print('')
+            # display images
+            if args_plotimage:
+                for filename in df['file']:
+                    ximshow_file(filename, debugplot=12)
 
     raise SystemExit()

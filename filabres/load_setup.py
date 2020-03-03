@@ -18,6 +18,8 @@ def load_setup(setupfile, verbose=False):
         Instrument name.
     datadir : str
         Data directory where the original FITS files are stored.
+    image_corrections_file : str
+        Name of the file containing the image corrections.
     """
 
     if setupfile is None:
@@ -25,11 +27,18 @@ def load_setup(setupfile, verbose=False):
     with open(setupfile) as yamlfile:
         setupdata = yaml.load(yamlfile)
 
+    for kwd in ['instrument', 'datadir', 'image_corrections_file']:
+        if kwd not in setupdata:
+            msg = 'Expected keyword {} missing in {}'.format(kwd, setupfile)
+            raise SystemError(msg)
+
     instrument = setupdata['instrument']
     datadir = setupdata['datadir']
+    image_corrections_file = setupdata['image_corrections_file']
 
     if verbose:
-        print('* Instrument: {}'.format(instrument))
-        print('* Datadir: {}'.format(datadir))
+        print('* instrument: {}'.format(instrument))
+        print('* datadir: {}'.format(datadir))
+        print('* image_corrections: {}'.format(image_corrections_file))
 
-    return instrument, datadir
+    return instrument, datadir, image_corrections_file

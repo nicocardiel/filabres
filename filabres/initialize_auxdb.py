@@ -7,6 +7,7 @@ import os
 import sys
 import uuid
 import warnings
+import yaml
 
 from .progressbar import progressbar
 from .statsumm import statsumm
@@ -127,7 +128,8 @@ def classify_image(instconf, header, dictquant):
     return imagetype
 
 
-def initialize_auxdb(list_of_nights, instconf, datadir, force, verbose=False):
+def initialize_auxdb(list_of_nights, instconf, datadir, force,
+                     image_corrections_file, verbose=False):
     """
     Generate database with relevant keywords for each night.
 
@@ -143,9 +145,20 @@ def initialize_auxdb(list_of_nights, instconf, datadir, force, verbose=False):
         are stored.
     force : bool
         If True, recompute JSON file.
+    image_corrections_file : str
+        Name of the file containing the image corrections.
     verbose : bool
         If True, display intermediate information.
     """
+
+    # check for image_corrections_file
+    if os.path.isfile(image_corrections_file):
+        image_corrections = yaml.load(image_corrections_file)
+        if verbose:
+            print('\nFile {} found'.format(image_corrections_file))
+    else:
+        image_corrections = None
+        print('WARNING: file {} not found'.format(image_corrections_file))
 
     # check for ./lists subdirectory
     if os.path.isdir(LISTDIR):
