@@ -29,7 +29,6 @@ from .run_reduction_step import run_reduction_step
 
 
 # ToDo:
-#       hacer un fichero YAML con imágenes a ignorar o keywords a cambiar
 #       bias: poner restricción en STD robusta?
 #       salvar tabla de objetos de sextractor,...
 #       medir PSFs con astromatic
@@ -87,7 +86,7 @@ def main():
                         args_plotimage=args.plotimage,
                         args_ndecimal=args.ndecimal)
 
-    if args.lr_imagetype is not None or args.lrf_imagetype is not None:
+    if args.lr_imagetype is not None:
         list_reduced(instrument=instrument,
                      img=args.lr_imagetype,
                      listmode=args.listmode,

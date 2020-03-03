@@ -21,7 +21,7 @@ from .pause_debugplot import pause_debugplot
 NMAXGAIA = 2000
 
 
-class ToLogFile:
+class ToLogFile(object):
     def __init__(self, workdir, verbose):
         self.filename = '{}/astrometry.log'.format(workdir)
         self.logfile = open(self.filename, 'wt')
@@ -37,7 +37,7 @@ class ToLogFile:
         self.logfile.close()
 
 
-class CmdExecute:
+class CmdExecute(object):
     def __init__(self, logfile):
         self.logfile = logfile
 

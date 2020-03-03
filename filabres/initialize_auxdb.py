@@ -7,8 +7,8 @@ import os
 import sys
 import uuid
 import warnings
-import yaml
 
+from .check_image_corrections import ImageCorrections
 from .progressbar import progressbar
 from .statsumm import statsumm
 from .version import version
@@ -152,13 +152,11 @@ def initialize_auxdb(list_of_nights, instconf, datadir, force,
     """
 
     # check for image_corrections_file
-    if os.path.isfile(image_corrections_file):
-        image_corrections = yaml.load(image_corrections_file)
-        if verbose:
-            print('\nFile {} found'.format(image_corrections_file))
-    else:
-        image_corrections = None
-        print('WARNING: file {} not found'.format(image_corrections_file))
+    imgcorrections = ImageCorrections(
+        image_corrections_file=image_corrections_file,
+        datadir=datadir,
+        verbose=verbose
+    )
 
     # check for ./lists subdirectory
     if os.path.isdir(LISTDIR):
@@ -181,16 +179,6 @@ def initialize_auxdb(list_of_nights, instconf, datadir, force,
                 print('Subdirectory {} not found. Creating it!'.format(nightdir))
             os.makedirs(nightdir)
 
-        # get list of FITS files for current night
-        filenames = datadir + night + '/*.fits'
-        list_of_fits = glob.glob(filenames)
-        list_of_fits.sort()
-
-        if verbose:
-            print(' ')
-        print('* Working with night {} ({}/{}) ---> {} FITS files'.format(
-            night, inight + 1, len(list_of_nights), len(list_of_fits)))
-
         # generate database for all the files in current night
         basefilename = nightdir + '/imagedb_' + instconf['instname']
         jsonfilename = basefilename + '.json'
@@ -198,7 +186,17 @@ def initialize_auxdb(list_of_nights, instconf, datadir, force,
         if os.path.exists(jsonfilename) and not force:
             execute_night = False
             print('File {} already exists: skipping directory.'.format(jsonfilename))
+
         if execute_night:
+            # get list of FITS files for current night
+            filenames = datadir + night + '/*.fits'
+            list_of_fits = glob.glob(filenames)
+            list_of_fits.sort()
+            if verbose:
+                print(' ')
+            print('* Working with night {} ({}/{}) ---> {} FITS files'.format(
+                night, inight + 1, len(list_of_nights), len(list_of_fits)))
+
             logfilename = basefilename + '.log'
             logfile = None
             imagedb = {
@@ -223,18 +221,18 @@ def initialize_auxdb(list_of_nights, instconf, datadir, force,
             imagedb['wrong-instrument'] = dict()
 
             # get relevant keywords for each FITS file and classify it
-            for ifilename, filename in enumerate(list_of_fits):
+            for ifilepath, filepath in enumerate(list_of_fits):
                 if not verbose:
-                    progressbar(ifilename + 1, len(list_of_fits))
+                    progressbar(ifilepath + 1, len(list_of_fits))
                 # get image header
-                basename = os.path.basename(filename)
+                basename = os.path.basename(filepath)
                 warningsfound = False
                 # initially convert warnings into errors
                 warnings.filterwarnings('error')
                 header = None
                 data = None
                 try:
-                    with fits.open(filename) as hdul:
+                    with fits.open(filepath) as hdul:
                         header = hdul[0].header
                         data = hdul[0].data
                 except (UserWarning, ResourceWarning) as e:
@@ -253,7 +251,7 @@ def initialize_auxdb(list_of_nights, instconf, datadir, force,
                     warnings.filterwarnings('ignore')
                 if warningsfound:
                     # ignore warnings
-                    with fits.open(filename) as hdul:
+                    with fits.open(filepath) as hdul:
                         header = hdul[0].header
                         data = hdul[0].data
                 # check general instrument requirements
@@ -264,6 +262,13 @@ def initialize_auxdb(list_of_nights, instconf, datadir, force,
                         fileok = False
                 dumdict = dict()
                 if fileok:
+                    # check if the image header needs corrections
+                    header = imgcorrections.fixheader(
+                        night=night,
+                        basename=basename,
+                        header=header,
+                        verbose=verbose
+                    )
                     # get master keywords for the current file
                     for keyword in instconf['masterkeywords']:
                         if keyword in header:
@@ -279,7 +284,7 @@ def initialize_auxdb(list_of_nights, instconf, datadir, force,
                                                  format='isot', scale='utc')
                                     dumdict['MJD-OBS'] = tinit.mjd
                                     print('WARNING: MJD-OBS changed from {} to {:.5f} (wrong value in file '
-                                          '{})'.format(mjdobs, tinit.mjd, filename))
+                                          '{})'.format(mjdobs, tinit.mjd, filepath))
                         else:
                             msg = 'ERROR: keyword {} is missing in file {}'.format(keyword, basename)
                             raise SystemError(msg)
@@ -298,7 +303,7 @@ def initialize_auxdb(list_of_nights, instconf, datadir, force,
                     imagedb[imagetype][basename] = dumdict
                     if verbose:
                         print('File {} ({}/{}) classified as <{}>'.format(
-                            basename, ifilename + 1, len(list_of_fits),
+                            basename, ifilepath + 1, len(list_of_fits),
                             imagetype))
                 else:
                     msg = 'ERROR: unexpected image type {} in file {}'.format(imagetype, basename)
