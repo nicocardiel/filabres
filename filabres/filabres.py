@@ -30,10 +30,11 @@ from .run_reduction_step import run_reduction_step
 
 # ToDo:
 #       identificar keywords que puedan indicar el encendido de lámparas de calibración
-#       hacer un fichero plano con imágenes a ignorar
+#       hacer un fichero plano con imágenes a ignorar o keywords a cambiar
 #       bias: poner restricción en STD robusta
 #       salvar tabla de objetos de sextractor,...
 #       medir PSFs con astromatic
+#       mirar argparse para agrupar parametros por grupos compatibles/incompatibles
 
 def main():
 
@@ -49,12 +50,14 @@ def main():
                         help="list classified images of the selected type with quantile information")
     parser.add_argument("-lcf", "--lcf_imagetype", type=str,
                         help="list classified images of the selected type in a single line")
-    parser.add_argument("-k", "--keyword", type=str, action='append', nargs=1,
-                        help="specify a keyword for the -lc option (ignored otherwise)")
     parser.add_argument("-lr", "--lr_imagetype", type=str,
                         help="list reduced images of the selected type with quantile information")
     parser.add_argument("-lrf", "--lrf_imagetype", type=str,
                         help="list reduced images of the selected type in a single line")
+    parser.add_argument("-k", "--keyword", type=str, action='append', nargs=1,
+                        help="keyword for the -lc/-lr option")
+    parser.add_argument("-ks", "--keyword_sort", type=str, action='append', nargs=1,
+                        help="sorting keyword for the -lc/-lr option")
     parser.add_argument("-nd", "--ndecimal", type=int,
                         help="Number of decimal places for floats when using -lc or -lr", default=5)
     parser.add_argument("-s", "--setup", type=str, help="filabres setup file name")
@@ -80,6 +83,7 @@ def main():
                         datadir=datadir,
                         args_night=args.night,
                         args_keyword=args.keyword,
+                        args_keyword_sort=args.keyword_sort,
                         args_ndecimal=args.ndecimal)
 
     if args.lr_imagetype is not None or args.lrf_imagetype is not None:
@@ -88,6 +92,7 @@ def main():
                      img2=args.lrf_imagetype,
                      args_night=args.night,
                      args_keyword=args.keyword,
+                     args_keyword_sort=args.keyword_sort,
                      args_ndecimal=args.ndecimal)
 
     # load instrument configuration

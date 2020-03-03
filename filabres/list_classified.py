@@ -10,7 +10,7 @@ from filabres import LISTDIR
 
 
 def list_classified(instrument, img1, img2, datadir, args_night,
-                    args_keyword, args_ndecimal=5):
+                    args_keyword, args_keyword_sort, args_ndecimal=5):
     """
     Display list with already classified images of the selected type
 
@@ -36,6 +36,10 @@ def list_classified(instrument, img1, img2, datadir, args_night,
         List with additional keywords to be displayed when img2
         is not None (otherwise an error is raised). Note that each
         value in this list is also a list (with a single keyword).
+    args_keyword_sort : list or None
+        List with keywords to be used to sort the displayed table.
+        If not given in args_keyword, the keywords will be appended
+        to the list of displayed keywords.
     args_ndecimal : int
         Number of decimal places for floats.
     """
@@ -49,6 +53,11 @@ def list_classified(instrument, img1, img2, datadir, args_night,
             lkeyword = [item[0].upper() for item in args_keyword]
     else:
         lkeyword = []
+    if args_keyword_sort is not None:
+        for item in args_keyword_sort:
+            kwd = item[0].upper()
+            if kwd not in lkeyword:
+                lkeyword.append(kwd)
 
     if lkeyword == []:
         # display at least NAXIS1 and NAXIS2
@@ -154,6 +163,10 @@ def list_classified(instrument, img1, img2, datadir, args_night,
     else:
         if df is not None:
             if df.shape[0] > 0:
+                if args_keyword_sort is not None:
+                    kwds = [item[0].upper() for item in args_keyword_sort]
+                    kwds.append('file')
+                    df = df.sort_values(by=kwds)
                 pd.set_option('display.max_rows', None)
                 pd.set_option('display.max_columns', None)
                 pd.set_option('display.width', None)
