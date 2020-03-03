@@ -23,6 +23,7 @@ def setup_package():
         entry_points={
             'console_scripts': [
                 'filabres = filabres.filabres:main',
+                'filabres-ximshow = filabres.ximshow:main',
                 'filabres-version = filabres.version:main'
             ],
         },

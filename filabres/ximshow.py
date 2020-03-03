@@ -13,6 +13,7 @@ from __future__ import print_function
 import argparse
 from astropy.io import fits
 import numpy as np
+import os
 import re
 
 from .matplotlib_qt import set_window_geometry
@@ -38,7 +39,7 @@ def ximshow(image2d, title=None, show=True,
             cbar_label=None, cbar_orientation=None,
             z1z2=None, cmap="hot",
             image_bbox=None, first_pixel=(1, 1),
-            crpix1=None, crval1=None, cdelt1=None,
+            crpix1=None, crval1=None, cdelt1=None, ctype1=None,
             ds9regfile=None,
             geometry=None, figuredict=None,
             tight_layout=True,
@@ -78,6 +79,9 @@ def ximshow(image2d, title=None, show=True,
         the X direction.
     cdelt1 : float or None
         CDELT1 parameter corresponding to wavelength calibration in
+        the X direction.
+    ctype1 : str or None
+        CTYPE1 parameter corresponding to wavelength calibration in
         the X direction.
     ds9regfile : file handler
         Ds9 region file to be overplotted.
@@ -120,7 +124,10 @@ def ximshow(image2d, title=None, show=True,
     naxis2_, naxis1_ = image2d.shape
 
     # check if wavelength calibration is provided
-    wavecalib = crval1 is not None and cdelt1 is not None
+    if 'pixel' in ctype1.lower():
+        wavecalib = False
+    else:
+        wavecalib = crval1 is not None and cdelt1 is not None
 
     # read bounding box limits
     if image_bbox is None:
@@ -345,7 +352,8 @@ Toggle y axis scale (log/linear): l when mouse is over an axes
         overplot_ds9reg(ds9regfile.name, ax)
 
     # set the geometry
-    set_window_geometry(geometry)
+    if geometry is not None:
+        set_window_geometry(geometry)
 
     # connect keypress event with function responsible for
     # updating vmin and vmax
@@ -381,7 +389,7 @@ def ximshow_file(singlefile,
                  args_cbar_label=None, args_cbar_orientation=None,
                  args_z1z2=None, args_bbox=None, args_firstpix=None,
                  args_keystitle=None, args_ds9reg=None,
-                 args_geometry="0,0,640,480", pdf=None,
+                 args_geometry=None, pdf=None,
                  args_figuredict=None,
                  show=True,
                  debugplot=None,
@@ -488,9 +496,13 @@ def ximshow_file(singlefile,
         cdelt1 = image_header['cdelt1']
     else:
         cdelt1 = None
+    if 'ctype1' in image_header:
+        ctype1 = image_header['ctype1']
+    else:
+        ctype1 = None
 
     # title for plot
-    title = singlefile
+    title = os.path.basename(singlefile)
     if args_keystitle is not None:
         keystitle = args_keystitle
         keysformat = ".".join(keystitle.split(".")[1:])
@@ -561,6 +573,7 @@ def ximshow_file(singlefile,
                  crpix1=crpix1,
                  crval1=crval1,
                  cdelt1=cdelt1,
+                 ctype1=ctype1,
                  ds9regfile=args_ds9reg,
                  geometry=geometry,
                  figuredict=figuredict,
@@ -590,7 +603,7 @@ def jimshow(image2d,
             image_bbox=None,
             xlabel='image pixel in the X direction',
             ylabel='image pixel in the Y direction',
-            crpix1=None, crval1=None, cdelt1=None,
+            crpix1=None, crval1=None, cdelt1=None, ctype1=None,
             grid=False,
             cmap='hot',
             cbar=False,
@@ -627,6 +640,9 @@ def jimshow(image2d,
         the X direction.
     cdelt1 : float or None
         CDELT1 parameter corresponding to wavelength calibration in
+        the X direction.
+    ctype1 : str or None
+        CTYPE1 parameter corresponding to wavelength calibration in
         the X direction.
     grid : bool
         If True, overplot grid.
@@ -705,15 +721,16 @@ def jimshow(image2d,
     if title is not None:
         ax.set_title(title)
 
-    if crval1 is not None and cdelt1 is not None:
-        if crpix1 is None:
-            crpix1 = 1.0
-        xminwv = crval1 + (xmin - crpix1) * cdelt1
-        xmaxwv = crval1 + (xmax - crpix1) * cdelt1
-        ax2 = ax.twiny()
-        ax2.grid(False)
-        ax2.set_xlim(xminwv, xmaxwv)
-        ax2.set_xlabel('Wavelength (Angstroms)')
+    if 'pixel' not in ctype1.lower():
+        if crval1 is not None and cdelt1 is not None:
+            if crpix1 is None:
+                crpix1 = 1.0
+            xminwv = crval1 + (xmin - crpix1) * cdelt1
+            xmaxwv = crval1 + (xmax - crpix1) * cdelt1
+            ax2 = ax.twiny()
+            ax2.grid(False)
+            ax2.set_xlim(xminwv, xmaxwv)
+            ax2.set_xlabel('Wavelength (Angstroms)')
 
 
 def jimshowfile(filename,
@@ -724,7 +741,7 @@ def jimshowfile(filename,
                 image_bbox=None,
                 xlabel='image pixel in the X direction',
                 ylabel='image pixel in the Y direction',
-                crpix1=None, crval1=None, cdelt1=None,
+                crpix1=None, crval1=None, cdelt1=None, ctype1=None,
                 grid=False,
                 cmap='hot',
                 cbar=False,
@@ -764,6 +781,9 @@ def jimshowfile(filename,
     cdelt1 : float or None
         CDELT1 parameter corresponding to wavelength calibration in
         the X direction.
+    ctype1 : str or None
+        CTYPE1 parameter corresponding to wavelength calibration in
+        the X direction.
     grid : bool
         If True, overplot grid.
     cmap : string
@@ -798,7 +818,7 @@ def jimshowfile(filename,
                    image_bbox=image_bbox,
                    xlabel=xlabel,
                    ylabel=ylabel,
-                   crpix1=crpix1, crval1=crval1, cdelt1=cdelt1,
+                   crpix1=crpix1, crval1=crval1, cdelt1=cdelt1, ctype1=ctype1,
                    grid=grid,
                    cmap=cmap,
                    cbar=cbar,
@@ -838,8 +858,7 @@ def main(args=None):
                         help="ds9 region file to be overplotted",
                         type=argparse.FileType('rt'))
     parser.add_argument("--geometry",
-                        help="tuple x,y,dx,dy",
-                        default="0,0,640,480")
+                        help="tuple x,y,dx,dy")
     parser.add_argument("--pdffile",
                         help="ouput PDF file name",
                         type=argparse.FileType('w'))
