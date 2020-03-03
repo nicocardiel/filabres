@@ -71,22 +71,10 @@ def list_classified(instrument, img1, img2, datadir, args_night,
             if kwd not in lkeyword:
                 lkeyword.insert(0, kwd)
 
-    if img2 is None:
-        if img1 is None:
-            return
-        else:
-            imagetype = img1
-    else:
-        if img1 is None:
-            imagetype = img2
-        else:
-            print('ERROR: do not use -lc and -lcf simultaneously.')
-            raise SystemExit()
-
     # load instrument configuration
     instconf = load_instrument_configuration(
         instrument=instrument,
-        redustep=imagetype,
+        redustep=None,
         dontcheckredustep=True
     )
 
@@ -95,8 +83,34 @@ def list_classified(instrument, img1, img2, datadir, args_night,
     valid_imagetypes = basic_imagetypes + \
                        ['wrong-' + kwd for kwd in basic_imagetypes] + \
                        ['wrong-instrument', 'unclassified']
-    if imagetype not in valid_imagetypes:
-        print('ERROR: invalid image type: {}'.format(imagetype))
+
+    if img2 is None or img2 == []:
+        if img1 is None or img1 == []:
+            imagetype = None
+        else:
+            if len(img1) > 1:
+                print('ERROR: multiple image types given')
+                imagetype = None
+            else:
+                imagetype = img1[0]
+    else:
+        if img1 is None or img1 == []:
+            if len(img2) > 1:
+                print('ERROR: multiple image types given')
+                imagetype = None
+            else:
+                imagetype = img2[0]
+        else:
+            print('ERROR: do not use -lc and -lcf simultaneously.')
+            raise SystemExit()
+
+    if imagetype is not None:
+        if imagetype not in valid_imagetypes:
+            print('ERROR: invalid image type: {}'.format(imagetype))
+    if imagetype is None or imagetype not in valid_imagetypes:
+        print('Valid imagetypes:')
+        for item in valid_imagetypes:
+            print('- {}'.format(item))
         raise SystemExit()
 
     # check for ./lists subdirectory

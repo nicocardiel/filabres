@@ -45,13 +45,13 @@ def main():
     parser.add_argument("-f", "--force", action="store_true", help="force reduction of already reduced files")
     parser.add_argument("-n", "--night", type=str, help="night label (wildcards are valid within quotes)")
     parser.add_argument("-i", "--interactive", action="store_true", help="enable interactive execution")
-    parser.add_argument("-lc", "--lc_imagetype", type=str,
+    parser.add_argument("-lc", "--lc_imagetype", type=str, nargs='*',
                         help="list classified images of the selected type with quantile information")
-    parser.add_argument("-lcf", "--lcf_imagetype", type=str,
+    parser.add_argument("-lcf", "--lcf_imagetype", type=str, nargs='*',
                         help="list classified images of the selected type in a single line")
-    parser.add_argument("-lr", "--lr_imagetype", type=str,
+    parser.add_argument("-lr", "--lr_imagetype", type=str, nargs='*',
                         help="list reduced images of the selected type with quantile information")
-    parser.add_argument("-lrf", "--lrf_imagetype", type=str,
+    parser.add_argument("-lrf", "--lrf_imagetype", type=str, nargs='*',
                         help="list reduced images of the selected type in a single line")
     parser.add_argument("-k", "--keyword", type=str, action='append', nargs=1,
                         help="keyword for the -lc/-lr option")
