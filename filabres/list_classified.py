@@ -7,13 +7,14 @@ from pandas.plotting import scatter_matrix
 
 from .load_instrument_configuration import load_instrument_configuration
 from .statsumm import statsumm
+from .ximshow import ximshow_file
 
 from filabres import LISTDIR
 
 
 def list_classified(instrument, img1, img2, datadir, args_night,
                     args_keyword, args_keyword_sort, args_plotxy,
-                    args_ndecimal=5):
+                    args_plotimage, args_ndecimal=5):
     """
     Display list with already classified images of the selected type
 
@@ -46,6 +47,8 @@ def list_classified(instrument, img1, img2, datadir, args_night,
     args_plotxy : bool
         If True, plot scatter matrices to visualize trends in the
         selected keywords.
+    args_plotimage : bool
+        If True, display selected images.
     args_ndecimal : int
         Number of decimal places for floats.
     """
@@ -196,12 +199,18 @@ def list_classified(instrument, img1, img2, datadir, args_night,
         else:
             print('Total: {} files'.format(0))
 
-    if args_plotxy:
-        # remove the 'file' column and convert to float the remaining columns
-        scatter_matrix(df.drop(['file'], axis=1).astype(float, errors='ignore'))
-        print('Press "q" on the plot to close it')
-        plt.suptitle('classified {} ({} files)'.format(imagetype, df.shape[0]))
-        plt.tight_layout(rect=(0, 0, 1, 0.95))
-        plt.show()
+    if df.shape[0] > 0:
+        if args_plotxy:
+            # remove the 'file' column and convert to float the remaining columns
+            scatter_matrix(df.drop(['file'], axis=1).astype(float, errors='ignore'))
+            print('Press "q" to continue...', end='')
+            plt.suptitle('classified {} ({} files)'.format(imagetype, df.shape[0]))
+            plt.tight_layout(rect=(0, 0, 1, 0.95))
+            plt.show()
+            print('')
+
+        if args_plotimage:
+            for filename in df['file']:
+                ximshow_file(filename, debugplot=12)
 
     raise SystemExit()

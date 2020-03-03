@@ -29,6 +29,7 @@ from .run_reduction_step import run_reduction_step
 
 
 # ToDo:
+#       incluir --display en -lc/-lr con llamada a ximshow
 #       hacer un fichero plano con imágenes a ignorar o keywords a cambiar
 #       bias: poner restricción en STD robusta?
 #       salvar tabla de objetos de sextractor,...
@@ -57,7 +58,8 @@ def main():
                         help="keyword for the -lc/-lr option")
     parser.add_argument("-ks", "--keyword_sort", type=str, action='append', nargs=1,
                         help="sorting keyword for the -lc/-lr option")
-    parser.add_argument("-pxy", "--plotxy", action="store_true", help="plot scatter matrices")
+    parser.add_argument("-pxy", "--plotxy", action="store_true", help="display scatter plots when listing files")
+    parser.add_argument("-pi", "--plotimage", action="store_true", help="display images when listing files")
     parser.add_argument("-nd", "--ndecimal", type=int,
                         help="Number of decimal places for floats when using -lc or -lr", default=5)
     parser.add_argument("-s", "--setup", type=str, help="filabres setup file name")
@@ -85,6 +87,7 @@ def main():
                         args_keyword=args.keyword,
                         args_keyword_sort=args.keyword_sort,
                         args_plotxy=args.plotxy,
+                        args_plotimage=args.plotimage,
                         args_ndecimal=args.ndecimal)
 
     if args.lr_imagetype is not None or args.lrf_imagetype is not None:
@@ -95,6 +98,7 @@ def main():
                      args_keyword=args.keyword,
                      args_keyword_sort=args.keyword_sort,
                      args_plotxy=args.plotxy,
+                     args_plotimage=args.plotimage,
                      args_ndecimal=args.ndecimal)
 
     # load instrument configuration
