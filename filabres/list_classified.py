@@ -1,7 +1,9 @@
 import glob
 import json
+import matplotlib.pyplot as plt
 import os
 import pandas as pd
+from pandas.plotting import scatter_matrix
 
 from .load_instrument_configuration import load_instrument_configuration
 from .statsumm import statsumm
@@ -10,7 +12,8 @@ from filabres import LISTDIR
 
 
 def list_classified(instrument, img1, img2, datadir, args_night,
-                    args_keyword, args_keyword_sort, args_ndecimal=5):
+                    args_keyword, args_keyword_sort, args_plotxy,
+                    args_ndecimal=5):
     """
     Display list with already classified images of the selected type
 
@@ -40,6 +43,9 @@ def list_classified(instrument, img1, img2, datadir, args_night,
         List with keywords to be used to sort the displayed table.
         If not given in args_keyword, the keywords will be appended
         to the list of displayed keywords.
+    args_plotxy : bool
+        If True, plot scatter matrices to visualize trends in the
+        selected keywords.
     args_ndecimal : int
         Number of decimal places for floats.
     """
@@ -175,4 +181,13 @@ def list_classified(instrument, img1, img2, datadir, args_night,
             print('Total: {} files'.format(df.shape[0]))
         else:
             print('Total: {} files'.format(0))
+
+    if args_plotxy:
+        # remove the 'file' column and convert to float the remaining columns
+        scatter_matrix(df.drop(['file'], axis=1).astype(float, errors='ignore'))
+        print('Press "q" on the plot to close it')
+        plt.suptitle('classified {} ({} files)'.format(imagetype, df.shape[0]))
+        plt.tight_layout(rect=(0, 0, 1, 0.95))
+        plt.show()
+
     raise SystemExit()
