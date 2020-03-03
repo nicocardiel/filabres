@@ -124,9 +124,8 @@ def ximshow(image2d, title=None, show=True,
     naxis2_, naxis1_ = image2d.shape
 
     # check if wavelength calibration is provided
-    if 'pixel' in ctype1.lower():
-        wavecalib = False
-    else:
+    wavecalib = False
+    if 'wavelength' in ctype1.lower():
         wavecalib = crval1 is not None and cdelt1 is not None
 
     # read bounding box limits
@@ -721,7 +720,7 @@ def jimshow(image2d,
     if title is not None:
         ax.set_title(title)
 
-    if 'pixel' not in ctype1.lower():
+    if 'wavelength' in ctype1.lower():
         if crval1 is not None and cdelt1 is not None:
             if crpix1 is None:
                 crpix1 = 1.0
