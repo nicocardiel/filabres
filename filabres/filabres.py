@@ -29,6 +29,7 @@ from .run_reduction_step import run_reduction_step
 
 
 # ToDo:
+#       hacer que "=" en ximshow cambie la escala en X e Y
 #       bias: poner restricción en STD robusta?
 #       salvar tabla de objetos de sextractor,...
 #       medir PSFs con astromatic
