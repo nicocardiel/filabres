@@ -585,7 +585,8 @@ def run_astrometry(image2d, mask2d, saturpix,
         if verbose:
             print('Subdirectory {} not found. Creating it!'.format(backupsubdirfull))
         os.makedirs(backupsubdirfull)
-    tobesaved = ['astrometry-net.pdf', 'astrometry-scamp.pdf', 'astrometry.log', 'xxx.new']
+    tobesaved = ['astrometry-net.pdf', 'astrometry-scamp.pdf', 'astrometry.log',
+                 'xxx.new', 'full_1.cat', 'merged_1.cat']
     for filepath in tobesaved:
         command = 'cp {} ../{}/'.format(filepath, backupsubdir)
         cmd.run(command, cwd=workdir)

@@ -16,6 +16,7 @@ This code is hosted at: https://github.com/nicocardiel/filabres
 
 import argparse
 
+from .check_args_compatibility import check_args_compatibility
 from .check_datadir import check_datadir
 from .check_tslash import check_tslash
 from .initialize_auxdb import initialize_auxdb
@@ -30,41 +31,70 @@ from .run_reduction_step import run_reduction_step
 
 # ToDo:
 #       bias: poner restricción en STD robusta?
-#       salvar tabla de objetos de sextractor,...
 #       medir PSFs con astromatic
-#       mirar argparse para agrupar parametros por grupos compatibles/incompatibles
 
 def main():
 
     # parse command-line options
     parser = argparse.ArgumentParser(description="Basic data reduction of CAHA data")
 
-    parser.add_argument("--check", action="store_true", help="check original FITS files in DATADIR are not repeated")
-    parser.add_argument("-rs", "--reduction_step", type=str, help="reduction step")
-    parser.add_argument("-f", "--force", action="store_true", help="force reduction of already reduced files")
-    parser.add_argument("-n", "--night", type=str, help="night label (wildcards are valid within quotes)")
-    parser.add_argument("-i", "--interactive", action="store_true", help="enable interactive execution")
-    parser.add_argument("-lc", "--lc_imagetype", type=str, nargs='*',
-                        help="list classified images of the selected type with quantile information")
-    parser.add_argument("-lr", "--lr_imagetype", type=str, nargs='*',
-                        help="list reduced images of the selected type with quantile information")
-    parser.add_argument("-lm", "--listmode", type=str, help="display mode for list of files",
-                        choices=["long", "singleline", "basic"], default="long")
-    parser.add_argument("-k", "--keyword", type=str, action='append', nargs=1,
-                        help="keyword for the -lc/-lr option")
-    parser.add_argument("-ks", "--keyword_sort", type=str, action='append', nargs=1,
-                        help="sorting keyword for the -lc/-lr option")
-    parser.add_argument("-pxy", "--plotxy", action="store_true", help="display scatter plots when listing files")
-    parser.add_argument("-pi", "--plotimage", action="store_true", help="display images when listing files")
-    parser.add_argument("-nd", "--ndecimal", type=int,
-                        help="Number of decimal places for floats when using -lc or -lr", default=5)
-    parser.add_argument("-s", "--setup", type=str, help="filabres setup file name")
-    parser.add_argument("-v", "--verbose", action="store_true", help="display intermediate information while running")
-    parser.add_argument("--debug", action="store_true", help="display debugging information")
+    # note 1: do not use default=... in add_argument() to have those
+    # arguments set to None, which is necessary for the compatibility check
+    # performed below; the default values can be set after the call to the
+    # check_args_compatibility() function
+
+    # note 2: include new groups and arguments in check_args_compatibility() function
+
+    # define argument groups
+    group_check = parser.add_argument_group('initial check')
+    group_reduc = parser.add_argument_group('initialization and reduction of the data')
+    group_lists = parser.add_argument_group('lists of classified or reduced images')
+    group_other = parser.add_argument_group('other auxiliary arguments')
+
+    # group_check
+    group_check.add_argument("--check", action="store_true",
+                             help="check original FITS files in DATADIR are not repeated")
+
+    # group_reduc
+    group_reduc.add_argument("-rs", "--reduction_step", type=str)
+    group_reduc.add_argument("-f", "--force", action="store_true", help="force reduction of already reduced files")
+    group_reduc.add_argument("-i", "--interactive", action="store_true", help="enable interactive execution")
+
+    # group_lists
+    group_lists.add_argument("-lc", "--lc_imagetype", type=str, nargs='*',
+                             help="list classified images of the selected type with quantile information")
+    group_lists.add_argument("-lr", "--lr_imagetype", type=str, nargs='*',
+                             help="list reduced images of the selected type with quantile information")
+    group_lists.add_argument("-lm", "--listmode", type=str, help="display mode for list of files",
+                             choices=["long", "singleline", "basic"])
+    group_lists.add_argument("-k", "--keyword", type=str, action='append', nargs=1,
+                             help="keyword for the -lc/-lr option")
+    group_lists.add_argument("-ks", "--keyword_sort", type=str, action='append', nargs=1,
+                             help="sorting keyword for the -lc/-lr option")
+    group_lists.add_argument("-pxy", "--plotxy", action="store_true", help="display scatter plots when listing files")
+    group_lists.add_argument("-pi", "--plotimage", action="store_true", help="display images when listing files")
+    group_lists.add_argument("-nd", "--ndecimal", type=int,
+                             help="Number of decimal places for floats when using -lc/-lr")
+
+    # other arguments
+    group_other.add_argument("-n", "--night", type=str, help="night label (wildcards are valid within quotes)")
+    group_other.add_argument("-s", "--setup", type=str, help="filabres setup file name")
+    group_other.add_argument("-v", "--verbose", action="store_true",
+                             help="display intermediate information while running")
+    group_other.add_argument("--debug", action="store_true", help="display debugging information")
 
     args = parser.parse_args()
 
     # ---
+
+    # check argument compatibility
+    check_args_compatibility(args, debug=False)
+
+    # set default values
+    if args.listmode is None:
+        args.listmode = 'long'
+    if args.ndecimal is None:
+        args.ndecimal = 5
 
     instrument, datadir, image_corrections_file = load_setup(args.setup, args.verbose)
     datadir = check_tslash(datadir)

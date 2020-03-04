@@ -108,7 +108,7 @@ def plot_astrometry(output_filename, image2d,
         if interactive:
             plt.show()
     # plot 3: image with identified objects
-    ax = ximshow(image2d, cmap='gray', show=False, figuredict={'figsize': (11.7, 8.3)},
+    ax = ximshow(image2d, cmap='gray', show=False, geometry=None, figuredict={'figsize': (11.7, 8.3)},
                  title=plot_title, tight_layout=False)
     ax.plot(peak_x, peak_y, 'bo', fillstyle='none', markersize=10, label='peaks')
     for i, iorder in enumerate(rorder):
