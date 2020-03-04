@@ -1,3 +1,13 @@
+# -*- coding: utf-8 -*-
+#
+# Copyright 2020 Universidad Complutense de Madrid
+#
+# This file is part of filabres
+#
+# SPDX-License-Identifier: GPL-3.0+
+# License-Filename: LICENSE.txt
+#
+
 from matplotlib.backends.backend_pdf import PdfPages
 import matplotlib.pyplot as plt
 import numpy as np

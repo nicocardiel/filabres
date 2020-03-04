@@ -13,7 +13,7 @@ def setup_package():
         author_email='cardiel@ucm.es',
         packages=find_packages('.'),
         package_data={
-            'filabres.instrument': ['configuration.yaml'],
+            'filabres.instrument': ['configuration_cafos.yaml'],
             'filabres.astromatic': [
                 'default.param',
                 'config.sex',

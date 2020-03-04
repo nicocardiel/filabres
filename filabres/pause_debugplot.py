@@ -1,5 +1,5 @@
 #
-# Copyright 2015-2016 Universidad Complutense de Madrid
+# Copyright 2015-2020 Universidad Complutense de Madrid
 #
 # This file is part of Numina
 #
@@ -13,7 +13,6 @@ from __future__ import print_function
 import sys
 
 import matplotlib.pyplot as plt
-#from numina.array.display.matplotlib_qt import plt
 
 DEBUGPLOT_CODES = (0, -1, 1, -2, 2, -10, 10, -11, 11, -12, 12,
                    -21, 21, -22, 22)

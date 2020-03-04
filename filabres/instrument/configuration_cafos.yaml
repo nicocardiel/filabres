@@ -1,0 +1,175 @@
+# -*- coding: utf-8 -*-
+#
+# Copyright 2020 Universidad Complutense de Madrid
+#
+# This file is part of filabres
+#
+# SPDX-License-Identifier: GPL-3.0+
+# License-Filename: LICENSE.txt
+#
+
+# instrument definitions for filabres
+instname: cafos
+version: 2.2
+requirements:
+  INSTRUME: 'CAFOS 2.2'
+masterkeywords:
+  - NAXIS      # number of data axes
+  - NAXIS1     # length of data axis 1
+  - NAXIS2     # length of data axis 2
+  - OBJECT     # Target description
+  - RA         # DD.ddddd [deg]
+  - DEC        # +/-DD.ddddd [deg]
+  - EQUINOX    # Equinox in years
+  - DATE       # file creation date (YYYY-MM-DDThh:mm:ss UT)
+  - MJD-OBS    # modified jul. date
+  - AIRMASS    # airmass
+  - EXPTIME    # Total integration time (sec)
+  - INSTRUME   # instrument ID
+  - CCDNAME    # Detector used
+  - ORIGSECX   # original size full frame nx
+  - ORIGSECY   # original size full frame ny
+  - CCDSEC     # orientation to full frame [x1,y1:x2:y2]
+  - BIASSEC    # overscan portion of frame [x1:y1,x2:y2]
+  - DATASEC    # image portion of frame [x1,y1:x2,y2]
+  - CCDBINX    # Binning factor along X
+  - CCDBINY    # Binning factor along Y
+  - IMAGETYP   # Type of observation
+  - INSTRMOD   # instrument mode
+  - INSAPID    #
+  - INSTRSCL   # scale [arcsec/pixel]
+  - INSTRPIX   # pixel size (microns)
+  - INSTRPX0   # pixel at x=0
+  - INSTRPY0   # pixel at y=0
+  - INSFLID    # filter no.
+  - INSFLNAM   # filter name
+  - INSGRID    # grism no.
+  - INSGRNAM   # grism name
+  - INSGRROT   # grism angle
+  - INSGRWL0   # central lambda [nm]
+  - INSGRRES   # resolution [nm/pix]
+  - INSPOFPI   #
+  - INSPOROT   # rotator position
+  - INSFPZ     # z value
+  - INSFPWL    # lambda [nm]
+  - INSFPDWL   # delta lambda [nm]
+  - INSFPORD   # interference order
+  - INSCALST   # Calib IN (True/False)
+  - INSCALID   # lamb comb.
+  - INSCALNM   # calibration names
+imagetypes:
+  bias:
+    executable: True
+    classification: calibration
+    requirements:
+      IMAGETYP: 'bias'
+    requirementx:
+      EXPTIME: 0.0
+      QUANT975.LT.: 1000
+    signature:
+      - CCDNAME
+      - NAXIS1
+      - NAXIS2
+      - DATASEC
+      - CCDBINX
+      - CCDBINY
+    maxtimespan_hours: 1
+  flat-imaging:
+    executable: True
+    classification: calibration
+    requirements:
+      IMAGETYP: 'flat'
+      INSGRID: 'GRISM-11'
+    requirementx:
+      QUANT975.LT.: 60000
+    signature:
+      - CCDNAME
+      - NAXIS1
+      - NAXIS2
+      - DATASEC
+      - CCDBINX
+      - CCDBINY
+      - INSGRID
+      - INSFLID
+    maxtimespan_hours: 1
+  flat-spectroscopy:
+    executable: False
+    classification: calibration
+    requirements:
+      IMAGETYP: 'flat'
+      INSGRID.NE.: 'GRISM-11'
+    requirementx:
+      QUANT975.LT.: 60000
+    signature:
+      - CCDNAME
+      - NAXIS1
+      - NAXIS2
+      - DATASEC
+      - CCDBINX
+      - CCDBINY
+      - INSGRID
+      - INSFLID
+    maxtimespan_hours: 1
+  arc:
+    executable: False
+    classification: calibration
+    requirements:
+      IMAGETYP: 'arc'
+      INSGRID.NE.: 'GRISM-11'
+    requirementx:
+      QUANT975.LT.: 60000
+    signature:
+      - CCDNAME
+      - NAXIS1
+      - NAXIS2
+      - DATASEC
+      - CCDBINX
+      - CCDBINY
+      - INSGRID
+      - INSFLID
+      - RA
+      - DEC
+    maxtimespan_hours: 0
+  science-imaging:
+    classification: science
+    executable: True
+    maxfieldview_arcmin: 16
+    requirements:
+      IMAGETYP: 'science'
+      INSGRID: 'GRISM-11'
+    requirementx:
+      EXPTIME.GT.: 0
+      QUANT975.LT.: 60000
+    signature:
+      - CCDNAME
+      - NAXIS1
+      - NAXIS2
+      - DATASEC
+      - CCDBINX
+      - CCDBINY
+      - INSGRID
+      - INSFLID
+      - RA
+      - DEC
+    maxtimespan_hours: 0
+  science-spectroscopy:
+    classification: science
+    executable: False
+    requirements:
+      IMAGETYP: 'science'
+      INSGRID.NE.: 'GRISM-11'
+    requirementx:
+      EXPTIME.GT.: 0
+      QUANT975.LT.: 60000
+    signature:
+      - CCDNAME
+      - NAXIS1
+      - NAXIS2
+      - DATASEC
+      - CCDBINX
+      - CCDBINY
+      - INSGRID
+      - INSFLID
+      - RA
+      - DEC
+    maxtimespan_hours: 0

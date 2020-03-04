@@ -1,3 +1,13 @@
+# -*- coding: utf-8 -*-
+#
+# Copyright 2020 Universidad Complutense de Madrid
+#
+# This file is part of filabres
+#
+# SPDX-License-Identifier: GPL-3.0+
+# License-Filename: LICENSE.txt
+#
+
 from astropy.io import fits
 from astropy.time import Time
 import datetime
@@ -87,7 +97,7 @@ def classify_image(instconf, header, dictquant):
     Parameters
     ----------
     instconf : dict
-        Instrument configuration. See file configuration.yaml
+        Instrument configuration.
         for details.
     header: astropy `Header` object
         Image header.

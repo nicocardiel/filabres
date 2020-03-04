@@ -1,3 +1,13 @@
+# -*- coding: utf-8 -*-
+#
+# Copyright 2020 Universidad Complutense de Madrid
+#
+# This file is part of filabres
+#
+# SPDX-License-Identifier: GPL-3.0+
+# License-Filename: LICENSE.txt
+#
+
 from astropy import units as u
 from astropy.coordinates import SkyCoord, FK5
 from astropy.io import fits

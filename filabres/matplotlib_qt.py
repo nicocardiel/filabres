@@ -1,8 +1,15 @@
-# import matplotlib
-# matplotlib.use('Qt5Agg')
+# -*- coding: utf-8 -*-
+#
+# Copyright 2020 Universidad Complutense de Madrid
+#
+# This file is part of filabres
+#
+# SPDX-License-Identifier: GPL-3.0+
+# License-Filename: LICENSE.txt
+#
+
 import matplotlib.pyplot as plt
 plt.rcParams.update({'figure.max_open_warning': 0})  # avoid warning
-import matplotlib.patches as patches
 
 
 def set_window_geometry(geometry):
