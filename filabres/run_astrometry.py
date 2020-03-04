@@ -6,17 +6,15 @@ from astropy.wcs import WCS
 from astropy.wcs.utils import proj_plane_pixel_scales
 import glob
 import json
-from matplotlib.backends.backend_pdf import PdfPages
-import matplotlib.pyplot as plt
 import numpy as np
 import os
 import pkgutil
-import pyvo
 import re
 import subprocess
 
-from .ximshow import ximshow
-from .pause_debugplot import pause_debugplot
+from .load_scamp_cat import load_scamp_cat
+from .retrieve_gaia import retrieve_gaia
+from .plot_astrometry import plot_astrometry
 
 NMAXGAIA = 2000
 
@@ -77,244 +75,6 @@ class CmdExecute(object):
                 self.logfile.print(ansi_escape.sub('', str(perr)))
             else:
                 self.logfile.print(perr)
-
-
-def retrieve_gaia(ra_deg, dec_deg, radius_deg, magnitude, loggaia):
-    """
-    Retrieve GAIA data.
-
-    Cone search around ra_deg, dec_deg, within a radius given by
-    radius_deg, and within a given limiting magnitude.
-
-    Parameters
-    ==========
-    ra_deg : float
-        Right ascension of the central point.
-    dec_deg : float
-        Declination of the central point.
-    radius_deg : float
-        Radius of the cone search.
-    magnitude : float
-        Limiting magnitude.
-    loggaia : file handler
-        Log file to store intermediate results.
-
-    Returns
-    =======
-    gaia_query_line : str
-        Full query.
-    tap_result : TAPResults instance
-        Result of the cone search
-    """
-    gaia_query_line1 = 'SELECT TOP {} source_id, ref_epoch, ' \
-                       'ra, ra_error, dec, dec_error, ' \
-                       'parallax, parallax_error, ' \
-                       'pmra, pmra_error, pmdec, pmdec_error, ' \
-                       'phot_g_mean_mag, bp_rp, ' \
-                       'radial_velocity, radial_velocity_error, ' \
-                       'a_g_val'.format(NMAXGAIA)
-    gaia_query_line2 = 'FROM gdr2.gaia_source'
-    gaia_query_line3 = '''WHERE CONTAINS(POINT('ICRS',gaiadr2.gaia_source.ra,gaiadr2.gaia_source.dec), ''' + \
-                       '''CIRCLE('ICRS',''' + \
-                       '{},{},{}'.format(ra_deg, dec_deg, radius_deg) + \
-                       '))=1'
-    gaia_query_line4 = 'AND phot_g_mean_mag < {}'.format(magnitude)
-    gaia_query_line = gaia_query_line1 + ' ' + gaia_query_line2 + ' ' + gaia_query_line3 + ' ' + gaia_query_line4
-
-    loggaia.write('Querying GAIA data with phot_g_mean_mag={:.2f}\n'.format(magnitude))
-
-    loggaia.write(gaia_query_line + '\n')
-    # retrieve GAIA data using the Table Access Protocol;
-    # see specific details for retrieval of GAIA data in
-    # https://gaia.aip.de/cms/documentation/tap-interface/
-    tap_service = pyvo.dal.TAPService('https://gaia.aip.de/tap')
-    tap_result = tap_service.run_sync(gaia_query_line)
-    return gaia_query_line, tap_result
-
-
-def plot_astrometry(output_filename, image2d,
-                    peak_x, peak_y, pred_x, pred_y, xcatag, ycatag,
-                    pixel_scales_arcsec_pix, workdir, interactive, logfile,
-                    suffix):
-    """
-    Generate plots with the results of the astrometric calibration.
-
-    Parameters
-    ==========
-    output_filename : str or None
-        Output file name.
-    image2d : numpy 2D array
-        Image to be calibrated.
-    peak_x : numpy 1D array
-        Measured X coordinate of the detected objects.
-    peak_y : numpy 1D array
-        Measured Y coordinate of the detected objects.
-    pred_x : numpy 1D array
-        X coordinate of the detected objects predicted by the
-        astrometric calibration.
-    pred_y : numpy 1D array
-        X coordinate of the detected objects predicted by the
-        astrometric calibration.
-    xcatag : numpy 1D array
-        X coordinate of the full catalog of objects as
-        predicted by the astrometric calibration.
-    ycatag : numpy 1D array
-        X coordinate of the full catalog of objects as
-        predicted by the astrometric calibration.
-    pixel_scales_arcsec_pix : numpy 1D array
-        X and Y pixel scales, in arcsec/pix.
-    workdir : str
-        Work subdirectory.
-    interactive : bool or None
-        If True, enable interactive execution (e.g. plots,...).
-    logfile : ToLogFile instance
-        Log file where the astrometric calibration information is
-        stored.
-    suffix : str
-        Suffix to be appended to PDF output.
-    """
-
-    ntargets = len(peak_x)
-    naxis2, naxis1 = image2d.shape
-
-    mean_pixel_scale_arcsec_pix = np.mean(pixel_scales_arcsec_pix)
-    delta_x = (pred_x - peak_x) * mean_pixel_scale_arcsec_pix
-    delta_y = (pred_y - peak_y) * mean_pixel_scale_arcsec_pix
-    delta_r = np.sqrt(delta_x * delta_x + delta_y * delta_y)
-    rorder = np.argsort(delta_r)
-    meanerr = np.mean(delta_r)
-    logfile.print('astrometry-{}> Number of targest found: {}'.format(suffix, ntargets))
-    logfile.print('astrometry-{}> Mean error (arcsec)....: {}'.format(suffix, meanerr))
-    for i, iorder in enumerate(rorder):
-        if delta_r[iorder] > 3 * meanerr:
-            logfile.print('-> outlier point #{}, delta_r (arcsec): {}'.format(i+1, delta_r[iorder]))
-
-    plot_suptitle = '[File: {}]'.format(os.path.basename(output_filename))
-    plot_title = 'astrometry-{} (npoints={}, meanerr={:.3f} arcsec)'.format(suffix, ntargets, meanerr)
-    # plot 1: X and Y errors
-    pp = PdfPages('{}/astrometry-{}.pdf'.format(workdir, suffix))
-    fig, ax = plt.subplots(1, 1, figsize=(11.7, 8.3))
-    fig.suptitle(plot_suptitle)
-    ax.plot(delta_x, delta_y, 'mo', alpha=0.5)
-    rmax = 2.0  # arcsec
-    for i, iorder in enumerate(rorder):
-        if abs(delta_x[iorder]) < rmax and abs(delta_y[iorder]) < rmax:
-            ax.text(delta_x[iorder], delta_y[iorder], str(i+1), fontsize=15)
-    circle1 = plt.Circle((0, 0), 0.5, color='b', fill=False)
-    circle2 = plt.Circle((0, 0), 1.0, color='g', fill=False)
-    circle3 = plt.Circle((0, 0), 1.5, color='r', fill=False)
-    ax.add_artist(circle1)
-    ax.add_artist(circle2)
-    ax.add_artist(circle3)
-    ax.set_xlim([-rmax, rmax])
-    ax.set_ylim([-rmax, rmax])
-    ax.set_xlabel('delta X (arcsec): predicted - peak')
-    ax.set_ylabel('delta Y (arcsec): predicted - peak')
-    ax.set_title(plot_title)
-    ax.set_aspect('equal', 'box')
-    pp.savefig()
-    if interactive:
-        plt.show()
-    # plots 2 and 3: histograms with deviations in the X and Y axis
-    for iplot in [1, 2]:
-        fig, ax = plt.subplots(1, 1, figsize=(11.7, 8.3))
-        fig.suptitle(plot_suptitle)
-        if iplot == 1:
-            ax.hist(delta_x, 30)
-            ax.set_xlabel('delta X (arcsec): predicted - peak')
-        else:
-            ax.hist(delta_y, 30)
-            ax.set_xlabel('delta Y (arcsec): predicted - peak')
-        ax.set_ylabel('Number of targets')
-        ax.set_title(plot_title)
-        pp.savefig()
-        if interactive:
-            plt.show()
-    # plot 3: image with identified objects
-    ax = ximshow(image2d, cmap='gray', show=False, figuredict={'figsize': (11.7, 8.3)},
-                 title=plot_title, tight_layout=False)
-    ax.plot(peak_x, peak_y, 'bo', fillstyle='none', markersize=10, label='peaks')
-    for i, iorder in enumerate(rorder):
-        ax.text(peak_x[iorder], peak_y[iorder], str(i + 1), fontsize=15, color='blue')
-    ax.plot(xcatag, ycatag, 'mx', alpha=0.2, markersize=10, label='predicted_gaiacat')
-    ax.plot(pred_x, pred_y, 'g+', markersize=10, label='predicted_peaks')
-    ax.set_xlim([min(np.min(xcatag), -0.5), max(np.max(xcatag), naxis1 + 0.5)])
-    ax.set_ylim([min(np.min(ycatag), -0.5), max(np.max(ycatag), naxis2 + 0.5)])
-    ax.legend()
-    plt.suptitle(plot_suptitle)
-    pp.savefig()
-    if interactive:
-        pause_debugplot(debugplot=12, pltshow=True, tight_layout=False)
-    pp.close()
-    plt.close()
-
-
-def load_scamp_cat(catalogue, workdir, verbose):
-    """
-    Load X, Y coordinates from catalogue generated with SCAMP
-
-    Parameters
-    ==========
-    catalogue : str
-        Catalogue to be read. It must be 'full' or 'merged'.
-    workdir : str
-        Work subdirectory.
-    verbose : bool or None
-        If True, display intermediate information.
-
-    Returns
-    =======
-    col1, col2 : numpy 1D arrays
-        X, Y coordinates of the peaks (only if catalogue is 'full').
-        RA, DEC coordinates of the peaks (only if catalogue is 'merged').
-    """
-
-    if catalogue not in ['full', 'merged']:
-        msg = 'Invalid catalogue description: {}'.format(catalogue)
-        raise SystemError(msg)
-
-    filename = '{}/{}_1.cat'.format(workdir, catalogue)
-    with open(filename, 'rt') as f:
-        fulltxt = f.readlines()
-
-    if verbose:
-        print('Reading {}'.format(filename))
-
-    # determine relevant column numbers
-    if catalogue == 'full':
-        colnames = ['X_IMAGE', 'Y_IMAGE', 'CATALOG_NUMBER']
-    else:
-        colnames = ['ALPHA_J2000', 'DELTA_J2000']
-    ncol = []
-    for col in colnames:
-        ii = None
-        for i, line in enumerate(fulltxt):
-            if col in line:
-                ii = i + 1
-                break
-        if ii is None:
-            msg = '{} not found in {}'.format(col, filename)
-            raise SystemError(msg)
-        if verbose:
-            print('{} is located in column #{}'.format(col, ii))
-        ncol.append(ii - 1)
-
-    # read full data set
-    fulltable = np.genfromtxt(filename)
-
-    if catalogue == 'full':
-        # delete invalid rows (those with CATALOG_NUMBER == 0)
-        valid_rows = np.where(fulltable[:, ncol[2]] != 0)[0]
-        if verbose:
-            print('Number of objects read: {}'.format(len(valid_rows)))
-        newtable = fulltable[valid_rows, :]
-    else:
-        newtable = fulltable
-
-    col1 = newtable[:, ncol[0]]
-    col2 = newtable[:, ncol[1]]
-
-    return col1, col2
 
 
 def run_astrometry(image2d, mask2d, saturpix,
@@ -698,7 +458,7 @@ def run_astrometry(image2d, mask2d, saturpix,
         pass
     else:
         ierr_astr = 1
-        return
+        return ierr_astr
 
     # remove SIP parameters in newheader
     newheader['history'] = '--Deleting SIP from Astrometry.net WCS solution--'
