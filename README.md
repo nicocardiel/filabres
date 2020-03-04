@@ -94,7 +94,7 @@ The previous command generates a subdirectory `lists` in the current
 directory, with a tree of observing nights. Within each night a file called
 `imagedb_cafos.json` stores the image classification (i.e., bias, flat-imaging,
 science-imaging,...) following the requirements described in the file 
-`filabres/instrument/configuration.yaml`.
+`filabres/instrument/configuration_cafos.yaml`.
 
 ### Checking the image classification
 

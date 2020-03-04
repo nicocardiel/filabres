@@ -10,7 +10,7 @@
 
 # instrument definitions for filabres
 instname: cafos
-version: 2.2
+version: 2.3
 requirements:
   INSTRUME: 'CAFOS 2.2'
 masterkeywords:
