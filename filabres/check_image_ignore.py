@@ -12,14 +12,14 @@ import os
 import yaml
 
 
-class ImageCorrections(object):
+class ImageIgnore(object):
     """
-    Class to store and apply image corrections.
+    Class to store decide if an image should be ignored.
 
     Parameters
     ==========
-    image_header_corrections_file : str
-        Name of the file containing the image corrections.
+    ignored_images_file : str
+        Name of the file containing the images to be ignored.
     datadir : str
         Directory where the original FITS data (organized by night)
         are stored.
@@ -31,15 +31,15 @@ class ImageCorrections(object):
     nights : set
         List with the nights with files that need corrections.
     corrections : list of dictionaries
-        Content of the 'image_header_corrections_file'
+        Content of the 'ignored_images_file'.
     """
 
-    def __init__(self, image_header_corrections_file, datadir, verbose):
-        if os.path.isfile(image_header_corrections_file):
-            with open(image_header_corrections_file) as yamlfile:
+    def __init__(self, ignored_images_file, datadir, verbose):
+        if os.path.isfile(ignored_images_file):
+            with open(ignored_images_file) as yamlfile:
                 self.corrections = list(yaml.load_all(yamlfile, Loader=yaml.SafeLoader))
             if verbose:
-                print('\nFile {} found'.format(image_header_corrections_file))
+                print('\nFile {} found'.format(ignored_images_file))
             self.nights = set()
             for i, d in enumerate(self.corrections):
                 if 'night' in d:
@@ -67,24 +67,23 @@ class ImageCorrections(object):
                                 raise SystemError(msg)
                         self.nights.add(night)
                         if verbose:
-                            print('- night {} has {} files with corrections'.format(night, len(list_of_files)))
+                            print('- night {} has {} files to be ignored'.format(night, len(list_of_files)))
                     else:
-                        print('- skipping image corrections in night {}'.format(night))
+                        print('- skipping image ignore in night {}'.format(night))
                 else:
-                    msg = 'Missing "night" keyword in block #{} of {}'.format(i+1, image_header_corrections_file)
+                    msg = 'Missing "night" keyword in block #{} of {}'.format(i+1, ignored_images_file)
                     raise SystemError(msg)
         else:
             self.corrections = None
             self.nights = set()
-            print('WARNING: file {} not found'.format(image_header_corrections_file))
+            print('WARNING: file {} not found'.format(ignored_images_file))
 
         if verbose:
-            print('Nights with image corrections: {}'.format(self.nights))
+            print('Nights with images to be ignored: {}'.format(self.nights))
 
-    def fixheader(self, night, basename, header, verbose):
+    def to_be_ignored(self, night, basename, verbose):
         """
-        Modify the image header if the image appears in the YAML file
-        with image corrections.
+        Decide whether a particular image must be ignored.
 
         Parameters
         ==========
@@ -92,34 +91,23 @@ class ImageCorrections(object):
             Night where the original FITS file is stored.
         basename : str
             Name of the original FITS file without the path.
-        header : astropy header
-            Header to be modified (if necessary).
         verbose : bool
             If True, display intermediate information.
 
         Returns
         =======
-        header : astropy header
-            The same input FITS header after the corresponding changes.
+        result : bool
+            True if the image must be ignored.
         """
+        result = False
         if len(self.nights) == 0:
-            return header
+            return
 
         if night in self.nights:
             for d in self.corrections:
                 if d['night'] == night:
                     if basename in d['files']:
+                        result = True
                         if verbose:
-                            print(' -> Fixing {}'.format(basename))
-                        for dd in d['replace-keyword']:
-                            kwd = list(dd.keys())[0]
-                            kwd = kwd.upper()
-                            val = dd[kwd]
-                            if kwd in header:
-                                if verbose:
-                                    print('  - changing {} from {} to {}'.format(kwd, header[kwd], val))
-                                header[kwd] = val
-                            else:
-                                msg = 'keyword {} not found in header of {}'.format(kwd, basename)
-                                raise SystemError(msg)
-        return header
+                            print(' -> Ignoring {}'.format(basename))
+        return result

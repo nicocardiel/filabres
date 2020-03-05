@@ -50,7 +50,7 @@ def check_datadir(datadir):
         print('WARNING: There are repeated files!')
         input('Press <ENTER> to display duplicate files...')
         for basename in repeated_files:
-            print('* File {} appears in:'.format(basename))
+            print('\n* File {} appears in:'.format(basename))
             for filename in all_files[basename]:
                 print(filename)
     else:

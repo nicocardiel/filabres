@@ -34,7 +34,7 @@ def load_setup(verbose=False):
 
     setupfile = 'setup_filabres.yaml'
     with open(setupfile) as yamlfile:
-        setupdata = yaml.load(yamlfile, Loader=yaml.BaseLoader)
+        setupdata = yaml.load(yamlfile, Loader=yaml.SafeLoader)
 
     expected_kwd = ['instrument', 'datadir', 'ignored_images_file', 'image_header_corrections_file']
 

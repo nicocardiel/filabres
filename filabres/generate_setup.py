@@ -81,5 +81,3 @@ def generate_setup(args_setup):
             with open(yaml_filename, 'wt') as f:
                 f.write(header)
         print('File {} created!'.format(yaml_filename))
-
-    raise SystemExit()

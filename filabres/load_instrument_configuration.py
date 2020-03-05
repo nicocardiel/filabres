@@ -49,7 +49,7 @@ def load_instrument_configuration(instrument, redustep,
         print('* Loading instrument configuration')
     dumdata = pkgutil.get_data('filabres.instrument', yaml_conffile)
     dumfile = StringIO(dumdata.decode('utf8'))
-    instconf = yaml.load(dumfile, Loader=yaml.BaseLoader)
+    instconf = yaml.load(dumfile, Loader=yaml.SafeLoader)
 
     # check that the instrument is the expected one
     if instconf['instname'] != instrument:

@@ -114,6 +114,8 @@ def main():
     # generate setup_filabres.yaml if required
     if args.setup is not None:
         generate_setup(args.setup)
+        print('* program STOP')
+        raise SystemExit()
 
     instrument, datadir, ignored_images_file, image_header_corrections_file = load_setup(args.verbose)
     datadir = check_tslash(datadir)
@@ -166,7 +168,8 @@ def main():
                          instconf=instconf,
                          datadir=datadir,
                          force=args.force,
-                         image_corrections_file=image_corrections_file,
+                         ignored_images_file=ignored_images_file,
+                         image_header_corrections_file=image_header_corrections_file,
                          verbose=args.verbose)
     else:
         classification = instconf['imagetypes'][args.reduction_step]['classification']

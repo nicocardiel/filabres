@@ -194,7 +194,24 @@ duplicate cases are displayed after pressing ``<ENTER>``
    /Users/cardiel/CAFOS2017/171225_t2_CAFOS/caf-20171225-19:42:55-cal-bard.fits
    * program STOP
 
-The detailed examination of the above output
+The detailed examination of the above output reveals that:
+
+- the files ``caf-20170505-*`` are duplicated in subdirectory night ``170506_t2_CAFOS``
+
+- the files ``caf-20170505-*`` are duplicated in subdirectory night ``170507_t2_CAFOS``
+
+- all the files in ``171219_t2_CAFOS`` are duplicated calibrations from ``171218_t2_CAFOS``
+
+- the files ``caf-20171225-*`` are duplicated in subdirectory night ``171217_t2_CAFOS``
+
+The best way to deal with these duplicated files is to insert them in the
+auxiliary file ``ignored_images.yaml``.
+
+Update the file ``ignored_images.yaml``
+---------------------------------------
+
+
+
 
 Initialize the auxiliary image databases
 ========================================
@@ -204,6 +221,12 @@ Classify the images
 
 Examine the image classification
 --------------------------------
+
+Update the file ``image_header_corrections.yaml``
+-------------------------------------------------
+
+And repeat image classification!
+
 
 Reduction of calibration images
 ===============================
