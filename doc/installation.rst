@@ -143,12 +143,12 @@ can be easily installed in your system by execution the following steps:
   you previously cloned the repository, pull the latest changes of the code, and
   reinstall it:
 
-::
+  ::
 
-   (filabres) $ cd filabres
-   (filabres) $ git pull
-   (filabres) $ python setup.py build
-   (filabres) $ python setup.py install
+     (filabres) $ cd filabres
+     (filabres) $ git pull
+     (filabres) $ python setup.py build
+     (filabres) $ python setup.py install
 
 
 4. Check that **filabres** works:
