@@ -4,16 +4,7 @@ from setuptools import find_packages
 def setup_package():
 
     from filabres import __version__
-    REQUIRES = [
-        'python>=3.6',
-        'astropy',
-        'numpy',
-        'matplotlib',
-        'pandas',
-        'python-dateutil',
-        'setuptools',
-        'PyYaml'
-    ]
+    REQUIRES = ['python>=3.7']
     META_DATA = dict(
         name='filabres',
         version=__version__,
