@@ -6,7 +6,7 @@
 
 .. note::
 
-   **filabres** is a Python package: Python 3.7 or greater is recommended.
+   **Filabres** is a Python package: Python 3.7 or greater is recommended.
 
    Although you probably already have a Python interpreter installed in your
    system, it is a good idea to follow the instructions given in this section.
@@ -69,6 +69,7 @@ together with some additional packages:
    pandas \
    python-dateutil \
    PyYaml \
+   scipy \
    setuptools
 
 and answer ``y`` to the question ``Proceed ([y]/n)?``
@@ -217,9 +218,15 @@ specially suited for this task:
 Installing Astrometry.net
 .........................
 
-For the installation of this code follow the instructions given in
+For the installation of this code you can follow the instructions given in
 `Building/installing the Astrometry.net code
-<http://astrometry.net/doc/build.html>`_.
+<http://astrometry.net/doc/build.html>`_, or make use of **conda** to install
+it within the ``filabres`` environment:
+
+::
+
+   $ conda activate filabres
+   (filabres) $ conda install -c conda-forge astrometry
 
 Installing AstrOmatic.net
 .........................
@@ -232,6 +239,6 @@ to install both programs within the ``filabres`` environment:
 ::
 
    $ conda activate filabres
-   (filabres) $ conda conda install -c conda-forge astromatic-source-extractor
+   (filabres) $ conda install -c conda-forge astromatic-source-extractor
    (filabres) $ conda install -c conda-forge astromatic-scamp
 
