@@ -37,7 +37,7 @@ class ImageCorrections(object):
     def __init__(self, image_corrections_file, datadir, verbose):
         if os.path.isfile(image_corrections_file):
             with open(image_corrections_file) as yamlfile:
-                self.corrections = list(yaml.load_all(yamlfile))
+                self.corrections = list(yaml.load_all(yamlfile, Loader=yaml.BaseLoader))
             if verbose:
                 print('\nFile {} found'.format(image_corrections_file))
             self.nights = set()
