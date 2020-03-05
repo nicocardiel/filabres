@@ -16,36 +16,37 @@ Miriam Cortés), and the `Physics of the Earth and
 Astrophysics Department
 <https://www.ucm.es/fisica_de_la_tierra_y_astrofisica/>`_ at the Universidad
 Complutense de Madrid (Nicolás Cardiel, Enrique Galcerán and Jaime Hernández),
-with the main goal is to provide useful
+with the main goal of providing useful
 reduced images through the Calar Alto Archive hosted at
 http://caha.sdc.cab.inta-csic.es/calto/.
 
 Although this software package has been initially created with the idea of
 performing the automatic reduction of direct images obtained with the instrument
-CAFOS, placed at the 2.2 m telescope of the Calar Alto Observatory, it has been
-designed to allow the future inclusion of additional observing modes and
+CAFOS, placed at the 2.2 m telescope of the Calar Alto Observatory, **filabres**
+has been designed to allow the future inclusion of additional observing modes and
 instruments.
 
-At present, **filabres** performs the following tasks:
+The typical workflow with **filabres** consists of the following steps:
 
-- Image classification (bias, flat-imaging, arc, science-imaging, etc.)
+1. Image classification (bias, flat-imaging, arc, science-imaging, etc.)
 
-- Reduction of calibration images (bias, flat-imaging) and generation
-  of combined master calibrations as a function of the modified Julian Date.
+2. Reduction of calibration images (bias, flat-imaging) and generation
+   of combined master calibrations as a function of the modified Julian Date.
 
-- Basic reduction of individual science images, making use of the corresponding
-  master calibrations (closest in time to the observation of the science
-  target). The main reduction steps considered here are:
+3. Basic reduction of individual science images, making use of the corresponding
+   master calibrations (closest in time to the observation of the science
+   target). The main reduction steps considered here are:
 
-  - bias subtraction
+   - bias subtraction
 
-  - flatfielding of the images
+   - flatfielding of the images
 
-  - astrometric calibration (performed with the help of additional software
-    tools provided by `astrometry.net <http://astrometry.net/doc/readme.html>`_
-    and by `AstrOmatic.net <https://www.astromatic.net/>`_)
+   - astrometric calibration (performed with the help of additional software
+     tools provided by `astrometry.net <http://astrometry.net/doc/readme.html>`_
+     and by `AstrOmatic.net <https://www.astromatic.net/>`_)
 
-Developer and maintainer: Nicolás Cardiel (cardiel@ucm.es)
+An example of use of **filabres** with CAFOS data from 2017 is illustrated in
+the tutorial.
 
 .. only:: html
 
@@ -55,3 +56,7 @@ Developer and maintainer: Nicolás Cardiel (cardiel@ucm.es)
    :maxdepth: 2
 
    installation
+   tutorial_cafos2017
+
+
+Developer and maintainer: Nicolás Cardiel (cardiel@ucm.es)
