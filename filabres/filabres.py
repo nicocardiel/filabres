@@ -31,6 +31,7 @@ import argparse
 from .check_args_compatibility import check_args_compatibility
 from .check_datadir import check_datadir
 from .check_tslash import check_tslash
+from .generate_setup import generate_setup
 from .initialize_auxdb import initialize_auxdb
 from .list_classified import list_classified
 from .list_reduced import list_reduced
@@ -54,10 +55,15 @@ def main():
     # note 2: include new groups and arguments in check_args_compatibility() function
 
     # define argument groups
+    group_setup = parser.add_argument_group('generation of initial setup_filabres.yaml')
     group_check = parser.add_argument_group('initial check')
     group_reduc = parser.add_argument_group('initialization and reduction of the data')
     group_lists = parser.add_argument_group('lists of classified or reduced images')
     group_other = parser.add_argument_group('other auxiliary arguments')
+
+    # group_setup
+    group_setup.add_argument("--setup", type=str, nargs=2, help="generate setup_filabres.yaml",
+                             metavar=('INSTRUMENT', 'DATADIR'))
 
     # group_check
     group_check.add_argument("--check", action="store_true",
@@ -70,11 +76,13 @@ def main():
 
     # group_lists
     group_lists.add_argument("-lc", "--lc_imagetype", type=str, nargs='*',
-                             help="list classified images of the selected type with quantile information")
+                             help="list classified images of the selected type with quantile information",
+                             metavar=('REDUCTION_STEP'))
     group_lists.add_argument("-lr", "--lr_imagetype", type=str, nargs='*',
-                             help="list reduced images of the selected type with quantile information")
+                             help="list reduced images of the selected type with quantile information",
+                             metavar=('REDUCTION_STEP'))
     group_lists.add_argument("-lm", "--listmode", type=str, help="display mode for list of files",
-                             choices=["long", "singleline", "basic"])
+                             choices=["long", "singleline", "basic"], metavar=('MODE'))
     group_lists.add_argument("-k", "--keyword", type=str, action='append', nargs=1,
                              help="keyword for the -lc/-lr option")
     group_lists.add_argument("-ks", "--keyword_sort", type=str, action='append', nargs=1,
@@ -86,7 +94,6 @@ def main():
 
     # other arguments
     group_other.add_argument("-n", "--night", type=str, help="night label (wildcards are valid within quotes)")
-    group_other.add_argument("-s", "--setup", type=str, help="filabres setup file name")
     group_other.add_argument("-v", "--verbose", action="store_true",
                              help="display intermediate information while running")
     group_other.add_argument("--debug", action="store_true", help="display debugging information")
@@ -104,7 +111,11 @@ def main():
     if args.ndecimal is None:
         args.ndecimal = 5
 
-    instrument, datadir, image_corrections_file = load_setup(args.setup, args.verbose)
+    # generate setup_filabres.yaml if required
+    if args.setup is not None:
+        generate_setup(args.setup)
+
+    instrument, datadir, ignored_images_file, image_header_corrections_file = load_setup(args.verbose)
     datadir = check_tslash(datadir)
 
     if args.check:

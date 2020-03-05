@@ -11,14 +11,12 @@
 import yaml
 
 
-def load_setup(setupfile, verbose=False):
+def load_setup(verbose=False):
     """
     Load setup file
 
     Parameters
     ==========
-    setupfile : str or None
-        Setup file name.
     verbose : bool
         If True, display intermediate information.
 
@@ -28,27 +26,37 @@ def load_setup(setupfile, verbose=False):
         Instrument name.
     datadir : str
         Data directory where the original FITS files are stored.
-    image_corrections_file : str
+    ignored_images_file : str
+        Nome of the file containing the images to be ignored.
+    image_header_corrections_file : str
         Name of the file containing the image corrections.
     """
 
-    if setupfile is None:
-        setupfile = 'setup_filabres.yaml'
+    setupfile = 'setup_filabres.yaml'
     with open(setupfile) as yamlfile:
         setupdata = yaml.load(yamlfile, Loader=yaml.BaseLoader)
 
-    for kwd in ['instrument', 'datadir', 'image_corrections_file']:
+    expected_kwd = ['instrument', 'datadir', 'ignored_images_file', 'image_header_corrections_file']
+
+    for kwd in expected_kwd:
         if kwd not in setupdata:
             msg = 'Expected keyword {} missing in {}'.format(kwd, setupfile)
             raise SystemError(msg)
 
+    for kwd in setupdata:
+        if kwd not in expected_kwd:
+            msg = 'Unexpected keyword {} in {}'.format(kwd, setupfile)
+            raise SystemError(msg)
+
     instrument = setupdata['instrument']
     datadir = setupdata['datadir']
-    image_corrections_file = setupdata['image_corrections_file']
+    ignored_images_file = setupdata['ignored_images_file']
+    image_header_corrections_file = setupdata['image_header_corrections_file']
 
     if verbose:
-        print('* instrument: {}'.format(instrument))
-        print('* datadir: {}'.format(datadir))
-        print('* image_corrections: {}'.format(image_corrections_file))
+        print('* instrument............: {}'.format(instrument))
+        print('* datadir...............: {}'.format(datadir))
+        print('* ignored_images_file...: {}'.format(ignored_images_file))
+        print('* image_corrections_file: {}'.format(image_header_corrections_file))
 
-    return instrument, datadir, image_corrections_file
+    return instrument, datadir, ignored_images_file, image_header_corrections_file
