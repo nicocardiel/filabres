@@ -61,13 +61,7 @@ together with some additional packages:
 
 ::
 
-   $ conda create --name filabres python=3 \
-   astropy \
-   ipython \
-   matplotlib \
-   numpy \
-   PyYaml \
-
+   $ conda create --name filabres python=3
 
 **Activate the environment**
 

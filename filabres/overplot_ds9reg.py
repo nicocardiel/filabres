@@ -7,10 +7,6 @@
 # License-Filename: LICENSE.txt
 #
 
-from __future__ import division
-from __future__ import print_function
-
-
 def overplot_ds9reg(filename, ax):
     """Overplot a ds9 region file.
 

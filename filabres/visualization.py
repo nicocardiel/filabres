@@ -10,8 +10,6 @@
 
 """Visualization utilities."""
 
-from __future__ import division
-
 from astropy.visualization import BaseInterval
 import numpy as np
 
