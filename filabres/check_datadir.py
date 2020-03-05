@@ -48,7 +48,7 @@ def check_datadir(datadir):
 
     if len(repeated_files) > 1:
         print('WARNING: There are repeated files!')
-        input('Press <RETURN> to continue...')
+        input('Press <ENTER> to continue...')
         for basename in repeated_files:
             print('* File {} appears in:'.format(basename))
             for filename in all_files[basename]:

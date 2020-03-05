@@ -17,7 +17,7 @@ DEBUGPLOT_CODES = (0, -1, 1, -2, 2, -10, 10, -11, 11, -12, 12,
 
 def pause_debugplot(debugplot, optional_prompt=None, pltshow=False,
                     tight_layout=True):
-    """Ask the user to press RETURN to continue after plotting.
+    """Ask the user to press ENTER to continue after plotting.
 
     Parameters
     ----------
@@ -69,7 +69,7 @@ def pause_debugplot(debugplot, optional_prompt=None, pltshow=False,
     else:
         if debugplot_ in [2, 12, 22]:
             if optional_prompt is None:
-                print('Press <RETURN> to continue...', end='')
+                print('Press <ENTER> to continue...', end='')
             else:
                 print(optional_prompt, end='')
             sys.stdout.flush()

@@ -264,7 +264,7 @@ def run_reduction_step(redustep, interactive, datadir, list_of_nights,
                     json.dump(database, outfile, indent=2)
 
                 if interactive:
-                    ckey = input("Press 'x' + RETURN to stop, or simply RETURN to continue... ")
+                    ckey = input("Press 'x' + <ENTER> to stop, or simply <ENTER> to continue... ")
                     if ckey.lower() == 'x':
                         raise SystemExit()
 

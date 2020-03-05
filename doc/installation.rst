@@ -158,19 +158,31 @@ can be easily installed in your system by execution the following steps:
      (filabres) $ python setup.py build
      (filabres) $ python setup.py install
 
+4. Install some additional Python packages:
 
-4. Check that **filabres** works:
+  ::
+
+     (filabres) $ conda install -c conda-forge pyvo
+
+5. Check that **filabres** works:
 
   ::
 
      (filabers) $ filabres-version
      Version: 0.9.0
 
+  Note that your version can be different to the one shown above.
+
+  To display a help message on the terminal use the argument ``-h/--help``:
+
+  ::
+
+     (filabres) $ filabres -h
 
 Required additional software packages
 -------------------------------------
 
-The astrometric calibration is delegated into two well-known software packages
+The astrometric calibration is delegated to two well-known software packages
 specially suited for this task:
 
 - `Astrometry.net <http://astrometry.net/doc/readme.html>`_: determines an
