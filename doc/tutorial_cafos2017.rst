@@ -210,7 +210,9 @@ auxiliary file ``ignored_images.yaml``.
 Update the file ``ignored_images.yaml``
 ---------------------------------------
 
+.. warning::
 
+   Wildcards are allowed for ``files:`` but not for ``night:``.
 
 
 Initialize the auxiliary image databases
@@ -224,6 +226,9 @@ Examine the image classification
 
 Update the file ``image_header_corrections.yaml``
 -------------------------------------------------
+.. warning::
+
+   Wildcards are allowed for ``files:`` but not for ``night:``.
 
 And repeat image classification!
 

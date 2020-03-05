@@ -8,8 +8,11 @@
 # License-Filename: LICENSE.txt
 #
 
+import fnmatch
 import os
 import yaml
+
+from .single_list_of_files import single_list_of_files
 
 
 class ImageCorrections(object):
@@ -57,9 +60,9 @@ class ImageCorrections(object):
                             msg = 'Night {} not found'.format(nightdir)
                             raise SystemError(msg)
                         # check that the corresponding files also exist
-                        list_of_files = d['files']
-                        for filename in list_of_files:
-                            filepath = datadir + night + '/' + filename
+                        path = datadir + night + '/'
+                        list_of_files = single_list_of_files(initlist=d['files'], path=path)
+                        for filepath in list_of_files:
                             if os.path.isfile(filepath):
                                 pass
                             else:
@@ -108,18 +111,19 @@ class ImageCorrections(object):
         if night in self.nights:
             for d in self.corrections:
                 if d['night'] == night:
-                    if basename in d['files']:
-                        if verbose:
-                            print(' -> Fixing {}'.format(basename))
-                        for dd in d['replace-keyword']:
-                            kwd = list(dd.keys())[0]
-                            kwd = kwd.upper()
-                            val = dd[kwd]
-                            if kwd in header:
-                                if verbose:
-                                    print('  - changing {} from {} to {}'.format(kwd, header[kwd], val))
-                                header[kwd] = val
-                            else:
-                                msg = 'keyword {} not found in header of {}'.format(kwd, basename)
-                                raise SystemError(msg)
+                    for filename in d['files']:
+                        if fnmatch.fnmatch(basename, filename):
+                            if verbose:
+                                print(' -> Fixing {}'.format(basename))
+                            for dd in d['replace-keyword']:
+                                kwd = list(dd.keys())[0]
+                                kwd = kwd.upper()
+                                val = dd[kwd]
+                                if kwd in header:
+                                    if verbose:
+                                        print('  - changing {} from {} to {}'.format(kwd, header[kwd], val))
+                                    header[kwd] = val
+                                else:
+                                    msg = 'keyword {} not found in header of {}'.format(kwd, basename)
+                                    raise SystemError(msg)
         return header

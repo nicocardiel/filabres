@@ -8,8 +8,12 @@
 # License-Filename: LICENSE.txt
 #
 
+import fnmatch
+import glob
 import os
 import yaml
+
+from .single_list_of_files import single_list_of_files
 
 
 class ImageIgnore(object):
@@ -57,9 +61,9 @@ class ImageIgnore(object):
                             msg = 'Night {} not found'.format(nightdir)
                             raise SystemError(msg)
                         # check that the corresponding files also exist
-                        list_of_files = d['files']
-                        for filename in list_of_files:
-                            filepath = datadir + night + '/' + filename
+                        path = datadir + night + '/'
+                        list_of_files = single_list_of_files(initlist=d['files'], path=path)
+                        for filepath in list_of_files:
                             if os.path.isfile(filepath):
                                 pass
                             else:
@@ -106,8 +110,9 @@ class ImageIgnore(object):
         if night in self.nights:
             for d in self.corrections:
                 if d['night'] == night:
-                    if basename in d['files']:
-                        result = True
-                        if verbose:
-                            print(' -> Ignoring {}'.format(basename))
+                    for filename in d['files']:
+                        if fnmatch.fnmatch(basename, filename):
+                            result = True
+                            if verbose:
+                                print(' -> Ignoring {}'.format(basename))
         return result
