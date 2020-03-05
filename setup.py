@@ -4,9 +4,19 @@ from setuptools import find_packages
 def setup_package():
 
     from filabres import __version__
-    REQUIRES = ['python>=3.7']
+    REQUIRES = [
+        'astropy',
+        'matplotlib',
+        'numpy',
+        'pandas',
+        'python-dateutil',
+        'PyYaml',
+        'setuptools',
+        'scipy'
+    ]
     META_DATA = dict(
         name='filabres',
+        python_requires='>=3.7',
         version=__version__,
         description='Data Reduction Package for CAHA instruments',
         author='Enrique Galcerán / Nicolás Cardiel',

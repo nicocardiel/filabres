@@ -61,7 +61,17 @@ together with some additional packages:
 
 ::
 
-   $ conda create --name filabres python=3
+   $ conda create --name filabres python=3 \
+   astropy \
+   ipython \
+   matplotlib \
+   numpy \
+   pandas \
+   python-dateutil \
+   PyYaml \
+   setuptools
+
+and answer ``y`` to the question ``Proceed ([y]/n)?``
 
 **Activate the environment**
 
@@ -101,6 +111,9 @@ To verify that the environment was removed, execute:
 ::
 
    $ conda info --envs
+
+If you want to know more about **conda**, have a look to the `on-line
+documentation <https://docs.conda.io/projects/conda/en/latest/index.html>`_.
 
 
 Installing the development version of **filabres**
