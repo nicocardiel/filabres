@@ -42,15 +42,17 @@ The typical workflow with **filabres** consists of the following steps:
    - flatfielding of the images
 
    - astrometric calibration (performed with the help of additional software
-     tools provided by `astrometry.net <http://astrometry.net/doc/readme.html>`_
+     tools provided by `Astrometry.net <http://astrometry.net/doc/readme.html>`_
      and by `AstrOmatic.net <https://www.astromatic.net/>`_)
 
 An example of use of **filabres** with CAFOS data from 2017 is illustrated in
 the tutorial.
 
+----
+
 .. only:: html
 
-   Document index:
+   **Document index:**
 
 .. toctree::
    :maxdepth: 2
@@ -58,5 +60,8 @@ the tutorial.
    installation
    tutorial_cafos2017
 
+----
+
+Software repository: https://github.com/nicocardiel/filabres
 
 Developer and maintainer: Nicolás Cardiel (cardiel@ucm.es)

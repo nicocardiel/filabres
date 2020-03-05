@@ -4,4 +4,12 @@
 Tutorial: CAFOS 2017 data
 *************************
 
-(in progress)
+Activate the conda environment ``filabres`` and check that the software is
+available:
+
+::
+
+   $ conda activate filabres
+   (filabres ) $ filabres-version
+   0.9.0
+
