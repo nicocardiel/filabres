@@ -121,7 +121,7 @@ Installing the development version of **filabres**
 --------------------------------------------------
 
 The development version is the most updated working version of the code. It
-can be easily installed in your system by execution the following steps:
+can be easily installed in your system by executing the following steps:
 
 1. Activate the environment:
 

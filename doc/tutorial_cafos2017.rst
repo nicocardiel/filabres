@@ -207,6 +207,17 @@ The detailed examination of the above output reveals that:
 The best way to deal with these duplicated files is to insert them in the
 auxiliary file ``ignored_images.yaml``.
 
+
+----
+
+----
+
+*(Documentation in progress from this point)*
+
+----
+
+----
+
 Update the file ``ignored_images.yaml``
 ---------------------------------------
 

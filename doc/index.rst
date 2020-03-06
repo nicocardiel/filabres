@@ -15,8 +15,8 @@ the `Spanish Virtual Observatory
 Miriam Cortés), and the `Physics of the Earth and
 Astrophysics Department
 <https://www.ucm.es/fisica_de_la_tierra_y_astrofisica/>`_ at the Universidad
-Complutense de Madrid (Nicolás Cardiel, Enrique Galcerán and Jaime Hernández),
-with the main goal of providing useful
+Complutense de Madrid (Nicolás Cardiel, Sergio Pascual, Enrique Galcerán and
+Jaime Hernández), with the main goal of providing useful
 reduced images through the Calar Alto Archive hosted at
 http://caha.sdc.cab.inta-csic.es/calto/.
 
