@@ -121,7 +121,7 @@ def main():
     datadir = check_tslash(datadir)
 
     if args.check:
-        check_datadir(datadir)
+        check_datadir(datadir, ignored_images_file, args.verbose)
         print('* program STOP')
         raise SystemExit()
 

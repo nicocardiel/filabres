@@ -1,12 +1,12 @@
-.. _tutorial_cafos2017:
+.. _filabes_setup:
 
-*************************
-Tutorial: CAFOS 2017 data
-*************************
+*************
+Initial setup
+*************
 
 .. warning::
 
-   It is recommedable to run the code from an empty directory.
+   It is recommedable to start running the code from an empty directory.
 
 Activate the conda environment ``filabres`` and check that the software is
 available:
@@ -19,8 +19,8 @@ available:
 
 Note that your version can be different to the one shown above.
 
-Initial setup
-=============
+Generate configuration files
+============================
 
 The first thing that you need to do before start working with **filabres**
 is to generate some configuration files that will define the behavior of the
@@ -40,7 +40,7 @@ The new files have been written in YAML format, which is a human-readable
 data-serialization language commonly used for configuration files.
 
 File ``setup_filabres.yaml``
-----------------------------
+============================
 
 The first file, ``setup_filabres.yaml``, contains a few definitions:
 
@@ -101,7 +101,7 @@ subdirectories, i.e.,
    from ``datadir``.
 
 File ``ignored_images.yaml``
-----------------------------
+============================
 
 The second YAML file is empty except for some comments:
 
@@ -120,7 +120,7 @@ the original files within ``datadir`` without the need to actually removing
 them (which can allow later the recovery of any of the ignored files).
 
 File ``image_header_corrections.yaml``
---------------------------------------
+======================================
 
 The third YAML file is also empty except for some similar comments:
 
@@ -136,124 +136,4 @@ The third YAML file is also empty except for some similar comments:
 This file will describe changes that we will have to introduce in some
 FITS keywords of the original files in order to obtain a correct image
 classification.
-
-Initial image check
-===================
-
-Before starting with the image classification, it is important to double check
-that there are no duplicate original FITS images within the ``datadir`` tree.
-This can be easily checked using:
-
-::
-
-   (filabres) $ filabres --check
-   Night 170225_t2_CAFOS -> number of files:   140 --> TOTAL:   140
-   Night 170226_t2_CAFOS -> number of files:    55 --> TOTAL:   195
-   Night 170319_t2_CAFOS -> number of files:   149 --> TOTAL:   344
-   Night 170331_t2_CAFOS -> number of files:   119 --> TOTAL:   463
-   Night 170403_t2_CAFOS -> number of files:   336 --> TOTAL:   799
-   Night 170408_t2_CAFOS -> number of files:   153 --> TOTAL:   952
-   ...
-   ...
-   Night 171221_t2_CAFOS -> number of files:   185 --> TOTAL:  8839
-   Night 171223_t2_CAFOS -> number of files:    74 --> TOTAL:  8913
-   Night 171225_t2_CAFOS -> number of files:    86 --> TOTAL:  8999
-   Night 171228_t2_CAFOS -> number of files:    50 --> TOTAL:  9049
-   Night 171230_t2_CAFOS -> number of files:   383 --> TOTAL:  9432
-   WARNING: There are repeated files!
-   Press <ENTER> to display duplicate files...
-
-At this point the program has revealed that there are repeated files. The
-duplicate cases are displayed after pressing ``<ENTER>``
-
-::
-
-   * File caf-20170505-13:42:00-cal-reba.fits appears in:
-   /Users/cardiel/CAFOS2017/170505_t2_CAFOS/caf-20170505-13:42:00-cal-reba.fits
-   /Users/cardiel/CAFOS2017/170506_t2_CAFOS/caf-20170505-13:42:00-cal-reba.fits
-   /Users/cardiel/CAFOS2017/170507_t2_CAFOS/caf-20170505-13:42:00-cal-reba.fits
-
-   * File caf-20170505-21:30:03-sci-agui.fits appears in:
-   /Users/cardiel/CAFOS2017/170505_t2_CAFOS/caf-20170505-21:30:03-sci-agui.fits
-   /Users/cardiel/CAFOS2017/170506_t2_CAFOS/caf-20170505-21:30:03-sci-agui.fits
-
-   * File caf-20170505-10:08:36-cal-agui.fits appears in:
-   /Users/cardiel/CAFOS2017/170505_t2_CAFOS/caf-20170505-10:08:36-cal-agui.fits
-   /Users/cardiel/CAFOS2017/170506_t2_CAFOS/caf-20170505-10:08:36-cal-agui.fits
-   /Users/cardiel/CAFOS2017/170507_t2_CAFOS/caf-20170505-10:08:36-cal-agui.fits
-
-   ...
-   ...
-
-   * File caf-20171225-19:28:31-cal-bard.fits appears in:
-   /Users/cardiel/CAFOS2017/171217_t2_CAFOS/caf-20171225-19:28:31-cal-bard.fits
-   /Users/cardiel/CAFOS2017/171225_t2_CAFOS/caf-20171225-19:28:31-cal-bard.fits
-
-   * File caf-20171225-19:42:55-cal-bard.fits appears in:
-   /Users/cardiel/CAFOS2017/171217_t2_CAFOS/caf-20171225-19:42:55-cal-bard.fits
-   /Users/cardiel/CAFOS2017/171225_t2_CAFOS/caf-20171225-19:42:55-cal-bard.fits
-   * program STOP
-
-The detailed examination of the above output reveals that:
-
-- the files ``caf-20170505-*`` are duplicated in subdirectory night ``170506_t2_CAFOS``
-
-- the files ``caf-20170505-*`` are duplicated in subdirectory night ``170507_t2_CAFOS``
-
-- all the files in ``171219_t2_CAFOS`` are duplicated calibrations from ``171218_t2_CAFOS``
-
-- the files ``caf-20171225-*`` are duplicated in subdirectory night ``171217_t2_CAFOS``
-
-The best way to deal with these duplicated files is to insert them in the
-auxiliary file ``ignored_images.yaml``.
-
-
-----
-
-----
-
-*(Documentation in progress from this point)*
-
-----
-
-----
-
-Update the file ``ignored_images.yaml``
----------------------------------------
-
-.. warning::
-
-   Wildcards are allowed for ``files:`` but not for ``night:``.
-
-
-Initialize the auxiliary image databases
-========================================
-
-Classify the images
--------------------
-
-Examine the image classification
---------------------------------
-
-Update the file ``image_header_corrections.yaml``
--------------------------------------------------
-.. warning::
-
-   Wildcards are allowed for ``files:`` but not for ``night:``.
-
-And repeat image classification!
-
-
-Reduction of calibration images
-===============================
-
-
-Bias images
------------
-
-Flat images
------------
-
-Reduction of science images
-===========================
 

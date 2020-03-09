@@ -11,8 +11,10 @@
 import glob
 import os
 
+from .check_image_ignore import ImageIgnore
 
-def check_datadir(datadir):
+
+def check_datadir(datadir, ignored_images_file, verbose=False):
     """
     Check that FITS files in DATADIR are not repeated
 
@@ -21,6 +23,10 @@ def check_datadir(datadir):
     datadir : str
         Directory where the original FITS data (organized by night)
         are stored.
+    ignored_images_file : str
+        Nome of the file containing the images to be ignored.
+    verbose : bool
+        If True, display intermediate information.
     """
 
     try:
@@ -29,6 +35,13 @@ def check_datadir(datadir):
         print('ERROR: datadir directory {} not found'.format(datadir))
         raise SystemExit()
 
+    # check for ignored_images_file
+    imgtoignore = ImageIgnore(
+        ignored_images_file=ignored_images_file,
+        datadir=datadir,
+        verbose=verbose
+    )
+
     all_nights.sort()
 
     all_files = {}
@@ -36,15 +49,24 @@ def check_datadir(datadir):
     repeated_files = []
     for night in all_nights:
         newfiles = glob.glob(datadir + night + '/*.fits')
+        nignored = 0
         for filename in newfiles:
-            nfiles += 1
             basename = os.path.basename(filename)
-            if basename in all_files:
-                repeated_files.append(basename)
-                all_files[basename].append(filename)
+            if not imgtoignore.to_be_ignored(
+                    night=night,
+                    basename=basename,
+                    verbose=verbose
+            ):
+                nfiles += 1
+                if basename in all_files:
+                    repeated_files.append(basename)
+                    all_files[basename].append(filename)
+                else:
+                    all_files[basename] = [filename]
             else:
-                all_files[basename] = [filename]
-        print('Night {} -> number of files:{:6d} --> TOTAL:{:6d}'.format(night, len(newfiles), nfiles))
+                nignored += 1
+        print('Night {} -> number of files:{:6d}, ignored:{:6d} --> TOTAL:{:6d}'.format(
+            night, len(newfiles), nignored, nfiles))
 
     if len(repeated_files) > 1:
         print('WARNING: There are repeated files!')

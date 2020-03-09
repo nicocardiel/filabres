@@ -46,7 +46,7 @@ The typical workflow with **filabres** consists of the following steps:
      and by `AstrOmatic.net <https://www.astromatic.net/>`_)
 
 An example of use of **filabres** with CAFOS data from 2017 is illustrated in
-the tutorial.
+this documentation.
 
 ----
 
@@ -58,10 +58,15 @@ the tutorial.
    :maxdepth: 2
 
    installation
-   tutorial_cafos2017
+   setup
+   check
+   classification
+   calibration
+   science
 
 ----
 
 Software repository: https://github.com/nicocardiel/filabres
 
-Developer and maintainer: Nicolás Cardiel (cardiel@ucm.es)
+Developers and maintainers: Nicolás Cardiel (cardiel@ucm.es) and Sergio Pascual
+(sergiopr@fis.ucm.es)
