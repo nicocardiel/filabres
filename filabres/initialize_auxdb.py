@@ -248,85 +248,87 @@ def initialize_auxdb(list_of_nights, instconf, datadir, force,
                 # get image header
                 basename = os.path.basename(filepath)
                 dumdict = dict()
-                if not imgtoignore.to_be_ignored(
+                warningsfound = False
+                # initially convert warnings into errors
+                warnings.filterwarnings('error')
+                header = None
+                data = None
+                try:
+                    with fits.open(filepath) as hdul:
+                        header = hdul[0].header
+                        data = hdul[0].data
+                except (UserWarning, ResourceWarning) as e:
+                    if logfile is None:
+                        logfile = open(logfilename, 'wt')
+                        print('-> Creating {}'.format(logfilename))
+                    logfile.write('{} while reading {}\n'.format(type(e).__name__, basename))
+                    logfile.write('{}\n'.format(e))
+                    print('{} while reading {}'.format(
+                        type(e).__name__, basename))
+                    print(str(e))
+                    warningsfound = True
+                    # ignore warnings from here to avoid the messages:
+                    # Exception ignored in:...
+                    # ResourceWarning: unclosed file...
+                    warnings.filterwarnings('ignore')
+                if warningsfound:
+                    # ignore warnings
+                    with fits.open(filepath) as hdul:
+                        header = hdul[0].header
+                        data = hdul[0].data
+                # check general instrument requirements
+                requirements = instconf['requirements']
+                fileok = True
+                for keyword in requirements:
+                    if requirements[keyword] != header[keyword]:
+                        fileok = False
+                if fileok:
+                    # check if the image header needs corrections
+                    header = imgcorrections.fixheader(
+                        night=night,
+                        basename=basename,
+                        header=header,
+                        verbose=verbose
+                    )
+                    # get master keywords for the current file
+                    for keyword in instconf['masterkeywords']:
+                        if keyword in header:
+                            dumdict[keyword] = header[keyword]
+                            # ----------------------------------------
+                            # Fix here any problem with keyword values
+                            # ----------------------------------------
+                            # Fix negative MJD-OBS
+                            if keyword == 'MJD-OBS':
+                                mjdobs = header[keyword]
+                                if mjdobs < 0:
+                                    tinit = Time(header['DATE-OBS'],
+                                                 format='isot', scale='utc')
+                                    dumdict['MJD-OBS'] = tinit.mjd
+                                    print('WARNING: MJD-OBS changed from {} to {:.5f} (wrong value in file '
+                                          '{})'.format(mjdobs, tinit.mjd, filepath))
+                        else:
+                            msg = 'ERROR: keyword {} is missing in file {}'.format(keyword, basename)
+                            raise SystemError(msg)
+                    # basic image statistics
+                    dictquant = statsumm(data, rm_nan=True)
+                    for qkw in dictquant.keys():
+                        dumdict[qkw] = dictquant[qkw]
+                    # classify image
+                    imagetype = classify_image(instconf, header, dictquant)
+                    if imagetype is None:
+                        imagetype = 'unclassified'
+                else:
+                    imagetype = 'wrong-instrument'
+
+                # override classification if the image must be ignored
+                # (note: we have let the image classification to be performed
+                # in order to get all the masterkeywords)
+                if imgtoignore.to_be_ignored(
                         night=night,
                         basename=basename,
                         verbose=verbose
                 ):
-                    warningsfound = False
-                    # initially convert warnings into errors
-                    warnings.filterwarnings('error')
-                    header = None
-                    data = None
-                    try:
-                        with fits.open(filepath) as hdul:
-                            header = hdul[0].header
-                            data = hdul[0].data
-                    except (UserWarning, ResourceWarning) as e:
-                        if logfile is None:
-                            logfile = open(logfilename, 'wt')
-                            print('-> Creating {}'.format(logfilename))
-                        logfile.write('{} while reading {}\n'.format(type(e).__name__, basename))
-                        logfile.write('{}\n'.format(e))
-                        print('{} while reading {}'.format(
-                            type(e).__name__, basename))
-                        print(str(e))
-                        warningsfound = True
-                        # ignore warnings from here to avoid the messages:
-                        # Exception ignored in:...
-                        # ResourceWarning: unclosed file...
-                        warnings.filterwarnings('ignore')
-                    if warningsfound:
-                        # ignore warnings
-                        with fits.open(filepath) as hdul:
-                            header = hdul[0].header
-                            data = hdul[0].data
-                    # check general instrument requirements
-                    requirements = instconf['requirements']
-                    fileok = True
-                    for keyword in requirements:
-                        if requirements[keyword] != header[keyword]:
-                            fileok = False
-                    if fileok:
-                        # check if the image header needs corrections
-                        header = imgcorrections.fixheader(
-                            night=night,
-                            basename=basename,
-                            header=header,
-                            verbose=verbose
-                        )
-                        # get master keywords for the current file
-                        for keyword in instconf['masterkeywords']:
-                            if keyword in header:
-                                dumdict[keyword] = header[keyword]
-                                # ----------------------------------------
-                                # Fix here any problem with keyword values
-                                # ----------------------------------------
-                                # Fix negative MJD-OBS
-                                if keyword == 'MJD-OBS':
-                                    mjdobs = header[keyword]
-                                    if mjdobs < 0:
-                                        tinit = Time(header['DATE-OBS'],
-                                                     format='isot', scale='utc')
-                                        dumdict['MJD-OBS'] = tinit.mjd
-                                        print('WARNING: MJD-OBS changed from {} to {:.5f} (wrong value in file '
-                                              '{})'.format(mjdobs, tinit.mjd, filepath))
-                            else:
-                                msg = 'ERROR: keyword {} is missing in file {}'.format(keyword, basename)
-                                raise SystemError(msg)
-                        # basic image statistics
-                        dictquant = statsumm(data, rm_nan=True)
-                        for qkw in dictquant.keys():
-                            dumdict[qkw] = dictquant[qkw]
-                        # classify image
-                        imagetype = classify_image(instconf, header, dictquant)
-                        if imagetype is None:
-                            imagetype = 'unclassified'
-                    else:
-                        imagetype = 'wrong-instrument'
-                else:
                     imagetype = 'ignored'
-
                 # include image in corresponding classification
                 if imagetype in imagedb:
                     imagedb[imagetype][basename] = dumdict

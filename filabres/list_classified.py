@@ -103,7 +103,7 @@ def list_classified(instrument, img, listmode, datadir, args_night,
     basic_imagetypes = list(instconf['imagetypes'].keys())
     valid_imagetypes = basic_imagetypes + \
         ['wrong-' + kwd for kwd in basic_imagetypes] + \
-        ['wrong-instrument', 'unclassified']
+        ['wrong-instrument', 'ignored', 'unclassified']
 
     if img is None or img == []:
         imagetype = None

@@ -168,7 +168,7 @@ can be easily installed in your system by executing the following steps:
 
   ::
 
-     (filabers) $ filabres-version
+     (filabres) $ filabres-version
      Version: 0.9.0
 
   Note that your version can be different to the one shown above.

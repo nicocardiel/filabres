@@ -9,7 +9,7 @@ Initialize the auxiliary image databases
 
 The next step is the classification of the different images. This
 classification will take place by generating a local database (a JSON file
-called ``imagedb.json``) for each observing night. For this purpose,
+called ``imagedb_cafos.json``) for each observing night. For this purpose,
 **filabres** will follow the rules provided in the instrument configuration
 file ``configuration_cafos.yaml``. In its first hierarchical level, this file
 defines the following keys: ``instname``, ``version``, ``requirements``,
@@ -121,8 +121,160 @@ be classified as ``ignored``.
 Classify the images
 ===================
 
+The image classification is performed by using:
+
+::
+
+   (filabres) $ filabres -rs initialize
+   * Number of nights found: 58
+   * Working with night 170225_t2_CAFOS (1/58) ---> 140 FITS files
+   * Working with night 170226_t2_CAFOS (2/58) ---> 55 FITS files
+   ...
+   ...
+
+A few warnings may be raised during the execution of the program. In particular
+for the CAFOS 2017 data, the ``MJD-OBS`` is negative in some images and
+**filabres** recomputes it. In other cases, ``HIERARCHCAHA DET CCDS`` is found,
+when it sould be ``HIERARCH CAHA DET CCDS`` (this can be safely ignored).
+
+After the execution of previous command, a new subdirectory ``lists`` should
+have appear in your working directory, containing subdirectories for all the
+observing nights:
+
+::
+
+   (filabres) $ ls lists/
+   170225_t2_CAFOS/ 170506_t2_CAFOS/ 170601_t2_CAFOS/ 170807_t2_CAFOS/
+   170226_t2_CAFOS/ 170507_t2_CAFOS/ 170602_t2_CAFOS/ 170809_t2_CAFOS/
+   170319_t2_CAFOS/ 170517_t2_CAFOS/ 170621_t2_CAFOS/ 170811_t2_CAFOS/
+   170331_t2_CAFOS/ 170518_t2_CAFOS/ 170627_t2_CAFOS/ 170825_t2_CAFOS/
+   170403_t2_CAFOS/ 170519_t2_CAFOS/ 170628_t2_CAFOS/ 170903_t2_CAFOS/
+   170408_t2_CAFOS/ 170524_t2_CAFOS/ 170629_t2_CAFOS/ 170918_t2_CAFOS/
+   170420_t2_CAFOS/ 170525_t2_CAFOS/ 170713_t2_CAFOS/ 170926_t2_CAFOS/
+   170422_t2_CAFOS/ 170526_t2_CAFOS/ 170720_t2_CAFOS/ 170928_t2_CAFOS/
+   170502_t2_CAFOS/ 170527_t2_CAFOS/ 170724_t2_CAFOS/
+   170505_t2_CAFOS/ 170528_t2_CAFOS/ 170731_t2_CAFOS/
+
+Within each night, a file ``imagedb_cafos.json`` has been created, storing the
+image classification.
+
+::
+
+   (filabres) $ ls lists/170225_t2_CAFOS/
+   imagedb_cafos.json
+
+
 Examine the image classification
 ================================
+
+Select image type
+-----------------
+
+Although you can always try to open any of the files ``imagedb_cafos.json``
+directly (using a proper JSON editor), **filabres** provides an easier way to
+examine the image classification previously performed (using the argument
+``-lc <imagetype>``; list classified images). 
+For example, to list the different image types available:
+
+::
+
+   (filabres) $ filabres -lc
+   Valid imagetypes:
+   - bias
+   - flat-imaging
+   - flat-spectroscopy
+   - arc
+   - science-imaging
+   - science-spectroscopy
+   - wrong-bias
+   - wrong-flat-imaging
+   - wrong-flat-spectroscopy
+   - wrong-arc
+   - wrong-science-imaging
+   - wrong-science-spectroscopy
+   - wrong-instrument
+   - ignored
+   - unclassified
+
+You can repeat the same command by adding any of the above image types:
+
+::
+
+   (filabres) $ filabres -lc bias
+                                                                                            file NAXIS1 NAXIS2
+   1    /Volumes/NicoPassport/CAHA/CAFOS2017/170225_t2_CAFOS/caf-20170224-21:27:48-cal-krek.fits  1650   1650 
+   2    /Volumes/NicoPassport/CAHA/CAFOS2017/170225_t2_CAFOS/caf-20170224-21:29:09-cal-krek.fits  1650   1650 
+   3    /Volumes/NicoPassport/CAHA/CAFOS2017/170225_t2_CAFOS/caf-20170224-21:30:31-cal-krek.fits  1650   1650 
+   4    /Volumes/NicoPassport/CAHA/CAFOS2017/170225_t2_CAFOS/caf-20170224-21:31:52-cal-krek.fits  1650   1650 
+   ...
+   ...
+   824  /Volumes/NicoPassport/CAHA/CAFOS2017/171230_t2_CAFOS/caf-20171229-10:16:48-cal-lilj.fits  800    800  
+   825  /Volumes/NicoPassport/CAHA/CAFOS2017/171230_t2_CAFOS/caf-20171229-10:17:24-cal-lilj.fits  800    800  
+   826  /Volumes/NicoPassport/CAHA/CAFOS2017/171230_t2_CAFOS/caf-20171229-10:18:00-cal-lilj.fits  800    800  
+   Total: 826 files
+
+By default the list displays the full path to the original files and their
+dimensiones (``NAXIS1`` and ``NAXIS2``).
+   
+Select image type and observing nights
+--------------------------------------
+
+It is possible to constraint the list of files to those corresponding to a
+given subset of nights (using the argument ``-n <night>``; wildcards are valid
+here):
+
+::
+
+   (filabres) $ filabres -lc bias -n 1702*
+                                                                                              file NAXIS1 NAXIS2
+   1   /Volumes/NicoPassport/CAHA/CAFOS2017/170225_t2_CAFOS/caf-20170224-21:27:48-cal-krek.fits  1650   1650 
+   2   /Volumes/NicoPassport/CAHA/CAFOS2017/170225_t2_CAFOS/caf-20170224-21:29:09-cal-krek.fits  1650   1650 
+   3   /Volumes/NicoPassport/CAHA/CAFOS2017/170225_t2_CAFOS/caf-20170224-21:30:31-cal-krek.fits  1650   1650 
+   ...
+   ...
+   28  /Volumes/NicoPassport/CAHA/CAFOS2017/170226_t2_CAFOS/caf-20170226-11:47:59-cal-bomd.fits  1000   2048 
+   29  /Volumes/NicoPassport/CAHA/CAFOS2017/170226_t2_CAFOS/caf-20170226-11:49:11-cal-bomd.fits  1000   2048 
+   30  /Volumes/NicoPassport/CAHA/CAFOS2017/170226_t2_CAFOS/caf-20170226-11:50:23-cal-bomd.fits  1000   2048 
+   Total: 30 files
+
+Select image type and selected keywords
+---------------------------------------
+
+You can also display the values of relevant keywords belonging to the
+``masterkeywords`` list in the file ``configuration_cafos.yaml``. If you don't
+remember them, don't worry: use first ``-k all`` to display all the available
+keywords:
+
+::
+
+   (filabres) $ filabres -lc bias -k all
+   Valid keywords: ['NAXIS', 'NAXIS1', 'NAXIS2', 'OBJECT', 'RA', 'DEC',
+   'EQUINOX', 'DATE', 'MJD-OBS', 'AIRMASS', 'EXPTIME', 'INSTRUME', 'CCDNAME',
+   'ORIGSECX', 'ORIGSECY', 'CCDSEC', 'BIASSEC', 'DATASEC', 'CCDBINX',
+   'CCDBINY', 'IMAGETYP', 'INSTRMOD', 'INSAPID', 'INSTRSCL', 'INSTRPIX',
+   'INSTRPX0', 'INSTRPY0', 'INSFLID', 'INSFLNAM', 'INSGRID', 'INSGRNAM',
+   'INSGRROT', 'INSGRWL0', 'INSGRRES', 'INSPOFPI', 'INSPOROT', 'INSFPZ',
+   'INSFPWL', 'INSFPDWL', 'INSFPORD', 'INSCALST', 'INSCALID', 'INSCALNM',
+   'NPOINTS', 'FMINIMUM', 'QUANT025', 'QUANT159', 'QUANT250', 'QUANT500',
+   'QUANT750', 'QUANT841', 'QUANT975', 'FMAXIMUM', 'ROBUSTSTD']
+
+Let's display the values of a few of keywords: ``QUANT500`` (the image median),
+``QUANT975`` (the quantile 0.975 of the image), and ``ROBUSTSTD`` (the robust
+standard deviation of the image):
+
+::
+
+   (filabres) $ filabres -lc bias -k quant500 -k quant975 -k robuststd
+                                                                                            file   QUANT500   QUANT975  ROBUSTSTD
+   1    /Volumes/NicoPassport/CAHA/CAFOS2017/170225_t2_CAFOS/caf-20170224-21:27:48-cal-krek.fits  666.00000  686.00000  11.11950 
+   2    /Volumes/NicoPassport/CAHA/CAFOS2017/170225_t2_CAFOS/caf-20170224-21:29:09-cal-krek.fits  666.00000  687.00000  10.37820 
+   3    /Volumes/NicoPassport/CAHA/CAFOS2017/170225_t2_CAFOS/caf-20170224-21:30:31-cal-krek.fits  666.00000  683.00000  10.37820 
+   ...
+   ...
+
+Note that each keyword is preceded by ``-k`` (following the astropy convention
+for the fitsheader utility).
+
 
 Update the file ``image_header_corrections.yaml``
 =================================================
