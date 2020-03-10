@@ -75,32 +75,16 @@ Updating ``ignored_images.yaml``
 
 The best way to deal with these duplicated files is to insert them in the
 auxiliary file ``ignored_images.yaml``. For this particular example, the
-contents of this file (ignoring the initial comment lines) are:
+contents of this file are:
 
-::
+.. literalinclude:: ignored_images.yaml
+   :linenos:
+   :lineno-start: 1
 
-   night: 170506_t2_CAFOS
-   enabled: True
-   files:
-    - caf-20170505*.fits
-   ---
-   night: 170507_t2_CAFOS
-   enabled: True
-   files:
-    - caf-20170505*.fits
-   ---
-   night: 171217_t2_CAFOS
-   enabled: True
-   files:
-    - caf-20171225*.fits
-   ---
-   night: 171219_t2_CAFOS
-   enabled: True
-   files:
-    - caf-20171218*.fits
-
-There are four blocks, separated by ``---`` (the YAML block separator).
-**Important**: the separator must not appear after the last block. Within each
+Ignoring the initial comment lines (starting by ``#``), 
+there are four blocks separated by ``---`` (the YAML block separator).
+**Important**: the separator must not appear before the first block nor
+after the last block. Within each
 block, the following arguments must be provided:
 
 - ``night``: observing night. Note that wildcards can not be used here,

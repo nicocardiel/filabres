@@ -1,0 +1,25 @@
+# file ignored_images.yaml
+#
+# generated automatically by filabres v.0.9.6
+#
+# creation date 2020-03-05T18:33:18.943846
+#
+night: 170506_t2_CAFOS
+enabled: True
+files:
+ - caf-20170505*.fits
+---
+night: 170507_t2_CAFOS
+enabled: True
+files:
+ - caf-20170505*.fits
+---
+night: 171217_t2_CAFOS
+enabled: True
+files:
+ - caf-20171225*.fits
+---
+night: 171219_t2_CAFOS
+enabled: True
+files:
+ - caf-20171218*.fits
