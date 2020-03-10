@@ -304,8 +304,13 @@ def classify_images(list_of_nights, instconf, datadir, force,
                                     tinit = Time(header['DATE-OBS'],
                                                  format='isot', scale='utc')
                                     dumdict['MJD-OBS'] = tinit.mjd
-                                    print('WARNING: MJD-OBS changed from {} to {:.5f} (wrong value in file '
-                                          '{})'.format(mjdobs, tinit.mjd, filepath))
+                                    msg = 'WARNING: MJD-OBS changed from' \
+                                          ' {} to {:.5f} (wrong value in file {})'.format(mjdobs, tinit.mjd, filepath)
+                                    print(msg)
+                                    if logfile is None:
+                                        logfile = open(logfilename, 'wt')
+                                        print('-> Creating {}'.format(logfilename))
+                                    logfile.write(msg + '\n')
                         else:
                             msg = 'ERROR: keyword {} is missing in file {}'.format(keyword, basename)
                             raise SystemError(msg)
