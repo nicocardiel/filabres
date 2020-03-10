@@ -218,16 +218,18 @@ def list_classified(instrument, img, listmode, datadir, args_night,
             if df.shape[0] > 0:
                 # scatter plots
                 if args_plotxy:
-                    # remove the 'file' column and convert to float the remaining columns
-                    scatter_matrix(df.drop(['file'], axis=1).astype(float, errors='ignore'))
-                    print('Press "q" to continue...', end='')
-                    plt.suptitle('classified {} ({} files)'.format(imagetype, df.shape[0]))
-                    plt.tight_layout(rect=(0, 0, 1, 0.95))
-                    plt.show()
-                    print('')
+                    with plt.style.context('seaborn'):
+                        # remove the 'file' column and convert to float the remaining columns
+                        scatter_matrix(df.drop(['file'], axis=1).astype(float, errors='ignore'))
+                        print('Press "q" to continue...', end='')
+                        plt.suptitle('classified {} ({} files)'.format(imagetype, df.shape[0]))
+                        plt.tight_layout(rect=(0, 0, 1, 0.95))
+                        plt.show()
+                        print('')
                 # display images
                 if args_plotimage:
                     for filename in df['file']:
-                        ximshow_file(filename, debugplot=12)
+                        with plt.style.context('seaborn'):
+                            ximshow_file(filename, debugplot=12)
 
     raise SystemExit()

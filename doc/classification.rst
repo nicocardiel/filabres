@@ -133,7 +133,8 @@ be classified as ``ignored``.
 Inital image classification
 ===========================
 
-The image classification is performed by using:
+The image classification is performed by using (this can take several
+minutes!):
 
 ::
 
@@ -147,8 +148,7 @@ The image classification is performed by using:
 A few warnings may be raised during the execution of the program. In particular
 for the CAFOS 2017 data, the ``MJD-OBS`` is negative in some images and
 **filabres** recomputes it. In other cases, ``HIERARCHCAHA DET CCDS`` is found,
-when it sould be ``HIERARCH CAHA DET CCDS``. You can be safely ignored these
-warning messages.
+when it sould be ``HIERARCH CAHA DET CCDS``.
 
 After the execution of previous command, a new subdirectory ``lists`` should
 have appear in your working directory, containing subdirectories for all the
@@ -177,9 +177,44 @@ storing the image classification.
    imagedb_cafos.json
 
 For those nights with images that have raised WARNINGS during the image
-classfication, an additional ``imagedb_cafos.log`` file should also have been
-created containing the warning messages.
+classification, an additional ``imagedb_cafos.log`` file should also have been
+created containing the warning messages:
 
+::
+
+   (filabres) $ find lists/ -name *log
+   lists//170929_t2_CAFOS/imagedb_cafos.log
+   lists//170928_t2_CAFOS/imagedb_cafos.log
+   lists//171108_t2_CAFOS/imagedb_cafos.log
+   lists//170731_t2_CAFOS/imagedb_cafos.log
+   lists//170713_t2_CAFOS/imagedb_cafos.log
+   lists//170502_t2_CAFOS/imagedb_cafos.log
+   lists//171016_t2_CAFOS/imagedb_cafos.log
+   lists//171120_t2_CAFOS/imagedb_cafos.log
+   lists//171011_t2_CAFOS/imagedb_cafos.log
+   lists//170628_t2_CAFOS/imagedb_cafos.log
+   lists//170629_t2_CAFOS/imagedb_cafos.log
+   lists//170526_t2_CAFOS/imagedb_cafos.log
+   lists//170527_t2_CAFOS/imagedb_cafos.log
+   lists//170518_t2_CAFOS/imagedb_cafos.log
+   lists//171015_t2_CAFOS/imagedb_cafos.log
+   lists//171116_t2_CAFOS/imagedb_cafos.log
+   lists//170408_t2_CAFOS/imagedb_cafos.log
+   lists//170627_t2_CAFOS/imagedb_cafos.log
+   lists//170528_t2_CAFOS/imagedb_cafos.log
+   lists//170517_t2_CAFOS/imagedb_cafos.log
+   lists//171218_t2_CAFOS/imagedb_cafos.log
+   lists//171219_t2_CAFOS/imagedb_cafos.log
+   lists//170525_t2_CAFOS/imagedb_cafos.log
+   lists//170524_t2_CAFOS/imagedb_cafos.log
+   lists//170811_t2_CAFOS/imagedb_cafos.log
+   lists//170918_t2_CAFOS/imagedb_cafos.log
+   lists//170807_t2_CAFOS/imagedb_cafos.log
+   lists//170507_t2_CAFOS/imagedb_cafos.log
+   lists//170621_t2_CAFOS/imagedb_cafos.log
+
+All the warnings raised in the classification of the CAFOS 2017 data can safely
+be ignored.
 
 Examine the image classification
 ================================
@@ -275,6 +310,22 @@ keywords:
    'NPOINTS', 'FMINIMUM', 'QUANT025', 'QUANT159', 'QUANT250', 'QUANT500',
    'QUANT750', 'QUANT841', 'QUANT975', 'FMAXIMUM', 'ROBUSTSTD']
 
+.. note::
+
+   Note that apart from the keywords belonging to the ``masterkeywords`` list
+   in the file ``configuration_cafos.yaml``, some additional *statistical*
+   keywords are also available:
+
+   - ``NPOINTS``: number of points in the image
+
+   - ``FMINIMUM``, ``FMAXIMUM``: mininum and maximum signal in the image.
+
+   - ``QUANT025``, ``QUANT159``,... ``QUANT975``: 0.025,
+     0.159, 0.250, 0.500, 0.750, 0.841 and 0.975 quantiles of the data.
+
+   - ``ROBUSTSTD``: robust estimate of the standard deviation, computed as
+     0.7413*(``QUANT750``-``QUANT250``).
+
 Let's display the values of a few of keywords: ``QUANT500`` (the image median),
 ``QUANT975`` (the quantile 0.975 of the image), and ``ROBUSTSTD`` (the robust
 standard deviation of the image):
@@ -291,9 +342,10 @@ standard deviation of the image):
    824  /Volumes/NicoPassport/CAHA/CAFOS2017/171230_t2_CAFOS/caf-20171229-10:16:48-cal-lilj.fits  658.00000  680.00000  11.11950 
    825  /Volumes/NicoPassport/CAHA/CAFOS2017/171230_t2_CAFOS/caf-20171229-10:17:24-cal-lilj.fits  658.00000  680.00000  11.11950 
    826  /Volumes/NicoPassport/CAHA/CAFOS2017/171230_t2_CAFOS/caf-20171229-10:18:00-cal-lilj.fits  658.00000  680.00000  11.11950 
+   Total: 826 files
 
 Note that each keyword is preceded by ``-k`` (following the astropy convention
-for the fitsheader utility).
+for the ``fitsheader`` utility).
 
 If instead of using ``-k`` you use ``-ks``, the list will be sorted according
 to the selected keywords (several keys can be used for a hierarchical sorting):
@@ -310,8 +362,9 @@ to the selected keywords (several keys can be used for a hierarchical sorting):
    241  /Volumes/NicoPassport/CAHA/CAFOS2017/170601_t2_CAFOS/caf-20170601-13:12:14-cal-bomd.fits  723.00000  776.00000  25.94550 
    245  /Volumes/NicoPassport/CAHA/CAFOS2017/170601_t2_CAFOS/caf-20170601-13:17:01-cal-bomd.fits  723.00000  776.00000  25.94550 
    311  /Volumes/NicoPassport/CAHA/CAFOS2017/170628_t2_CAFOS/caf-20170628-17:29:10-cal-pelm.fits  693.00000  729.00000  25.94550 
+   Total: 826 files
 
-Note that now the column ``ROBUSTSTD`` apears sorted.
+Note that now the values in the column ``ROBUSTSTD`` apear sorted.
 
 Is is also possible to generate plots with the selected keywords. For that
 purpose, employ the ``-pxy`` argument:
@@ -319,6 +372,13 @@ purpose, employ the ``-pxy`` argument:
 ::
 
    (filabres) $ filabres -lc bias -k mjd-obs -k quant500 -k quant975 -ks robuststd -pxy
+
+.. image:: images/pxy_classified_bias.png
+   :width: 100%
+   :alt: Classified bias images
+
+The previous image is a pairs plot, that allows to see both the distribution of
+values of each keyword and relationships between any two of them.
 
 
 Is there something wrong with the image classification?
