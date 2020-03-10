@@ -32,7 +32,7 @@ from .check_args_compatibility import check_args_compatibility
 from .check_datadir import check_datadir
 from .check_tslash import check_tslash
 from .generate_setup import generate_setup
-from .initialize_auxdb import initialize_auxdb
+from .classify_images import classify_images
 from .list_classified import list_classified
 from .list_reduced import list_reduced
 from .load_instrument_configuration import load_instrument_configuration
@@ -164,13 +164,13 @@ def main():
     # reduction steps
     if args.reduction_step == 'initialize':
         # initialize auxiliary databases (one for each observing night)
-        initialize_auxdb(list_of_nights=list_of_nights,
-                         instconf=instconf,
-                         datadir=datadir,
-                         force=args.force,
-                         ignored_images_file=ignored_images_file,
-                         image_header_corrections_file=image_header_corrections_file,
-                         verbose=args.verbose)
+        classify_images(list_of_nights=list_of_nights,
+                        instconf=instconf,
+                        datadir=datadir,
+                        force=args.force,
+                        ignored_images_file=ignored_images_file,
+                        image_header_corrections_file=image_header_corrections_file,
+                        verbose=args.verbose)
     else:
         classification = instconf['imagetypes'][args.reduction_step]['classification']
         if classification == 'calibration':

@@ -4,15 +4,26 @@
 Image classification
 ********************
 
-Initialize the auxiliary image databases
-========================================
+Rules for the classification of the images
+==========================================
 
-The next step is the classification of the different images. This
+The image
 classification will take place by generating a local database (a JSON file
 called ``imagedb_cafos.json``) for each observing night. For this purpose,
 **filabres** will follow the rules provided in the instrument configuration
-file ``configuration_cafos.yaml``. In its first hierarchical level, this file
-defines the following keys: ``instname``, ``version``, ``requirements``,
+file ``configuration_cafos.yaml``. Note that this file is embedded in the
+distribution source code, under the directory ``filabres/instrument/``.
+
+.. warning::
+
+   Since the modification of the file ``configuration_cafos.yaml`` could change
+   the classification of the images perfomerd by **filabres**, in principle
+   this file should not be modified by a normal user. In any case, if you want
+   to change it, it will be necessary to reinstall the code for the changes to
+   be applied.
+
+In its first hierarchical level, this file ``configuration_cafos.yaml`` defines
+the following keys: ``instname``, ``version``, ``requirements``,
 ``masterkeywords``, and ``imagetypes``:
 
 ::
@@ -92,7 +103,8 @@ defines the following keys: ``instname``, ``version``, ``requirements``,
   The relevant keywords in this third-level dictionary are:
 
   - ``executable``: if True, the reduction of this image type has been
-    considered in **filabres**.
+    considered in **filabres**. Otherwise, the implementation of the reduction
+    of this type of images is still pending.
 
   - ``classification``: so far only two possibilities are valid here:
     ``calibration`` or ``science``. Note that calibration images will be
@@ -118,8 +130,8 @@ defines the following keys: ``instname``, ``version``, ``requirements``,
 Note that images previously included in the file ``ignored_images.yaml`` will
 be classified as ``ignored``.
 
-Classify the images
-===================
+Inital image classification
+===========================
 
 The image classification is performed by using:
 
@@ -135,7 +147,8 @@ The image classification is performed by using:
 A few warnings may be raised during the execution of the program. In particular
 for the CAFOS 2017 data, the ``MJD-OBS`` is negative in some images and
 **filabres** recomputes it. In other cases, ``HIERARCHCAHA DET CCDS`` is found,
-when it sould be ``HIERARCH CAHA DET CCDS`` (this can be safely ignored).
+when it sould be ``HIERARCH CAHA DET CCDS``. You can be safely ignored these
+warning messages.
 
 After the execution of previous command, a new subdirectory ``lists`` should
 have appear in your working directory, containing subdirectories for all the
@@ -155,13 +168,17 @@ observing nights:
    170502_t2_CAFOS/ 170527_t2_CAFOS/ 170724_t2_CAFOS/
    170505_t2_CAFOS/ 170528_t2_CAFOS/ 170731_t2_CAFOS/
 
-Within each night, a file ``imagedb_cafos.json`` has been created, storing the
-image classification.
+Within each night, a file ``imagedb_cafos.json`` should have been created, 
+storing the image classification.
 
 ::
 
    (filabres) $ ls lists/170225_t2_CAFOS/
    imagedb_cafos.json
+
+For those nights with images that have raised WARNINGS during the image
+classfication, an additional ``imagedb_cafos.log`` file should also have been
+created containing the warning messages.
 
 
 Examine the image classification
@@ -237,7 +254,7 @@ here):
    30  /Volumes/NicoPassport/CAHA/CAFOS2017/170226_t2_CAFOS/caf-20170226-11:50:23-cal-bomd.fits  1000   2048 
    Total: 30 files
 
-Select image type and selected keywords
+Select image type and relevant keywords
 ---------------------------------------
 
 You can also display the values of relevant keywords belonging to the
@@ -271,10 +288,96 @@ standard deviation of the image):
    3    /Volumes/NicoPassport/CAHA/CAFOS2017/170225_t2_CAFOS/caf-20170224-21:30:31-cal-krek.fits  666.00000  683.00000  10.37820 
    ...
    ...
+   824  /Volumes/NicoPassport/CAHA/CAFOS2017/171230_t2_CAFOS/caf-20171229-10:16:48-cal-lilj.fits  658.00000  680.00000  11.11950 
+   825  /Volumes/NicoPassport/CAHA/CAFOS2017/171230_t2_CAFOS/caf-20171229-10:17:24-cal-lilj.fits  658.00000  680.00000  11.11950 
+   826  /Volumes/NicoPassport/CAHA/CAFOS2017/171230_t2_CAFOS/caf-20171229-10:18:00-cal-lilj.fits  658.00000  680.00000  11.11950 
 
 Note that each keyword is preceded by ``-k`` (following the astropy convention
 for the fitsheader utility).
 
+If instead of using ``-k`` you use ``-ks``, the list will be sorted according
+to the selected keywords (several keys can be used for a hierarchical sorting):
+
+::
+
+   (filabres) $ filabres -lc bias -k quant500 -k quant975 -ks robuststd
+            file   QUANT500   QUANT975  ROBUSTSTD
+   456  /Volumes/NicoPassport/CAHA/CAFOS2017/170929_t2_CAFOS/caf-20170929-13:52:35-cal-bias.fits  661.40002  666.70001  2.81693  
+   206  /Volumes/NicoPassport/CAHA/CAFOS2017/170526_t2_CAFOS/caf-20170526-15:44:34-cal-boeh.fits  667.00000  683.00000  6.67170  
+   207  /Volumes/NicoPassport/CAHA/CAFOS2017/170526_t2_CAFOS/caf-20170526-15:45:45-cal-boeh.fits  667.00000  683.00000  6.67170  
+   ...
+   ...
+   241  /Volumes/NicoPassport/CAHA/CAFOS2017/170601_t2_CAFOS/caf-20170601-13:12:14-cal-bomd.fits  723.00000  776.00000  25.94550 
+   245  /Volumes/NicoPassport/CAHA/CAFOS2017/170601_t2_CAFOS/caf-20170601-13:17:01-cal-bomd.fits  723.00000  776.00000  25.94550 
+   311  /Volumes/NicoPassport/CAHA/CAFOS2017/170628_t2_CAFOS/caf-20170628-17:29:10-cal-pelm.fits  693.00000  729.00000  25.94550 
+
+Note that now the column ``ROBUSTSTD`` apears sorted.
+
+Is is also possible to generate plots with the selected keywords. For that
+purpose, employ the ``-pxy`` argument:
+
+::
+
+   (filabres) $ filabres -lc bias -k mjd-obs -k quant500 -k quant975 -ks robuststd -pxy
+
+
+Is there something wrong with the image classification?
+=======================================================
+
+Before moving to the reduction of the calibration images, it is important to
+check the image classification. In this sense, a few image types should be
+revised, as shown in the following subsections.
+
+Wrong instrument
+----------------
+
+Unclassified
+------------
+
+These are images that could not be classified according to the rules
+defined in ``configuration_cafos.yaml``:
+
+::
+
+   (filabres) $ filabres -lc unclassified
+                                                                                          file IMAGETYP              OBJECT
+   1  /Volumes/NicoPassport/CAHA/CAFOS2017/170225_t2_CAFOS/caf-20170225-18:44:14-tst-test.fits  shift    [focus] Telescope 
+   2  /Volumes/NicoPassport/CAHA/CAFOS2017/170505_t2_CAFOS/caf-20170506-02:53:44-tst-test.fits  shift    [focus] Telescope 
+   3  /Volumes/NicoPassport/CAHA/CAFOS2017/170601_t2_CAFOS/caf-20170601-14:00:42-sci-etac.fits  shift    ETALON_calibration
+   4  /Volumes/NicoPassport/CAHA/CAFOS2017/170628_t2_CAFOS/caf-20170628-16:26:53-sci-etac.fits  shift    ETALON_calibration
+   5  /Volumes/NicoPassport/CAHA/CAFOS2017/170628_t2_CAFOS/caf-20170628-16:35:52-sci-etac.fits  shift    ETALON_calibration
+   6  /Volumes/NicoPassport/CAHA/CAFOS2017/170807_t2_CAFOS/caf-20170807-21:10:39-cal-schn.fits  shift    [focus] Telescope 
+   Total: 6 files
+
+Only 6 images appear in this category. You can display all of them in
+sequence adding the argument ``-pi`` (plot image):
+
+::
+
+   (filabres) $ filabres -lc unclassified -pi
+
+You can safely ignore these images.
+
+Ignored
+-------
+
+Wrong bias
+----------
+
+Wrong flat-imaging
+------------------
+
+Wrong flat-spectroscopy
+-----------------------
+
+Wrong arc
+---------
+
+Wrong science-imaging
+---------------------
+
+Wrong science-spectroscopy
+--------------------------
 
 Update the file ``image_header_corrections.yaml``
 =================================================

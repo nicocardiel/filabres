@@ -139,8 +139,8 @@ def classify_image(instconf, header, dictquant):
     return imagetype
 
 
-def initialize_auxdb(list_of_nights, instconf, datadir, force,
-                     ignored_images_file, image_header_corrections_file, verbose=False):
+def classify_images(list_of_nights, instconf, datadir, force,
+                    ignored_images_file, image_header_corrections_file, verbose=False):
     """
     Generate database with relevant keywords for each night.
 
