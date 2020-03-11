@@ -110,8 +110,8 @@ class ImageIgnore(object):
         if night in self.nights:
             for d in self.corrections:
                 if d['night'] == night:
-                    for filename in d['files']:
-                        if fnmatch.fnmatch(basename, filename):
+                    for fname in d['files']:
+                        if fnmatch.fnmatch(basename, fname):
                             result = True
                             if verbose:
                                 print(' -> Ignoring {}'.format(basename))

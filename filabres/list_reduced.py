@@ -154,20 +154,20 @@ def list_reduced(instrument, img, listmode, args_night, args_keyword,
     colnames = None
     df = None
 
-    for jsonfilename in list_of_databases:
+    for jsonfname in list_of_databases:
 
         try:
-            with open(jsonfilename) as jfile:
+            with open(jsonfname) as jfile:
                 database = json.load(jfile)
         except FileNotFoundError:
-            msg = 'File {} not found'.format(jsonfilename)
+            msg = 'File {} not found'.format(jsonfname)
             raise SystemError(msg)
 
         if classification == 'calibration':
             for ssig in database[imagetype]:
                 minidict = database[imagetype][ssig]
                 for mjdobs in minidict:
-                    outfile = minidict[mjdobs]['filename']
+                    outfile = minidict[mjdobs]['fname']
                     nightok = fnmatch.fnmatch(minidict[mjdobs]['night'], night)
                     if nightok:
                         n += 1
@@ -220,9 +220,9 @@ def list_reduced(instrument, img, listmode, args_night, args_keyword,
                             msg = 'Unexpected listmode {}'.format(listmode)
                             raise SystemError(msg)
         elif classification == 'science':
-            for filename in database[imagetype]:
-                minidict = database[imagetype][filename]
-                outfile = minidict['filename']
+            for fname in database[imagetype]:
+                minidict = database[imagetype][fname]
+                outfile = minidict['fname']
                 nightok = fnmatch.fnmatch(minidict['night'], night)
                 if nightok:
                     n += 1
@@ -312,8 +312,8 @@ def list_reduced(instrument, img, listmode, args_night, args_keyword,
                         print()
                 # display images
                 if args_plotimage:
-                    for filename in df['file']:
+                    for fname in df['file']:
                         with plt.style.context('seaborn'):
-                            ximshow_file(filename, debugplot=12)
+                            ximshow_file(fname, debugplot=12)
 
     raise SystemExit()

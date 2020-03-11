@@ -73,6 +73,8 @@ def main():
     group_reduc.add_argument("-rs", "--reduction_step", type=str)
     group_reduc.add_argument("-f", "--force", action="store_true", help="force reduction of already reduced files")
     group_reduc.add_argument("-i", "--interactive", action="store_true", help="enable interactive execution")
+    group_reduc.add_argument("--filename", type=str,
+                             help="particular image to be reduced (only valid for science images")
 
     # group_lists
     group_lists.add_argument("-lc", "--lc_imagetype", type=str, nargs='*',
@@ -101,6 +103,8 @@ def main():
     args = parser.parse_args()
 
     # ---
+    # ToDo: nuevo argumento para reducir una unica imagen cientifica
+    # ToDo: incluir varios WCS en la misma imagen
 
     # check argument compatibility
     check_args_compatibility(args, debug=False)
@@ -163,6 +167,10 @@ def main():
 
     # reduction steps
     if args.reduction_step == 'initialize':
+        # check --singleimage is not set
+        if args.filename is not None:
+            msg = 'Argument --filename is invalid for --rs initialize'
+            raise SystemError(msg)
         # initialize auxiliary databases (one for each observing night)
         classify_images(list_of_nights=list_of_nights,
                         instconf=instconf,
@@ -174,6 +182,11 @@ def main():
     else:
         classification = instconf['imagetypes'][args.reduction_step]['classification']
         if classification == 'calibration':
+            # check --singleimage is not set
+            if args.filename is not None:
+                msg = 'Argument --filename is invalid for calibration reduction steps'
+                raise SystemError(msg)
+            # execute reduction step
             run_calibration_step(redustep=args.reduction_step,
                                  datadir=datadir,
                                  list_of_nights=list_of_nights,
@@ -182,10 +195,12 @@ def main():
                                  verbose=args.verbose,
                                  debug=args.debug)
         elif classification == 'science':
+            # execute reduction step
             run_reduction_step(redustep=args.reduction_step,
                                interactive=args.interactive,
                                datadir=datadir,
                                list_of_nights=list_of_nights,
+                               filename=args.filename,
                                instconf=instconf,
                                force=args.force,
                                verbose=args.verbose,

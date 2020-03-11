@@ -35,12 +35,12 @@ def load_scamp_cat(catalogue, workdir, verbose):
         msg = 'Invalid catalogue description: {}'.format(catalogue)
         raise SystemError(msg)
 
-    filename = '{}/{}_1.cat'.format(workdir, catalogue)
-    with open(filename, 'rt') as f:
+    fname = '{}/{}_1.cat'.format(workdir, catalogue)
+    with open(fname, 'rt') as f:
         fulltxt = f.readlines()
 
     if verbose:
-        print('Reading {}'.format(filename))
+        print('Reading {}'.format(fname))
 
     # determine relevant column numbers
     if catalogue == 'full':
@@ -55,14 +55,14 @@ def load_scamp_cat(catalogue, workdir, verbose):
                 ii = i + 1
                 break
         if ii is None:
-            msg = '{} not found in {}'.format(col, filename)
+            msg = '{} not found in {}'.format(col, fname)
             raise SystemError(msg)
         if verbose:
             print('{} is located in column #{}'.format(col, ii))
         ncol.append(ii - 1)
 
     # read full data set
-    fulltable = np.genfromtxt(filename)
+    fulltable = np.genfromtxt(fname)
 
     if catalogue == 'full':
         # delete invalid rows (those with CATALOG_NUMBER == 0)

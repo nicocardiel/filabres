@@ -111,8 +111,8 @@ class ImageCorrections(object):
         if night in self.nights:
             for d in self.corrections:
                 if d['night'] == night:
-                    for filename in d['files']:
-                        if fnmatch.fnmatch(basename, filename):
+                    for fname in d['files']:
+                        if fnmatch.fnmatch(basename, fname):
                             if verbose:
                                 print(' -> Fixing {}'.format(basename))
                             for dd in d['replace-keyword']:

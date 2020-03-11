@@ -83,15 +83,15 @@ def run_calibration_step(redustep, datadir, list_of_nights,
         print('\n* Working with night {} ({}/{})'.format(night, inight + 1, len(list_of_nights)))
 
         # read local image database for current night
-        jsonfilename = LISTDIR + night + '/imagedb_'
-        jsonfilename += instconf['instname'] + '.json'
+        jsonfname = LISTDIR + night + '/imagedb_'
+        jsonfname += instconf['instname'] + '.json'
         if verbose:
-            print('Reading file {}'.format(jsonfilename))
+            print('Reading file {}'.format(jsonfname))
         try:
-            with open(jsonfilename) as jfile:
+            with open(jsonfname) as jfile:
                 imagedb = json.load(jfile)
         except FileNotFoundError:
-            print('ERROR: file {} not found'.format(jsonfilename))
+            print('ERROR: file {} not found'.format(jsonfname))
             msg = 'Try using -rs initialize'
             raise SystemError(msg)
 
@@ -121,11 +121,11 @@ def run_calibration_step(redustep, datadir, list_of_nights,
 
             # determine number of different signatures
             list_of_signatures = []
-            for filename in list_of_images:
+            for fname in list_of_images:
                 # signature of particular image
                 imgsignature = dict()
                 for keyword in signaturekeys:
-                    imgsignature[keyword] = imagedb[redustep][filename][keyword]
+                    imgsignature[keyword] = imagedb[redustep][fname][keyword]
                 if len(list_of_signatures) == 0:
                     list_of_signatures.append(imgsignature)
                 else:
@@ -146,13 +146,13 @@ def run_calibration_step(redustep, datadir, list_of_nights,
             for isignature in range(len(list_of_signatures)):
                 signature = list_of_signatures[isignature]
                 images_with_fixed_signature = []
-                for filename in list_of_images:
+                for fname in list_of_images:
                     # signature of particular image
                     imgsignature = dict()
                     for keyword in signaturekeys:
-                        imgsignature[keyword] = imagedb[redustep][filename][keyword]
+                        imgsignature[keyword] = imagedb[redustep][fname][keyword]
                     if imgsignature == signature:
-                        images_with_fixed_signature.append(datadir + night + '/' + filename)
+                        images_with_fixed_signature.append(datadir + night + '/' + fname)
                 images_with_fixed_signature.sort()
                 nfiles = len(images_with_fixed_signature)
                 if nfiles == 0:
@@ -160,16 +160,16 @@ def run_calibration_step(redustep, datadir, list_of_nights,
                     raise SystemError(msg)
                 # dictionary indicating whether the images with this signature have been classified
                 classified_images = dict()
-                for filename in images_with_fixed_signature:
-                    classified_images[filename] = False
+                for fname in images_with_fixed_signature:
+                    classified_images[fname] = False
                 if verbose:
                     print('Signature ({}/{}):'.format(isignature+1, len(list_of_signatures)))
                     for key in signaturekeys:
                         print(' - {}: {}'.format(key, signature[key]))
                     print('Total number of images with this signature:', len(images_with_fixed_signature))
                     if debug:
-                        for filename in images_with_fixed_signature:
-                            print(filename, end=' ')
+                        for fname in images_with_fixed_signature:
+                            print(fname, end=' ')
                         print()
 
                 images_pending = True
@@ -180,32 +180,32 @@ def run_calibration_step(redustep, datadir, list_of_nights,
                     mean_mjdobs = 0.0
                     if maxtimespan_hours == 0:
                         # reduce individual images
-                        for filename in classified_images:
-                            if not classified_images[filename]:
-                                basename = os.path.basename(filename)
+                        for fname in classified_images:
+                            if not classified_images[fname]:
+                                basename = os.path.basename(fname)
                                 if verbose:
-                                    print(' - {}'.format(filename))
+                                    print(' - {}'.format(fname))
                                 t = imagedb[redustep][basename]['MJD-OBS']
                                 mean_mjdobs += t
-                                imgblock.append(filename)
+                                imgblock.append(fname)
                                 break
                     else:
                         t0 = None
-                        for filename in classified_images:
-                            if not classified_images[filename]:
-                                basename = os.path.basename(filename)
+                        for fname in classified_images:
+                            if not classified_images[fname]:
+                                basename = os.path.basename(fname)
                                 t = imagedb[redustep][basename]['MJD-OBS']
                                 if len(imgblock) == 0:
-                                    imgblock.append(filename)
+                                    imgblock.append(fname)
                                     t0 = imagedb[redustep][basename]['MJD-OBS']
                                     mean_mjdobs += t0
                                     if verbose:
-                                        print(' - {}'.format(filename))
+                                        print(' - {}'.format(fname))
                                 else:
                                     if abs(t-t0) < maxtimespan_hours/24:
                                         if verbose:
-                                            print(' - {}'.format(filename))
-                                        imgblock.append(filename)
+                                            print(' - {}'.format(fname))
+                                        imgblock.append(fname)
                                         mean_mjdobs += t
                     imgblock.sort()
                     nfiles = len(imgblock)
@@ -214,22 +214,22 @@ def run_calibration_step(redustep, datadir, list_of_nights,
                     if verbose:
                         print('-> Number of images with expected signature and within time span:', nfiles)
                         if debug:
-                            for filename in imgblock:
-                                print(filename)
+                            for fname in imgblock:
+                                print(fname)
 
                     # define output FITS file using the file name of the first
                     # image in the block (appending the _red suffix)
-                    output_filename = nightdir + '/' + redustep + '_'
+                    output_fname = nightdir + '/' + redustep + '_'
                     dumfile = os.path.basename(imgblock[0])
-                    output_filename += dumfile[:-5] + '_red.fits'
+                    output_fname += dumfile[:-5] + '_red.fits'
                     execute_reduction = True
-                    if os.path.exists(output_filename) and not force:
+                    if os.path.exists(output_fname) and not force:
                         execute_reduction = False
-                        print('File {} already exists: skipping reduction.'.format(output_filename))
+                        print('File {} already exists: skipping reduction.'.format(output_fname))
 
                     if execute_reduction:
                         if verbose:
-                            print('-> output filename will be {}'.format(output_filename))
+                            print('-> output fname will be {}'.format(output_fname))
 
                         # note: the following step must be performed before
                         # saving the combined image; otherwise, the cleanup
@@ -261,10 +261,10 @@ def run_calibration_step(redustep, datadir, list_of_nights,
                                     conflict = list(set(originf) & set(old_originf))
                                     if len(conflict) > 0:
                                         mjdobs_to_be_deleted.append(mjdobs)
-                                        filename = database[redustep][ssig][mjdobs]['filename']
-                                        if os.path.exists(filename):
-                                            print('Deleting {}'.format(filename))
-                                            os.remove(filename)
+                                        fname = database[redustep][ssig][mjdobs]['fname']
+                                        if os.path.exists(fname):
+                                            print('Deleting {}'.format(fname))
+                                            os.remove(fname)
                                 for mjdobs in mjdobs_to_be_deleted:
                                     print('WARNING: deleting previous database entry: {} --> {} --> {}'.format(
                                             redustep, ssig, mjdobs
@@ -283,10 +283,10 @@ def run_calibration_step(redustep, datadir, list_of_nights,
 
                         # store images in temporary data cube
                         for i in range(nfiles):
-                            filename = imgblock[i]
-                            basename = os.path.basename(filename)
+                            fname = imgblock[i]
+                            basename = os.path.basename(fname)
                             exptime[i] = imagedb[redustep][basename]['EXPTIME']
-                            with fits.open(filename) as hdulist:
+                            with fits.open(fname) as hdulist:
                                 image_header = hdulist[0].header
                                 image_data = hdulist[0].data
                             if i == 0:
@@ -308,7 +308,7 @@ def run_calibration_step(redustep, datadir, list_of_nights,
                                         print('WARNING: {} changed from {} to {}'.format(keyword, val1, val2))
                                 output_header.add_history('Using {} images to compute {}:'.format(nfiles, redustep))
                             image3d[i, :, :] += image_data
-                            output_header.add_history(os.path.basename(filename))
+                            output_header.add_history(os.path.basename(fname))
                         output_header.add_history('Signature:')
                         for key in signature:
                             output_header.add_history(' - {}: {}'.format(key, signature[key]))
@@ -327,12 +327,12 @@ def run_calibration_step(redustep, datadir, list_of_nights,
                         elif redustep == 'flat-imaging':
                             mjdobs = output_header['MJD-OBS']
                             # retrieve and subtract bias
-                            ierr_bias, delta_mjd_bias, image2d_bias, bias_filename = retrieve_calibration(
+                            ierr_bias, delta_mjd_bias, image2d_bias, bias_fname = retrieve_calibration(
                                     instrument, 'bias', signature, mjdobs,
                                     verbose=verbose
                                 )
                             output_header.add_history('Subtracting bias:')
-                            output_header.add_history(bias_filename)
+                            output_header.add_history(bias_fname)
                             if debug:
                                 print('bias level:', np.median(image2d_bias))
                             for i in range(nfiles):
@@ -356,8 +356,8 @@ def run_calibration_step(redustep, datadir, list_of_nights,
 
                         # save result
                         hdu = fits.PrimaryHDU(image2d.astype(np.float32), output_header)
-                        hdu.writeto(output_filename, overwrite=True)
-                        print('Creating {} with signature {}'.format(output_filename, ssig))
+                        hdu.writeto(output_fname, overwrite=True)
+                        print('Creating {} with signature {}'.format(output_fname, ssig))
 
                         # update database with result using the mean MJD-OBS of
                         # the combined images as index
@@ -365,7 +365,7 @@ def run_calibration_step(redustep, datadir, list_of_nights,
                         database[redustep][ssig][mjdobs] = dict()
                         database[redustep][ssig][mjdobs]['night'] = night
                         database[redustep][ssig][mjdobs]['signature'] = signature
-                        database[redustep][ssig][mjdobs]['filename'] = output_filename
+                        database[redustep][ssig][mjdobs]['fname'] = output_fname
                         database[redustep][ssig][mjdobs]['statsumm'] = image2d_statsum
                         dumdict = dict()
                         for keyword in instconf['masterkeywords']:

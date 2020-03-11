@@ -140,18 +140,18 @@ def list_classified(instrument, img, listmode, datadir, args_night,
     colnames = None
     df = None
 
-    for jsonfilename in list_of_imagedb:
+    for jsonfname in list_of_imagedb:
 
         try:
-            with open(jsonfilename) as jfile:
+            with open(jsonfname) as jfile:
                 imagedb = json.load(jfile)
         except FileNotFoundError:
-            raise SystemError('File {} not found'.format(jsonfilename))
+            raise SystemError('File {} not found'.format(jsonfname))
 
         night = imagedb['metainfo']['night']
         if imagetype in imagedb:
-            for filename in imagedb[imagetype]:
-                outfile = datadir + night + '/' + filename
+            for fname in imagedb[imagetype]:
+                outfile = datadir + night + '/' + fname
                 n += 1
                 if listmode == "singleline":
                     print(outfile, end=' ')
@@ -164,7 +164,7 @@ def list_classified(instrument, img, listmode, datadir, args_night,
                         valid_keywords += list(statsumm(image2d=None).keys())
                         print('Valid keywords:', valid_keywords)
                         raise SystemExit()
-                    storedkeywords = imagedb[imagetype][filename]
+                    storedkeywords = imagedb[imagetype][fname]
                     colnames_ = ['file']
                     if lkeyword is not None:
                         for keyword in lkeyword:
@@ -177,7 +177,7 @@ def list_classified(instrument, img, listmode, datadir, args_night,
                         df = pd.DataFrame(columns=colnames)
                     else:
                         if colnames_ != colnames:
-                            print("ERROR: number of keywords do not match for file {}".format(filename))
+                            print("ERROR: number of keywords do not match for file {}".format(fname))
                             print("- expected:", colnames)
                             print("- required:", colnames_)
                             raise SystemExit()
@@ -228,8 +228,8 @@ def list_classified(instrument, img, listmode, datadir, args_night,
                         print('')
                 # display images
                 if args_plotimage:
-                    for filename in df['file']:
+                    for fname in df['file']:
                         with plt.style.context('seaborn'):
-                            ximshow_file(filename, debugplot=12)
+                            ximshow_file(fname, debugplot=12)
 
     raise SystemExit()

@@ -43,15 +43,15 @@ def generate_setup(args_setup):
 
     """
 
-    yaml_filename1 = 'setup_filabres.yaml'
-    yaml_filename2 = 'ignored_images.yaml'
-    yaml_filename3 = 'image_header_corrections.yaml'
-    lfiles = [yaml_filename1, yaml_filename2, yaml_filename3]
+    yaml_fname1 = 'setup_filabres.yaml'
+    yaml_fname2 = 'ignored_images.yaml'
+    yaml_fname3 = 'image_header_corrections.yaml'
+    lfiles = [yaml_fname1, yaml_fname2, yaml_fname3]
 
     # avoid file overwriting
-    for yaml_filename in lfiles:
-        if os.path.isfile(yaml_filename):
-            print('ERROR: the file "{}" already exists.'.format(yaml_filename))
+    for yaml_fname in lfiles:
+        if os.path.isfile(yaml_fname):
+            print('ERROR: the file "{}" already exists.'.format(yaml_fname))
             print('-> Delete it manually before executing filabres.')
             raise SystemExit()
 
@@ -60,24 +60,24 @@ def generate_setup(args_setup):
     d = OrderedDict()
     d['instrument'] = args_setup[0]
     d['datadir'] = args_setup[1]
-    d['ignored_images_file'] = yaml_filename2
-    d['image_header_corrections_file'] = yaml_filename3
-    with open(yaml_filename1, 'wt') as f:
+    d['ignored_images_file'] = yaml_fname2
+    d['image_header_corrections_file'] = yaml_fname3
+    with open(yaml_fname1, 'wt') as f:
         yaml.dump(d, f, default_flow_style=False)
 
     # include comments in all the files
-    for yaml_filename in lfiles:
-        header = '# file {}\n#\n'.format(yaml_filename)
+    for yaml_fname in lfiles:
+        header = '# file {}\n#\n'.format(yaml_fname)
         header += '# generated automatically by {} v.{}\n#\n'.format(
             os.path.basename(sys.argv[0]), version
         )
         header +='# creation date {}\n#\n'.format(datetime.datetime.utcnow().isoformat())
-        if os.path.isfile(yaml_filename):
-            with open(yaml_filename, 'r+t') as f:
+        if os.path.isfile(yaml_fname):
+            with open(yaml_fname, 'r+t') as f:
                 content = f.read()
                 f.seek(0, 0)
                 f.write(header + content)
         else:
-            with open(yaml_filename, 'wt') as f:
+            with open(yaml_fname, 'wt') as f:
                 f.write(header)
-        print('File {} created!'.format(yaml_filename))
+        print('File {} created!'.format(yaml_fname))

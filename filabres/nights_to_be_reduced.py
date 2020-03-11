@@ -44,7 +44,7 @@ def nights_to_be_reduced(args_night, datadir, verbose=False):
         print('ERROR: directory {} not found'.format(datadir))
         raise SystemExit()
 
-    list_of_nights = [filename for filename in all_nights if fnmatch.fnmatch(filename, night)]
+    list_of_nights = [fname for fname in all_nights if fnmatch.fnmatch(fname, night)]
 
     if len(list_of_nights) == 0:
         print('ERROR: no subdirectory matches the night selection')

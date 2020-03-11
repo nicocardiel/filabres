@@ -200,24 +200,24 @@ def classify_images(list_of_nights, instconf, datadir, force,
             os.makedirs(nightdir)
 
         # generate database for all the files in current night
-        basefilename = nightdir + '/imagedb_' + instconf['instname']
-        jsonfilename = basefilename + '.json'
+        basefname = nightdir + '/imagedb_' + instconf['instname']
+        jsonfname = basefname + '.json'
         execute_night = True
-        if os.path.exists(jsonfilename) and not force:
+        if os.path.exists(jsonfname) and not force:
             execute_night = False
-            print('File {} already exists: skipping directory.'.format(jsonfilename))
+            print('File {} already exists: skipping directory.'.format(jsonfname))
 
         if execute_night:
             # get list of FITS files for current night
-            filenames = datadir + night + '/*.fits'
-            list_of_fits = glob.glob(filenames)
+            fnames = datadir + night + '/*.fits'
+            list_of_fits = glob.glob(fnames)
             list_of_fits.sort()
             if verbose:
                 print(' ')
             print('* Working with night {} ({}/{}) ---> {} FITS files'.format(
                 night, inight + 1, len(list_of_nights), len(list_of_fits)))
 
-            logfilename = basefilename + '.log'
+            logfname = basefname + '.log'
             logfile = None
             imagedb = {
                 'metainfo': {
@@ -225,7 +225,7 @@ def classify_images(list_of_nights, instconf, datadir, force,
                     'night': night,
                     'self': {
                         'creation_date': datetime.datetime.utcnow().isoformat(),
-                        'thisfile': os.getcwd() + jsonfilename[1:],
+                        'thisfile': os.getcwd() + jsonfname[1:],
                         'origin': sys.argv[0] + ', v.' + version,
                         'uuid': str(uuid.uuid1()),
                     },
@@ -259,8 +259,8 @@ def classify_images(list_of_nights, instconf, datadir, force,
                         data = hdul[0].data
                 except (UserWarning, ResourceWarning) as e:
                     if logfile is None:
-                        logfile = open(logfilename, 'wt')
-                        print('-> Creating {}'.format(logfilename))
+                        logfile = open(logfname, 'wt')
+                        print('-> Creating {}'.format(logfname))
                     logfile.write('{} while reading {}\n'.format(type(e).__name__, basename))
                     logfile.write('{}\n'.format(e))
                     print('{} while reading {}'.format(
@@ -308,8 +308,8 @@ def classify_images(list_of_nights, instconf, datadir, force,
                                           ' {} to {:.5f} (wrong value in file {})'.format(mjdobs, tinit.mjd, filepath)
                                     print(msg)
                                     if logfile is None:
-                                        logfile = open(logfilename, 'wt')
-                                        print('-> Creating {}'.format(logfilename))
+                                        logfile = open(logfname, 'wt')
+                                        print('-> Creating {}'.format(logfname))
                                     logfile.write(msg + '\n')
                         else:
                             msg = 'ERROR: keyword {} is missing in file {}'.format(keyword, basename)
@@ -365,12 +365,12 @@ def classify_images(list_of_nights, instconf, datadir, force,
 
             # generate JSON output file
             if verbose:
-                print('-> Creating {}'.format(jsonfilename))
-            with open(jsonfilename, 'w') as outfile:
+                print('-> Creating {}'.format(jsonfname))
+            with open(jsonfname, 'w') as outfile:
                 json.dump(imagedb, outfile, indent=2)
 
             # double check
             if num_doublecheck != len(list_of_fits):
                 print('ERROR: double check in number of files failed!')
-                msg = '--> see file {}'.format(jsonfilename)
+                msg = '--> see file {}'.format(jsonfname)
                 raise SystemError(msg)

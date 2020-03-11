@@ -13,11 +13,11 @@ import os.path
 
 
 class FileInfo(object):
-    """Auxiliary class to store filename and associated information.
+    """Auxiliary class to store fname and associated information.
 
     Parameters
     ----------
-    filename : string
+    fname : string
         File name.
     fileinfo : list of strings or None
         Associated file information.
@@ -28,8 +28,8 @@ class FileInfo(object):
 
     """
 
-    def __init__(self, filename, extnum=None, fileinfo=None):
-        self.filename = filename
+    def __init__(self, fname, extnum=None, fileinfo=None):
+        self.fname = fname
         self.extnum = extnum
         self.fileinfo = fileinfo
 
@@ -37,24 +37,24 @@ class FileInfo(object):
         """Printable representation of a FileInfo instance."""
 
         output = "<FileInfo instance>\n" + \
-                 "- filename: " + self.filename + "\n" + \
+                 "- fname: " + self.fname + "\n" + \
                  "- extnum..: " + self.extnum + "\n" + \
                  "- fileinfo: " + str(self.fileinfo)
 
         return output
 
 
-def check_extnum(filename):
-    """Return extension number when given as filename.fits[extnum]
+def check_extnum(fname):
+    """Return extension number when given as fname.fits[extnum]
 
     Parameters
     ----------
-    filename : string
+    fname : string
         File name.
 
     Returns
     -------
-    filename : string
+    fname : string
         File name without the extension number (if initially present).
     extnum : int or None
         Extension number.
@@ -62,29 +62,29 @@ def check_extnum(filename):
     """
 
     extnum = None
-    if filename[-1] == ']':
-        leftbracket = filename.rfind('[')
+    if fname[-1] == ']':
+        leftbracket = fname.rfind('[')
         if leftbracket != -1:
-            cdum = filename[(leftbracket + 1):-1]
+            cdum = fname[(leftbracket + 1):-1]
             if len(cdum) > 0:
                 try:
                     extnum = int(cdum)
                 except ValueError:
                     raise ValueError("Invalid extension number {}".format(
-                        filename[(leftbracket + 1):-1]
+                        fname[(leftbracket + 1):-1]
                     ))
                 # remove extension number from file name
-                filename = filename[:leftbracket]
+                fname = fname[:leftbracket]
 
-    return filename, extnum
+    return fname, extnum
 
 
-def list_fileinfo_from_txt(filename):
-    """Returns a list of FileInfo instances if filename is a TXT file.
+def list_fileinfo_from_txt(fname):
+    """Returns a list of FileInfo instances if fname is a TXT file.
     
     Parameters
     ----------
-    filename : string
+    fname : string
         Name of a file (wildcards are acceptable) or a TXT file
         containing a list of files. Empty Lines, and lines starting by
         a hash or a at symbol in the TXT file are ignored.
@@ -98,15 +98,15 @@ def list_fileinfo_from_txt(filename):
     """
     
     # check for input file
-    if not os.path.isfile(filename):
+    if not os.path.isfile(fname):
         # check for wildcards
-        list_fits_files = glob.glob(filename)
+        list_fits_files = glob.glob(fname)
         if len(list_fits_files) == 0:
             # check for extension at the end of the file name
-            tmpfile, tmpextnum = check_extnum(filename)
+            tmpfile, tmpextnum = check_extnum(fname)
             list_fits_files = glob.glob(tmpfile)
             if len(list_fits_files) == 0:
-                raise ValueError("File " + filename + " not found!")
+                raise ValueError("File " + fname + " not found!")
             else:
                 list_fits_files.sort()
                 output = [FileInfo(tmpfile, tmpextnum) for
@@ -118,8 +118,8 @@ def list_fileinfo_from_txt(filename):
             return output
 
     # if input file is a txt file, assume it is a list of FITS files
-    if filename[-4:] == ".txt":
-        with open(filename) as f:
+    if fname[-4:] == ".txt":
+        with open(fname) as f:
             file_content = f.read().splitlines()
         output = []
         for line in file_content:
@@ -145,7 +145,7 @@ def list_fileinfo_from_txt(filename):
 
                     output.append(FileInfo(tmpfile, tmpextnum, tmpinfo))
     else:
-        output = [FileInfo(filename)]
+        output = [FileInfo(fname)]
 
     return output
 

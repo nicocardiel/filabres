@@ -29,7 +29,7 @@ def check_args_compatibility(args, debug=False):
     # create a list for each group
     arglist_setup = ['setup']
     arglist_check = ['check']
-    arglist_reduc = ['reduction_step', 'force', 'interactive']
+    arglist_reduc = ['reduction_step', 'force', 'interactive', 'image']
     arglist_lists = ['lc_imagetype', 'lr_imagetype', 'listmode', 'keyword',
                      'keyword_sort', 'plotxy', 'plotimage', 'ndecimal']
     arglist_other = ['night', 'setup', 'verbose', 'debug']

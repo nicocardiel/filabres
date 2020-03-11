@@ -31,8 +31,8 @@ NMAXGAIA = 2000
 
 class ToLogFile(object):
     def __init__(self, workdir, verbose):
-        self.filename = '{}/astrometry.log'.format(workdir)
-        self.logfile = open(self.filename, 'wt')
+        self.fname = '{}/astrometry.log'.format(workdir)
+        self.logfile = open(self.fname, 'wt')
         self.verbose = verbose
 
     def print(self, line):
@@ -89,7 +89,7 @@ class CmdExecute(object):
 
 def run_astrometry(image2d, mask2d, saturpix,
                    header, maxfieldview_arcmin, fieldfactor,
-                   nightdir, output_filename,
+                   nightdir, output_fname,
                    interactive, verbose, debug=False):
     """
     Compute astrometric solution of image.
@@ -116,7 +116,7 @@ def run_astrometry(image2d, mask2d, saturpix,
     nightdir : str or None
         Directory where the raw image is stored and the auxiliary
         images created by run_astrometry will be placed.
-    output_filename : str or None
+    output_fname : str or None
         Output file name.
     interactive : bool or None
         If True, enable interactive execution (e.g. plots,...).
@@ -150,7 +150,7 @@ def run_astrometry(image2d, mask2d, saturpix,
 
     # define ToLogFile object
     logfile = ToLogFile(workdir=workdir, verbose=verbose)
-    logfile.print('\nAstrometric calibration of {}'.format(output_filename))
+    logfile.print('\nAstrometric calibration of {}'.format(output_fname))
 
     # define CmdExecute object
     cmd = CmdExecute(logfile)
@@ -184,9 +184,9 @@ def run_astrometry(image2d, mask2d, saturpix,
     zj2000 = np.sin(dec_center)
 
     # read JSON file with central coordinates of fields already calibrated
-    jsonfilename = '{}/central_pointings.json'.format(nightdir)
-    if os.path.exists(jsonfilename):
-        with open(jsonfilename) as jfile:
+    jsonfname = '{}/central_pointings.json'.format(nightdir)
+    if os.path.exists(jsonfname):
+        with open(jsonfname) as jfile:
             ccbase = json.load(jfile)
     else:
         ccbase = dict()
@@ -323,10 +323,10 @@ def run_astrometry(image2d, mask2d, saturpix,
         col4 = fits.Column(name='phot_g_mean_mag', format='E', array=phot_g_mean_mag)
         hdu = fits.BinTableHDU.from_columns([col1, col2, col3, col4])
         hdul = fits.HDUList([primary_hdu, hdu])
-        outfilename = nightdir + '/' + subdir + '/GaiaDR2-query.fits'
-        hdul.writeto(outfilename, overwrite=True)
+        outfname = nightdir + '/' + subdir + '/GaiaDR2-query.fits'
+        hdul.writeto(outfname, overwrite=True)
         if verbose:
-            print('-> Saving {}'.format(outfilename))
+            print('-> Saving {}'.format(outfname))
 
         # generate index file with GAIA data
         command = 'build-astrometry-index -i {}/{}/GaiaDR2-query.fits'.format(nightdir, subdir)
@@ -350,7 +350,7 @@ def run_astrometry(image2d, mask2d, saturpix,
             'z': zj2000,
             'search_radius_arcmin': search_radius_arcmin
         }
-        with open(jsonfilename, 'w') as outfile:
+        with open(jsonfname, 'w') as outfile:
             json.dump(ccbase, outfile, indent=2)
 
     else:
@@ -367,10 +367,10 @@ def run_astrometry(image2d, mask2d, saturpix,
     naxis2, naxis1 = image2d.shape
 
     # save temporary FITS file
-    tmpfilename = '{}/xxx.fits'.format(workdir)
+    tmpfname = '{}/xxx.fits'.format(workdir)
     header.add_history('--Computing Astrometry.net WCS solution--')
     hdu = fits.PrimaryHDU(image2d.astype(np.float32), header)
-    hdu.writeto(tmpfilename, overwrite=True)
+    hdu.writeto(tmpfname, overwrite=True)
 
     # solve field
     command = 'solve-field -p'
@@ -424,13 +424,13 @@ def run_astrometry(image2d, mask2d, saturpix,
     logfile.print('astrometry.net> pixel scales (arcsec/pix): {}'.format(pixel_scales_arcsec_pix))
 
     # load corr file
-    corrfilename = '{}/xxx.corr'.format(workdir)
-    with fits.open(corrfilename) as hdul_table:
+    corrfname = '{}/xxx.corr'.format(workdir)
+    with fits.open(corrfname) as hdul_table:
         tcorr = hdul_table[1].data
 
     # generate plots
     plot_astrometry(
-        output_filename=output_filename,
+        output_fname=output_fname,
         image2d=image2d,
         peak_x=tcorr.field_x, peak_y=tcorr.field_y,
         pred_x=tcorr.index_x, pred_y=tcorr.index_y,
@@ -442,17 +442,17 @@ def run_astrometry(image2d, mask2d, saturpix,
     )
 
     # open result and update header
-    result_filename = '{}/xxx.new'.format(workdir)
-    with fits.open(result_filename) as hdul:
+    result_fname = '{}/xxx.new'.format(workdir)
+    with fits.open(result_fname) as hdul:
         newheader = hdul[0].header
 
     # copy configuration files for astrometric
     conffiles = ['default.param', 'config.sex', 'config.scamp']
-    for filename in conffiles:
-        dumdata = pkgutil.get_data('filabres.astromatic', filename)
-        txtfilename = '{}/{}'.format(workdir, filename)
-        logfile.print('Generating {}'.format(txtfilename))
-        with open(txtfilename, 'wt') as f:
+    for fname in conffiles:
+        dumdata = pkgutil.get_data('filabres.astromatic', fname)
+        txtfname = '{}/{}'.format(workdir, fname)
+        logfile.print('Generating {}'.format(txtfname))
+        with open(txtfname, 'wt') as f:
             f.write(str(dumdata.decode('utf8')))
 
     # run sextractor
@@ -548,12 +548,12 @@ def run_astrometry(image2d, mask2d, saturpix,
 
     # save result
     hdu = fits.PrimaryHDU(image2d.astype(np.float32), newheader)
-    hdu.writeto(output_filename, overwrite=True)
+    hdu.writeto(output_fname, overwrite=True)
     if verbose:
-        print('-> file {} created'.format(output_filename))
+        print('-> file {} created'.format(output_fname))
 
     # load WCS computed with SCAMP
-    w = WCS(output_filename)
+    w = WCS(output_fname)
     # compute pixel scale (mean in both axis) in arcsec/pix
     pixel_scales_arcsec_pix = proj_plane_pixel_scales(w)*3600
     logfile.print('astrometry> pixel scales (arcsec/pix): {}'.format(pixel_scales_arcsec_pix))
@@ -570,7 +570,7 @@ def run_astrometry(image2d, mask2d, saturpix,
 
     # generate plots
     plot_astrometry(
-        output_filename=output_filename,
+        output_fname=output_fname,
         image2d=image2d,
         peak_x=peak_x, peak_y=peak_y,
         pred_x=pred_x, pred_y=pred_y,
@@ -585,7 +585,7 @@ def run_astrometry(image2d, mask2d, saturpix,
     logfile.close()
 
     # storing relevant files in corresponding subdirectory
-    basename = os.path.basename(output_filename)
+    basename = os.path.basename(output_fname)
     backupsubdir = basename[:-5]
     backupsubdirfull = '{}/{}'.format(nightdir, backupsubdir)
     if os.path.isdir(backupsubdirfull):

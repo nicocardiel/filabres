@@ -21,12 +21,12 @@ def single_list_of_files(initlist, path=''):
         Initial file list. Individual entries in this list can have
         file name specifications with wildcards.
     path : str
-        Path to the filename.
+        Path to the fname.
 
     Returns
     =======
     result : list
-        Single list of files matching the sequence of filenames
+        Single list of files matching the sequence of fnames
         initially provided.
     """
     result = []

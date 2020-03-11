@@ -50,8 +50,8 @@ def check_datadir(datadir, ignored_images_file, verbose=False):
     for night in all_nights:
         newfiles = glob.glob(datadir + night + '/*.fits')
         nignored = 0
-        for filename in newfiles:
-            basename = os.path.basename(filename)
+        for fname in newfiles:
+            basename = os.path.basename(fname)
             if not imgtoignore.to_be_ignored(
                     night=night,
                     basename=basename,
@@ -60,9 +60,9 @@ def check_datadir(datadir, ignored_images_file, verbose=False):
                 nfiles += 1
                 if basename in all_files:
                     repeated_files.append(basename)
-                    all_files[basename].append(filename)
+                    all_files[basename].append(fname)
                 else:
-                    all_files[basename] = [filename]
+                    all_files[basename] = [fname]
             else:
                 nignored += 1
         print('Night {} -> number of files:{:6d}, ignored:{:6d} --> TOTAL:{:6d}'.format(
@@ -73,7 +73,7 @@ def check_datadir(datadir, ignored_images_file, verbose=False):
         input('Press <ENTER> to display duplicate files...')
         for basename in repeated_files:
             print('\n* File {} appears in:'.format(basename))
-            for filename in all_files[basename]:
-                print(filename)
+            for fname in all_files[basename]:
+                print(fname)
     else:
         print('There are not repeated files')

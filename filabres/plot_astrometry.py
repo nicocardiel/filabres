@@ -19,7 +19,7 @@ from .pause_debugplot import pause_debugplot
 NMAXGAIA = 2000
 
 
-def plot_astrometry(output_filename, image2d,
+def plot_astrometry(output_fname, image2d,
                     peak_x, peak_y, pred_x, pred_y, xcatag, ycatag,
                     pixel_scales_arcsec_pix, workdir, interactive, logfile,
                     suffix):
@@ -28,7 +28,7 @@ def plot_astrometry(output_filename, image2d,
 
     Parameters
     ==========
-    output_filename : str or None
+    output_fname : str or None
         Output file name.
     image2d : numpy 2D array
         Image to be calibrated.
@@ -76,7 +76,7 @@ def plot_astrometry(output_filename, image2d,
         if delta_r[iorder] > 3 * meanerr:
             logfile.print('-> outlier point #{}, delta_r (arcsec): {}'.format(i+1, delta_r[iorder]))
 
-    plot_suptitle = '[File: {}]'.format(os.path.basename(output_filename))
+    plot_suptitle = '[File: {}]'.format(os.path.basename(output_fname))
     plot_title = 'astrometry-{} (npoints={}, meanerr={:.3f} arcsec)'.format(suffix, ntargets, meanerr)
     # plot 1: X and Y errors
     pp = PdfPages('{}/astrometry-{}.pdf'.format(workdir, suffix))
