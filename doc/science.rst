@@ -4,4 +4,5 @@
 Reduction of science images
 ***************************
 
+(Still work in progress)
 

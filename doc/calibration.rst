@@ -444,6 +444,24 @@ additional use of ``-k <keyword>``, ``-ks <keyword>``, ``-pxy`` and ``-pi``):
 
    (filabres) $ filabres -of bias/170601_t2_CAFOS/bias_caf-20170601-13:06:15-cal-bomd_red.fits \
    -k quant500 -k robuststd
+   > Signature: SITE#1d_15__1000__2048__[501,1:1500,2048]__1__1
+   > Available images with this signature:
+   MJD-OBS: 57809.42257, calibration: bias/170225_t2_CAFOS/bias_caf-20170225-10:03:09-cal-bomd_red.fits
+   MJD-OBS: 57810.48956, calibration: bias/170226_t2_CAFOS/bias_caf-20170226-11:39:37-cal-bomd_red.fits
+   MJD-OBS: 57890.69435, calibration: bias/170517_t2_CAFOS/bias_caf-20170517-16:34:30-cal-bomd_red.fits
+   MJD-OBS: 57891.57056, calibration: bias/170518_t2_CAFOS/bias_caf-20170518-13:36:14-cal-bomd_red.fits
+   MJD-OBS: 57897.69934, calibration: bias/170524_t2_CAFOS/bias_caf-20170524-16:41:41-cal-boeh_red.fits
+   MJD-OBS: 57898.17553, calibration: bias/170524_t2_CAFOS/bias_caf-20170525-04:07:28-cal-boeh_red.fits
+   MJD-OBS: 57898.69377, calibration: bias/170525_t2_CAFOS/bias_caf-20170525-16:33:40-cal-boeh_red.fits
+   MJD-OBS: 57899.16265, calibration: bias/170525_t2_CAFOS/bias_caf-20170526-03:48:53-cal-boeh_red.fits
+   MJD-OBS: 57899.65963, calibration: bias/170526_t2_CAFOS/bias_caf-20170526-15:44:34-cal-boeh_red.fits
+   MJD-OBS: 57900.17332, calibration: bias/170526_t2_CAFOS/bias_caf-20170527-04:04:16-cal-boeh_red.fits
+   MJD-OBS: 57900.69400, calibration: bias/170527_t2_CAFOS/bias_caf-20170527-16:34:04-cal-boeh_red.fits
+   MJD-OBS: 57901.68921, calibration: bias/170528_t2_CAFOS/bias_caf-20170528-16:27:05-cal-boeh_red.fits
+   MJD-OBS: 57905.54971, calibration: bias/170601_t2_CAFOS/bias_caf-20170601-13:06:15-cal-bomd_red.fits (*)
+   ---
+   > List of individual frames:
+     (involved in the computation of bias/170601_t2_CAFOS/bias_caf-20170601-13:06:15-cal-bomd_red.fits)
                                                                                file  QUANT500  ROBUSTSTD
    1   /Users/cardiel/CAFOS2017/170601_t2_CAFOS/caf-20170601-13:06:15-cal-bomd.fits  722.0     25.2042  
    2   /Users/cardiel/CAFOS2017/170601_t2_CAFOS/caf-20170601-13:07:26-cal-bomd.fits  722.0     25.2042  
@@ -457,10 +475,26 @@ additional use of ``-k <keyword>``, ``-ks <keyword>``, ``-pxy`` and ``-pi``):
    10  /Users/cardiel/CAFOS2017/170601_t2_CAFOS/caf-20170601-13:17:01-cal-bomd.fits  723.0     25.9455  
    Total: 10 files
 
-In fact, the high median and robust standard deviation values are
-present in the individual images employed to generate the suspicious reduced
-bias image. Not only that. The illumination gradient is also present in 
-the 10 individual images, as can be easily visualized using ``-pi``:
+The output of the last command provides very useful information:
+
+- ``> Signature``: indicates the particular signature of the calibration image.
+
+- ``> Available reduced images with this signature``: the modified Julian Date
+  and the name of the calibration file is given. An asterisk ``(*)`` appears
+  after the name of the reduced image we are investigating. **The list reveals
+  that there are other reduced bias images with the same signature**. This is
+  important because if we decide to remove the suspicious calibration image,
+  there will be additional calibration images with the same signature that can
+  be employed (although from different nights).
+
+- ``> List of individual frames:`` list of individual images employed in the
+  reduction of the reduced image indicated after the argument ``-of``. This
+  list is a table with the additional requested keywords.
+
+In this case, we confirm that the high median and robust standard deviation
+values are also present in the individual images employed to generate the
+suspicious reduced bias image. Not only that. The illumination gradient is also
+present in the 10 individual images, as can be easily visualized using ``-pi``:
 
 ::
 
@@ -475,10 +509,118 @@ the 10 individual images, as can be easily visualized using ``-pi``:
    :width: 100%
    :alt: Individual wrong bias night 20170601
 
+Removing invalid reduced bias
+-----------------------------
 
+.. warning::
+
+   In order to remove a particular reduced calibration (in this case a master
+   bias) it is important to follow **all the steps** here given.
+
+1. Include individual images in ``ignored_images.yaml``: in this example, we
+   want to exclude 10 images from night ``170601_t2_CAFOS``. The easiest way
+   is to repeat the execution of the last **filabres** command, by adding
+   ``-lm basic`` (basic list mode), which will provide a list of ten files
+   that we can *cut and paste* in the file ``ignored_images.yaml``. Step by
+   step, the procedure is:
+
+   - 1.a. Execute:
+
+      ::
+
+        (filabres) $ filabres -of bias/170601_t2_CAFOS/bias_caf-20170601-13:06:15-cal-bomd_red.fits -lm basic
+        ...
+        ...
+        > List of individual frames:
+          (involved in the computation of bias/170601_t2_CAFOS/bias_caf-20170601-13:06:15-cal-bomd_red.fits)
+         - caf-20170601-13:06:15-cal-bomd.fits
+         - caf-20170601-13:07:26-cal-bomd.fits
+         - caf-20170601-13:08:38-cal-bomd.fits
+         - caf-20170601-13:09:50-cal-bomd.fits
+         - caf-20170601-13:11:02-cal-bomd.fits
+         - caf-20170601-13:12:14-cal-bomd.fits
+         - caf-20170601-13:13:25-cal-bomd.fits
+         - caf-20170601-13:14:37-cal-bomd.fits
+         - caf-20170601-13:15:48-cal-bomd.fits
+         - caf-20170601-13:17:01-cal-bomd.fits
+        Total: 10 files
+
+   - 1.b. Cut and paste the last 10 lines starting by ``-`` into the file
+     ``ignored_image.yaml``, creating a new block for night
+     ``170601_t2_CAFOS``. Considering that we already had 4 blocks in this
+     file, we insert a fifth block (the order of the blocks is irrelevant, but
+     here we preserve the order given by the observing night just to
+     facilitate the organization of the blocks), so the final content of this
+     file is:
+
+     .. literalinclude:: ignored_images_v2.yaml
+        :linenos:
+        :lineno-start: 1
+        :emphasize-lines: 17-29
+
+     Note that the new block correspond to the highlighted lines 17 to 29. In
+     this case, the explicit names of the ten files have been used (no
+     wildcards employed).
+
+2. Re-run the image classification for the corresponding observing night: this
+   will regenerate the local image database ``imagedb_cafos.json`` for the
+   night ``170601_t2_CAFOS``, ignoring the problematic files. Note that if
+   you simple execute:
+
+   ::
+
+      (filabres) $ filabres -rs initialize -n 170601*
+      * Number of nights found: 1
+      File ./lists/170601_t2_CAFOS/imagedb_cafos.json already exists: skipping directory.
+      * program STOP
+
+   nothing really happens because the local database already exists. You have
+   to force the classification in order to override the database file:
+
+   ::
+
+      (filabres) $ filabres -rs initialize -n 170601* --force
+      * Number of nights found: 1
+      * Working with night 170601_t2_CAFOS (1/1) ---> 96 FITS files
+      * program STOP
+
+   Check that the images have in fact been ignored:
+
+   ::
+
+      $ filabres -lc ignored -n 170601*
+                                                                                              file NAXIS1 NAXIS2
+      1   /Volumes/NicoPassport/CAHA/CAFOS2017/170601_t2_CAFOS/caf-20170601-13:06:15-cal-bomd.fits  1000   2048 
+      2   /Volumes/NicoPassport/CAHA/CAFOS2017/170601_t2_CAFOS/caf-20170601-13:07:26-cal-bomd.fits  1000   2048 
+      3   /Volumes/NicoPassport/CAHA/CAFOS2017/170601_t2_CAFOS/caf-20170601-13:08:38-cal-bomd.fits  1000   2048 
+      4   /Volumes/NicoPassport/CAHA/CAFOS2017/170601_t2_CAFOS/caf-20170601-13:09:50-cal-bomd.fits  1000   2048 
+      5   /Volumes/NicoPassport/CAHA/CAFOS2017/170601_t2_CAFOS/caf-20170601-13:11:02-cal-bomd.fits  1000   2048 
+      6   /Volumes/NicoPassport/CAHA/CAFOS2017/170601_t2_CAFOS/caf-20170601-13:12:14-cal-bomd.fits  1000   2048 
+      7   /Volumes/NicoPassport/CAHA/CAFOS2017/170601_t2_CAFOS/caf-20170601-13:13:25-cal-bomd.fits  1000   2048 
+      8   /Volumes/NicoPassport/CAHA/CAFOS2017/170601_t2_CAFOS/caf-20170601-13:14:37-cal-bomd.fits  1000   2048 
+      9   /Volumes/NicoPassport/CAHA/CAFOS2017/170601_t2_CAFOS/caf-20170601-13:15:48-cal-bomd.fits  1000   2048 
+      10  /Volumes/NicoPassport/CAHA/CAFOS2017/170601_t2_CAFOS/caf-20170601-13:17:01-cal-bomd.fits  1000   2048 
+      Total: 10 files
+
+3. Remove the problematic reduced image from ``filabres_db_cafos_bias.json``,
+   the database that contains all the reduced bias frames. Note that the
+   undesired reduced calibration is not only still present in that database,
+   but the reduced FITS file is still under the ``bias`` subdirectory that
+   hosts all the reduced bias frames (so far we have only removed the
+   individual original FITS files from the classication of the images). Taking
+   care of removing both the reduced image from the database and the actual
+   FITS file from the hard disk is handled by **filabres** using a single
+   command:
+
+   ::
+
+      (filabres) $ filabres --delete bias/170601_t2_CAFOS/bias_caf-20170601-13:06:15-cal-bomd_red.fits
+
+   (Work in progress)
 
 Flat-imaging
 ============
+(Still work in progress)
 
 Reduction of flat-imaging images
 --------------------------------
@@ -488,4 +630,7 @@ Database of flat-imaging master frames
 
 Checking the flat-imaging reduction
 -----------------------------------
+
+Removing invalid reduced flat-imaging
+-------------------------------------
 

@@ -155,7 +155,8 @@ def list_originf(instrument, args_originf, listmode, datadir,
             fname += ' (*)'
         print('MJD-OBS: {}, calibration: {}'.format(mjd, fname))
     print('---')
-    print('> List of individual frames involved in the computation of {}:'.format(args_originf))
+    print('> List of individual frames:')
+    print('  (involved in the computation of {})'.format(args_originf))
 
     # read local image database for the corresponding night
     jsonfname = LISTDIR + night + '/imagedb_{}.json'.format(instrument)

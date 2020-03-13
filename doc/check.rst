@@ -77,7 +77,7 @@ The best way to deal with these duplicated files is to insert them in the
 auxiliary file ``ignored_images.yaml``. For this particular example, the
 contents of this file are:
 
-.. literalinclude:: ignored_images.yaml
+.. literalinclude:: ignored_images_v1.yaml
    :linenos:
    :lineno-start: 1
 
