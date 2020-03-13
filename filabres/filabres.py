@@ -74,7 +74,7 @@ def main():
     group_reduc.add_argument("-f", "--force", action="store_true", help="force reduction of already reduced files")
     group_reduc.add_argument("-i", "--interactive", action="store_true", help="enable interactive execution")
     group_reduc.add_argument("--filename", type=str,
-                             help="particular image to be reduced (only valid for science images")
+                             help="particular image to be reduced (only valid for science images; without path)")
 
     # group_lists
     group_lists.add_argument("-lc", "--lc_imagetype", type=str, nargs='*',
@@ -103,7 +103,7 @@ def main():
     args = parser.parse_args()
 
     # ---
-    # ToDo: nuevo argumento para reducir una unica imagen cientifica
+    # ToDo: implementar agumento --filename para reducir una unica imagen cientifica
     # ToDo: incluir varios WCS en la misma imagen
 
     # check argument compatibility

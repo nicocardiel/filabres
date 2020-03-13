@@ -101,6 +101,12 @@ def run_reduction_step(redustep, interactive, datadir, list_of_nights, filename,
         # select images of the requested type
         list_of_images = list(imagedb[redustep].keys())
         list_of_images.sort()
+        # check if a single image should be processed
+        if filename is not None:
+            if filename in list_of_images:
+                list_of_images = [filename]
+            else:
+                print('WARNING: image {} not found in night {}'.format(filename, night))
         nlist_of_images = len(list_of_images)
         if verbose:
             print('Number of {} images found {}'.format(redustep, nlist_of_images))

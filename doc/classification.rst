@@ -492,7 +492,7 @@ These are the flat-imaging images that passed the ``requirements`` set in
 
 ::
 
-   (filabres) $ filabres -lc wrong-bias
+   (filabres) $ filabres -lc wrong-flat-imaging
                                                                                  file NAXIS1 NAXIS2
    1  /Users/cardiel/CAFOS2017/170225_t2_CAFOS/caf-20170226-06:11:17-cal-krek.fits  1650   1650 
    2  /Users/cardiel/CAFOS2017/170225_t2_CAFOS/caf-20170226-06:22:28-cal-krek.fits  1650   1650 
@@ -508,7 +508,7 @@ the classification of these images, let's display the value of the 0.500
 
 ::
 
-   (filabres) $ filabres -lc wrong-bias -k quant500 -k quant975
+   (filabres) $ filabres -lc wrong-flat-imaging -k quant500 -k quant975
                                                                               file  QUANT500  QUANT975
    1  /Users/cardiel/CAFOS2017/170225_t2_CAFOS/caf-20170226-06:11:17-cal-krek.fits  51930.0   60050.0 
    2  /Users/cardiel/CAFOS2017/170225_t2_CAFOS/caf-20170226-06:22:28-cal-krek.fits  57062.0   64891.0 
@@ -521,7 +521,7 @@ These images are saturated. You can display them using ``-pi``:
 
 ::
 
-   (filabres) $ filabres -lc wrong-bias -k quant500 -k quant975 -pi
+   (filabres) $ filabres -lc wrong-flat-imaging -k quant500 -k quant975 -pi
    ...
    ...
 

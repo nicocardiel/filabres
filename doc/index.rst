@@ -9,16 +9,16 @@ Welcome to Filabres's documentation!
 This is the documentation for **filabres** (version |version|).
 
 **Filabres** is embedded in a joint effort of the `Calar Alto Observatory
-<http://w3.caha.es/>`_ (especially Santos Pedraz and Jesús Aceituno),
-the `Spanish Virtual Observatory
-<https://svo.cab.inta-csic.es/>`_ (Enrique Solano, José Manuel Alacid and
-Miriam Cortés), and the `Physics of the Earth and
+<http://w3.caha.es/>`_ (especially Santos Pedraz and Jesús Aceituno), the
+`Spanish Virtual Observatory <https://svo.cab.inta-csic.es/>`_ (Enrique Solano,
+José Manuel Alacid and Miriam Cortés), and the `Physics of the Earth and
 Astrophysics Department
 <https://www.ucm.es/fisica_de_la_tierra_y_astrofisica/>`_ at the Universidad
 Complutense de Madrid (Nicolás Cardiel, Sergio Pascual, Enrique Galcerán and
-Jaime Hernández), with the main goal of providing useful
-reduced images through the Calar Alto Archive hosted at
-http://caha.sdc.cab.inta-csic.es/calto/.
+Jaime Hernández), and the collaboration of the `Instituto de Física de
+Cantabria <https://ifca.unican.es/>`_
+(Maite Ceballos), with the main goal of providing useful reduced images through
+the Calar Alto Archive hosted at http://caha.sdc.cab.inta-csic.es/calto/.
 
 Although this software package has been initially created with the idea of
 performing the automatic reduction of direct images obtained with the instrument
