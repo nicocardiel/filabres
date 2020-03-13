@@ -434,8 +434,47 @@ noticeable in the upper left corner of the detector:
    :width: 100%
    :alt: Reduced bias 2 from 20170601
 
-It is likely that the individual bias exposures employed to generate this
-master bias frame have the same problem...
+It is likely that the individual bias exposures employed to generate the last
+master bias frame have the same problem. You can verify this by using
+``-of/--originf <path_reduced_calibration_image>``, that list the individual images employed in the generation
+of a particular reduced calibration image (this new arguments allows the
+additional use of ``-k <keyword>``, ``-ks <keyword>``, ``-pxy`` and ``-pi``):
+
+::
+
+   (filabres) $ filabres -of bias/170601_t2_CAFOS/bias_caf-20170601-13:06:15-cal-bomd_red.fits \
+   -k quant500 -k robuststd
+                                                                               file  QUANT500  ROBUSTSTD
+   1   /Users/cardiel/CAFOS2017/170601_t2_CAFOS/caf-20170601-13:06:15-cal-bomd.fits  722.0     25.2042  
+   2   /Users/cardiel/CAFOS2017/170601_t2_CAFOS/caf-20170601-13:07:26-cal-bomd.fits  722.0     25.2042  
+   3   /Users/cardiel/CAFOS2017/170601_t2_CAFOS/caf-20170601-13:08:38-cal-bomd.fits  722.0     25.2042  
+   4   /Users/cardiel/CAFOS2017/170601_t2_CAFOS/caf-20170601-13:09:50-cal-bomd.fits  722.0     25.2042  
+   5   /Users/cardiel/CAFOS2017/170601_t2_CAFOS/caf-20170601-13:11:02-cal-bomd.fits  722.0     25.2042  
+   6   /Users/cardiel/CAFOS2017/170601_t2_CAFOS/caf-20170601-13:12:14-cal-bomd.fits  723.0     25.9455  
+   7   /Users/cardiel/CAFOS2017/170601_t2_CAFOS/caf-20170601-13:13:25-cal-bomd.fits  723.0     25.2042  
+   8   /Users/cardiel/CAFOS2017/170601_t2_CAFOS/caf-20170601-13:14:37-cal-bomd.fits  723.0     25.2042  
+   9   /Users/cardiel/CAFOS2017/170601_t2_CAFOS/caf-20170601-13:15:48-cal-bomd.fits  723.0     25.2042  
+   10  /Users/cardiel/CAFOS2017/170601_t2_CAFOS/caf-20170601-13:17:01-cal-bomd.fits  723.0     25.9455  
+   Total: 10 files
+
+In fact, the high median and robust standard deviation values are
+present in the individual images employed to generate the suspicious reduced
+bias image. Not only that. The illumination gradient is also present in 
+the 10 individual images, as can be easily visualized using ``-pi``:
+
+::
+
+   (filabres) $ filabres -of bias/170601_t2_CAFOS/bias_caf-20170601-13:06:15-cal-bomd_red.fits \
+   -k quant500 -k robuststd -pi
+   ...
+   ...
+
+(Note: the 10 displayed images are quite similar to the one shown here)
+
+.. image:: images/pi_individual_wrongbias_20170601.png
+   :width: 100%
+   :alt: Individual wrong bias night 20170601
+
 
 
 Flat-imaging

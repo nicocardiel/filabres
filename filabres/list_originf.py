@@ -130,6 +130,7 @@ def list_originf(instrument, args_originf, listmode, datadir,
 
     # search for originf
     originf = None
+    particular_signature = None
     signatures = database[imagetype].keys()
     for signature in signatures:
         if originf is not None:
@@ -138,7 +139,23 @@ def list_originf(instrument, args_originf, listmode, datadir,
             minidict = database[imagetype][signature][mjd]
             if minidict['fname'] == args_originf:
                 originf = minidict['originf']
+                particular_signature = signature
                 break
+
+    if originf is None:
+        msg = 'ERROR: file {} not found in {}'.format(args_originf, databasefile)
+        raise SystemError(msg)
+
+    # display signature and list all reduced images with the same signature
+    print('> Signature: {}'.format(particular_signature))
+    print('> Available images with this signature:')
+    for mjd in database[imagetype][particular_signature].keys():
+        fname = database[imagetype][particular_signature][mjd]['fname']
+        if fname == args_originf:
+            fname += ' (*)'
+        print('MJD-OBS: {}, calibration: {}'.format(mjd, fname))
+    print('---')
+    print('> List of individual frames involved in the computation of {}:'.format(args_originf))
 
     # read local image database for the corresponding night
     jsonfname = LISTDIR + night + '/imagedb_{}.json'.format(instrument)
