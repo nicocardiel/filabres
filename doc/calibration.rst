@@ -335,6 +335,109 @@ In order to check the reduction of the bias images just execute:
    83  bias/170929_t2_CAFOS/bias_caf-20170929-14:26:11-cal-wenj_red.fits  501    501  
    Total: 83 files
 
+It is possible to filter the list by night (wildcards allowed here). For
+example, for the first night:
+
+::
+
+   (filabres) $ filabres -lr bias -n 170225*
+                                                                   file NAXIS1 NAXIS2
+   1  bias/170225_t2_CAFOS/bias_caf-20170224-21:27:48-cal-krek_red.fits  1650   1650 
+   2  bias/170225_t2_CAFOS/bias_caf-20170225-10:03:09-cal-bomd_red.fits  1000   2048
+
+There are two master bias, with different signature. It is possible to display
+them (``-pi``):
+
+::
+
+   (filabres) $ filabres -lr bias -n 170225* -pi
+   ...
+   ...
+
+.. image:: images/pi_reduced_bias1_20170224.png
+   :width: 100%
+   :alt: Reduced bias image 1, night 20170224
+
+.. image:: images/pi_reduced_bias2_20170224.png
+   :width: 100%
+   :alt: Reduced bias image 2, 20170224
+
+
+You can use ``-k all`` to show the whole list of available keywords:
+
+::
+
+   (filabres) $ filabres -lr bias -k all
+   Valid keywords: ['NAXIS', 'NAXIS1', 'NAXIS2', 'OBJECT', 'RA', 'DEC',
+   'EQUINOX', 'DATE', 'MJD-OBS', 'AIRMASS', 'EXPTIME', 'INSTRUME', 'CCDNAME',
+   'ORIGSECX', 'ORIGSECY', 'CCDSEC', 'BIASSEC', 'DATASEC', 'CCDBINX',
+   'CCDBINY', 'IMAGETYP', 'INSTRMOD', 'INSAPID', 'INSTRSCL', 'INSTRPIX',
+   'INSTRPX0', 'INSTRPY0', 'INSFLID', 'INSFLNAM', 'INSGRID', 'INSGRNAM',
+   'INSGRROT', 'INSGRWL0', 'INSGRRES', 'INSPOFPI', 'INSPOROT', 'INSFPZ',
+   'INSFPWL', 'INSFPDWL', 'INSFPORD', 'INSCALST', 'INSCALID', 'INSCALNM',
+   'NPOINTS', 'FMINIMUM', 'QUANT025', 'QUANT159', 'QUANT250', 'QUANT500',
+   'QUANT750', 'QUANT841', 'QUANT975', 'FMAXIMUM', 'ROBUSTSTD', 'NORIGIN']
+
+
+Remember that you can generate a table with any selection of these keywords
+(``-k <keyword1> -k <keyword2>...``), sort that table by any combination of
+keywords (``-ks <keyword1> -ks <keyword2>...``), and generate XY plot with
+combinations of numerical keywords (``-pxy``).
+
+For the bias images, it is interesting to check the plot that compares the
+evolution of the median bias level (``QUANT500``) with the observation date
+(``MJD-OBS``), sorting the table by robust standard deviation (``ROBUSTSTD``):
+
+::
+
+   (filabres) $ filabres -lr bias -k mjd-obs -k quant500 -ks robuststd -pxy
+                                                                    file      MJD-OBS   QUANT500  ROBUSTSTD
+   78  bias/171116_t2_CAFOS/bias_caf-20171116-14:06:06-cal-lilj_red.fits  58073.58750  657.00000  1.48260  
+   58  bias/171121_t2_CAFOS/bias_caf-20171121-15:21:37-cal-bomd_red.fits  58078.64000  666.00000  1.85325  
+   46  bias/171101_t2_CAFOS/bias_caf-20171031-14:14:01-cal-agui_red.fits  58057.59300  665.00000  2.22390  
+   ...
+   ...
+   72  bias/170628_t2_CAFOS/bias_caf-20170628-17:29:10-cal-pelm_red.fits  57932.72860  698.00000  8.52495  
+   56  bias/170629_t2_CAFOS/bias_caf-20170629-17:41:33-cal-mirl_red.fits  57933.73719  666.00000  8.89560  
+   14  bias/170601_t2_CAFOS/bias_caf-20170601-13:06:15-cal-bomd_red.fits  57905.54600  723.00000  24.09225 
+   Total: 83 files
+
+.. image:: images/pxy_reduced_bias.png
+   :width: 100%
+   :alt: Variation of the reduced bias level and the robust standard devitation
+
+Since we have sorted this last table by ``ROBUSTSTD``, the last row, which
+corresponds to
+``bias/170601_t2_CAFOS/bias_caf-20170601-13:06:15-cal-bomd_red.fits``,
+indicates that this image has an unusually high median and robust standard
+deviation. That image corresponding to night ``20170601``. Let's display the
+master bias generated in that night:
+
+::
+
+   (filabres) $ filabres -lr bias -k mjd-obs -k quant500 -ks robuststd -n 170601* -pi
+                                                                   file     MJD-OBS  QUANT500  ROBUSTSTD
+   2  bias/170601_t2_CAFOS/bias_caf-20170601-15:14:47-cal-pelm_red.fits  57905.6352  680.0     5.18910  
+   1  bias/170601_t2_CAFOS/bias_caf-20170601-13:06:15-cal-bomd_red.fits  57905.5460  723.0     24.09225 
+   Total: 2 files
+
+The first master bias looks normal:
+
+.. image:: images/pi_reduced_bias1_20170601.png
+   :width: 100%
+   :alt: Reduced bias 1 from 20170601
+
+However, the second bias exhibit a clear illumination gradient, specially
+noticeable in the upper left corner of the detector:
+
+.. image:: images/pi_reduced_bias2_20170601.png
+   :width: 100%
+   :alt: Reduced bias 2 from 20170601
+
+It is likely that the individual bias exposures employed to generate this
+master bias frame have the same problem...
+
+
 Flat-imaging
 ============
 

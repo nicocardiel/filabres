@@ -34,6 +34,7 @@ from .check_tslash import check_tslash
 from .generate_setup import generate_setup
 from .classify_images import classify_images
 from .list_classified import list_classified
+from .list_originf import list_originf
 from .list_reduced import list_reduced
 from .load_instrument_configuration import load_instrument_configuration
 from .load_setup import load_setup
@@ -83,6 +84,8 @@ def main():
     group_lists.add_argument("-lr", "--lr_imagetype", type=str, nargs='*',
                              help="list reduced images of the selected type with quantile information",
                              metavar=('REDUCTION_STEP'))
+    group_lists.add_argument("-of", "--originf", type=str, help="list original individual images employed to "
+                                                                "generate a particular reduced calibration image")
     group_lists.add_argument("-lm", "--listmode", type=str, help="display mode for list of files",
                              choices=["long", "singleline", "basic"], metavar=('MODE'))
     group_lists.add_argument("-k", "--keyword", type=str, action='append', nargs=1,
@@ -124,12 +127,17 @@ def main():
     instrument, datadir, ignored_images_file, image_header_corrections_file = load_setup(args.verbose)
     datadir = check_tslash(datadir)
 
+    # initial image check
     if args.check:
         check_datadir(datadir, ignored_images_file, args.verbose)
         print('* program STOP')
         raise SystemExit()
 
+    # lists of classified images
     if args.lc_imagetype is not None:
+        if args.lr_imagetype is not None or args.originf is not None:
+            print("-lc is incompatible with either -lr or -of")
+            raise SystemExit()
         list_classified(instrument=instrument,
                         img=args.lc_imagetype,
                         listmode=args.listmode,
@@ -140,8 +148,13 @@ def main():
                         args_plotxy=args.plotxy,
                         args_plotimage=args.plotimage,
                         args_ndecimal=args.ndecimal)
+        raise SystemExit()
 
+    # list of reduced images
     if args.lr_imagetype is not None:
+        if args.lc_imagetype is not None or args.originf is not None:
+            print("-lr is incompatible with either -lc or -of")
+            raise SystemExit()
         list_reduced(instrument=instrument,
                      img=args.lr_imagetype,
                      listmode=args.listmode,
@@ -151,6 +164,22 @@ def main():
                      args_plotxy=args.plotxy,
                      args_plotimage=args.plotimage,
                      args_ndecimal=args.ndecimal)
+        raise SystemExit()
+
+    if args.originf is not None:
+        if args.lc_imagetype is not None or args.lr_imagetype is not None:
+            print("-of is incompatible with either -lc or -lr")
+            raise SystemExit()
+        list_originf(instrument=instrument,
+                     args_originf=args.originf,
+                     listmode=args.listmode,
+                     datadir=datadir,
+                     args_keyword=args.keyword,
+                     args_keyword_sort=args.keyword_sort,
+                     args_plotxy=args.plotxy,
+                     args_plotimage=args.plotimage,
+                     args_ndecimal=args.ndecimal)
+        raise SystemExit()
 
     # load instrument configuration
     instconf = load_instrument_configuration(
