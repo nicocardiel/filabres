@@ -30,12 +30,14 @@ def check_args_compatibility(args, debug=False):
     arglist_setup = ['setup']
     arglist_check = ['check']
     arglist_reduc = ['reduction_step', 'force', 'interactive', 'filename']
+    arglist_delet = ['delete']
     arglist_lists = ['lc_imagetype', 'lr_imagetype', 'originf', 'listmode',
                      'keyword', 'keyword_sort', 'plotxy', 'plotimage', 'ndecimal']
     arglist_other = ['night', 'setup', 'verbose', 'debug']
 
     # concatenate the above lists
-    total_arglist = arglist_setup + arglist_check + arglist_reduc + arglist_lists + arglist_other
+    total_arglist = arglist_setup + arglist_check + arglist_reduc + \
+                    arglist_delet + arglist_lists + arglist_other
 
     # check that all the expected arguments are included in the group lists
     msg = None
@@ -55,7 +57,7 @@ def check_args_compatibility(args, debug=False):
     # check for incompatibilities between arguments belonging to different groups
     # (excluding arglist_other)
     msg = None
-    ll = [arglist_setup, arglist_check, arglist_reduc, arglist_lists]
+    ll = [arglist_setup, arglist_check, arglist_reduc, arglist_delet, arglist_lists]
     nl = len(ll)
     for i in range(nl):
         for j in range(i+1, nl):

@@ -31,6 +31,7 @@ import argparse
 from .check_args_compatibility import check_args_compatibility
 from .check_datadir import check_datadir
 from .check_tslash import check_tslash
+from .delete_calibration import delete_calibration
 from .generate_setup import generate_setup
 from .classify_images import classify_images
 from .list_classified import list_classified
@@ -59,6 +60,7 @@ def main():
     group_setup = parser.add_argument_group('generation of initial setup_filabres.yaml')
     group_check = parser.add_argument_group('initial check')
     group_reduc = parser.add_argument_group('initialization and reduction of the data')
+    group_delet = parser.add_argument_group('delete reduced calibration')
     group_lists = parser.add_argument_group('lists of classified or reduced images')
     group_other = parser.add_argument_group('other auxiliary arguments')
 
@@ -76,6 +78,10 @@ def main():
     group_reduc.add_argument("-i", "--interactive", action="store_true", help="enable interactive execution")
     group_reduc.add_argument("--filename", type=str,
                              help="particular image to be reduced (only valid for science images; without path)")
+
+    # group_delet
+    group_delet.add_argument("--delete", type=str, help="delete reduced image",
+                             metavar=('REDUCED_IMAGE'))
 
     # group_lists
     group_lists.add_argument("-lc", "--lc_imagetype", type=str, nargs='*',
@@ -106,7 +112,9 @@ def main():
     args = parser.parse_args()
 
     # ---
-    # ToDo: implementar agumento --filename para reducir una unica imagen cientifica
+    # ToDo: implementar argumento --delete para eliminar una calibración reducida
+    # ToDo: implementar argumento --filename para reducir una unica imagen cientifica
+    # ToDo: incluir unos requirementx más genéricos, usando evaluaciones complejas de keywords
     # ToDo: incluir varios WCS en la misma imagen
 
     # check argument compatibility
@@ -126,6 +134,13 @@ def main():
 
     instrument, datadir, ignored_images_file, image_header_corrections_file = load_setup(args.verbose)
     datadir = check_tslash(datadir)
+
+    # delete reduced image
+    if args.delete is not None:
+        delete_calibration(instrument=instrument,
+                           calibration=args.delete)
+        print('* program STOP')
+        raise SystemExit()
 
     # initial image check
     if args.check:
@@ -148,6 +163,7 @@ def main():
                         args_plotxy=args.plotxy,
                         args_plotimage=args.plotimage,
                         args_ndecimal=args.ndecimal)
+        print('* program STOP')
         raise SystemExit()
 
     # list of reduced images
@@ -164,6 +180,7 @@ def main():
                      args_plotxy=args.plotxy,
                      args_plotimage=args.plotimage,
                      args_ndecimal=args.ndecimal)
+        print('* program STOP')
         raise SystemExit()
 
     if args.originf is not None:
@@ -179,6 +196,7 @@ def main():
                      args_plotxy=args.plotxy,
                      args_plotimage=args.plotimage,
                      args_ndecimal=args.ndecimal)
+        print('* program STOP')
         raise SystemExit()
 
     # load instrument configuration
