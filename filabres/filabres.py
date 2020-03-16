@@ -98,6 +98,8 @@ def main():
                              help="keyword for the -lc/-lr option")
     group_lists.add_argument("-ks", "--keyword_sort", type=str, action='append', nargs=1,
                              help="sorting keyword for the -lc/-lr option")
+    group_lists.add_argument("--filter", type=str, help="filter list by evaluating logical expression",
+                             metavar=('EXPRESSION'))
     group_lists.add_argument("-pxy", "--plotxy", action="store_true", help="display scatter plots when listing files")
     group_lists.add_argument("-pi", "--plotimage", action="store_true", help="display images when listing files")
     group_lists.add_argument("-nd", "--ndecimal", type=int,
@@ -112,7 +114,6 @@ def main():
     args = parser.parse_args()
 
     # ---
-    # ToDo: incluir --filter en los listados (con filtro inteligente)
     # ToDo: implementar argumento --filename para reducir una unica imagen cientifica
     # ToDo: incluir unos requirementx más genéricos, usando evaluaciones complejas de keywords
     # ToDo: incluir varios WCS en la misma imagen
@@ -160,10 +161,10 @@ def main():
                         args_night=args.night,
                         args_keyword=args.keyword,
                         args_keyword_sort=args.keyword_sort,
+                        args_filter=args.filter,
                         args_plotxy=args.plotxy,
                         args_plotimage=args.plotimage,
                         args_ndecimal=args.ndecimal)
-        print('* program STOP')
         raise SystemExit()
 
     # list of reduced images
@@ -177,10 +178,10 @@ def main():
                      args_night=args.night,
                      args_keyword=args.keyword,
                      args_keyword_sort=args.keyword_sort,
+                     args_filter=args.filter,
                      args_plotxy=args.plotxy,
                      args_plotimage=args.plotimage,
                      args_ndecimal=args.ndecimal)
-        print('* program STOP')
         raise SystemExit()
 
     if args.originf is not None:
@@ -193,10 +194,10 @@ def main():
                      datadir=datadir,
                      args_keyword=args.keyword,
                      args_keyword_sort=args.keyword_sort,
+                     args_filter=args.filter,
                      args_plotxy=args.plotxy,
                      args_plotimage=args.plotimage,
                      args_ndecimal=args.ndecimal)
-        print('* program STOP')
         raise SystemExit()
 
     # load instrument configuration

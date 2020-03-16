@@ -32,7 +32,8 @@ def check_args_compatibility(args, debug=False):
     arglist_reduc = ['reduction_step', 'force', 'interactive', 'filename']
     arglist_delet = ['delete']
     arglist_lists = ['lc_imagetype', 'lr_imagetype', 'originf', 'listmode',
-                     'keyword', 'keyword_sort', 'plotxy', 'plotimage', 'ndecimal']
+                     'keyword', 'keyword_sort', 'filter', 'plotxy', 'plotimage',
+                     'ndecimal']
     arglist_other = ['night', 'setup', 'verbose', 'debug']
 
     # concatenate the above lists

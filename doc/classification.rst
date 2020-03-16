@@ -380,6 +380,34 @@ purpose, employ the ``-pxy`` argument:
 The previous image is a pairs plot, that allows to see both the distribution of
 values of each (numeric) keyword and the relationships between any two of them.
 
+Filtering the list
+------------------
+
+It is also possible to filter the displayed list by using ``--filter
+EXPRESSION``, where ``EXPRESSION`` is any generic logical expression involving
+valid keywords (i.e., belonging to the ``masterkeywords`` list) written as a
+valid Python command, but using the special syntax ``k[<keyword>]`` to specify
+the keywords. Note that arithmetic and logical operators are also valid. 
+
+For example, we can filter imposing fixed image dimensions:
+
+::
+
+   (filabres) $ filabres -lc bias --filter 'k[naxis1]==1650 and k[naxis2]==1650'
+                                                                                           file NAXIS1 NAXIS2
+   1   /Volumes/NicoPassport/CAHA/CAFOS2017/170225_t2_CAFOS/caf-20170224-21:27:48-cal-krek.fits  1650   1650 
+   2   /Volumes/NicoPassport/CAHA/CAFOS2017/170225_t2_CAFOS/caf-20170224-21:29:09-cal-krek.fits  1650   1650 
+   3   /Volumes/NicoPassport/CAHA/CAFOS2017/170225_t2_CAFOS/caf-20170224-21:30:31-cal-krek.fits  1650   1650 
+   4   /Volumes/NicoPassport/CAHA/CAFOS2017/170225_t2_CAFOS/caf-20170224-21:31:52-cal-krek.fits  1650   1650 
+   5   /Volumes/NicoPassport/CAHA/CAFOS2017/170225_t2_CAFOS/caf-20170224-21:33:14-cal-krek.fits  1650   1650 
+   6   /Volumes/NicoPassport/CAHA/CAFOS2017/170225_t2_CAFOS/caf-20170224-21:34:36-cal-krek.fits  1650   1650 
+   7   /Volumes/NicoPassport/CAHA/CAFOS2017/170225_t2_CAFOS/caf-20170224-21:35:57-cal-krek.fits  1650   1650 
+   8   /Volumes/NicoPassport/CAHA/CAFOS2017/170225_t2_CAFOS/caf-20170224-21:37:19-cal-krek.fits  1650   1650 
+   9   /Volumes/NicoPassport/CAHA/CAFOS2017/170225_t2_CAFOS/caf-20170224-21:38:41-cal-krek.fits  1650   1650 
+   10  /Volumes/NicoPassport/CAHA/CAFOS2017/170225_t2_CAFOS/caf-20170224-21:40:03-cal-krek.fits  1650   1650 
+   Total: 10 files
+   * program STOP
+
 
 Is there something wrong with the image classification?
 =======================================================
@@ -667,6 +695,23 @@ reduction for those nights. Without this argument, **filabres** avoids the
 repetion because it detects that there is already a file ``imagedb_cafos.json``
 in the corresponding subdirectory night. By forcing the repetition we command 
 **filabres** to override that file.
+
+Initially 826 images were classified as bias frames. Now, after the inclusion
+of the new 30 images, this number is 856:
+
+::
+
+   (filabres) $ filabres -lc bias
+                                                                                            file NAXIS1 NAXIS2
+   1    /Volumes/NicoPassport/CAHA/CAFOS2017/170225_t2_CAFOS/caf-20170224-21:27:48-cal-krek.fits  1650   1650 
+   2    /Volumes/NicoPassport/CAHA/CAFOS2017/170225_t2_CAFOS/caf-20170224-21:29:09-cal-krek.fits  1650   1650 
+   3    /Volumes/NicoPassport/CAHA/CAFOS2017/170225_t2_CAFOS/caf-20170224-21:30:31-cal-krek.fits  1650   1650 
+   ...
+   ...
+   854  /Volumes/NicoPassport/CAHA/CAFOS2017/171230_t2_CAFOS/caf-20171229-10:16:48-cal-lilj.fits  800    800  
+   855  /Volumes/NicoPassport/CAHA/CAFOS2017/171230_t2_CAFOS/caf-20171229-10:17:24-cal-lilj.fits  800    800  
+   856  /Volumes/NicoPassport/CAHA/CAFOS2017/171230_t2_CAFOS/caf-20171229-10:18:00-cal-lilj.fits  800    800  
+   Total: 856 files
 
 Re-checking wrong-science-imaging
 ---------------------------------

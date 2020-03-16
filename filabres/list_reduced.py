@@ -14,12 +14,13 @@ import json
 import os
 import pandas as pd
 
+from .check_list_filter import check_list_filter
 from .load_instrument_configuration import load_instrument_configuration
 from .show_df import show_df
 
 
 def list_reduced(instrument, img, listmode, args_night, args_keyword,
-                 args_keyword_sort, args_plotxy, args_plotimage,
+                 args_keyword_sort, args_filter, args_plotxy, args_plotimage,
                  args_ndecimal=5):
     """
     Display list with already classified images of the selected type
@@ -47,6 +48,9 @@ def list_reduced(instrument, img, listmode, args_night, args_keyword,
         List with keywords to be used to sort the displayed table.
         If not given in args_keyword, the keywords will be appended
         to the list of displayed keywords.
+    args_filter : str
+        Logical expression involving keywords to be evaluated in order to
+        filter the generated list.
     args_plotxy : bool
         If True, plot scatter matrices to visualize trends in the
         selected keywords.
@@ -164,58 +168,64 @@ def list_reduced(instrument, img, listmode, args_night, args_keyword,
             for ssig in database[imagetype]:
                 minidict = database[imagetype][ssig]
                 for mjdobs in minidict:
-                    outfile = minidict[mjdobs]['fname']
-                    nightok = fnmatch.fnmatch(minidict[mjdobs]['night'], night)
-                    if nightok:
-                        n += 1
-                        if listmode == "singleline":
-                            print(outfile, end=' ')
-                        elif listmode == "basic":
-                            print(' - {}'.format(os.path.basename(outfile)))
-                        elif listmode == "long":
-                            # show all valid keywords and exit
-                            if 'ALL' in lkeyword:
-                                valid_keywords = instconf['masterkeywords']
-                                valid_keywords += list(minidict[mjdobs]['statsumm'].keys())
-                                valid_keywords.append('NORIGIN')
-                                for kwd in ierr_kwd:
-                                    if kwd in minidict[mjdobs]:
-                                        valid_keywords.append(kwd.upper())
-                                print('Valid keywords:', valid_keywords)
-                                raise SystemExit()
-                            storedkeywords = minidict[mjdobs]['masterkeywords']
-                            storedkeywords.update(minidict[mjdobs]['statsumm'])
-                            norigin = minidict[mjdobs]['norigin']
-                            storedkeywords.update({'NORIGIN': norigin})
-                            for kwd in ierr_kwd:
-                                if kwd in minidict[mjdobs]:
-                                    storedkeywords.update({kwd.upper(): minidict[mjdobs][kwd]})
-                            colnames_ = ['file']
-                            if lkeyword is not None:
-                                for keyword in lkeyword:
-                                    if keyword not in storedkeywords:
-                                        print('ERROR: keyword {} is not stored in the image database'.format(keyword))
-                                        raise SystemExit()
-                                    colnames_ += [keyword]
-                            if n == 1:
-                                colnames = colnames_
-                                df = pd.DataFrame(columns=colnames)
-                            else:
-                                if colnames_ != colnames:
-                                    print("ERROR: number of keywords do not match for file {}".format(outfile))
-                                    print("- expected:", colnames)
-                                    print("- required:", colnames_)
+                    storedkeywords = minidict[mjdobs]['masterkeywords']
+                    storedkeywords.update(minidict[mjdobs]['statsumm'])
+                    norigin = minidict[mjdobs]['norigin']
+                    storedkeywords.update({'NORIGIN': norigin})
+                    for kwd in ierr_kwd:
+                        if kwd in minidict[mjdobs]:
+                            storedkeywords.update({kwd.upper(): minidict[mjdobs][kwd]})
+                    if args_filter is not None:
+                        filterok = check_list_filter(args_filter, storedkeywords)
+                    else:
+                        filterok = True
+                    if filterok:
+                        outfile = minidict[mjdobs]['fname']
+                        nightok = fnmatch.fnmatch(minidict[mjdobs]['night'], night)
+                        if nightok:
+                            n += 1
+                            if listmode == "singleline":
+                                print(outfile, end=' ')
+                            elif listmode == "basic":
+                                print(' - {}'.format(os.path.basename(outfile)))
+                            elif listmode == "long":
+                                # show all valid keywords and exit
+                                if 'ALL' in lkeyword:
+                                    valid_keywords = instconf['masterkeywords']
+                                    valid_keywords += list(minidict[mjdobs]['statsumm'].keys())
+                                    valid_keywords.append('NORIGIN')
+                                    for kwd in ierr_kwd:
+                                        if kwd in minidict[mjdobs]:
+                                            valid_keywords.append(kwd.upper())
+                                    print('Valid keywords:', valid_keywords)
                                     raise SystemExit()
+                                colnames_ = ['file']
+                                if lkeyword is not None:
+                                    for keyword in lkeyword:
+                                        if keyword not in storedkeywords:
+                                            print('ERROR: keyword {} is not stored in the image '
+                                                  'database'.format(keyword))
+                                            raise SystemExit()
+                                        colnames_ += [keyword]
+                                if n == 1:
+                                    colnames = colnames_
+                                    df = pd.DataFrame(columns=colnames)
+                                else:
+                                    if colnames_ != colnames:
+                                        print("ERROR: number of keywords do not match for file {}".format(outfile))
+                                        print("- expected:", colnames)
+                                        print("- required:", colnames_)
+                                        raise SystemExit()
 
-                            # new_df_row = [os.path.basename(outfile)]
-                            new_df_row = [outfile]
-                            if lkeyword is not None:
-                                for keyword in lkeyword:
-                                    new_df_row += [storedkeywords[keyword]]
-                            df.loc[n-1] = new_df_row
-                        else:
-                            msg = 'Unexpected listmode {}'.format(listmode)
-                            raise SystemError(msg)
+                                # new_df_row = [os.path.basename(outfile)]
+                                new_df_row = [outfile]
+                                if lkeyword is not None:
+                                    for keyword in lkeyword:
+                                        new_df_row += [storedkeywords[keyword]]
+                                df.loc[n-1] = new_df_row
+                            else:
+                                msg = 'Unexpected listmode {}'.format(listmode)
+                                raise SystemError(msg)
         elif classification == 'science':
             for fname in database[imagetype]:
                 minidict = database[imagetype][fname]
