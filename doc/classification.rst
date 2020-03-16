@@ -254,15 +254,15 @@ You can repeat the same command by adding any of the above image types:
 
    (filabres) $ filabres -lc bias
                                                                                             file NAXIS1 NAXIS2
-   1    /Volumes/NicoPassport/CAHA/CAFOS2017/170225_t2_CAFOS/caf-20170224-21:27:48-cal-krek.fits  1650   1650 
-   2    /Volumes/NicoPassport/CAHA/CAFOS2017/170225_t2_CAFOS/caf-20170224-21:29:09-cal-krek.fits  1650   1650 
-   3    /Volumes/NicoPassport/CAHA/CAFOS2017/170225_t2_CAFOS/caf-20170224-21:30:31-cal-krek.fits  1650   1650 
-   4    /Volumes/NicoPassport/CAHA/CAFOS2017/170225_t2_CAFOS/caf-20170224-21:31:52-cal-krek.fits  1650   1650 
+   1    /Users/cardiel/CAFOS2017/170225_t2_CAFOS/caf-20170224-21:27:48-cal-krek.fits  1650   1650 
+   2    /Users/cardiel/CAFOS2017/170225_t2_CAFOS/caf-20170224-21:29:09-cal-krek.fits  1650   1650 
+   3    /Users/cardiel/CAFOS2017/170225_t2_CAFOS/caf-20170224-21:30:31-cal-krek.fits  1650   1650 
+   4    /Users/cardiel/CAFOS2017/170225_t2_CAFOS/caf-20170224-21:31:52-cal-krek.fits  1650   1650 
    ...
    ...
-   824  /Volumes/NicoPassport/CAHA/CAFOS2017/171230_t2_CAFOS/caf-20171229-10:16:48-cal-lilj.fits  800    800  
-   825  /Volumes/NicoPassport/CAHA/CAFOS2017/171230_t2_CAFOS/caf-20171229-10:17:24-cal-lilj.fits  800    800  
-   826  /Volumes/NicoPassport/CAHA/CAFOS2017/171230_t2_CAFOS/caf-20171229-10:18:00-cal-lilj.fits  800    800  
+   824  /Users/cardiel/CAFOS2017/171230_t2_CAFOS/caf-20171229-10:16:48-cal-lilj.fits  800    800  
+   825  /Users/cardiel/CAFOS2017/171230_t2_CAFOS/caf-20171229-10:17:24-cal-lilj.fits  800    800  
+   826  /Users/cardiel/CAFOS2017/171230_t2_CAFOS/caf-20171229-10:18:00-cal-lilj.fits  800    800  
    Total: 826 files
 
 By default the list displays the full path to the original files and their
@@ -279,14 +279,14 @@ here):
 
    (filabres) $ filabres -lc bias -n 1702*
                                                                                               file NAXIS1 NAXIS2
-   1   /Volumes/NicoPassport/CAHA/CAFOS2017/170225_t2_CAFOS/caf-20170224-21:27:48-cal-krek.fits  1650   1650 
-   2   /Volumes/NicoPassport/CAHA/CAFOS2017/170225_t2_CAFOS/caf-20170224-21:29:09-cal-krek.fits  1650   1650 
-   3   /Volumes/NicoPassport/CAHA/CAFOS2017/170225_t2_CAFOS/caf-20170224-21:30:31-cal-krek.fits  1650   1650 
+   1   /Users/cardiel/CAFOS2017/170225_t2_CAFOS/caf-20170224-21:27:48-cal-krek.fits  1650   1650 
+   2   /Users/cardiel/CAFOS2017/170225_t2_CAFOS/caf-20170224-21:29:09-cal-krek.fits  1650   1650 
+   3   /Users/cardiel/CAFOS2017/170225_t2_CAFOS/caf-20170224-21:30:31-cal-krek.fits  1650   1650 
    ...
    ...
-   28  /Volumes/NicoPassport/CAHA/CAFOS2017/170226_t2_CAFOS/caf-20170226-11:47:59-cal-bomd.fits  1000   2048 
-   29  /Volumes/NicoPassport/CAHA/CAFOS2017/170226_t2_CAFOS/caf-20170226-11:49:11-cal-bomd.fits  1000   2048 
-   30  /Volumes/NicoPassport/CAHA/CAFOS2017/170226_t2_CAFOS/caf-20170226-11:50:23-cal-bomd.fits  1000   2048 
+   28  /Users/cardiel/CAFOS2017/170226_t2_CAFOS/caf-20170226-11:47:59-cal-bomd.fits  1000   2048 
+   29  /Users/cardiel/CAFOS2017/170226_t2_CAFOS/caf-20170226-11:49:11-cal-bomd.fits  1000   2048 
+   30  /Users/cardiel/CAFOS2017/170226_t2_CAFOS/caf-20170226-11:50:23-cal-bomd.fits  1000   2048 
    Total: 30 files
 
 Select image type and relevant keywords
@@ -334,14 +334,14 @@ standard deviation of the image):
 
    (filabres) $ filabres -lc bias -k quant500 -k quant975 -k robuststd
                                                                                             file   QUANT500   QUANT975  ROBUSTSTD
-   1    /Volumes/NicoPassport/CAHA/CAFOS2017/170225_t2_CAFOS/caf-20170224-21:27:48-cal-krek.fits  666.00000  686.00000  11.11950 
-   2    /Volumes/NicoPassport/CAHA/CAFOS2017/170225_t2_CAFOS/caf-20170224-21:29:09-cal-krek.fits  666.00000  687.00000  10.37820 
-   3    /Volumes/NicoPassport/CAHA/CAFOS2017/170225_t2_CAFOS/caf-20170224-21:30:31-cal-krek.fits  666.00000  683.00000  10.37820 
+   1    /Users/cardiel/CAFOS2017/170225_t2_CAFOS/caf-20170224-21:27:48-cal-krek.fits  666.00000  686.00000  11.11950 
+   2    /Users/cardiel/CAFOS2017/170225_t2_CAFOS/caf-20170224-21:29:09-cal-krek.fits  666.00000  687.00000  10.37820 
+   3    /Users/cardiel/CAFOS2017/170225_t2_CAFOS/caf-20170224-21:30:31-cal-krek.fits  666.00000  683.00000  10.37820 
    ...
    ...
-   824  /Volumes/NicoPassport/CAHA/CAFOS2017/171230_t2_CAFOS/caf-20171229-10:16:48-cal-lilj.fits  658.00000  680.00000  11.11950 
-   825  /Volumes/NicoPassport/CAHA/CAFOS2017/171230_t2_CAFOS/caf-20171229-10:17:24-cal-lilj.fits  658.00000  680.00000  11.11950 
-   826  /Volumes/NicoPassport/CAHA/CAFOS2017/171230_t2_CAFOS/caf-20171229-10:18:00-cal-lilj.fits  658.00000  680.00000  11.11950 
+   824  /Users/cardiel/CAFOS2017/171230_t2_CAFOS/caf-20171229-10:16:48-cal-lilj.fits  658.00000  680.00000  11.11950 
+   825  /Users/cardiel/CAFOS2017/171230_t2_CAFOS/caf-20171229-10:17:24-cal-lilj.fits  658.00000  680.00000  11.11950 
+   826  /Users/cardiel/CAFOS2017/171230_t2_CAFOS/caf-20171229-10:18:00-cal-lilj.fits  658.00000  680.00000  11.11950 
    Total: 826 files
 
 Note that each keyword is preceded by ``-k`` (following the astropy convention
@@ -354,14 +354,14 @@ to the selected keywords (several keys can be used for a hierarchical sorting):
 
    (filabres) $ filabres -lc bias -k quant500 -k quant975 -ks robuststd
             file   QUANT500   QUANT975  ROBUSTSTD
-   456  /Volumes/NicoPassport/CAHA/CAFOS2017/170929_t2_CAFOS/caf-20170929-13:52:35-cal-bias.fits  661.40002  666.70001  2.81693  
-   206  /Volumes/NicoPassport/CAHA/CAFOS2017/170526_t2_CAFOS/caf-20170526-15:44:34-cal-boeh.fits  667.00000  683.00000  6.67170  
-   207  /Volumes/NicoPassport/CAHA/CAFOS2017/170526_t2_CAFOS/caf-20170526-15:45:45-cal-boeh.fits  667.00000  683.00000  6.67170  
+   456  /Users/cardiel/CAFOS2017/170929_t2_CAFOS/caf-20170929-13:52:35-cal-bias.fits  661.40002  666.70001  2.81693  
+   206  /Users/cardiel/CAFOS2017/170526_t2_CAFOS/caf-20170526-15:44:34-cal-boeh.fits  667.00000  683.00000  6.67170  
+   207  /Users/cardiel/CAFOS2017/170526_t2_CAFOS/caf-20170526-15:45:45-cal-boeh.fits  667.00000  683.00000  6.67170  
    ...
    ...
-   241  /Volumes/NicoPassport/CAHA/CAFOS2017/170601_t2_CAFOS/caf-20170601-13:12:14-cal-bomd.fits  723.00000  776.00000  25.94550 
-   245  /Volumes/NicoPassport/CAHA/CAFOS2017/170601_t2_CAFOS/caf-20170601-13:17:01-cal-bomd.fits  723.00000  776.00000  25.94550 
-   311  /Volumes/NicoPassport/CAHA/CAFOS2017/170628_t2_CAFOS/caf-20170628-17:29:10-cal-pelm.fits  693.00000  729.00000  25.94550 
+   241  /Users/cardiel/CAFOS2017/170601_t2_CAFOS/caf-20170601-13:12:14-cal-bomd.fits  723.00000  776.00000  25.94550 
+   245  /Users/cardiel/CAFOS2017/170601_t2_CAFOS/caf-20170601-13:17:01-cal-bomd.fits  723.00000  776.00000  25.94550 
+   311  /Users/cardiel/CAFOS2017/170628_t2_CAFOS/caf-20170628-17:29:10-cal-pelm.fits  693.00000  729.00000  25.94550 
    Total: 826 files
 
 Note that now the values in the column ``ROBUSTSTD`` apear sorted.
@@ -395,16 +395,16 @@ For example, we can filter imposing fixed image dimensions:
 
    (filabres) $ filabres -lc bias --filter 'k[naxis1]==1650 and k[naxis2]==1650'
                                                                                            file NAXIS1 NAXIS2
-   1   /Volumes/NicoPassport/CAHA/CAFOS2017/170225_t2_CAFOS/caf-20170224-21:27:48-cal-krek.fits  1650   1650 
-   2   /Volumes/NicoPassport/CAHA/CAFOS2017/170225_t2_CAFOS/caf-20170224-21:29:09-cal-krek.fits  1650   1650 
-   3   /Volumes/NicoPassport/CAHA/CAFOS2017/170225_t2_CAFOS/caf-20170224-21:30:31-cal-krek.fits  1650   1650 
-   4   /Volumes/NicoPassport/CAHA/CAFOS2017/170225_t2_CAFOS/caf-20170224-21:31:52-cal-krek.fits  1650   1650 
-   5   /Volumes/NicoPassport/CAHA/CAFOS2017/170225_t2_CAFOS/caf-20170224-21:33:14-cal-krek.fits  1650   1650 
-   6   /Volumes/NicoPassport/CAHA/CAFOS2017/170225_t2_CAFOS/caf-20170224-21:34:36-cal-krek.fits  1650   1650 
-   7   /Volumes/NicoPassport/CAHA/CAFOS2017/170225_t2_CAFOS/caf-20170224-21:35:57-cal-krek.fits  1650   1650 
-   8   /Volumes/NicoPassport/CAHA/CAFOS2017/170225_t2_CAFOS/caf-20170224-21:37:19-cal-krek.fits  1650   1650 
-   9   /Volumes/NicoPassport/CAHA/CAFOS2017/170225_t2_CAFOS/caf-20170224-21:38:41-cal-krek.fits  1650   1650 
-   10  /Volumes/NicoPassport/CAHA/CAFOS2017/170225_t2_CAFOS/caf-20170224-21:40:03-cal-krek.fits  1650   1650 
+   1   /Users/cardiel/CAFOS2017/170225_t2_CAFOS/caf-20170224-21:27:48-cal-krek.fits  1650   1650 
+   2   /Users/cardiel/CAFOS2017/170225_t2_CAFOS/caf-20170224-21:29:09-cal-krek.fits  1650   1650 
+   3   /Users/cardiel/CAFOS2017/170225_t2_CAFOS/caf-20170224-21:30:31-cal-krek.fits  1650   1650 
+   4   /Users/cardiel/CAFOS2017/170225_t2_CAFOS/caf-20170224-21:31:52-cal-krek.fits  1650   1650 
+   5   /Users/cardiel/CAFOS2017/170225_t2_CAFOS/caf-20170224-21:33:14-cal-krek.fits  1650   1650 
+   6   /Users/cardiel/CAFOS2017/170225_t2_CAFOS/caf-20170224-21:34:36-cal-krek.fits  1650   1650 
+   7   /Users/cardiel/CAFOS2017/170225_t2_CAFOS/caf-20170224-21:35:57-cal-krek.fits  1650   1650 
+   8   /Users/cardiel/CAFOS2017/170225_t2_CAFOS/caf-20170224-21:37:19-cal-krek.fits  1650   1650 
+   9   /Users/cardiel/CAFOS2017/170225_t2_CAFOS/caf-20170224-21:38:41-cal-krek.fits  1650   1650 
+   10  /Users/cardiel/CAFOS2017/170225_t2_CAFOS/caf-20170224-21:40:03-cal-krek.fits  1650   1650 
    Total: 10 files
    * program STOP
 
@@ -703,14 +703,14 @@ of the new 30 images, this number is 856:
 
    (filabres) $ filabres -lc bias
                                                                                             file NAXIS1 NAXIS2
-   1    /Volumes/NicoPassport/CAHA/CAFOS2017/170225_t2_CAFOS/caf-20170224-21:27:48-cal-krek.fits  1650   1650 
-   2    /Volumes/NicoPassport/CAHA/CAFOS2017/170225_t2_CAFOS/caf-20170224-21:29:09-cal-krek.fits  1650   1650 
-   3    /Volumes/NicoPassport/CAHA/CAFOS2017/170225_t2_CAFOS/caf-20170224-21:30:31-cal-krek.fits  1650   1650 
+   1    /Users/cardiel/CAFOS2017/170225_t2_CAFOS/caf-20170224-21:27:48-cal-krek.fits  1650   1650 
+   2    /Users/cardiel/CAFOS2017/170225_t2_CAFOS/caf-20170224-21:29:09-cal-krek.fits  1650   1650 
+   3    /Users/cardiel/CAFOS2017/170225_t2_CAFOS/caf-20170224-21:30:31-cal-krek.fits  1650   1650 
    ...
    ...
-   854  /Volumes/NicoPassport/CAHA/CAFOS2017/171230_t2_CAFOS/caf-20171229-10:16:48-cal-lilj.fits  800    800  
-   855  /Volumes/NicoPassport/CAHA/CAFOS2017/171230_t2_CAFOS/caf-20171229-10:17:24-cal-lilj.fits  800    800  
-   856  /Volumes/NicoPassport/CAHA/CAFOS2017/171230_t2_CAFOS/caf-20171229-10:18:00-cal-lilj.fits  800    800  
+   854  /Users/cardiel/CAFOS2017/171230_t2_CAFOS/caf-20171229-10:16:48-cal-lilj.fits  800    800  
+   855  /Users/cardiel/CAFOS2017/171230_t2_CAFOS/caf-20171229-10:17:24-cal-lilj.fits  800    800  
+   856  /Users/cardiel/CAFOS2017/171230_t2_CAFOS/caf-20171229-10:18:00-cal-lilj.fits  800    800  
    Total: 856 files
 
 Re-checking wrong-science-imaging

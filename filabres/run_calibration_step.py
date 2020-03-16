@@ -15,6 +15,7 @@ import numpy as np
 import os
 import sys
 
+from .maskfromflat import maskfromflat
 from .retrieve_calibration import retrieve_calibration
 from .signature import getkey_from_signature
 from .signature import signature_string
@@ -221,7 +222,9 @@ def run_calibration_step(redustep, datadir, list_of_nights,
                     # image in the block (appending the _red suffix)
                     output_fname = nightdir + '/' + redustep + '_'
                     dumfile = os.path.basename(imgblock[0])
-                    output_fname += dumfile[:-5] + '_red.fits'
+                    output_fname += dumfile[:-5]
+                    output_mname = output_fname + '_mask.fits'
+                    output_fname += '_red.fits'
                     execute_reduction = True
                     if os.path.exists(output_fname) and not force:
                         execute_reduction = False
@@ -230,6 +233,9 @@ def run_calibration_step(redustep, datadir, list_of_nights,
                     if execute_reduction:
                         if verbose:
                             print('-> output fname will be {}'.format(output_fname))
+                            print('-> output mname will be {}'.format(output_mname))
+                        else:
+                            print('---')
 
                         # note: the following step must be performed before
                         # saving the combined image; otherwise, the cleanup
@@ -262,9 +268,13 @@ def run_calibration_step(redustep, datadir, list_of_nights,
                                     if len(conflict) > 0:
                                         mjdobs_to_be_deleted.append(mjdobs)
                                         fname = database[redustep][ssig][mjdobs]['fname']
+                                        mname = database[redustep][ssig][mjdobs]['mname']
                                         if os.path.exists(fname):
                                             print('Deleting {}'.format(fname))
                                             os.remove(fname)
+                                        if os.path.exists(mname):
+                                            print('Deleting {}'.format(mname))
+                                            os.remove(mname)
                                 for mjdobs in mjdobs_to_be_deleted:
                                     print('WARNING: deleting previous database entry: {} --> {} --> {}'.format(
                                             redustep, ssig, mjdobs
@@ -315,6 +325,7 @@ def run_calibration_step(redustep, datadir, list_of_nights,
 
                         # combine images according to their type
                         ierr_bias = None
+                        ierr_flat = None
                         delta_mjd_bias = None
                         # ---------------------------------------------------------
                         if redustep == 'bias':
@@ -322,33 +333,67 @@ def run_calibration_step(redustep, datadir, list_of_nights,
                             image2d = np.median(image3d, axis=0)
                             output_header.add_history('Combination method: median')
                             # compute statistical analysis and update the image header
-                            image2d_statsum = statsumm(image2d, output_header, redustep, rm_nan=True)
+                            image2d_statsumm = statsumm(
+                                image2d=image2d,
+                                header=output_header,
+                                redustep=redustep,
+                                rm_nan=True
+                            )
+                            mask2d = None
                         # ---------------------------------------------------------
                         elif redustep == 'flat-imaging':
+                            ierr_bias = 0
+                            ierr_flat = 0
                             mjdobs = output_header['MJD-OBS']
-                            # retrieve and subtract bias
+                            # retrieve master bias
                             ierr_bias, delta_mjd_bias, image2d_bias, bias_fname = retrieve_calibration(
                                     instrument, 'bias', signature, mjdobs,
                                     verbose=verbose
                                 )
+                            # subtract bias
                             output_header.add_history('Subtracting bias:')
                             output_header.add_history(bias_fname)
                             if debug:
                                 print('bias level:', np.median(image2d_bias))
                             for i in range(nfiles):
-                                # subtract bias
                                 image3d[i, :, :] -= image2d_bias
-                                # normalize by the median value
-                                mediansignal = np.median(image3d[i, :, :])
+                            # stack all the images for the computation of a single mask for all the individual images
+                            image2d = np.sum(image3d, axis=0)
+                            mediansignal = np.median(image2d)
+                            if mediansignal > 0:
+                                image2d /= mediansignal
+                            else:
+                                msg = 'WARNING: mediansignal={} is not > 0'.format(mediansignal)
+                                print(msg)
+                                ierr_flat = 1
+                            mask2d = maskfromflat(image2d)
+                            for i in range(nfiles):
+                                # perform statistical analysis in useful region
+                                image2d_statsumm = statsumm(image2d=image3d[i, :, :], mask2d=mask2d, rm_nan=True)
+                                # normalize by the median value in the useful region
+                                mediansignal = image2d_statsumm['QUANT500']
+                                if verbose:
+                                    print('Median value in frame #{}/{}: {}'.format(i+1, nfiles, mediansignal))
                                 if mediansignal > 0:
                                     image3d[i, :, :] /= mediansignal
+                                else:
+                                    msg = 'WARNING: mediansignal={} is not > 0'.format(mediansignal)
+                                    print(msg)
+                                    ierr_flat = 1
                             # median combination of normalized images
                             image2d = np.median(image3d, axis=0)
                             # set to 1.0 pixels with values <= 0
                             image2d[image2d <= 0.0] = 1.0
                             output_header.add_history('Combination method: median of normalized images')
-                            # compute statistical analysis and update the image header
-                            image2d_statsum = statsumm(image2d, output_header, redustep, rm_nan=True)
+                            # perform statistical analysis in the useful region and update the image header
+                            mask2d = maskfromflat(image2d)
+                            image2d_statsumm = statsumm(
+                                image2d=image2d,
+                                mask2d=mask2d,
+                                header=output_header,
+                                redustep=redustep,
+                                rm_nan=True
+                            )
                         # ---------------------------------------------------------
                         else:
                             msg = '* ERROR: combination of {} not implemented yet'.format(redustep)
@@ -357,7 +402,12 @@ def run_calibration_step(redustep, datadir, list_of_nights,
                         # save result
                         hdu = fits.PrimaryHDU(image2d.astype(np.float32), output_header)
                         hdu.writeto(output_fname, overwrite=True)
-                        print('Creating {} with signature {}'.format(output_fname, ssig))
+                        print('Working with signature {}'.format(ssig))
+                        print('Creating {}'.format(output_fname))
+                        # save mask
+                        hdu = fits.PrimaryHDU(mask2d.astype(np.float32), output_header)
+                        hdu.writeto(output_mname, overwrite=True)
+                        print('Creating {}'.format(output_mname))
 
                         # update database with result using the mean MJD-OBS of
                         # the combined images as index
@@ -366,7 +416,8 @@ def run_calibration_step(redustep, datadir, list_of_nights,
                         database[redustep][ssig][mjdobs]['night'] = night
                         database[redustep][ssig][mjdobs]['signature'] = signature
                         database[redustep][ssig][mjdobs]['fname'] = output_fname
-                        database[redustep][ssig][mjdobs]['statsumm'] = image2d_statsum
+                        database[redustep][ssig][mjdobs]['mname'] = output_mname
+                        database[redustep][ssig][mjdobs]['statsumm'] = image2d_statsumm
                         dumdict = dict()
                         for keyword in instconf['masterkeywords']:
                             dumdict[keyword] = output_header[keyword]
@@ -375,6 +426,8 @@ def run_calibration_step(redustep, datadir, list_of_nights,
                         database[redustep][ssig][mjdobs]['originf'] = originf
                         if ierr_bias is not None:
                             database[redustep][ssig][mjdobs]['ierr_bias'] = ierr_bias
+                        if ierr_flat is not None:
+                            database[redustep][ssig][mjdobs]['ierr_flat'] = ierr_flat
                         if delta_mjd_bias is not None:
                             database[redustep][ssig][mjdobs]['delta_mjd_bias'] = delta_mjd_bias
 

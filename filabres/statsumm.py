@@ -11,7 +11,7 @@
 import numpy as np
 
 
-def statsumm(image2d=None, header=None, redustep=None, rm_nan=False, verbose=False):
+def statsumm(image2d=None, mask2d=None, header=None, redustep=None, rm_nan=False, verbose=False):
     """
     Compute statistical summary of 2D image.
 
@@ -25,6 +25,9 @@ def statsumm(image2d=None, header=None, redustep=None, rm_nan=False, verbose=Fal
         Array with input image. If None, the function still works
         returning a dictionary with all the fields set to zero, which
         is useful to get the list of available results.
+    mask2d : numpy 2D array or None
+        Mask of useful pixel. Mask values equal to zero indicate that
+        those pixels must not be used for the statistical analysis.
     header : astropy header or None
         Header to be updated
     redustep : str
@@ -45,6 +48,14 @@ def statsumm(image2d=None, header=None, redustep=None, rm_nan=False, verbose=Fal
         npoints = 0
     else:
         x = image2d.flatten()
+        if mask2d is not None:
+            if image2d.shape != mask2d.shape:
+                print('image2d.shape..: {}'.format(image2d.shape))
+                print('mask2d.shape...: {}'.format(mask2d.shape))
+                msg = 'ERROR: shapes do not match'
+                raise SystemError(msg)
+            xmask = mask2d.flatten()
+            x = x[xmask > 0]
         npoints = len(x)
     if rm_nan:
         x = x[np.logical_not(np.isnan(x))]
@@ -76,6 +87,8 @@ def statsumm(image2d=None, header=None, redustep=None, rm_nan=False, verbose=Fal
 
     if header is not None:
         header.add_history('Statistical analysis of combined {} image:'.format(redustep))
+        if mask2d is not None:
+            header.add_history('(only pixels in the useful region, i.e., not masked)')
         for key in result:
             header.add_history(' - {}: {}'.format(key, result[key]))
 

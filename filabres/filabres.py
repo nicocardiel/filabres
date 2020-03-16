@@ -115,7 +115,6 @@ def main():
 
     # ---
     # ToDo: implementar argumento --filename para reducir una unica imagen cientifica
-    # ToDo: incluir unos requirementx más genéricos, usando evaluaciones complejas de keywords
     # ToDo: incluir varios WCS en la misma imagen
 
     # check argument compatibility

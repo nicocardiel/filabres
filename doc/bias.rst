@@ -79,7 +79,7 @@ can try to repeat the reduction of the last night ``171230_t2_CAFOS``:
 
 ::
 
-   (filabres) $ filabres -rs bias -n 171230* -v --force
+   (filabres) $ filabres -rs bias -n 171230* -v
    * instrument............: cafos
    * datadir...............: /Users/cardiel/CAFOS2017
    * ignored_images_file...: ignored_images.yaml
@@ -556,16 +556,16 @@ image:
    > List of individual frames:
      (involved in the computation of bias/170525_t2_CAFOS/bias_caf-20170525-16:33:40-cal-boeh_red.fits)
                                                                                            file  QUANT500  ROBUSTSTD
-   1   /Volumes/NicoPassport/CAHA/CAFOS2017/170525_t2_CAFOS/caf-20170525-16:33:40-cal-boeh.fits  683.0     11.8608  
-   2   /Volumes/NicoPassport/CAHA/CAFOS2017/170525_t2_CAFOS/caf-20170525-16:34:51-cal-boeh.fits  683.0     11.8608  
-   3   /Volumes/NicoPassport/CAHA/CAFOS2017/170525_t2_CAFOS/caf-20170525-16:36:02-cal-boeh.fits  683.0     11.8608  
-   4   /Volumes/NicoPassport/CAHA/CAFOS2017/170525_t2_CAFOS/caf-20170525-16:37:14-cal-boeh.fits  683.0     11.8608  
-   5   /Volumes/NicoPassport/CAHA/CAFOS2017/170525_t2_CAFOS/caf-20170525-16:38:26-cal-boeh.fits  682.0     11.8608  
-   6   /Volumes/NicoPassport/CAHA/CAFOS2017/170525_t2_CAFOS/caf-20170525-16:39:37-cal-boeh.fits  682.0     11.8608  
-   7   /Volumes/NicoPassport/CAHA/CAFOS2017/170525_t2_CAFOS/caf-20170525-16:40:49-cal-boeh.fits  678.0     8.1543   
-   8   /Volumes/NicoPassport/CAHA/CAFOS2017/170525_t2_CAFOS/caf-20170525-16:42:01-cal-boeh.fits  678.0     8.1543   
-   9   /Volumes/NicoPassport/CAHA/CAFOS2017/170525_t2_CAFOS/caf-20170525-16:43:13-cal-boeh.fits  678.0     8.1543   
-   10  /Volumes/NicoPassport/CAHA/CAFOS2017/170525_t2_CAFOS/caf-20170525-16:44:25-cal-boeh.fits  678.0     8.1543   
+   1   /Users/cardiel/CAFOS2017/170525_t2_CAFOS/caf-20170525-16:33:40-cal-boeh.fits  683.0     11.8608  
+   2   /Users/cardiel/CAFOS2017/170525_t2_CAFOS/caf-20170525-16:34:51-cal-boeh.fits  683.0     11.8608  
+   3   /Users/cardiel/CAFOS2017/170525_t2_CAFOS/caf-20170525-16:36:02-cal-boeh.fits  683.0     11.8608  
+   4   /Users/cardiel/CAFOS2017/170525_t2_CAFOS/caf-20170525-16:37:14-cal-boeh.fits  683.0     11.8608  
+   5   /Users/cardiel/CAFOS2017/170525_t2_CAFOS/caf-20170525-16:38:26-cal-boeh.fits  682.0     11.8608  
+   6   /Users/cardiel/CAFOS2017/170525_t2_CAFOS/caf-20170525-16:39:37-cal-boeh.fits  682.0     11.8608  
+   7   /Users/cardiel/CAFOS2017/170525_t2_CAFOS/caf-20170525-16:40:49-cal-boeh.fits  678.0     8.1543   
+   8   /Users/cardiel/CAFOS2017/170525_t2_CAFOS/caf-20170525-16:42:01-cal-boeh.fits  678.0     8.1543   
+   9   /Users/cardiel/CAFOS2017/170525_t2_CAFOS/caf-20170525-16:43:13-cal-boeh.fits  678.0     8.1543   
+   10  /Users/cardiel/CAFOS2017/170525_t2_CAFOS/caf-20170525-16:44:25-cal-boeh.fits  678.0     8.1543   
    Total: 10 files
 
 Again, the problem is present in the individual images. 
@@ -673,16 +673,16 @@ Removing invalid reduced bias
 
       $ filabres -lc ignored -n 170525*
                                                                                               file NAXIS1 NAXIS2
-      1   /Volumes/NicoPassport/CAHA/CAFOS2017/170525_t2_CAFOS/caf-20170525-16:33:40-cal-boeh.fits  1000   2048 
-      2   /Volumes/NicoPassport/CAHA/CAFOS2017/170525_t2_CAFOS/caf-20170525-16:34:51-cal-boeh.fits  1000   2048 
-      3   /Volumes/NicoPassport/CAHA/CAFOS2017/170525_t2_CAFOS/caf-20170525-16:36:02-cal-boeh.fits  1000   2048 
-      4   /Volumes/NicoPassport/CAHA/CAFOS2017/170525_t2_CAFOS/caf-20170525-16:37:14-cal-boeh.fits  1000   2048 
-      5   /Volumes/NicoPassport/CAHA/CAFOS2017/170525_t2_CAFOS/caf-20170525-16:38:26-cal-boeh.fits  1000   2048 
-      6   /Volumes/NicoPassport/CAHA/CAFOS2017/170525_t2_CAFOS/caf-20170525-16:39:37-cal-boeh.fits  1000   2048 
-      7   /Volumes/NicoPassport/CAHA/CAFOS2017/170525_t2_CAFOS/caf-20170525-16:40:49-cal-boeh.fits  1000   2048 
-      8   /Volumes/NicoPassport/CAHA/CAFOS2017/170525_t2_CAFOS/caf-20170525-16:42:01-cal-boeh.fits  1000   2048 
-      9   /Volumes/NicoPassport/CAHA/CAFOS2017/170525_t2_CAFOS/caf-20170525-16:43:13-cal-boeh.fits  1000   2048 
-      10  /Volumes/NicoPassport/CAHA/CAFOS2017/170525_t2_CAFOS/caf-20170525-16:44:25-cal-boeh.fits  1000   2048 
+      1   /Users/cardiel/CAFOS2017/170525_t2_CAFOS/caf-20170525-16:33:40-cal-boeh.fits  1000   2048 
+      2   /Users/cardiel/CAFOS2017/170525_t2_CAFOS/caf-20170525-16:34:51-cal-boeh.fits  1000   2048 
+      3   /Users/cardiel/CAFOS2017/170525_t2_CAFOS/caf-20170525-16:36:02-cal-boeh.fits  1000   2048 
+      4   /Users/cardiel/CAFOS2017/170525_t2_CAFOS/caf-20170525-16:37:14-cal-boeh.fits  1000   2048 
+      5   /Users/cardiel/CAFOS2017/170525_t2_CAFOS/caf-20170525-16:38:26-cal-boeh.fits  1000   2048 
+      6   /Users/cardiel/CAFOS2017/170525_t2_CAFOS/caf-20170525-16:39:37-cal-boeh.fits  1000   2048 
+      7   /Users/cardiel/CAFOS2017/170525_t2_CAFOS/caf-20170525-16:40:49-cal-boeh.fits  1000   2048 
+      8   /Users/cardiel/CAFOS2017/170525_t2_CAFOS/caf-20170525-16:42:01-cal-boeh.fits  1000   2048 
+      9   /Users/cardiel/CAFOS2017/170525_t2_CAFOS/caf-20170525-16:43:13-cal-boeh.fits  1000   2048 
+      10  /Users/cardiel/CAFOS2017/170525_t2_CAFOS/caf-20170525-16:44:25-cal-boeh.fits  1000   2048 
       Total: 10 files
 
    Repeat the same for the second night:
@@ -698,16 +698,16 @@ Removing invalid reduced bias
 
       $ filabres -lc ignored -n 170601*
                                                                                               file NAXIS1 NAXIS2
-                                                                                      1   /Volumes/NicoPassport/CAHA/CAFOS2017/170601_t2_CAFOS/caf-20170601-13:06:15-cal-bomd.fits  1000   2048 
-      2   /Volumes/NicoPassport/CAHA/CAFOS2017/170601_t2_CAFOS/caf-20170601-13:07:26-cal-bomd.fits  1000   2048 
-      3   /Volumes/NicoPassport/CAHA/CAFOS2017/170601_t2_CAFOS/caf-20170601-13:08:38-cal-bomd.fits  1000   2048 
-      4   /Volumes/NicoPassport/CAHA/CAFOS2017/170601_t2_CAFOS/caf-20170601-13:09:50-cal-bomd.fits  1000   2048 
-      5   /Volumes/NicoPassport/CAHA/CAFOS2017/170601_t2_CAFOS/caf-20170601-13:11:02-cal-bomd.fits  1000   2048 
-      6   /Volumes/NicoPassport/CAHA/CAFOS2017/170601_t2_CAFOS/caf-20170601-13:12:14-cal-bomd.fits  1000   2048 
-      7   /Volumes/NicoPassport/CAHA/CAFOS2017/170601_t2_CAFOS/caf-20170601-13:13:25-cal-bomd.fits  1000   2048 
-      8   /Volumes/NicoPassport/CAHA/CAFOS2017/170601_t2_CAFOS/caf-20170601-13:14:37-cal-bomd.fits  1000   2048 
-      9   /Volumes/NicoPassport/CAHA/CAFOS2017/170601_t2_CAFOS/caf-20170601-13:15:48-cal-bomd.fits  1000   2048 
-      10  /Volumes/NicoPassport/CAHA/CAFOS2017/170601_t2_CAFOS/caf-20170601-13:17:01-cal-bomd.fits  1000   2048 
+                                                                                      1   /Users/cardiel/CAFOS2017/170601_t2_CAFOS/caf-20170601-13:06:15-cal-bomd.fits  1000   2048 
+      2   /Users/cardiel/CAFOS2017/170601_t2_CAFOS/caf-20170601-13:07:26-cal-bomd.fits  1000   2048 
+      3   /Users/cardiel/CAFOS2017/170601_t2_CAFOS/caf-20170601-13:08:38-cal-bomd.fits  1000   2048 
+      4   /Users/cardiel/CAFOS2017/170601_t2_CAFOS/caf-20170601-13:09:50-cal-bomd.fits  1000   2048 
+      5   /Users/cardiel/CAFOS2017/170601_t2_CAFOS/caf-20170601-13:11:02-cal-bomd.fits  1000   2048 
+      6   /Users/cardiel/CAFOS2017/170601_t2_CAFOS/caf-20170601-13:12:14-cal-bomd.fits  1000   2048 
+      7   /Users/cardiel/CAFOS2017/170601_t2_CAFOS/caf-20170601-13:13:25-cal-bomd.fits  1000   2048 
+      8   /Users/cardiel/CAFOS2017/170601_t2_CAFOS/caf-20170601-13:14:37-cal-bomd.fits  1000   2048 
+      9   /Users/cardiel/CAFOS2017/170601_t2_CAFOS/caf-20170601-13:15:48-cal-bomd.fits  1000   2048 
+      10  /Users/cardiel/CAFOS2017/170601_t2_CAFOS/caf-20170601-13:17:01-cal-bomd.fits  1000   2048 
       Total: 10 files
 
 
