@@ -61,7 +61,8 @@ this documentation.
    setup
    check
    classification
-   calibration
+   bias
+   flat-imaging
    science
 
 ----

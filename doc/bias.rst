@@ -1,8 +1,8 @@
-.. _reduction_of_calibration_images:
+.. _bias_reduction:
 
-*******************************
-Reduction of calibration images
-*******************************
+************************
+Reduction of bias images
+************************
 
 .. note::
 
@@ -16,12 +16,6 @@ Reduction of calibration images
    ``configuration_cafos.yaml`` for the considered image type (``bias``,
    ``flat-imaging``,...).
 
-
-Bias
-====
-
-Reduction of bias images
-------------------------
 
 The first calibration images to be reduced are the bias frames:
 
@@ -136,7 +130,7 @@ the output file by using the additional argument ``--force`` in the command
 line).
 
 Database of bias master frames
-------------------------------
+==============================
 
 The reduction of the bias images generates a file, placed in the current
 directory, called ``filabres_db_cafos_bias.json``. This constitutes a database
@@ -309,7 +303,7 @@ images involved ``originf``, the values of all the FITS keywords listed in
 ``statsumm``, to mention the most relevant items.
 
 Checking the bias reduction
----------------------------
+===========================
 
 Fortunately, you do not need to manually examine the file
 ``filabres_db_cafos_bias.json`` to check the reduction of bias images.
@@ -510,7 +504,7 @@ present in the 10 individual images, as can be easily visualized using ``-pi``:
    :alt: Individual wrong bias night 20170601
 
 Removing invalid reduced bias
------------------------------
+=============================
 
 .. warning::
 
@@ -615,22 +609,10 @@ Removing invalid reduced bias
    ::
 
       (filabres) $ filabres --delete bias/170601_t2_CAFOS/bias_caf-20170601-13:06:15-cal-bomd_red.fits
-
-   (Work in progress)
-
-Flat-imaging
-============
-(Still work in progress)
-
-Reduction of flat-imaging images
---------------------------------
-
-Database of flat-imaging master frames
---------------------------------------
-
-Checking the flat-imaging reduction
------------------------------------
-
-Removing invalid reduced flat-imaging
--------------------------------------
+      > Image to be deleted bias/170601_t2_CAFOS/bias_caf-20170601-13:06:15-cal-bomd_red.fits
+      > Signature: SITE#1d_15__1000__2048__[501,1:1500,2048]__1__1
+      > MJD-OBS..: 57905.54971
+      > Number of reduced bias images with this signature: 13
+      -> Updating filabres_db_cafos_bias.json
+      -> Deleting file bias/170601_t2_CAFOS/bias_caf-20170601-13:06:15-cal-bomd_red.fits
 
