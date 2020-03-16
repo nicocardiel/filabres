@@ -14,6 +14,20 @@ enabled: True
 files:
  - caf-20170505*.fits
 ---
+night: 170525_t2_CAFOS
+enabled: True
+files:
+ - caf-20170525-16:33:40-cal-boeh.fits
+ - caf-20170525-16:34:51-cal-boeh.fits
+ - caf-20170525-16:36:02-cal-boeh.fits
+ - caf-20170525-16:37:14-cal-boeh.fits
+ - caf-20170525-16:38:26-cal-boeh.fits
+ - caf-20170525-16:39:37-cal-boeh.fits
+ - caf-20170525-16:40:49-cal-boeh.fits
+ - caf-20170525-16:42:01-cal-boeh.fits
+ - caf-20170525-16:43:13-cal-boeh.fits
+ - caf-20170525-16:44:25-cal-boeh.fits
+---
 night: 170601_t2_CAFOS
 enabled: True
 files:
