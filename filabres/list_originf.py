@@ -102,14 +102,12 @@ def list_originf(instrument, args_originf, listmode, datadir,
         redustep=None,
         dontcheckredustep=True
     )
-    all_imagetypes = list(instconf['imagetypes'].keys())
-    valid_imagetypes = []
-    for item in all_imagetypes:
-        classification = instconf['imagetypes'][item]['classification']
-        if classification == 'calibration':
-            valid_imagetypes.append(item)
-    if imagetype not in valid_imagetypes:
-        msg = 'ERROR: Image type {} is not in valid list {}'.format(imagetype, valid_imagetypes)
+    if imagetype not in instconf['imagetypes'].keys():
+        msg = 'Image type {} not found in instrument configuration file'.format(imagetype)
+        raise SystemError(msg)
+    classification = instconf['imagetypes'][imagetype]['classification']
+    if classification != 'calibration':
+        msg = 'ERROR: image type {} is not a calibration image'
         print(msg)
         return
 

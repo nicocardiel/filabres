@@ -31,7 +31,7 @@ import argparse
 from .check_args_compatibility import check_args_compatibility
 from .check_datadir import check_datadir
 from .check_tslash import check_tslash
-from .delete_calibration import delete_calibration
+from .delete_reduced import delete_reduced
 from .generate_setup import generate_setup
 from .classify_images import classify_images
 from .list_classified import list_classified
@@ -112,7 +112,7 @@ def main():
     args = parser.parse_args()
 
     # ---
-    # ToDo: implementar argumento --delete para eliminar una calibración reducida
+    # ToDo: incluir --filter en los listados (con filtro inteligente)
     # ToDo: implementar argumento --filename para reducir una unica imagen cientifica
     # ToDo: incluir unos requirementx más genéricos, usando evaluaciones complejas de keywords
     # ToDo: incluir varios WCS en la misma imagen
@@ -137,8 +137,8 @@ def main():
 
     # delete reduced image
     if args.delete is not None:
-        delete_calibration(instrument=instrument,
-                           calibration=args.delete)
+        delete_reduced(instrument=instrument,
+                       reducedima=args.delete)
         print('* program STOP')
         raise SystemExit()
 
