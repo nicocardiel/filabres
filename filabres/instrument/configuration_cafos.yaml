@@ -208,6 +208,29 @@ imagetypes:
     requirements:
       IMAGETYP: 'science'
       INSGRID.NE.: 'GRISM-11'
+      INSPOFPI.NE.: 'Wollaston'
+    requirementx:
+      EXPTIME.GT.: 0
+      QUANT975.LT.: 60000
+    signature:
+      - CCDNAME
+      - NAXIS1
+      - NAXIS2
+      - DATASEC
+      - CCDBINX
+      - CCDBINY
+      - INSGRID
+      - INSFLID
+      - RA
+      - DEC
+    maxtimespan_hours: 0
+  science-spectroscopy-wollaston:
+    classification: science
+    executable: False
+    requirements:
+      IMAGETYP: 'science'
+      INSGRID.NE.: 'GRISM-11'
+      INSPOFPI: 'Wollaston'
     requirementx:
       EXPTIME.GT.: 0
       QUANT975.LT.: 60000
