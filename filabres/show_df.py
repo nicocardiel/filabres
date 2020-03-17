@@ -54,8 +54,9 @@ def show_df(df, n, listmode, imagetype, args_keyword_sort, args_ndecimal,
                         print('')
                 # display images
                 if args_plotimage:
-                    for i in range(df.shape[0]):
-                        fname = df['file'].values[i]
-                        print(df.loc[[i+1]].round(args_ndecimal).to_string(index=True))
+                    # preserve sorted dataframe if args_keyword_sort is not None
+                    for i in df.index.values:
+                        fname = df.loc[i, 'file']
+                        print(df.loc[[i]].round(args_ndecimal).to_string(index=True))
                         with plt.style.context('seaborn'):
                             ximshow_file(fname, debugplot=12)
