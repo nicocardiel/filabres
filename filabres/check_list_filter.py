@@ -29,6 +29,13 @@ def check_list_filter(filterexpression, storedkeywords, debug=False):
         Result of evaluating the logical expression.
     """
 
+    # determine whether single or double quotes have been employed to define
+    # the expression to be evaluated
+    if filterexpression.find('"') < 0:
+        slim = '"'
+    else:
+        slim = "'"
+
     # Replace k[<keyword] by actual keyword value
     i = 0
     s = ''
@@ -43,7 +50,10 @@ def check_list_filter(filterexpression, storedkeywords, debug=False):
             s += filterexpression[i:]
             break
         kwd = filterexpression[(i+j+2):(i+j+jj)].upper()
-        s += str(storedkeywords[kwd])
+        if isinstance(storedkeywords[kwd], str):
+            s += slim + str(storedkeywords[kwd]) + slim
+        else:
+            s += str(storedkeywords[kwd])
         i += j + jj + 1
 
     if debug:
