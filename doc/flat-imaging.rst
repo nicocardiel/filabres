@@ -245,7 +245,7 @@ be repeated here.
 Checking the flat-imaging reduction
 ===================================
 
-In order to check the reduction of the flat-imaging images just execute:
+In order to obtain a list with al the reduced flat-imaging frames just execute:
 
 ::
 
@@ -275,11 +275,11 @@ The available keywords for these images are:
    'INSFPWL', 'INSFPDWL', 'INSFPORD', 'INSCALST', 'INSCALID', 'INSCALNM',
    'NPOINTS', 'FMINIMUM', 'QUANT025', 'QUANT159', 'QUANT250', 'QUANT500',
    'QUANT750', 'QUANT841', 'QUANT975', 'FMAXIMUM', 'ROBUSTSTD', 'NORIGIN',
-   'IERR_BIAS', 'DELTA_MJD_BIAS']
-   
-Note two new useful keywords:
+   'IERR_BIAS', 'DELTA_MJD_BIAS', 'IERR_FLAT']
 
-- ``IERR_BIAS``: flag that indicates wether there was a problem when trying to
+Note some new useful keywords:
+
+- ``IERR_BIAS``: flag that indicates whether there was a problem when trying to
   retrieve the master bias frame corresponding to the signature of the flat
   images. The value 0 means that the master bias was found, whereas a value of 1
   indicates that no master bias was found with the requested signature (in this
@@ -289,7 +289,12 @@ Note two new useful keywords:
 - ``DELTA_MJD_BIAS``: time distance (days) between the master bias and the flat
   images being reduced.
 
-For example, it is possible to quickly determine if ``IERR_BIAS`` is different
+- ``IERR_FLAT``: flag that indicates a problem in the reduction of the flat
+  images themselves (a negative median signal for example). These image should
+  be revised.
+
+For example, it is possible to quickly determine if ``IERR_BIAS`` or
+``IERR_FLAT`` are different
 from zero in any of the reduced flat-imaging frames:
 
 ::
@@ -297,7 +302,21 @@ from zero in any of the reduced flat-imaging frames:
    (filabres) $ filabres -lr flat-imaging --filter 'k[ierr_bias] != 0'
    Total: 0 files
 
-Fortunately, this is not the case.
+::
+
+   (filabres) $ filabres -lr flat-imaging  --filter 'k[ierr_flat] != 0'
+                                                                                      file NAXIS1 NAXIS2
+   1  flat-imaging/170621_t2_CAFOS/flat-imaging_caf-20170621-21:31:58-cal-agui_red.fits  1024   1024 
+   2  flat-imaging/170621_t2_CAFOS/flat-imaging_caf-20170622-02:41:15-cal-agui_red.fits  1024   1024 
+   3  flat-imaging/170627_t2_CAFOS/flat-imaging_caf-20170627-20:57:40-cal-agui_red.fits  1024   1024 
+   4  flat-imaging/171015_t2_CAFOS/flat-imaging_caf-20171016-10:15:35-cal-agui_red.fits  1024   1024 
+   5  flat-imaging/170929_t2_CAFOS/flat-imaging_caf-20170929-13:52:28-cal-flat_red.fits  1024   1024 
+
+There are five reduced flat-imaging frames with problems in the reduction of
+the individual flat exposures.
+
+
+
 
 It is also useful to examine the ``QUANT500`` and ``ROBUSTSTD`` keywords:
 

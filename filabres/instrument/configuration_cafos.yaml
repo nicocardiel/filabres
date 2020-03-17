@@ -10,7 +10,7 @@
 
 # instrument definitions for filabres
 instname: cafos
-version: 2.3
+version: 2.4
 requirements:
   INSTRUME: 'CAFOS 2.2'
 masterkeywords:
@@ -81,7 +81,31 @@ imagetypes:
       IMAGETYP: 'flat'
       INSGRID: 'GRISM-11'
     requirementx:
+      EXPTIME.GT.: 0
+      QUANT975.GT.: 5000
       QUANT975.LT.: 60000
+      INSPOFPI.NE.: 'Wollaston'
+    signature:
+      - CCDNAME
+      - NAXIS1
+      - NAXIS2
+      - DATASEC
+      - CCDBINX
+      - CCDBINY
+      - INSGRID
+      - INSFLID
+    maxtimespan_hours: 1
+  flat-imaging-wollaston:
+    executable: False
+    classification: calibration
+    requirements:
+      IMAGETYP: 'flat'
+      INSGRID: 'GRISM-11'
+    requirementx:
+      EXPTIME.GT.: 0
+      QUANT975.GT.: 5000
+      QUANT975.LT.: 60000
+      INSPOFPI: 'Wollaston'
     signature:
       - CCDNAME
       - NAXIS1
@@ -99,6 +123,7 @@ imagetypes:
       IMAGETYP: 'flat'
       INSGRID.NE.: 'GRISM-11'
     requirementx:
+      EXPTIME.GT.: 0
       QUANT975.LT.: 60000
     signature:
       - CCDNAME
@@ -117,6 +142,7 @@ imagetypes:
       IMAGETYP: 'arc'
       INSGRID.NE.: 'GRISM-11'
     requirementx:
+      EXPTIME.GT.: 0
       QUANT975.LT.: 60000
     signature:
       - CCDNAME
@@ -137,6 +163,30 @@ imagetypes:
     requirements:
       IMAGETYP: 'science'
       INSGRID: 'GRISM-11'
+      INSPOFPI.NE.: 'Wollaston'
+    requirementx:
+      EXPTIME.GT.: 0
+      QUANT975.LT.: 60000
+    signature:
+      - CCDNAME
+      - NAXIS1
+      - NAXIS2
+      - DATASEC
+      - CCDBINX
+      - CCDBINY
+      - INSGRID
+      - INSFLID
+      - RA
+      - DEC
+    maxtimespan_hours: 0
+  science-imaging-wollaston:
+    classification: science
+    executable: False
+    maxfieldview_arcmin: 16
+    requirements:
+      IMAGETYP: 'science'
+      INSGRID: 'GRISM-11'
+      INSPOFPI: 'Wollaston'
     requirementx:
       EXPTIME.GT.: 0
       QUANT975.LT.: 60000
