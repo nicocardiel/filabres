@@ -18,6 +18,7 @@ import sys
 import uuid
 import warnings
 
+from .check_image_classification import ImageClassification
 from .check_image_corrections import ImageCorrections
 from .check_image_ignore import ImageIgnore
 from .progressbar import progressbar
@@ -140,7 +141,8 @@ def classify_image(instconf, header, dictquant):
 
 
 def classify_images(list_of_nights, instconf, datadir, force,
-                    ignored_images_file, image_header_corrections_file, verbose=False):
+                    ignored_images_file, image_header_corrections_file,
+                    forced_classifications_file, verbose=False):
     """
     Generate database with relevant keywords for each night.
 
@@ -160,6 +162,8 @@ def classify_images(list_of_nights, instconf, datadir, force,
         Name of the file containing the images to be ignored.
     image_header_corrections_file : str
         Name of the file containing the image corrections.
+    forced_classifications_file : str
+        Name of the file containing the forced image classifications.
     verbose : bool
         If True, display intermediate information.
     """
@@ -174,6 +178,13 @@ def classify_images(list_of_nights, instconf, datadir, force,
     # check for image_header_corrections_file
     imgcorrections = ImageCorrections(
         image_header_corrections_file=image_header_corrections_file,
+        datadir=datadir,
+        verbose=verbose
+    )
+
+    # check for forced_classifications_file
+    forcedclassification = ImageClassification(
+        forced_classifications_file=forced_classifications_file,
         datadir=datadir,
         verbose=verbose
     )
@@ -325,15 +336,26 @@ def classify_images(list_of_nights, instconf, datadir, force,
                 else:
                     imagetype = 'wrong-instrument'
 
-                # override classification if the image must be ignored
-                # (note: we have let the image classification to be performed
-                # in order to get all the masterkeywords)
+                # override classification if the image must be ignored or reclassified (note: we have let
+                # the image classification to be performed in order to get all the masterkeywords)
                 if imgtoignore.to_be_ignored(
                         night=night,
                         basename=basename,
                         verbose=verbose
                 ):
                     imagetype = 'ignored'
+                else:
+                    # look for a forced classification
+                    imagetype_ = forcedclassification.to_be_reclassified(
+                        night=night,
+                        basename=basename
+                    )
+                    if imagetype_ is not None:
+                        if verbose:
+                            print('-> Forcing classification of {} from {} to {}'.format(
+                                basename, imagetype, imagetype_))
+                        imagetype = imagetype_
+                        input('Paused here!')
                 # include image in corresponding classification
                 if imagetype in imagedb:
                     imagedb[imagetype][basename] = dumdict

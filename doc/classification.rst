@@ -417,7 +417,7 @@ For example, we can filter imposing fixed image dimensions:
 
 ::
 
-  $ filabres -lc bias -k naxis1 -k naxis2 --filter 'k[naxis1]==1650 and k[naxis2]==1650'
+  $ filabres -lc bias -k naxis1 -k naxis2 --filter "k[naxis1]==1650 and k[naxis2]==1650"
      NAXIS1 NAXIS2                                                                                      file
   1   1650   1650   /Volumes/NicoPassport/CAHA/CAFOS2017/170225_t2_CAFOS/caf-20170224-21:27:48-cal-krek.fits
   2   1650   1650   /Volumes/NicoPassport/CAHA/CAFOS2017/170225_t2_CAFOS/caf-20170224-21:29:09-cal-krek.fits
@@ -557,7 +557,7 @@ few keywords:
 
 ::
 
-  $ filabres -lc wrong-flat-imaging --filter 'k[exptime] == 0'
+  $ filabres -lc wrong-flat-imaging --filter "k[exptime] == 0"
   Total: 0 files
 
 Nothing wrong with ``EXPTIME``.
@@ -578,7 +578,7 @@ The last table reveals several cases:
 
   ::
   
-    $ filabres -lc wrong-flat-imaging -k quant500 -ks quant975 --filter 'k[quant500] < 100'
+    $ filabres -lc wrong-flat-imaging -k quant500 -ks quant975 --filter "k[quant500] < 100"
        QUANT500  QUANT975                                                                                      file
     1 -0.01052  -0.00291   /Volumes/NicoPassport/CAHA/CAFOS2017/170929_t2_CAFOS/caf-20170929-14:38:37-cal-delt.fits
     2  0.99903   1.00470   /Volumes/NicoPassport/CAHA/CAFOS2017/170929_t2_CAFOS/caf-20170929-14:40:39-cal-quot.fits
@@ -591,7 +591,7 @@ The last table reveals several cases:
 
   ::
   
-    $ filabres -lc wrong-flat-imaging -k quant500 -ks quant975 --filter 'k[quant500] < 100' -pi
+    $ filabres -lc wrong-flat-imaging -k quant500 -ks quant975 --filter "k[quant500] < 100" -pi
     ...
     ...
   
@@ -599,26 +599,29 @@ The last table reveals several cases:
      :width: 100%
      :alt: Wrong flat-imaging with low signal
 
-2. Images compatible with being bias frames but with a wrong ``IMAGETYP`` set
-   to ``flat`` in the original FITS header:
+2. Images incompatible with being flat images attending to the signal level:
 
   ::
 
-    $ filabres -lc wrong-flat-imaging -k quant500 -ks quant975 -k imagetyp --filter '100 < k[quant500] < 800' 
-       QUANT500 IMAGETYP  QUANT975                                                                                      file
-    5  705.0     flat     731.0     /Volumes/NicoPassport/CAHA/CAFOS2017/170929_t2_CAFOS/caf-20170929-18:27:21-cal-wenj.fits
-    3  706.0     flat     732.0     /Volumes/NicoPassport/CAHA/CAFOS2017/170929_t2_CAFOS/caf-20170929-18:23:42-cal-wenj.fits
-    4  706.0     flat     732.0     /Volumes/NicoPassport/CAHA/CAFOS2017/170929_t2_CAFOS/caf-20170929-18:25:39-cal-wenj.fits
-    6  705.0     flat     732.0     /Volumes/NicoPassport/CAHA/CAFOS2017/170929_t2_CAFOS/caf-20170929-18:28:45-cal-wenj.fits
-    1  706.0     flat     733.0     /Volumes/NicoPassport/CAHA/CAFOS2017/170929_t2_CAFOS/caf-20170929-18:21:50-cal-wenj.fits
-    2  706.0     flat     733.0     /Volumes/NicoPassport/CAHA/CAFOS2017/170929_t2_CAFOS/caf-20170929-18:22:37-cal-wenj.fits
+    $ filabres -lc wrong-flat-imaging -k quant500 -ks quant975 -k imagetyp \
+    -k object -k exptime --filter "100 < k[quant500] < 800"
+       QUANT500 IMAGETYP        OBJECT  EXPTIME  QUANT975                                                                                      file
+    5  705.0     flat     [flat] sky R  0.5      731.0     /Volumes/NicoPassport/CAHA/CAFOS2017/170929_t2_CAFOS/caf-20170929-18:27:21-cal-wenj.fits
+    3  706.0     flat     [flat] sky R  1.0      732.0     /Volumes/NicoPassport/CAHA/CAFOS2017/170929_t2_CAFOS/caf-20170929-18:23:42-cal-wenj.fits
+    4  706.0     flat     [flat] sky R  0.5      732.0     /Volumes/NicoPassport/CAHA/CAFOS2017/170929_t2_CAFOS/caf-20170929-18:25:39-cal-wenj.fits
+    6  705.0     flat     [flat] sky R  10.0     732.0     /Volumes/NicoPassport/CAHA/CAFOS2017/170929_t2_CAFOS/caf-20170929-18:28:45-cal-wenj.fits
+    1  706.0     flat     [flat] sky R  0.5      733.0     /Volumes/NicoPassport/CAHA/CAFOS2017/170929_t2_CAFOS/caf-20170929-18:21:50-cal-wenj.fits
+    2  706.0     flat     [flat] sky R  15.0     733.0     /Volumes/NicoPassport/CAHA/CAFOS2017/170929_t2_CAFOS/caf-20170929-18:22:37-cal-wenj.fits
     Total: 6 files
 
-  The visual inspection shows that this is the case:
+  Note that although the exposure times are larger than zero, the signal is
+  basically compatible with that expected in a bias frame. The visual
+  inspection of these 6 images shows that this is the case:
 
   ::
 
-    $ filabres -lc wrong-flat-imaging -k quant500 -ks quant975 -k imagetyp --filter '100 < k[quant500] < 800' -pi
+    $ filabres -lc wrong-flat-imaging -k quant500 -ks quant975 -k imagetyp \
+    -k object -k exptime --filter "100 < k[quant500] < 800" -pi
     ...
     ...
 
@@ -626,6 +629,32 @@ The last table reveals several cases:
      :width: 100%
      :alt: Wrong flat-imaging, likely bias frame
 
+  These 6 images are going to be ignored.
+
+3. Flat images with low signal: these images can be selected by filtering those
+   with a median value in the interval [800, 50000], and by looking for the word
+   ``flat`` in the description provided by the FITS keyword ``OBJECT`` (note
+   here the flexibility of the ``--filter`` argument that allows to write an
+   explicit Python logical expression):
+
+   ::
+
+     $ filabres -lc wrong-flat-imaging -k quant500 -ks quant975 -k object \
+     -k exptime --filter "800 < k[quant500] < 5000 and 'flat' in k[object].lower()"
+        QUANT500       OBJECT  EXPTIME  QUANT975                                                                                      file
+     2  1050.0    [Flat]Sky U  5.0      1096.0    /Volumes/NicoPassport/CAHA/CAFOS2017/170628_t2_CAFOS/caf-20170628-20:17:39-cal-mirl.fits
+     1  3539.0    [Flat]Sky U  5.0      3696.0    /Volumes/NicoPassport/CAHA/CAFOS2017/170627_t2_CAFOS/caf-20170627-20:07:30-cal-mirl.fits
+     3  3786.0    [Flat]Sky U  60.0     3947.0    /Volumes/NicoPassport/CAHA/CAFOS2017/170628_t2_CAFOS/caf-20170628-20:18:47-cal-mirl.fits
+     4  4752.0    [Flat]Sky U  180.0    4952.0    /Volumes/NicoPassport/CAHA/CAFOS2017/170628_t2_CAFOS/caf-20170628-20:23:30-cal-mirl.fits
+     Total: 4 files
+
+   These image were classified as ``wrong-flat-imaging`` because
+   ``QUANT975`` was lower than 5000 ADUs.
+
+   .. warning::
+
+      (Work in progress): include these images in
+      ``forced_classifications.yaml`` file.
 
 ---
 

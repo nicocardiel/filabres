@@ -57,7 +57,7 @@ def list_originf(instrument, args_originf, list_mode, datadir,
         selected keywords.
     args_plotimage : bool
         If True, display selected images.
-    args_ndecimal : int
+    args_ndecimal : int or None
         Number of decimal places for floats.
     """
 

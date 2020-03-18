@@ -124,8 +124,6 @@ def main():
     # set default values
     if args.list_mode is None:
         args.list_mode = 'long'
-    if args.ndecimal is None:
-        args.ndecimal = 5
 
     # generate setup_filabres.yaml if required
     if args.setup is not None:
@@ -133,7 +131,13 @@ def main():
         print('* program STOP')
         raise SystemExit()
 
-    instrument, datadir, ignored_images_file, image_header_corrections_file = load_setup(args.verbose)
+    # load setup file
+    setupdata = load_setup(args.verbose)
+    instrument = setupdata['instrument']
+    datadir = setupdata['datadir']
+    ignored_images_file = setupdata['ignored_images_file']
+    image_header_corrections_file = setupdata['image_header_corrections_file']
+    forced_classifications_file = setupdata['forced_classifications_file']
     datadir = check_tslash(datadir)
 
     # delete reduced image
@@ -226,6 +230,7 @@ def main():
                         force=args.force,
                         ignored_images_file=ignored_images_file,
                         image_header_corrections_file=image_header_corrections_file,
+                        forced_classifications_file=forced_classifications_file,
                         verbose=args.verbose)
     else:
         classification = instconf['imagetypes'][args.reduction_step]['classification']

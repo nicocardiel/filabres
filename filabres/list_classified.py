@@ -61,7 +61,7 @@ def list_classified(instrument, img, list_mode, datadir, args_night,
         selected keywords.
     args_plotimage : bool
         If True, display selected images.
-    args_ndecimal : int
+    args_ndecimal : int or None
         Number of decimal places for floats.
     """
 

@@ -46,13 +46,14 @@ def generate_setup(args_setup):
     yaml_fname1 = 'setup_filabres.yaml'
     yaml_fname2 = 'ignored_images.yaml'
     yaml_fname3 = 'image_header_corrections.yaml'
-    lfiles = [yaml_fname1, yaml_fname2, yaml_fname3]
+    yaml_fname4 = 'forced_classifications.yaml'
+    lfiles = [yaml_fname1, yaml_fname2, yaml_fname3, yaml_fname4]
 
     # avoid file overwriting
     for yaml_fname in lfiles:
         if os.path.isfile(yaml_fname):
             print('ERROR: the file "{}" already exists.'.format(yaml_fname))
-            print('-> Delete it manually before executing filabres.')
+            print('-> Delete it manually before executing filabres')
             raise SystemExit()
 
     # generate an ordered dictionary for the 'setup_filabres.yaml'
@@ -62,6 +63,7 @@ def generate_setup(args_setup):
     d['datadir'] = args_setup[1]
     d['ignored_images_file'] = yaml_fname2
     d['image_header_corrections_file'] = yaml_fname3
+    d['forced_classifications_file'] = yaml_fname4
     with open(yaml_fname1, 'wt') as f:
         yaml.dump(d, f, default_flow_style=False)
 

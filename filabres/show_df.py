@@ -35,7 +35,11 @@ def show_df(df, n, list_mode, imagetype, args_keyword_sort, args_ndecimal,
                 pd.set_option('display.max_columns', None)
                 pd.set_option('display.width', None)
                 pd.set_option('display.max_colwidth', -1)
-                print(df.round(args_ndecimal).to_string(index=True))
+                if args_ndecimal is None:
+                    ndecimal = 5
+                else:
+                    ndecimal = args_ndecimal
+                print(df.round(ndecimal).to_string(index=True))
             print('Total: {} files'.format(df.shape[0]))
         else:
             print('Total: {} files'.format(0))

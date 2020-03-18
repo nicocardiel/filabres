@@ -57,7 +57,7 @@ def list_reduced(instrument, img, list_mode, args_night, args_keyword,
         selected keywords.
     args_plotimage : bool
         If True, display selected images.
-    args_ndecimal : int
+    args_ndecimal : int or None
         Number of decimal places for floats.
     """
 
