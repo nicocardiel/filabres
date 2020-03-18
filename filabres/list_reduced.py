@@ -83,12 +83,14 @@ def list_reduced(instrument, img, list_mode, args_night, args_keyword,
             if kwd not in lkeyword:
                 lkeyword.append(kwd)
 
-    if len(lkeyword) == 0:
+    '''
+        if len(lkeyword) == 0:
         if list_mode == "long":
             # display at least NAXIS1 and NAXIS2
             for kwd in ['NAXIS2', 'NAXIS1']:
                 if kwd not in lkeyword:
                     lkeyword.insert(0, kwd)
+    '''
 
     # load instrument configuration
     instconf = load_instrument_configuration(
