@@ -1,0 +1,303 @@
+# file image_header_corrections.yaml
+#
+# generated automatically by filabres v.0.9.31
+#
+# creation date 2020-03-18T12:08:54.534276
+#
+
+# erroneous wrong-flat-imaging: they are actually science exposures
+night: 170518_t2_CAFOS
+enabled: True
+files:
+ - caf-20170518-22:21:06-cal-alex.fits
+ - caf-20170518-22:22:33-cal-alex.fits
+ - caf-20170518-22:23:59-cal-alex.fits
+ - caf-20170518-22:26:08-cal-alex.fits
+ - caf-20170518-22:28:43-cal-alex.fits
+ - caf-20170518-22:30:10-cal-alex.fits
+ - caf-20170518-22:31:36-cal-alex.fits
+ - caf-20170518-22:33:03-cal-alex.fits
+ - caf-20170518-22:34:29-cal-alex.fits
+ - caf-20170518-22:35:55-cal-alex.fits
+ - caf-20170518-22:37:21-cal-alex.fits
+ - caf-20170518-22:38:48-cal-alex.fits
+ - caf-20170518-22:40:14-cal-alex.fits
+ - caf-20170518-22:41:40-cal-alex.fits
+ - caf-20170518-22:43:06-cal-alex.fits
+ - caf-20170518-22:44:32-cal-alex.fits
+ - caf-20170518-22:45:58-cal-alex.fits
+ - caf-20170518-22:47:25-cal-alex.fits
+ - caf-20170518-22:48:51-cal-alex.fits
+ - caf-20170518-22:50:17-cal-alex.fits
+ - caf-20170518-22:51:43-cal-alex.fits
+ - caf-20170518-22:53:09-cal-alex.fits
+ - caf-20170518-22:54:36-cal-alex.fits
+ - caf-20170518-22:56:02-cal-alex.fits
+ - caf-20170518-22:57:28-cal-alex.fits
+ - caf-20170518-22:58:55-cal-alex.fits
+ - caf-20170518-23:00:21-cal-alex.fits
+ - caf-20170518-23:01:47-cal-alex.fits
+ - caf-20170518-23:03:13-cal-alex.fits
+ - caf-20170518-23:04:39-cal-alex.fits
+ - caf-20170518-23:06:05-cal-alex.fits
+ - caf-20170518-23:07:31-cal-alex.fits
+ - caf-20170518-23:08:58-cal-alex.fits
+ - caf-20170518-23:10:24-cal-alex.fits
+ - caf-20170518-23:11:50-cal-alex.fits
+ - caf-20170518-23:13:16-cal-alex.fits
+ - caf-20170518-23:14:42-cal-alex.fits
+ - caf-20170518-23:16:09-cal-alex.fits
+ - caf-20170518-23:17:35-cal-alex.fits
+ - caf-20170518-23:19:01-cal-alex.fits
+ - caf-20170518-23:20:27-cal-alex.fits
+ - caf-20170518-23:21:54-cal-alex.fits
+ - caf-20170518-23:23:20-cal-alex.fits
+ - caf-20170518-23:24:46-cal-alex.fits
+ - caf-20170518-23:26:12-cal-alex.fits
+ - caf-20170518-23:27:39-cal-alex.fits
+ - caf-20170518-23:29:05-cal-alex.fits
+ - caf-20170518-23:30:31-cal-alex.fits
+ - caf-20170518-23:31:57-cal-alex.fits
+ - caf-20170518-23:33:24-cal-alex.fits
+ - caf-20170518-23:34:50-cal-alex.fits
+ - caf-20170518-23:36:16-cal-alex.fits
+ - caf-20170518-23:37:42-cal-alex.fits
+ - caf-20170518-23:39:08-cal-alex.fits
+ - caf-20170518-23:40:35-cal-alex.fits
+ - caf-20170518-23:42:01-cal-alex.fits
+ - caf-20170518-23:43:27-cal-alex.fits
+ - caf-20170518-23:44:53-cal-alex.fits
+ - caf-20170518-23:46:19-cal-alex.fits
+ - caf-20170518-23:47:46-cal-alex.fits
+ - caf-20170518-23:49:12-cal-alex.fits
+ - caf-20170518-23:50:38-cal-alex.fits
+ - caf-20170518-23:52:05-cal-alex.fits
+ - caf-20170518-23:53:31-cal-alex.fits
+ - caf-20170518-23:54:57-cal-alex.fits
+ - caf-20170518-23:57:05-cal-alex.fits
+ - caf-20170518-23:58:31-cal-alex.fits
+ - caf-20170518-23:59:57-cal-alex.fits
+ - caf-20170519-00:01:23-cal-alex.fits
+ - caf-20170519-00:02:50-cal-alex.fits
+ - caf-20170519-00:04:16-cal-alex.fits
+ - caf-20170519-00:05:42-cal-alex.fits
+ - caf-20170519-00:07:09-cal-alex.fits
+ - caf-20170519-00:08:34-cal-alex.fits
+ - caf-20170519-00:10:01-cal-alex.fits
+ - caf-20170519-00:11:27-cal-alex.fits
+ - caf-20170519-00:12:53-cal-alex.fits
+ - caf-20170519-00:14:19-cal-alex.fits
+ - caf-20170519-00:15:46-cal-alex.fits
+ - caf-20170519-00:17:12-cal-alex.fits
+ - caf-20170519-00:18:38-cal-alex.fits
+ - caf-20170519-00:20:04-cal-alex.fits
+ - caf-20170519-00:21:30-cal-alex.fits
+ - caf-20170519-00:22:57-cal-alex.fits
+ - caf-20170519-00:24:23-cal-alex.fits
+ - caf-20170519-00:25:50-cal-alex.fits
+ - caf-20170519-00:27:17-cal-alex.fits
+ - caf-20170519-00:28:43-cal-alex.fits
+ - caf-20170519-00:30:09-cal-alex.fits
+ - caf-20170519-00:31:35-cal-alex.fits
+ - caf-20170519-00:33:02-cal-alex.fits
+ - caf-20170519-00:34:28-cal-alex.fits
+ - caf-20170519-00:35:55-cal-alex.fits
+ - caf-20170519-00:37:21-cal-alex.fits
+ - caf-20170519-00:38:47-cal-alex.fits
+ - caf-20170519-00:40:13-cal-alex.fits
+ - caf-20170519-00:41:40-cal-alex.fits
+ - caf-20170519-00:43:06-cal-alex.fits
+ - caf-20170519-00:44:32-cal-alex.fits
+ - caf-20170519-00:45:58-cal-alex.fits
+ - caf-20170519-00:47:24-cal-alex.fits
+ - caf-20170519-00:48:50-cal-alex.fits
+ - caf-20170519-00:50:16-cal-alex.fits
+ - caf-20170519-00:51:43-cal-alex.fits
+ - caf-20170519-00:53:09-cal-alex.fits
+ - caf-20170519-00:54:35-cal-alex.fits
+ - caf-20170519-00:56:01-cal-alex.fits
+ - caf-20170519-00:57:27-cal-alex.fits
+ - caf-20170519-00:58:53-cal-alex.fits
+ - caf-20170519-01:00:20-cal-alex.fits
+ - caf-20170519-01:01:46-cal-alex.fits
+ - caf-20170519-01:03:12-cal-alex.fits
+ - caf-20170519-01:04:38-cal-alex.fits
+ - caf-20170519-01:06:04-cal-alex.fits
+ - caf-20170519-01:07:30-cal-alex.fits
+ - caf-20170519-01:08:57-cal-alex.fits
+ - caf-20170519-01:10:23-cal-alex.fits
+ - caf-20170519-01:11:49-cal-alex.fits
+ - caf-20170519-01:13:16-cal-alex.fits
+ - caf-20170519-01:14:42-cal-alex.fits
+ - caf-20170519-01:16:08-cal-alex.fits
+ - caf-20170519-01:17:34-cal-alex.fits
+ - caf-20170519-01:19:45-cal-alex.fits
+ - caf-20170519-01:21:11-cal-alex.fits
+ - caf-20170519-01:22:38-cal-alex.fits
+ - caf-20170519-01:24:04-cal-alex.fits
+ - caf-20170519-01:25:30-cal-alex.fits
+ - caf-20170519-01:26:55-cal-alex.fits
+ - caf-20170519-01:28:22-cal-alex.fits
+ - caf-20170519-01:29:48-cal-alex.fits
+ - caf-20170519-01:31:14-cal-alex.fits
+ - caf-20170519-01:32:40-cal-alex.fits
+ - caf-20170519-01:34:07-cal-alex.fits
+ - caf-20170519-01:35:33-cal-alex.fits
+ - caf-20170519-01:36:59-cal-alex.fits
+ - caf-20170519-01:38:25-cal-alex.fits
+ - caf-20170519-01:39:52-cal-alex.fits
+ - caf-20170519-01:41:18-cal-alex.fits
+ - caf-20170519-01:42:44-cal-alex.fits
+ - caf-20170519-01:44:10-cal-alex.fits
+ - caf-20170519-01:45:36-cal-alex.fits
+ - caf-20170519-01:47:02-cal-alex.fits
+ - caf-20170519-01:48:28-cal-alex.fits
+ - caf-20170519-01:49:55-cal-alex.fits
+ - caf-20170519-01:51:21-cal-alex.fits
+ - caf-20170519-01:52:47-cal-alex.fits
+ - caf-20170519-01:54:13-cal-alex.fits
+ - caf-20170519-01:55:39-cal-alex.fits
+ - caf-20170519-01:57:06-cal-alex.fits
+ - caf-20170519-01:58:32-cal-alex.fits
+ - caf-20170519-01:59:58-cal-alex.fits
+ - caf-20170519-02:01:24-cal-alex.fits
+ - caf-20170519-02:02:50-cal-alex.fits
+ - caf-20170519-02:04:16-cal-alex.fits
+ - caf-20170519-02:05:43-cal-alex.fits
+ - caf-20170519-02:07:09-cal-alex.fits
+ - caf-20170519-02:08:35-cal-alex.fits
+ - caf-20170519-02:10:01-cal-alex.fits
+ - caf-20170519-02:11:27-cal-alex.fits
+ - caf-20170519-02:12:53-cal-alex.fits
+ - caf-20170519-02:14:20-cal-alex.fits
+ - caf-20170519-02:15:46-cal-alex.fits
+ - caf-20170519-02:17:12-cal-alex.fits
+ - caf-20170519-02:18:38-cal-alex.fits
+ - caf-20170519-02:20:05-cal-alex.fits
+ - caf-20170519-02:21:31-cal-alex.fits
+ - caf-20170519-02:22:57-cal-alex.fits
+ - caf-20170519-02:24:23-cal-alex.fits
+ - caf-20170519-02:25:50-cal-alex.fits
+ - caf-20170519-02:27:16-cal-alex.fits
+ - caf-20170519-02:28:42-cal-alex.fits
+ - caf-20170519-02:30:08-cal-alex.fits
+ - caf-20170519-02:31:34-cal-alex.fits
+ - caf-20170519-02:33:00-cal-alex.fits
+ - caf-20170519-02:34:26-cal-alex.fits
+replace-keyword:
+ - IMAGETYP: science
+
+---
+
+# erroneous wrong-flat-imaging: they are actually science exposures
+night: 170601_t2_CAFOS
+enabled: True
+files:
+ - caf-20170601-22:54:57-cal-pelm.fits
+ - caf-20170601-23:06:07-cal-pelm.fits
+ - caf-20170601-23:16:42-cal-pelm.fits
+ - caf-20170601-23:29:19-cal-pelm.fits
+ - caf-20170601-23:30:24-cal-pelm.fits
+ - caf-20170601-23:31:28-cal-pelm.fits
+ - caf-20170601-23:38:56-cal-pelm.fits
+ - caf-20170601-23:49:59-cal-pelm.fits
+ - caf-20170602-00:00:43-cal-pelm.fits
+ - caf-20170602-00:12:12-cal-pelm.fits
+ - caf-20170602-00:13:17-cal-pelm.fits
+ - caf-20170602-00:14:22-cal-pelm.fits
+ - caf-20170602-00:19:25-cal-pelm.fits
+ - caf-20170602-00:30:01-cal-pelm.fits
+ - caf-20170602-00:40:41-cal-pelm.fits
+ - caf-20170602-00:54:30-cal-pelm.fits
+ - caf-20170602-00:55:34-cal-pelm.fits
+ - caf-20170602-01:01:14-cal-pelm.fits
+ - caf-20170602-01:13:10-cal-pelm.fits
+ - caf-20170602-01:24:38-cal-pelm.fits
+ - caf-20170602-01:36:43-cal-pelm.fits
+ - caf-20170602-01:39:11-cal-pelm.fits
+ - caf-20170602-01:40:24-cal-pelm.fits
+ - caf-20170602-01:43:45-cal-pelm.fits
+ - caf-20170602-01:55:03-cal-pelm.fits
+ - caf-20170602-02:06:16-cal-pelm.fits
+ - caf-20170602-02:17:44-cal-pelm.fits
+ - caf-20170602-02:18:49-cal-pelm.fits
+ - caf-20170602-02:19:54-cal-pelm.fits
+ - caf-20170602-02:22:30-cal-pelm.fits
+ - caf-20170602-02:34:59-cal-pelm.fits
+ - caf-20170602-02:47:55-cal-pelm.fits
+ - caf-20170602-03:02:56-cal-pelm.fits
+ - caf-20170602-03:04:00-cal-pelm.fits
+ - caf-20170602-03:05:05-cal-pelm.fits
+replace-keyword:
+ - IMAGETYP: science
+
+---
+
+# erroneous science-imaging: it is actually a bias image
+night: 170502_t2_CAFOS
+enabled: True
+files:
+ - caf-20170503-00:58:59-sci-alex.fits
+replace-keyword:
+ - IMAGETYP: bias
+ - OBJECT: bias
+
+---
+
+# erroneous science-imaging: they are actually bias images
+night: 170526_t2_CAFOS
+enabled: True
+files:
+ - caf-20170527-04:04:16-cal-boeh.fits
+ - caf-20170527-04:05:27-cal-boeh.fits
+ - caf-20170527-04:06:38-cal-boeh.fits
+ - caf-20170527-04:07:50-cal-boeh.fits
+ - caf-20170527-04:09:02-cal-boeh.fits
+ - caf-20170527-04:10:15-cal-boeh.fits
+ - caf-20170527-04:11:27-cal-boeh.fits
+ - caf-20170527-04:12:39-cal-boeh.fits
+ - caf-20170527-04:13:51-cal-boeh.fits
+ - caf-20170527-04:15:02-cal-boeh.fits
+replace-keyword:
+ - IMAGETYP: bias
+ - OBJECT: bias
+
+---
+
+# erroneous science-imaging: they are actually bias images
+night: 170527_t2_CAFOS
+enabled: True
+files:
+ - caf-20170527-16:34:04-cal-boeh.fits
+ - caf-20170527-16:35:15-cal-boeh.fits
+ - caf-20170527-16:36:27-cal-boeh.fits
+ - caf-20170527-16:37:38-cal-boeh.fits
+ - caf-20170527-16:38:50-cal-boeh.fits
+ - caf-20170527-16:40:01-cal-boeh.fits
+ - caf-20170527-16:41:13-cal-boeh.fits
+ - caf-20170527-16:42:24-cal-boeh.fits
+ - caf-20170527-16:43:36-cal-boeh.fits
+ - caf-20170527-16:44:47-cal-boeh.fits
+replace-keyword:
+ - IMAGETYP: bias
+ - OBJECT: bias
+
+---
+
+# erroneous science-imaging: they are actually bias images
+night: 170528_t2_CAFOS
+enabled: True
+files:
+ - caf-20170528-16:27:05-cal-boeh.fits
+ - caf-20170528-16:28:16-cal-boeh.fits
+ - caf-20170528-16:29:28-cal-boeh.fits
+ - caf-20170528-16:30:40-cal-boeh.fits
+ - caf-20170528-16:31:51-cal-boeh.fits
+ - caf-20170528-16:33:03-cal-boeh.fits
+ - caf-20170528-16:34:15-cal-boeh.fits
+ - caf-20170528-16:35:27-cal-boeh.fits
+ - caf-20170528-16:36:39-cal-boeh.fits
+ - caf-20170528-16:37:50-cal-boeh.fits
+replace-keyword:
+ - IMAGETYP: bias
+ - OBJECT: bias

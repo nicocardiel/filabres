@@ -24,6 +24,10 @@ def show_df(df, n, list_mode, imagetype, args_keyword_sort, args_ndecimal,
         print('Total: {} files'.format(n))
     else:
         if df is not None:
+            if args_ndecimal is None:
+                ndecimal = 5
+            else:
+                ndecimal = args_ndecimal
             if df.shape[0] > 0:
                 # start dataframe index at 1 instead of 0
                 df.index += 1
@@ -35,10 +39,6 @@ def show_df(df, n, list_mode, imagetype, args_keyword_sort, args_ndecimal,
                 pd.set_option('display.max_columns', None)
                 pd.set_option('display.width', None)
                 pd.set_option('display.max_colwidth', -1)
-                if args_ndecimal is None:
-                    ndecimal = 5
-                else:
-                    ndecimal = args_ndecimal
                 print(df.round(ndecimal).to_string(index=True))
             print('Total: {} files'.format(df.shape[0]))
         else:
@@ -61,6 +61,6 @@ def show_df(df, n, list_mode, imagetype, args_keyword_sort, args_ndecimal,
                     # preserve sorted dataframe if args_keyword_sort is not None
                     for i in df.index.values:
                         fname = df.loc[i, 'file']
-                        print(df.loc[[i]].round(args_ndecimal).to_string(index=True))
+                        print(df.loc[[i]].round(ndecimal).to_string(index=True))
                         with plt.style.context('seaborn'):
                             ximshow_file(fname, debugplot=12)

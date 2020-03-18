@@ -355,7 +355,6 @@ def classify_images(list_of_nights, instconf, datadir, force,
                             print('-> Forcing classification of {} from {} to {}'.format(
                                 basename, imagetype, imagetype_))
                         imagetype = imagetype_
-                        input('Paused here!')
                 # include image in corresponding classification
                 if imagetype in imagedb:
                     imagedb[imagetype][basename] = dumdict

@@ -576,60 +576,62 @@ The last table reveals several cases:
 
 1. Images with unexpectedly low signal:
 
-  ::
+   ::
   
-    $ filabres -lc wrong-flat-imaging -k quant500 -ks quant975 --filter "k[quant500] < 100"
-       QUANT500  QUANT975                                                                                      file
-    1 -0.01052  -0.00291   /Volumes/NicoPassport/CAHA/CAFOS2017/170929_t2_CAFOS/caf-20170929-14:38:37-cal-delt.fits
-    2  0.99903   1.00470   /Volumes/NicoPassport/CAHA/CAFOS2017/170929_t2_CAFOS/caf-20170929-14:40:39-cal-quot.fits
-    Total: 2 files
+     $ filabres -lc wrong-flat-imaging -k quant500 -ks quant975 --filter "k[quant500] < 100"
+        QUANT500  QUANT975                                                                                      file
+     1 -0.01052  -0.00291   /Volumes/NicoPassport/CAHA/CAFOS2017/170929_t2_CAFOS/caf-20170929-14:38:37-cal-delt.fits
+     2  0.99903   1.00470   /Volumes/NicoPassport/CAHA/CAFOS2017/170929_t2_CAFOS/caf-20170929-14:40:39-cal-quot.fits
+     Total: 2 files
 
-  There are only two images in this situation. The visual examination reveals
-  that they lack even the bias level (the median ``QUANT500`` should be around
-  the usual bias signal, in this case slightly below 700 ADUs, which is not the
-  case) and should be ignored:
+   There are only two images in this situation. The visual examination reveals
+   that they lack even the bias level (the median ``QUANT500`` should be around
+   the usual bias signal, in this case slightly below 700 ADUs, which is not the
+   case):
 
-  ::
+   ::
   
-    $ filabres -lc wrong-flat-imaging -k quant500 -ks quant975 --filter "k[quant500] < 100" -pi
-    ...
-    ...
+     $ filabres -lc wrong-flat-imaging -k quant500 -ks quant975 --filter "k[quant500] < 100" -pi
+     ...
+     ...
   
-  .. image:: images/pi_wrong-flat-imaging_lowsignal.png
-     :width: 100%
-     :alt: Wrong flat-imaging with low signal
+   .. image:: images/pi_wrong-flat-imaging_lowsignal.png
+      :width: 100%
+      :alt: Wrong flat-imaging with low signal
+
+   These two images will be ignored.
 
 2. Images incompatible with being flat images attending to the signal level:
 
-  ::
+   ::
 
-    $ filabres -lc wrong-flat-imaging -k quant500 -ks quant975 -k imagetyp \
-    -k object -k exptime --filter "100 < k[quant500] < 800"
-       QUANT500 IMAGETYP        OBJECT  EXPTIME  QUANT975                                                                                      file
-    5  705.0     flat     [flat] sky R  0.5      731.0     /Volumes/NicoPassport/CAHA/CAFOS2017/170929_t2_CAFOS/caf-20170929-18:27:21-cal-wenj.fits
-    3  706.0     flat     [flat] sky R  1.0      732.0     /Volumes/NicoPassport/CAHA/CAFOS2017/170929_t2_CAFOS/caf-20170929-18:23:42-cal-wenj.fits
-    4  706.0     flat     [flat] sky R  0.5      732.0     /Volumes/NicoPassport/CAHA/CAFOS2017/170929_t2_CAFOS/caf-20170929-18:25:39-cal-wenj.fits
-    6  705.0     flat     [flat] sky R  10.0     732.0     /Volumes/NicoPassport/CAHA/CAFOS2017/170929_t2_CAFOS/caf-20170929-18:28:45-cal-wenj.fits
-    1  706.0     flat     [flat] sky R  0.5      733.0     /Volumes/NicoPassport/CAHA/CAFOS2017/170929_t2_CAFOS/caf-20170929-18:21:50-cal-wenj.fits
-    2  706.0     flat     [flat] sky R  15.0     733.0     /Volumes/NicoPassport/CAHA/CAFOS2017/170929_t2_CAFOS/caf-20170929-18:22:37-cal-wenj.fits
-    Total: 6 files
+     $ filabres -lc wrong-flat-imaging -k quant500 -ks quant975 -k imagetyp \
+     -k object -k exptime --filter "100 < k[quant500] < 800"
+        QUANT500 IMAGETYP        OBJECT  EXPTIME  QUANT975                                                                                      file
+     5  705.0     flat     [flat] sky R  0.5      731.0     /Volumes/NicoPassport/CAHA/CAFOS2017/170929_t2_CAFOS/caf-20170929-18:27:21-cal-wenj.fits
+     3  706.0     flat     [flat] sky R  1.0      732.0     /Volumes/NicoPassport/CAHA/CAFOS2017/170929_t2_CAFOS/caf-20170929-18:23:42-cal-wenj.fits
+     4  706.0     flat     [flat] sky R  0.5      732.0     /Volumes/NicoPassport/CAHA/CAFOS2017/170929_t2_CAFOS/caf-20170929-18:25:39-cal-wenj.fits
+     6  705.0     flat     [flat] sky R  10.0     732.0     /Volumes/NicoPassport/CAHA/CAFOS2017/170929_t2_CAFOS/caf-20170929-18:28:45-cal-wenj.fits
+     1  706.0     flat     [flat] sky R  0.5      733.0     /Volumes/NicoPassport/CAHA/CAFOS2017/170929_t2_CAFOS/caf-20170929-18:21:50-cal-wenj.fits
+     2  706.0     flat     [flat] sky R  15.0     733.0     /Volumes/NicoPassport/CAHA/CAFOS2017/170929_t2_CAFOS/caf-20170929-18:22:37-cal-wenj.fits
+     Total: 6 files
 
-  Note that although the exposure times are larger than zero, the signal is
-  basically compatible with that expected in a bias frame. The visual
-  inspection of these 6 images shows that this is the case:
-
-  ::
-
-    $ filabres -lc wrong-flat-imaging -k quant500 -ks quant975 -k imagetyp \
-    -k object -k exptime --filter "100 < k[quant500] < 800" -pi
-    ...
-    ...
-
-  .. image:: images/pi_wrong-flat-imaging_bias.png
-     :width: 100%
-     :alt: Wrong flat-imaging, likely bias frame
-
-  These 6 images are going to be ignored.
+   Note that although the exposure times are larger than zero, the signal is
+   basically compatible with that expected in a bias frame. The visual
+   inspection of these 6 images shows that this is the case:
+ 
+   ::
+ 
+     $ filabres -lc wrong-flat-imaging -k quant500 -ks quant975 -k imagetyp \
+     -k object -k exptime --filter "100 < k[quant500] < 800" -pi
+     ...
+     ...
+ 
+   .. image:: images/pi_wrong-flat-imaging_bias.png
+      :width: 100%
+      :alt: Wrong flat-imaging, likely bias frame
+ 
+   These 6 images are going to be ignored.
 
 3. Flat images with low signal: these images can be selected by filtering those
    with a median value in the interval [800, 50000], and by looking for the word
@@ -648,7 +650,7 @@ The last table reveals several cases:
      4  4752.0    [Flat]Sky U  180.0    4952.0    /Volumes/NicoPassport/CAHA/CAFOS2017/170628_t2_CAFOS/caf-20170628-20:23:30-cal-mirl.fits
      Total: 4 files
 
-   These image were classified as ``wrong-flat-imaging`` because
+   These images were classified as ``wrong-flat-imaging`` because
    ``QUANT975`` was lower than 5000 ADUs (this is one of the ``requirementx``
    for this type of images).
 
@@ -686,7 +688,7 @@ The last table reveals several cases:
    this YAML file.
 
    Once we have inserted the 4 problematic images within this file, we can
-   repeat the classification of these images. Since the images correspond to
+   repeat the classification of these files. Since the images correspond to
    two different nights, it is necessary to repeat the classification in the
    corresponding nights:
 
@@ -695,12 +697,19 @@ The last table reveals several cases:
      $ filabres -rs initialize -n 170627* --force
      ...
      ...
+
      $ filabres -rs initialize -n 170628* --force
      ...
      ...
 
+   Note that the argument ``--force`` has been used to force the repetition of
+   the reduction for those nights. Without this argument, **filabres** avoids
+   the repetion because it detects that there is already a file
+   ``imagedb_cafos.json`` in the corresponding subdirectory night. By forcing
+   the repetition we command **filabres** to override that file.
+
    Finally, it is possible to double check that the 4 images do not longer
-   appear as classified as ``wrong-flat-imaging``
+   appear as classified as ``wrong-flat-imaging``:
 
    ::
 
@@ -709,36 +718,270 @@ The last table reveals several cases:
      Total: 0 files
 
 4. Saturated images: in this case we list images classified as
-``wrong-flat-imaging`` but with a median signal above 60000 ADUs:
+   ``wrong-flat-imaging`` but with a ``QUANT975`` above 60000 ADUs:
 
    ::
 
      $ filabres -lc wrong-flat-imaging -k exptime -k quant500 -k quant975 -k object \
-     --filter "k[quant500] >= 60000"
-        EXPTIME  QUANT500  QUANT975        OBJECT                                                                                      file
-     1  0.1      65531.0   65531.0   [flat] sky B  /Volumes/NicoPassport/CAHA/CAFOS2017/170929_t2_CAFOS/caf-20170929-18:05:56-cal-wenj.fits
-     2  0.1      65531.0   65531.0   [flat] sky R  /Volumes/NicoPassport/CAHA/CAFOS2017/170929_t2_CAFOS/caf-20170929-18:06:46-cal-wenj.fits
-     3  0.1      65531.0   65531.0   [flat] sky R  /Volumes/NicoPassport/CAHA/CAFOS2017/170929_t2_CAFOS/caf-20170929-18:11:14-cal-wenj.fits
-     4  0.1      60313.0   61806.0   [flat] sky R  /Volumes/NicoPassport/CAHA/CAFOS2017/170929_t2_CAFOS/caf-20170929-18:12:02-cal-wenj.fits
-     Total: 4 files
+     --filter "k[quant975] >= 60000"
+        EXPTIME  QUANT500  QUANT975         OBJECT                                                                                      file
+     1  45.0     51930.0   60050.0   [Skyflat]  r'  /Volumes/NicoPassport/CAHA/CAFOS2017/170225_t2_CAFOS/caf-20170226-06:11:17-cal-krek.fits
+     2  2.0      57062.0   64891.0    [Skyflat] g'  /Volumes/NicoPassport/CAHA/CAFOS2017/170225_t2_CAFOS/caf-20170226-06:22:28-cal-krek.fits
+     3  0.1      65531.0   65531.0   [flat] sky B   /Volumes/NicoPassport/CAHA/CAFOS2017/170929_t2_CAFOS/caf-20170929-18:05:56-cal-wenj.fits
+     4  0.1      65531.0   65531.0   [flat] sky R   /Volumes/NicoPassport/CAHA/CAFOS2017/170929_t2_CAFOS/caf-20170929-18:06:46-cal-wenj.fits
+     5  0.1      65531.0   65531.0   [flat] sky R   /Volumes/NicoPassport/CAHA/CAFOS2017/170929_t2_CAFOS/caf-20170929-18:11:14-cal-wenj.fits
+     6  0.1      60313.0   61806.0   [flat] sky R   /Volumes/NicoPassport/CAHA/CAFOS2017/170929_t2_CAFOS/caf-20170929-18:12:02-cal-wenj.fits
+     Total: 6 files
 
    These images are clearly saturated. You can display them using ``-pi``:
 
    ::
 
      $ filabres -lc wrong-flat-imaging -k exptime -k quant500 -k quant975 -k object \
-     --filter "k[quant500] >= 60000" -pi
+     --filter "k[quant975] >= 60000" -pi
+     ...
+     ...
 
-   Here we show the first and the third image:
+   The first two images are similar to the following:
    
    .. image:: images/pi_wrong-flat-imaging_saturated1.png
       :width: 100%
       :alt: Wrong flat-imaging image 1
+
+   The next three images are similar to the following:
    
-   .. image:: images/pi_wrong-flat-imaging_saturated4.png
+   .. image:: images/pi_wrong-flat-imaging_saturated2.png
       :width: 100%
       :alt: Wrong flat-imaging image 2
 
+   The last image is only saturated in some regions:
+   
+   .. image:: images/pi_wrong-flat-imaging_saturated3.png
+      :width: 100%
+      :alt: Wrong flat-imaging image 3
+
+   These six images will be ignored.
+
+5. The remaining 210 files correspond to science images with erroneous 
+   ``IMAGTYP`` set to flat:
+
+   ::
+
+     $ filabres -lc wrong-flat-imaging -k exptime -k quant500 -k quant975 -k object \
+     --filter "800 < k[quant500] < 50000"
+          EXPTIME  QUANT500  QUANT975                         OBJECT                                                                                      file
+     1    60.0     898.0     946.0     HAT-P-12b B 60s                /Volumes/NicoPassport/CAHA/CAFOS2017/170518_t2_CAFOS/caf-20170518-22:21:06-cal-alex.fits
+     2    60.0     898.0     946.0     HAT-P-12b B 60s                /Volumes/NicoPassport/CAHA/CAFOS2017/170518_t2_CAFOS/caf-20170518-22:22:33-cal-alex.fits
+     3    60.0     898.0     946.0     HAT-P-12b B 60s                /Volumes/NicoPassport/CAHA/CAFOS2017/170518_t2_CAFOS/caf-20170518-22:23:59-cal-alex.fits
+           ...
+           ...
+           Total: 210 files
+
+   The ``OBJECT`` value in these images seems to indicate that they do not
+   constitute calibration frames. These images correspond to two nights:
+   ``170518`` and ``170601``. Actually, the first 175 files seem to be science
+   images of the same sky region (include ``RA`` and ``DEC`` in the table)
+   obtained in ``170518``:
+
+   ::
+
+     $ filabres -lc wrong-flat-imaging -k exptime -k quant500 -k quant975 -k object \
+     -k ra -k dec -n 170518*
+              EXPTIME  QUANT500  QUANT975           OBJECT         RA       DEC                                                                                      file
+     1    60.0     898.0     946.0     HAT-P-12b B 60s  209.50799  43.39571  /Volumes/NicoPassport/CAHA/CAFOS2017/170518_t2_CAFOS/caf-20170518-22:21:06-cal-alex.fits
+     2    60.0     898.0     946.0     HAT-P-12b B 60s  209.50799  43.39571  /Volumes/NicoPassport/CAHA/CAFOS2017/170518_t2_CAFOS/caf-20170518-22:22:33-cal-alex.fits
+     3    60.0     898.0     946.0     HAT-P-12b B 60s  209.50798  43.39572  /Volumes/NicoPassport/CAHA/CAFOS2017/170518_t2_CAFOS/caf-20170518-22:23:59-cal-alex.fits
+     ...
+     ...
+     173  60.0     1415.0    1499.0    HAT-P-12b B 60s  209.50657  43.39647  /Volumes/NicoPassport/CAHA/CAFOS2017/170518_t2_CAFOS/caf-20170519-02:31:34-cal-alex.fits
+     174  60.0     1419.0    1506.0    HAT-P-12b B 60s  209.50654  43.39652  /Volumes/NicoPassport/CAHA/CAFOS2017/170518_t2_CAFOS/caf-20170519-02:33:00-cal-alex.fits
+     175  60.0     1425.0    1512.0    HAT-P-12b B 60s  209.50654  43.39658  /Volumes/NicoPassport/CAHA/CAFOS2017/170518_t2_CAFOS/caf-20170519-02:34:26-cal-alex.fits
+     Total: 175 files
+
+   The (patient) visual inspection of these images show:
+
+   ::
+
+     $ filabres -lc wrong-flat-imaging -k exptime -k quant500 -k quant975 -k object \
+     -k ra -k dec -n 170518* -pi
+     ...
+     ...
+
+   .. image:: images/pi_wrong-flat-imaging_science1.png
+      :width: 100%
+      :alt: Wrong flat-imaging, likely science 1 frame
+ 
+   The 35 images from ``170601`` are also likely science frames:
+
+   ::
+
+     $ filabres -lc wrong-flat-imaging -k exptime -k quant500 -k quant975 -k object \
+     -k ra -k dec -n 170601*
+         EXPTIME  QUANT500  QUANT975                         OBJECT         RA       DEC                                                                                      file
+     1   600.0    1354.0    1664.0    IC1396N ETALON+674/18          325.31573  58.37090  /Volumes/NicoPassport/CAHA/CAFOS2017/170601_t2_CAFOS/caf-20170601-22:54:57-cal-pelm.fits
+     2   600.0    1342.0    1648.0    IC1396N ETALON+674/18          325.32135  58.37090  /Volumes/NicoPassport/CAHA/CAFOS2017/170601_t2_CAFOS/caf-20170601-23:06:07-cal-pelm.fits
+     3   600.0    1330.0    1622.0    IC1396N ETALON+674/18          325.32152  58.37635  /Volumes/NicoPassport/CAHA/CAFOS2017/170601_t2_CAFOS/caf-20170601-23:16:42-cal-pelm.fits
+     ...
+     ...
+     33  30.0     1771.0    2105.0    IC1396W_2  R                   323.69004  57.58110  /Volumes/NicoPassport/CAHA/CAFOS2017/170601_t2_CAFOS/caf-20170602-03:02:56-cal-pelm.fits
+     34  30.0     1771.0    2105.0    IC1396W_2  R                   323.68997  57.58110  /Volumes/NicoPassport/CAHA/CAFOS2017/170601_t2_CAFOS/caf-20170602-03:04:00-cal-pelm.fits
+     35  30.0     1769.0    2107.0    IC1396W_2  R                   323.68998  57.58111  /Volumes/NicoPassport/CAHA/CAFOS2017/170601_t2_CAFOS/caf-20170602-03:05:05-cal-pelm.fits
+     Total: 35 files
+
+   The visual inspection again reveals that this image set corresponds to
+   science frames:
+
+   ::
+
+     $ filabres -lc wrong-flat-imaging -k exptime -k quant500 -k quant975 -k object \
+     -k ra -k dec -n 170601* -pi
+     ...
+     ...
+
+   .. image:: images/pi_wrong-flat-imaging_science2.png
+      :width: 100%
+      :alt: Wrong flat-imaging, likely science 2 frame
+ 
+
+   The easiest way to recover these 210 files erroneously classified as
+   ``wrong-flat-imaging``, and that we have deduced should be classified as
+   ``science-imaging``, is to modify the original FITS keyword ``IMAGETYP``,
+   initially set to ``flat``, and reset it to ``science``. This can be easily
+   done by inserting the corresponding files in the configuration YAML file
+   ``image_header_corrections.yaml``, as will be explained below. Note that it
+   would also be possible to force the classification of those images as
+   ``science-imaging`` using the configuration YAML file
+   ``forced_classifications.yaml``, but the new approach seems more appropiate
+   because it will also fix the wrong value of the FITS keyword ``IMAGETYPE``
+   and, in addition, **filabres** will check the corresponding ``requirements``
+   and ``requirementx`` for ``science-imaging``.
+
+   Since the number of files to be inserted in
+   ``image_header_corrections.yaml`` is large (175 for night ``170518`` and 35
+   for night ``170601``), we are using a command line to generate a list of
+   files suitable for *cut and paste*.
+
+   For night ``170518``:
+
+   ::
+
+     $ filabres -lc wrong-flat-imaging  -n 170518* -lm basic
+      - caf-20170518-22:21:06-cal-alex.fits
+      - caf-20170518-22:22:33-cal-alex.fits
+      - caf-20170518-22:23:59-cal-alex.fits
+     ...
+     ...
+      - caf-20170519-02:31:34-cal-alex.fits
+      - caf-20170519-02:33:00-cal-alex.fits
+      - caf-20170519-02:34:26-cal-alex.fits
+     Total: 175 files
+
+   For night ``170601``:
+
+   ::
+
+     $ filabres -lc wrong-flat-imaging  -n 170601* -lm basic
+      - caf-20170601-22:54:57-cal-pelm.fits
+      - caf-20170601-23:06:07-cal-pelm.fits
+      - caf-20170601-23:16:42-cal-pelm.fits
+     ...
+     ...
+      - caf-20170602-03:02:56-cal-pelm.fits
+      - caf-20170602-03:04:00-cal-pelm.fits
+      - caf-20170602-03:05:05-cal-pelm.fits
+     Total: 35 files
+
+   These last two list of files starting by ``-`` can be easily cut and pasted
+   into the ``image_header_corrections.yaml``, so the contents of this file
+   are:
+
+   .. literalinclude:: image_header_corrections_1.yaml
+      :linenos:
+      :lineno-start: 1
+
+   Ignoring the initial comment lines (starting by ``#``), here we have created
+   two blocks, separated by ``---`` (the YAML block separator).
+   **Important**: the separator must not appear before the first block nor
+   after the last block.  Within each block, the following arguments must be
+   provided:
+
+   - ``night``: observing night. Note that wildcards can not be used here,
+     although the same night label can appear in different blocks.
+
+   - ``enabled``: this key indicates that the files included in this block are
+     going to be fixed. Setting this key to False allows to disable a
+     particular block without the need of removing it from this file.
+
+   - ``files``:  is the list of files to be fixed within the specified night.
+     Although the list of files can be provided by given the name of each file
+     in separate line, preceded by an indented ``-`` symbol, wildcards are also
+     valid here.
+
+   - ``replace-keyword``: list of ``keyword: new-value`` (one entry in each
+     line).  For this case, only the keywords ``IMAGETYP`` is going to be set
+     to ``science``. This small change will modify the next image
+     classification of the involved images.
+
+   Once we have inserted the problematic images within this file, we can
+   repeat the classification of these files. Since the images correspond to
+   two different nights, it is necessary to repeat the classification in the
+   corresponding nights (forcing the reduction with ``--force``):
+
+   ::
+
+     $ filabres -rs initialize -n 170518* --force
+     ...
+     ...
+
+     $ filabres -rs initialize -n 170601* --force
+     ...
+     ...
+
+   Finally, it is possible to double check that the 210 images do not longer
+   appear as classified as ``wrong-flat-imaging``:
+
+   ::
+
+     $ filabres -lc wrong-flat-imaging -k exptime -k quant500 -k quant975 -k object \
+     --filter "800 < k[quant500] < 50000"
+     Total: 0 files
+
+   In fact, the 175 files from ``170518`` appear now in the list of images
+   classified as ``science-imaging``:
+
+   ::
+
+     $ filabres -lc science-imaging -n 170518*
+                                                                                              file
+     1    /Volumes/NicoPassport/CAHA/CAFOS2017/170518_t2_CAFOS/caf-20170518-22:21:06-cal-alex.fits
+     2    /Volumes/NicoPassport/CAHA/CAFOS2017/170518_t2_CAFOS/caf-20170518-22:22:33-cal-alex.fits
+     3    /Volumes/NicoPassport/CAHA/CAFOS2017/170518_t2_CAFOS/caf-20170518-22:23:59-cal-alex.fits
+     ...
+     ...
+     173  /Volumes/NicoPassport/CAHA/CAFOS2017/170518_t2_CAFOS/caf-20170519-02:31:34-cal-alex.fits
+     174  /Volumes/NicoPassport/CAHA/CAFOS2017/170518_t2_CAFOS/caf-20170519-02:33:00-cal-alex.fits
+     175  /Volumes/NicoPassport/CAHA/CAFOS2017/170518_t2_CAFOS/caf-20170519-02:34:26-cal-alex.fits
+     Total: 175 files
+
+   The same is true for the 35 images from ``170601``:
+
+   ::
+
+     $ filabres -lc science-imaging -n 170601*
+                                                                                             file
+     1   /Volumes/NicoPassport/CAHA/CAFOS2017/170601_t2_CAFOS/caf-20170601-20:37:01-sci-bomd.fits
+     2   /Volumes/NicoPassport/CAHA/CAFOS2017/170601_t2_CAFOS/caf-20170601-20:45:40-sci-bomd.fits
+     3   /Volumes/NicoPassport/CAHA/CAFOS2017/170601_t2_CAFOS/caf-20170601-20:50:37-sci-bomd.fits
+     ...
+     ...
+     36  /Volumes/NicoPassport/CAHA/CAFOS2017/170601_t2_CAFOS/caf-20170602-03:02:56-cal-pelm.fits
+     37  /Volumes/NicoPassport/CAHA/CAFOS2017/170601_t2_CAFOS/caf-20170602-03:04:00-cal-pelm.fits
+     38  /Volumes/NicoPassport/CAHA/CAFOS2017/170601_t2_CAFOS/caf-20170602-03:05:05-cal-pelm.fits
+     Total: 38 files
+
+   (Note that this last night contains 38 files and not 35: 3 science images
+   do not belong to the set of files erroneously flagged as
+   ``wrong-flat-imaging`` in the initial classification.)
 
 Wrong science-imaging
 ---------------------
@@ -748,114 +991,155 @@ These are the science-imaging images that passed the ``requirements`` set in
 
 ::
 
-   $ filabres -lc wrong-science-imaging
-                                                                               file NAXIS1 NAXIS2
-   1   /Users/cardiel/CAFOS2017/170502_t2_CAFOS/caf-20170503-00:58:59-sci-alex.fits  512    850  
-   2   /Users/cardiel/CAFOS2017/170526_t2_CAFOS/caf-20170527-03:57:08-sci-boeh.fits  1024   1024 
-   3   /Users/cardiel/CAFOS2017/170526_t2_CAFOS/caf-20170527-04:04:16-cal-boeh.fits  1000   2048 
-   ...
-   ...
-   37  /Users/cardiel/CAFOS2017/171101_t2_CAFOS/caf-20171101-21:55:34-sci-agui.fits  1024   1024 
-   38  /Users/cardiel/CAFOS2017/171101_t2_CAFOS/caf-20171101-22:01:29-sci-agui.fits  1024   1024 
-   39  /Users/cardiel/CAFOS2017/171217_t2_CAFOS/caf-20171217-17:38:26-sci-bard.fits  1700   1700 
-   Total: 39 files
+  $ filabres -lc wrong-science-imaging
+                                                                                          file
+  1   /Volumes/NicoPassport/CAHA/CAFOS2017/170502_t2_CAFOS/caf-20170503-00:58:59-sci-alex.fits
+  2   /Volumes/NicoPassport/CAHA/CAFOS2017/170526_t2_CAFOS/caf-20170527-03:57:08-sci-boeh.fits
+  3   /Volumes/NicoPassport/CAHA/CAFOS2017/170526_t2_CAFOS/caf-20170527-04:04:16-cal-boeh.fits
+  ...
+  ...
+  32  /Volumes/NicoPassport/CAHA/CAFOS2017/170528_t2_CAFOS/caf-20170528-16:37:50-cal-boeh.fits
+  33  /Volumes/NicoPassport/CAHA/CAFOS2017/170627_t2_CAFOS/caf-20170628-01:15:04-sci-mirl.fits
+  34  /Volumes/NicoPassport/CAHA/CAFOS2017/171217_t2_CAFOS/caf-20171217-17:38:26-sci-bard.fits
+  Total: 34 files
 
 To understand why these images have been classified in this category, we can
 display additional keywords:
 
 ::
 
-   $ filabres -lc wrong-science-imaging -k object -k imagetyp -k exptime -k quant500 -k quant975
-                                                                               file              OBJECT IMAGETYP  EXPTIME  QUANT500  QUANT975
-   1   /Users/cardiel/CAFOS2017/170502_t2_CAFOS/caf-20170503-00:58:59-sci-alex.fits  HAT-P-12b B         science  0.0      698.0     727.0   
-   2   /Users/cardiel/CAFOS2017/170526_t2_CAFOS/caf-20170527-03:57:08-sci-boeh.fits  [IMG]RXCJ1913+7403  science  120.0    65531.0   65531.0 
-   3   /Users/cardiel/CAFOS2017/170526_t2_CAFOS/caf-20170527-04:04:16-cal-boeh.fits  BIAS                science  0.0      674.0     690.0   
-   4   /Users/cardiel/CAFOS2017/170526_t2_CAFOS/caf-20170527-04:05:27-cal-boeh.fits  BIAS                science  0.0      674.0     690.0   
-   5   /Users/cardiel/CAFOS2017/170526_t2_CAFOS/caf-20170527-04:06:38-cal-boeh.fits  BIAS                science  0.0      674.0     690.0   
-   6   /Users/cardiel/CAFOS2017/170526_t2_CAFOS/caf-20170527-04:07:50-cal-boeh.fits  BIAS                science  0.0      674.0     690.0   
-   7   /Users/cardiel/CAFOS2017/170526_t2_CAFOS/caf-20170527-04:09:02-cal-boeh.fits  BIAS                science  0.0      674.0     690.0   
-   8   /Users/cardiel/CAFOS2017/170526_t2_CAFOS/caf-20170527-04:10:15-cal-boeh.fits  BIAS                science  0.0      674.0     690.0   
-   9   /Users/cardiel/CAFOS2017/170526_t2_CAFOS/caf-20170527-04:11:27-cal-boeh.fits  BIAS                science  0.0      674.0     691.0   
-   10  /Users/cardiel/CAFOS2017/170526_t2_CAFOS/caf-20170527-04:12:39-cal-boeh.fits  BIAS                science  0.0      674.0     690.0   
-   11  /Users/cardiel/CAFOS2017/170526_t2_CAFOS/caf-20170527-04:13:51-cal-boeh.fits  BIAS                science  0.0      675.0     691.0   
-   12  /Users/cardiel/CAFOS2017/170526_t2_CAFOS/caf-20170527-04:15:02-cal-boeh.fits  BIAS                science  0.0      675.0     691.0   
-   13  /Users/cardiel/CAFOS2017/170527_t2_CAFOS/caf-20170527-16:34:04-cal-boeh.fits  BIAS                science  0.0      672.0     688.0   
-   14  /Users/cardiel/CAFOS2017/170527_t2_CAFOS/caf-20170527-16:35:15-cal-boeh.fits  BIAS                science  0.0      667.0     684.0   
-   15  /Users/cardiel/CAFOS2017/170527_t2_CAFOS/caf-20170527-16:36:27-cal-boeh.fits  BIAS                science  0.0      668.0     685.0   
-   16  /Users/cardiel/CAFOS2017/170527_t2_CAFOS/caf-20170527-16:37:38-cal-boeh.fits  BIAS                science  0.0      668.0     685.0   
-   17  /Users/cardiel/CAFOS2017/170527_t2_CAFOS/caf-20170527-16:38:50-cal-boeh.fits  BIAS                science  0.0      668.0     685.0   
-   18  /Users/cardiel/CAFOS2017/170527_t2_CAFOS/caf-20170527-16:40:01-cal-boeh.fits  BIAS                science  0.0      668.0     685.0   
-   19  /Users/cardiel/CAFOS2017/170527_t2_CAFOS/caf-20170527-16:41:13-cal-boeh.fits  BIAS                science  0.0      668.0     685.0   
-   20  /Users/cardiel/CAFOS2017/170527_t2_CAFOS/caf-20170527-16:42:24-cal-boeh.fits  BIAS                science  0.0      668.0     685.0   
-   21  /Users/cardiel/CAFOS2017/170527_t2_CAFOS/caf-20170527-16:43:36-cal-boeh.fits  BIAS                science  0.0      668.0     685.0   
-   22  /Users/cardiel/CAFOS2017/170527_t2_CAFOS/caf-20170527-16:44:47-cal-boeh.fits  BIAS                science  0.0      668.0     685.0   
-   23  /Users/cardiel/CAFOS2017/170528_t2_CAFOS/caf-20170528-16:27:05-cal-boeh.fits  BIAS                science  0.0      667.0     683.0   
-   24  /Users/cardiel/CAFOS2017/170528_t2_CAFOS/caf-20170528-16:28:16-cal-boeh.fits  BIAS                science  0.0      667.0     685.0   
-   25  /Users/cardiel/CAFOS2017/170528_t2_CAFOS/caf-20170528-16:29:28-cal-boeh.fits  BIAS                science  0.0      667.0     684.0   
-   26  /Users/cardiel/CAFOS2017/170528_t2_CAFOS/caf-20170528-16:30:40-cal-boeh.fits  BIAS                science  0.0      667.0     684.0   
-   27  /Users/cardiel/CAFOS2017/170528_t2_CAFOS/caf-20170528-16:31:51-cal-boeh.fits  BIAS                science  0.0      667.0     684.0   
-   28  /Users/cardiel/CAFOS2017/170528_t2_CAFOS/caf-20170528-16:33:03-cal-boeh.fits  BIAS                science  0.0      667.0     684.0   
-   29  /Users/cardiel/CAFOS2017/170528_t2_CAFOS/caf-20170528-16:34:15-cal-boeh.fits  BIAS                science  0.0      667.0     684.0   
-   30  /Users/cardiel/CAFOS2017/170528_t2_CAFOS/caf-20170528-16:35:27-cal-boeh.fits  BIAS                science  0.0      667.0     684.0   
-   31  /Users/cardiel/CAFOS2017/170528_t2_CAFOS/caf-20170528-16:36:39-cal-boeh.fits  BIAS                science  0.0      668.0     685.0   
-   32  /Users/cardiel/CAFOS2017/170528_t2_CAFOS/caf-20170528-16:37:50-cal-boeh.fits  BIAS                science  0.0      667.0     684.0   
-   33  /Users/cardiel/CAFOS2017/170627_t2_CAFOS/caf-20170628-01:15:04-sci-mirl.fits  IRAS18061-2505 I    science  900.0    33228.0   61843.0 
-   34  /Users/cardiel/CAFOS2017/171008_t2_CAFOS/caf-20171009-05:22:11-sci-agui.fits  0827+243 22.5 deg   science  240.0    60723.0   62147.0 
-   35  /Users/cardiel/CAFOS2017/171101_t2_CAFOS/caf-20171101-21:43:41-sci-agui.fits  0528+134 0.0 deg    science  300.0    65531.0   65531.0 
-   36  /Users/cardiel/CAFOS2017/171101_t2_CAFOS/caf-20171101-21:49:37-sci-agui.fits  0528+134 22.5 deg   science  300.0    65531.0   65531.0 
-   37  /Users/cardiel/CAFOS2017/171101_t2_CAFOS/caf-20171101-21:55:34-sci-agui.fits  0528+134 45.0 deg   science  300.0    65531.0   65531.0 
-   38  /Users/cardiel/CAFOS2017/171101_t2_CAFOS/caf-20171101-22:01:29-sci-agui.fits  0528+134 67.5 deg   science  300.0    65531.0   65531.0 
-   39  /Users/cardiel/CAFOS2017/171217_t2_CAFOS/caf-20171217-17:38:26-sci-bard.fits  HJ339 I             science  120.0    65531.0   65531.0 
-   Total: 39 files
+  $ filabres -lc wrong-science-imaging -k object -k imagetyp -k exptime -k quant500 -k quant975
+                  OBJECT IMAGETYP  EXPTIME  QUANT500  QUANT975                                                                                      file
+  1   HAT-P-12b B         science  0.0      698.0     727.0     /Volumes/NicoPassport/CAHA/CAFOS2017/170502_t2_CAFOS/caf-20170503-00:58:59-sci-alex.fits
+  2   [IMG]RXCJ1913+7403  science  120.0    65531.0   65531.0   /Volumes/NicoPassport/CAHA/CAFOS2017/170526_t2_CAFOS/caf-20170527-03:57:08-sci-boeh.fits
+  3   BIAS                science  0.0      674.0     690.0     /Volumes/NicoPassport/CAHA/CAFOS2017/170526_t2_CAFOS/caf-20170527-04:04:16-cal-boeh.fits
+  4   BIAS                science  0.0      674.0     690.0     /Volumes/NicoPassport/CAHA/CAFOS2017/170526_t2_CAFOS/caf-20170527-04:05:27-cal-boeh.fits
+  5   BIAS                science  0.0      674.0     690.0     /Volumes/NicoPassport/CAHA/CAFOS2017/170526_t2_CAFOS/caf-20170527-04:06:38-cal-boeh.fits
+  6   BIAS                science  0.0      674.0     690.0     /Volumes/NicoPassport/CAHA/CAFOS2017/170526_t2_CAFOS/caf-20170527-04:07:50-cal-boeh.fits
+  7   BIAS                science  0.0      674.0     690.0     /Volumes/NicoPassport/CAHA/CAFOS2017/170526_t2_CAFOS/caf-20170527-04:09:02-cal-boeh.fits
+  8   BIAS                science  0.0      674.0     690.0     /Volumes/NicoPassport/CAHA/CAFOS2017/170526_t2_CAFOS/caf-20170527-04:10:15-cal-boeh.fits
+  9   BIAS                science  0.0      674.0     691.0     /Volumes/NicoPassport/CAHA/CAFOS2017/170526_t2_CAFOS/caf-20170527-04:11:27-cal-boeh.fits
+  10  BIAS                science  0.0      674.0     690.0     /Volumes/NicoPassport/CAHA/CAFOS2017/170526_t2_CAFOS/caf-20170527-04:12:39-cal-boeh.fits
+  11  BIAS                science  0.0      675.0     691.0     /Volumes/NicoPassport/CAHA/CAFOS2017/170526_t2_CAFOS/caf-20170527-04:13:51-cal-boeh.fits
+  12  BIAS                science  0.0      675.0     691.0     /Volumes/NicoPassport/CAHA/CAFOS2017/170526_t2_CAFOS/caf-20170527-04:15:02-cal-boeh.fits
+  13  BIAS                science  0.0      672.0     688.0     /Volumes/NicoPassport/CAHA/CAFOS2017/170527_t2_CAFOS/caf-20170527-16:34:04-cal-boeh.fits
+  14  BIAS                science  0.0      667.0     684.0     /Volumes/NicoPassport/CAHA/CAFOS2017/170527_t2_CAFOS/caf-20170527-16:35:15-cal-boeh.fits
+  15  BIAS                science  0.0      668.0     685.0     /Volumes/NicoPassport/CAHA/CAFOS2017/170527_t2_CAFOS/caf-20170527-16:36:27-cal-boeh.fits
+  16  BIAS                science  0.0      668.0     685.0     /Volumes/NicoPassport/CAHA/CAFOS2017/170527_t2_CAFOS/caf-20170527-16:37:38-cal-boeh.fits
+  17  BIAS                science  0.0      668.0     685.0     /Volumes/NicoPassport/CAHA/CAFOS2017/170527_t2_CAFOS/caf-20170527-16:38:50-cal-boeh.fits
+  18  BIAS                science  0.0      668.0     685.0     /Volumes/NicoPassport/CAHA/CAFOS2017/170527_t2_CAFOS/caf-20170527-16:40:01-cal-boeh.fits
+  19  BIAS                science  0.0      668.0     685.0     /Volumes/NicoPassport/CAHA/CAFOS2017/170527_t2_CAFOS/caf-20170527-16:41:13-cal-boeh.fits
+  20  BIAS                science  0.0      668.0     685.0     /Volumes/NicoPassport/CAHA/CAFOS2017/170527_t2_CAFOS/caf-20170527-16:42:24-cal-boeh.fits
+  21  BIAS                science  0.0      668.0     685.0     /Volumes/NicoPassport/CAHA/CAFOS2017/170527_t2_CAFOS/caf-20170527-16:43:36-cal-boeh.fits
+  22  BIAS                science  0.0      668.0     685.0     /Volumes/NicoPassport/CAHA/CAFOS2017/170527_t2_CAFOS/caf-20170527-16:44:47-cal-boeh.fits
+  23  BIAS                science  0.0      667.0     683.0     /Volumes/NicoPassport/CAHA/CAFOS2017/170528_t2_CAFOS/caf-20170528-16:27:05-cal-boeh.fits
+  24  BIAS                science  0.0      667.0     685.0     /Volumes/NicoPassport/CAHA/CAFOS2017/170528_t2_CAFOS/caf-20170528-16:28:16-cal-boeh.fits
+  25  BIAS                science  0.0      667.0     684.0     /Volumes/NicoPassport/CAHA/CAFOS2017/170528_t2_CAFOS/caf-20170528-16:29:28-cal-boeh.fits
+  26  BIAS                science  0.0      667.0     684.0     /Volumes/NicoPassport/CAHA/CAFOS2017/170528_t2_CAFOS/caf-20170528-16:30:40-cal-boeh.fits
+  27  BIAS                science  0.0      667.0     684.0     /Volumes/NicoPassport/CAHA/CAFOS2017/170528_t2_CAFOS/caf-20170528-16:31:51-cal-boeh.fits
+  28  BIAS                science  0.0      667.0     684.0     /Volumes/NicoPassport/CAHA/CAFOS2017/170528_t2_CAFOS/caf-20170528-16:33:03-cal-boeh.fits
+  29  BIAS                science  0.0      667.0     684.0     /Volumes/NicoPassport/CAHA/CAFOS2017/170528_t2_CAFOS/caf-20170528-16:34:15-cal-boeh.fits
+  30  BIAS                science  0.0      667.0     684.0     /Volumes/NicoPassport/CAHA/CAFOS2017/170528_t2_CAFOS/caf-20170528-16:35:27-cal-boeh.fits
+  31  BIAS                science  0.0      668.0     685.0     /Volumes/NicoPassport/CAHA/CAFOS2017/170528_t2_CAFOS/caf-20170528-16:36:39-cal-boeh.fits
+  32  BIAS                science  0.0      667.0     684.0     /Volumes/NicoPassport/CAHA/CAFOS2017/170528_t2_CAFOS/caf-20170528-16:37:50-cal-boeh.fits
+  33  IRAS18061-2505 I    science  900.0    33228.0   61843.0   /Volumes/NicoPassport/CAHA/CAFOS2017/170627_t2_CAFOS/caf-20170628-01:15:04-sci-mirl.fits
+  34  HJ339 I             science  120.0    65531.0   65531.0   /Volumes/NicoPassport/CAHA/CAFOS2017/171217_t2_CAFOS/caf-20171217-17:38:26-sci-bard.fits
+  Total: 34 files
 
 Although a few of these images are saturated (just looking at ``QUANT500`` and
 ``QUANT975``), most of them are actually bias frames (with ``EXPTIME=0``)
 wrongly acquired as science images.
 
-**It is possible to fix this error by using the file**
-``image_header_corrections.yaml`` **as explained in the next two subsections.**
-
-Update the file ``image_header_corrections.yaml``
--------------------------------------------------
-
-The best way to solve problems related with erroneous keyword values in the
-original images is to insert the affected images (and the associated keyword
-corrections) in the auxiliary file ``image_header_corrections.yaml``. 
+It is possible to fix this error by using, again, the file
+``image_header_corrections.yaml``.
 
 For the particular problem of the wrong science images that are actually bias
-exposures, the contents of this file are:
+exposures, the new contents of this file are (only the last part of the file is
+displayed):
 
-.. literalinclude:: image_header_corrections.yaml
+.. literalinclude:: image_header_corrections_2.yaml
    :linenos:
-   :lineno-start: 1
+   :lines: 233-303
+   :lineno-start: 233
 
-Ignoring the initial comment lines (starting by ``#``), here we have created
-three blocks, separated by ``---`` (the YAML block separator). **Important**:
-the separator must not appear before the first block nor after the last block.
-Within each block, the following arguments must be provided:
+Remember that the YAML separator ``---`` must not appear before the first block
+nor after the last block. 
 
-- ``night``: observing night. Note that wildcards can not be used here,
-  although the same night label can appear in different blocks.
+Note that, for this particular problem with the ``wrong-science-imaging``
+files, four new blocks have been created, one for each night. The parameter
+``replace-keyword`` is defined with a list of ``keyword: new-value`` (one entry
+in each line), being the list constituted by the two keywords ``IMAGETYP`` and
+``OBJECT``. Both of them are going to be set to ``bias``. This small change in
+these keywords will modify the next image classification of the involved
+images.
 
-- ``enabled``: this key indicates that the files included in this block are
-  going to be ignored. Setting this key to False allows to disable a particular
-  block without the need of removing it from this file.
+The list of files to be included in each of those four blocks have been 
+generated using (note the change of night ``-n <night>``):
 
-- ``files``:  is the list of files to be ignored within the specified night.
-  The list of files can be provided by given the name of each file in separate
-  line, preceded by an indented - symbol. Wildcards are valid here.
+::
 
-- ``replace-keyword``: list of ``keyword: new-value`` (one entry in each line).
-  For this case, two keywords (``IMAGETYP`` and ``OBJECT``) are going to be set
-  to ``bias``. This small change in these keywords will modify the next image
-  classification of the involved images.
+  $ filabres -lc wrong-science-imaging --filter "k[quant975] < 800" -n 170502* -lm basic
+   - caf-20170503-00:58:59-sci-alex.fits
+  Total: 1 files
 
-Repeat the classification of the affected nights
-------------------------------------------------
+::
 
-Since the images affected by the erroneous keywords belong to three different
-nights, namely ``170526``, ``170527`` and ``170528``, we are going to repeat
-the full classification of all the images within only these three nights:
+  $ filabres -lc wrong-science-imaging --filter "k[quant975] < 800" -n 170526* -lm basic
+   - caf-20170527-04:04:16-cal-boeh.fits
+   - caf-20170527-04:05:27-cal-boeh.fits
+   - caf-20170527-04:06:38-cal-boeh.fits
+   - caf-20170527-04:07:50-cal-boeh.fits
+   - caf-20170527-04:09:02-cal-boeh.fits
+   - caf-20170527-04:10:15-cal-boeh.fits
+   - caf-20170527-04:11:27-cal-boeh.fits
+   - caf-20170527-04:12:39-cal-boeh.fits
+   - caf-20170527-04:13:51-cal-boeh.fits
+   - caf-20170527-04:15:02-cal-boeh.fits
+  Total: 10 files
+
+::
+
+  $ filabres -lc wrong-science-imaging --filter "k[quant975] < 800" -n 170527* -lm basic
+   - caf-20170527-16:34:04-cal-boeh.fits
+   - caf-20170527-16:35:15-cal-boeh.fits
+   - caf-20170527-16:36:27-cal-boeh.fits
+   - caf-20170527-16:37:38-cal-boeh.fits
+   - caf-20170527-16:38:50-cal-boeh.fits
+   - caf-20170527-16:40:01-cal-boeh.fits
+   - caf-20170527-16:41:13-cal-boeh.fits
+   - caf-20170527-16:42:24-cal-boeh.fits
+   - caf-20170527-16:43:36-cal-boeh.fits
+   - caf-20170527-16:44:47-cal-boeh.fits
+  Total: 10 files 
+
+::
+
+  $ filabres -lc wrong-science-imaging --filter "k[quant975] < 800" -n 170528* -lm basic
+   - caf-20170528-16:27:05-cal-boeh.fits
+   - caf-20170528-16:28:16-cal-boeh.fits
+   - caf-20170528-16:29:28-cal-boeh.fits
+   - caf-20170528-16:30:40-cal-boeh.fits
+   - caf-20170528-16:31:51-cal-boeh.fits
+   - caf-20170528-16:33:03-cal-boeh.fits
+   - caf-20170528-16:34:15-cal-boeh.fits
+   - caf-20170528-16:35:27-cal-boeh.fits
+   - caf-20170528-16:36:39-cal-boeh.fits
+   - caf-20170528-16:37:50-cal-boeh.fits
+  Total: 10 files
+
+Since the images affected by the erroneous keywords belong to four different
+nights, namely ``170502``, ``170526``, ``170527`` and ``170528``, we are going
+to repeat the full classification of all the images within only these four
+nights (forcing the reduction with ``--force``):
+
+::
+
+   $ filabres -rs initialize -n 170502* --force
+   * Number of nights found: 1
+   * Working with night 170502_t2_CAFOS (1/1) ---> 408 FITS files
+   ...
+   ...
+   * program STOP
 
 ::
 
@@ -866,56 +1150,43 @@ the full classification of all the images within only these three nights:
    ...
    * program STOP
 
-Note that the argument ``--force`` has been used to force the repetition of the
-reduction for those nights. Without this argument, **filabres** avoids the
-repetion because it detects that there is already a file ``imagedb_cafos.json``
-in the corresponding subdirectory night. By forcing the repetition we command 
-**filabres** to override that file.
-
 Initially 826 images were classified as bias frames. Now, after the inclusion
-of the new 30 images, this number is 856:
+of the new 31 images, this number has increased to 857:
 
 ::
 
    $ filabres -lc bias
-                                                                                            file NAXIS1 NAXIS2
-   1    /Users/cardiel/CAFOS2017/170225_t2_CAFOS/caf-20170224-21:27:48-cal-krek.fits  1650   1650 
-   2    /Users/cardiel/CAFOS2017/170225_t2_CAFOS/caf-20170224-21:29:09-cal-krek.fits  1650   1650 
-   3    /Users/cardiel/CAFOS2017/170225_t2_CAFOS/caf-20170224-21:30:31-cal-krek.fits  1650   1650 
    ...
    ...
-   854  /Users/cardiel/CAFOS2017/171230_t2_CAFOS/caf-20171229-10:16:48-cal-lilj.fits  800    800  
-   855  /Users/cardiel/CAFOS2017/171230_t2_CAFOS/caf-20171229-10:17:24-cal-lilj.fits  800    800  
-   856  /Users/cardiel/CAFOS2017/171230_t2_CAFOS/caf-20171229-10:18:00-cal-lilj.fits  800    800  
-   Total: 856 files
+   Total: 857 files
 
-Re-checking wrong-science-imaging
----------------------------------
-
-After repeating the image classification for those three problematic nights,
-it is time to double check that the number of images classified as
-``wrong-science-imaging`` has actually decreased (note the use of the ``-pi``
-argument to display the images on the screen):
+In parallel, the number of ``wrong-science-imaging`` frames has decreased to
+only 3 files (note the use of ``-pi`` argument to display the images on the
+screen; here we are sorting by the median ``QUANT500``):
 
 ::
 
-   $ filabres -lc wrong-science-imaging -k object -k imagetyp -k exptime -k quant500 -k quant975 -pi
-                                                                           file              OBJECT IMAGETYP  EXPTIME  QUANT500  QUANT975
-   1  /Users/cardiel/CAFOS2017/170502_t2_CAFOS/caf-20170503-00:58:59-sci-alex.fits  HAT-P-12b B         science  0.0      698.0     727.0   
-   2  /Users/cardiel/CAFOS2017/170526_t2_CAFOS/caf-20170527-03:57:08-sci-boeh.fits  [IMG]RXCJ1913+7403  science  120.0    65531.0   65531.0 
-   3  /Users/cardiel/CAFOS2017/170627_t2_CAFOS/caf-20170628-01:15:04-sci-mirl.fits  IRAS18061-2505 I    science  900.0    33228.0   61843.0 
-   4  /Users/cardiel/CAFOS2017/171008_t2_CAFOS/caf-20171009-05:22:11-sci-agui.fits  0827+243 22.5 deg   science  240.0    60723.0   62147.0 
-   5  /Users/cardiel/CAFOS2017/171101_t2_CAFOS/caf-20171101-21:43:41-sci-agui.fits  0528+134 0.0 deg    science  300.0    65531.0   65531.0 
-   6  /Users/cardiel/CAFOS2017/171101_t2_CAFOS/caf-20171101-21:49:37-sci-agui.fits  0528+134 22.5 deg   science  300.0    65531.0   65531.0 
-   7  /Users/cardiel/CAFOS2017/171101_t2_CAFOS/caf-20171101-21:55:34-sci-agui.fits  0528+134 45.0 deg   science  300.0    65531.0   65531.0 
-   8  /Users/cardiel/CAFOS2017/171101_t2_CAFOS/caf-20171101-22:01:29-sci-agui.fits  0528+134 67.5 deg   science  300.0    65531.0   65531.0 
-   9  /Users/cardiel/CAFOS2017/171217_t2_CAFOS/caf-20171217-17:38:26-sci-bard.fits  HJ339 I             science  120.0    65531.0   65531.0 
-   Total: 9 files
+  $ filabres -lc wrong-science-imaging -k object -k imagetyp -k exptime -ks quant500 -k quant975 -pi
+  2  IRAS18061-2505 I    science  900.0    61843.0   33228.0   /Volumes/NicoPassport/CAHA/CAFOS2017/170627_t2_CAFOS/caf-20170628-01:15:04-sci-mirl.fits
+  1  [IMG]RXCJ1913+7403  science  120.0    65531.0   65531.0   /Volumes/NicoPassport/CAHA/CAFOS2017/170526_t2_CAFOS/caf-20170527-03:57:08-sci-boeh.fits
+  3  HJ339 I             science  120.0    65531.0   65531.0   /Volumes/NicoPassport/CAHA/CAFOS2017/171217_t2_CAFOS/caf-20171217-17:38:26-sci-bard.fits
+  Total: 3 files
+  
 
-This is in fact the case (only 9 images remain within this category). The first
-one is probably still a bias frame (``EXPTIME=0``) with a wrong ``IMAGETYPE``.
-Images 2, 4, 5, 6, 7, 8 and 9 are saturated. The second image is a scientific
-image with many saturated stars. It is clear that the clearly saturated images
-are useless. In addition, we are not going to rescue the other two images for
-this tutorial.
+The first image in this list if a is a scientific exposure with many saturated
+stars. We are going to ignore it:
+
+.. image:: images/pi_wrong-science-imaging1.png
+   :width: 100%
+   :alt: Wrong science-imaging 1
+
+The last two images are clearly saturated and useless.
+
+.. image:: images/pi_wrong-science-imaging2.png
+   :width: 100%
+   :alt: Wrong science-imaging 2
+
+.. image:: images/pi_wrong-science-imaging3.png
+   :width: 100%
+   :alt: Wrong science-imaging 3
 
