@@ -241,7 +241,7 @@ Select image type
 Although you can always try to open any of the files ``imagedb_cafos.json``
 directly (using a proper JSON editor), **filabres** provides an easier way to
 examine the image classification previously performed (using the argument
-``-lc/--list_classified <imagetype>``; list classified images). 
+``-lc/--list_classified <imagetype>``). 
 For example, to list the different image types available:
 
 ::
@@ -314,8 +314,8 @@ Select image type and relevant keywords
 
 You can also display the values of relevant keywords belonging to the
 ``masterkeywords`` list in the file ``configuration_cafos.yaml``. If you don't
-remember them, don't worry: use first ``-k all`` to display all the available
-keywords:
+remember them, don't worry: use first ``-k/--keyword all`` to display all the 
+available keywords:
 
 ::
 
@@ -367,8 +367,9 @@ standard deviation of the image):
 Note that each keyword is preceded by ``-k`` (following the astropy convention
 for the ``fitsheader`` utility).
 
-If instead of using ``-k`` you use ``-ks``, the list will be sorted according
-to the selected keywords (several keys can be used for a hierarchical sorting):
+If instead of using ``-k/--keyword`` you use ``-ks/--keyword_sort``, the list
+will be sorted according to the selected keywords (several keys can be used for
+a hierarchical sorting):
 
 ::
 
@@ -463,15 +464,15 @@ defined in ``configuration_cafos.yaml``:
 
 ::
 
-   $ filabres -lc unclassified -k object
-                                                                           file              OBJECT
-   1  /Users/cardiel/CAFOS2017/170225_t2_CAFOS/caf-20170225-18:44:14-tst-test.fits  [focus] Telescope 
-   2  /Users/cardiel/CAFOS2017/170505_t2_CAFOS/caf-20170506-02:53:44-tst-test.fits  [focus] Telescope 
-   3  /Users/cardiel/CAFOS2017/170601_t2_CAFOS/caf-20170601-14:00:42-sci-etac.fits  ETALON_calibration
-   4  /Users/cardiel/CAFOS2017/170628_t2_CAFOS/caf-20170628-16:26:53-sci-etac.fits  ETALON_calibration
-   5  /Users/cardiel/CAFOS2017/170628_t2_CAFOS/caf-20170628-16:35:52-sci-etac.fits  ETALON_calibration
-   6  /Users/cardiel/CAFOS2017/170807_t2_CAFOS/caf-20170807-21:10:39-cal-schn.fits  [focus] Telescope 
-   Total: 6 files
+  $ filabres -lc unclassified -k object
+                                                                                         file              OBJECT
+  1  /Volumes/NicoPassport/CAHA/CAFOS2017/170225_t2_CAFOS/caf-20170225-18:44:14-tst-test.fits  [focus] Telescope 
+  2  /Volumes/NicoPassport/CAHA/CAFOS2017/170505_t2_CAFOS/caf-20170506-02:53:44-tst-test.fits  [focus] Telescope 
+  3  /Volumes/NicoPassport/CAHA/CAFOS2017/170601_t2_CAFOS/caf-20170601-14:00:42-sci-etac.fits  ETALON_calibration
+  4  /Volumes/NicoPassport/CAHA/CAFOS2017/170628_t2_CAFOS/caf-20170628-16:26:53-sci-etac.fits  ETALON_calibration
+  5  /Volumes/NicoPassport/CAHA/CAFOS2017/170628_t2_CAFOS/caf-20170628-16:35:52-sci-etac.fits  ETALON_calibration
+  6  /Volumes/NicoPassport/CAHA/CAFOS2017/170807_t2_CAFOS/caf-20170807-21:10:39-cal-schn.fits  [focus] Telescope 
+  Total: 6 files
    
 Only 6 images appear in this category. The keyword ``OBJECT`` indicates that
 they correspond to some auxiliary (telescope focus) or calibration (etalon)
@@ -507,17 +508,17 @@ These are simply the images that we have included in the file
 
 ::
 
-   $ filabres -lc ignored
-                                                                             file NAXIS1 NAXIS2
-   1    /Users/cardiel/CAFOS2017/170506_t2_CAFOS/caf-20170505-09:57:54-cal-agui.fits  1024   1024 
-   2    /Users/cardiel/CAFOS2017/170506_t2_CAFOS/caf-20170505-09:58:58-cal-agui.fits  1024   1024 
-   3    /Users/cardiel/CAFOS2017/170506_t2_CAFOS/caf-20170505-10:00:02-cal-agui.fits  1024   1024 
-   ...
-   ...
-   253  /Users/cardiel/CAFOS2017/171219_t2_CAFOS/caf-20171218-17:43:07-cal-bard.fits  1700   1700 
-   254  /Users/cardiel/CAFOS2017/171219_t2_CAFOS/caf-20171218-17:45:23-cal-bard.fits  1700   1700 
-   255  /Users/cardiel/CAFOS2017/171219_t2_CAFOS/caf-20171218-17:47:46-cal-bard.fits  1700   1700 
-   Total: 255 files
+  $ filabres -lc ignored
+                                                                                           file NAXIS1 NAXIS2
+  1    /Volumes/NicoPassport/CAHA/CAFOS2017/170506_t2_CAFOS/caf-20170505-09:57:54-cal-agui.fits  1024   1024 
+  2    /Volumes/NicoPassport/CAHA/CAFOS2017/170506_t2_CAFOS/caf-20170505-09:58:58-cal-agui.fits  1024   1024 
+  3    /Volumes/NicoPassport/CAHA/CAFOS2017/170506_t2_CAFOS/caf-20170505-10:00:02-cal-agui.fits  1024   1024
+  ...
+  ...
+  253  /Volumes/NicoPassport/CAHA/CAFOS2017/171219_t2_CAFOS/caf-20171218-17:43:07-cal-bard.fits  1700   1700 
+  254  /Volumes/NicoPassport/CAHA/CAFOS2017/171219_t2_CAFOS/caf-20171218-17:45:23-cal-bard.fits  1700   1700 
+  255  /Volumes/NicoPassport/CAHA/CAFOS2017/171219_t2_CAFOS/caf-20171218-17:47:46-cal-bard.fits  1700   1700
+  Total: 255 files
 
 Wrong bias
 ----------
@@ -527,8 +528,8 @@ These are the bias images that passed the ``requirements`` set in
 
 ::
 
-   $ filabres -lc wrong-bias
-   Total: 0 files
+  $ filabres -lc wrong-bias
+  Total: 0 files
 
 None.
 
@@ -541,15 +542,53 @@ These are the flat-imaging images that passed the ``requirements`` set in
 
 ::
 
-   $ filabres -lc wrong-flat-imaging
-                                                                                 file NAXIS1 NAXIS2
-   1  /Users/cardiel/CAFOS2017/170225_t2_CAFOS/caf-20170226-06:11:17-cal-krek.fits  1650   1650 
-   2  /Users/cardiel/CAFOS2017/170225_t2_CAFOS/caf-20170226-06:22:28-cal-krek.fits  1650   1650 
-   3  /Users/cardiel/CAFOS2017/170929_t2_CAFOS/caf-20170929-18:05:56-cal-wenj.fits  501    501  
-   4  /Users/cardiel/CAFOS2017/170929_t2_CAFOS/caf-20170929-18:06:46-cal-wenj.fits  501    501  
-   5  /Users/cardiel/CAFOS2017/170929_t2_CAFOS/caf-20170929-18:11:14-cal-wenj.fits  501    501  
-   6  /Users/cardiel/CAFOS2017/170929_t2_CAFOS/caf-20170929-18:12:02-cal-wenj.fits  501    501  
-   Total: 6 files
+  $ filabres -lc wrong-flat-imaging
+  ...
+  ...
+  Total: 228 files
+
+There are 228 images in classified in this category. It is useful to check a
+few keywords:
+
+::
+
+  $ filabres -lc wrong-flat-imaging --filter 'k[exptime] == 0'
+  Total: 0 files
+
+Nothing wrong with ``EXPTIME``.
+
+Let's examine the signal, using the median ``QUANT500`` and the quantile 0.975
+(sorting in the latter):
+
+::
+
+  $ filabres -lc wrong-flat-imaging -k quant500 -ks quant975
+  ...
+  ...
+  Total: 228 files
+
+The last table reveals several cases:
+
+1. Images with unexpectedly low signal (even without bias level):
+
+  ::
+  
+    $ filabres -lc wrong-flat-imaging -k quant500 -ks quant975 --filter 'k[quant500] < 100' -pi
+                                                                                           file  QUANT500  QUANT975
+    1  /Volumes/NicoPassport/CAHA/CAFOS2017/170929_t2_CAFOS/caf-20170929-14:38:37-cal-delt.fits -0.01052  -0.00291 
+    2  /Volumes/NicoPassport/CAHA/CAFOS2017/170929_t2_CAFOS/caf-20170929-14:40:39-cal-quot.fits  0.99903   1.00470 
+    Total: 2 files
+  
+  .. image:: images/pi_wrong-flat-imaging_lowsignal.png
+     :width: 100%
+     :alt: Wrong flat-imaging with low signal
+
+
+---
+
+::
+
+  $ filabres -lc wrong-flat-imaging -k exptime -k quant975
 
 In this case there are 6 files. In order to dig deeper into the reason for
 the classification of these images, let's display the value of the 0.500

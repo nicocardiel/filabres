@@ -69,12 +69,12 @@ def load_instrument_configuration(instrument, redustep,
                 redustep_is_ok = False
         if not redustep_is_ok:
             if redustep is None:
-                print('ERROR: missing reduction step!')
+                print('ERROR: missing reduction step / image type!')
             else:
                 print('ERROR: invalid or unavailable reduction step: {}'.format(redustep))
             print('Initial options are:')
             for redustep_ in defined_redusteps:
-                print('-rs/--reduction_step {}  (available: {})'.format(redustep_, defined_redusteps[redustep_]))
+                print('- {}  (available: {})'.format(redustep_, defined_redusteps[redustep_]))
             raise SystemExit()
 
     # check that the keywords of the requirements and the signature of the

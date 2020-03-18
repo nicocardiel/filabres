@@ -193,13 +193,14 @@ def list_originf(instrument, args_originf, list_mode, datadir,
                         valid_keywords += list(statsumm(image2d=None).keys())
                         print('Valid keywords:', valid_keywords)
                         raise SystemExit()
-                    colnames_ = ['file']
+                    colnames_ = []
                     if lkeyword is not None:
                         for keyword in lkeyword:
                             if keyword not in storedkeywords:
                                 print('ERROR: keyword {} is not stored in the image database'.format(keyword))
                                 raise SystemExit()
                             colnames_ += [keyword]
+                    colnames_ += ['file']
                     if n == 1:
                         colnames = colnames_
                         df = pd.DataFrame(columns=colnames)
@@ -210,10 +211,11 @@ def list_originf(instrument, args_originf, list_mode, datadir,
                             print("- required:", colnames_)
                             raise SystemExit()
 
-                    new_df_row = [outfile]
+                    new_df_row = []
                     if lkeyword is not None:
                         for keyword in lkeyword:
                             new_df_row += [storedkeywords[keyword]]
+                    new_df_row += [outfile]
                     df.loc[n - 1] = new_df_row
                 else:
                     msg = 'Unexpected list_mode {}'.format(list_mode)
