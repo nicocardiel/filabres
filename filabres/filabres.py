@@ -84,15 +84,15 @@ def main():
                              metavar=('REDUCED_IMAGE'))
 
     # group_lists
-    group_lists.add_argument("-lc", "--lc_imagetype", type=str, nargs='*',
+    group_lists.add_argument("-lc", "--list_classified", type=str, nargs='*',
                              help="list classified images of the selected type with quantile information",
                              metavar=('REDUCTION_STEP'))
-    group_lists.add_argument("-lr", "--lr_imagetype", type=str, nargs='*',
+    group_lists.add_argument("-lr", "--list_reduced", type=str, nargs='*',
                              help="list reduced images of the selected type with quantile information",
                              metavar=('REDUCTION_STEP'))
     group_lists.add_argument("-of", "--originf", type=str, help="list original individual images employed to "
                                                                 "generate a particular reduced calibration image")
-    group_lists.add_argument("-lm", "--listmode", type=str, help="display mode for list of files",
+    group_lists.add_argument("-lm", "--list_mode", type=str, help="display mode for list of files",
                              choices=["long", "singleline", "basic"], metavar=('MODE'))
     group_lists.add_argument("-k", "--keyword", type=str, action='append', nargs=1,
                              help="keyword for the -lc/-lr option")
@@ -121,8 +121,8 @@ def main():
     check_args_compatibility(args, debug=False)
 
     # set default values
-    if args.listmode is None:
-        args.listmode = 'long'
+    if args.list_mode is None:
+        args.list_mode = 'long'
     if args.ndecimal is None:
         args.ndecimal = 5
 
@@ -149,13 +149,13 @@ def main():
         raise SystemExit()
 
     # lists of classified images
-    if args.lc_imagetype is not None:
-        if args.lr_imagetype is not None or args.originf is not None:
+    if args.list_classified is not None:
+        if args.list_reduced is not None or args.originf is not None:
             print("-lc is incompatible with either -lr or -of")
             raise SystemExit()
         list_classified(instrument=instrument,
-                        img=args.lc_imagetype,
-                        listmode=args.listmode,
+                        img=args.list_classified,
+                        list_mode=args.list_mode,
                         datadir=datadir,
                         args_night=args.night,
                         args_keyword=args.keyword,
@@ -167,13 +167,13 @@ def main():
         raise SystemExit()
 
     # list of reduced images
-    if args.lr_imagetype is not None:
-        if args.lc_imagetype is not None or args.originf is not None:
+    if args.list_reduced is not None:
+        if args.list_classified is not None or args.originf is not None:
             print("-lr is incompatible with either -lc or -of")
             raise SystemExit()
         list_reduced(instrument=instrument,
-                     img=args.lr_imagetype,
-                     listmode=args.listmode,
+                     img=args.list_reduced,
+                     list_mode=args.list_mode,
                      args_night=args.night,
                      args_keyword=args.keyword,
                      args_keyword_sort=args.keyword_sort,
@@ -184,12 +184,12 @@ def main():
         raise SystemExit()
 
     if args.originf is not None:
-        if args.lc_imagetype is not None or args.lr_imagetype is not None:
+        if args.list_classified is not None or args.list_reduced is not None:
             print("-of is incompatible with either -lc or -lr")
             raise SystemExit()
         list_originf(instrument=instrument,
                      args_originf=args.originf,
-                     listmode=args.listmode,
+                     list_mode=args.list_mode,
                      datadir=datadir,
                      args_keyword=args.keyword,
                      args_keyword_sort=args.keyword_sort,

@@ -28,36 +28,42 @@ the following keys: ``instname``, ``version``, ``requirements``,
 
 ::
 
-   instname: cafos
-   version: 2.3
-   requirements:
-     INSTRUME: 'CAFOS 2.2'
-   masterkeywords:
-     - NAXIS      # number of data axes
-     - NAXIS1     # length of data axis 1
-     - NAXIS2     # length of data axis 2
-     - OBJECT     # Target description
-     ...
-     ...
-   imagetypes:
-     bias:
-       ...
-       ...
-     flat-imaging:
-       ...
-       ...
-     flat-spectroscopy:
-       ...
-       ...
-     arc:
-       ...
-       ...
-     science-imaging:
-       ...
-       ...
-     science-spectroscopy:
-       ...
-       ...
+  instname: cafos
+  version: 2.3
+  requirements:
+    INSTRUME: 'CAFOS 2.2'
+  masterkeywords:
+    - NAXIS      # number of data axes
+    - NAXIS1     # length of data axis 1
+    - NAXIS2     # length of data axis 2
+    - OBJECT     # Target description
+    ...
+    ...
+  imagetypes:
+    bias:
+      ...
+      ...
+    flat-imaging:
+      ...
+      ...
+    flat-imaging-wollaston:
+      ...
+      ...
+    flat-spectroscopy:
+      ...
+      ...
+    arc:
+      ...
+      ...
+    science-imaging:
+      ...
+      ...
+    science-imaging-wollaston:
+      ...
+      ...
+    science-spectroscopy:
+      ...
+      ...
 
 - ``instname``: the instrument name.
 
@@ -82,23 +88,23 @@ the following keys: ``instname``, ``version``, ``requirements``,
 
   ::
 
-     imagetype:
-       bias:
-         executable: True
-         classification: calibration
-         requirements:
-           IMAGETYP: 'bias'
-         requirementx:
-           EXPTIME: 0.0
-           QUANT975.LT.: 1000
-         signature:
-           - CCDNAME
-           - NAXIS1
-           - NAXIS2
-           - DATASEC
-           - CCDBINX
-           - CCDBINY
-         maxtimespan_hours: 1
+    imagetype:
+      bias:
+        executable: True
+        classification: calibration
+        requirements:
+          IMAGETYP: 'bias'
+        requirementx:
+          EXPTIME: 0.0
+          QUANT975.LT.: 1000
+        signature:
+          - CCDNAME
+          - NAXIS1
+          - NAXIS2
+          - DATASEC
+          - CCDBINX
+          - CCDBINY
+        maxtimespan_hours: 1
 
   The relevant keywords in this third-level dictionary are:
 
@@ -133,17 +139,22 @@ be classified as ``ignored``.
 Inital image classification
 ===========================
 
-The image classification is performed by using (this can take several
+The image classification is performed by starting the reduction step
+``initialize``. Reduction steps are executed with the argument
+``-rs/--reduction_step``. In this case execute (note that this can take several
 minutes!):
 
 ::
 
-   (filabres) $ filabres -rs initialize
-   * Number of nights found: 58
-   * Working with night 170225_t2_CAFOS (1/58) ---> 140 FITS files
-   * Working with night 170226_t2_CAFOS (2/58) ---> 55 FITS files
-   ...
-   ...
+  $ filabres -rs initialize
+  * Number of nights found: 58
+  * Working with night 170225_t2_CAFOS (1/58) ---> 140 FITS files
+  * Working with night 170226_t2_CAFOS (2/58) ---> 55 FITS files
+  ...
+  ...
+  * Working with night 171228_t2_CAFOS (57/58) ---> 50 FITS files
+  * Working with night 171230_t2_CAFOS (58/58) ---> 383 FITS files
+  * program STOP 
 
 A few warnings may be raised during the execution of the program. In particular
 for the CAFOS 2017 data, the ``MJD-OBS`` is negative in some images and
@@ -156,25 +167,30 @@ observing nights:
 
 ::
 
-   (filabres) $ ls lists/
-   170225_t2_CAFOS/ 170506_t2_CAFOS/ 170601_t2_CAFOS/ 170807_t2_CAFOS/
-   170226_t2_CAFOS/ 170507_t2_CAFOS/ 170602_t2_CAFOS/ 170809_t2_CAFOS/
-   170319_t2_CAFOS/ 170517_t2_CAFOS/ 170621_t2_CAFOS/ 170811_t2_CAFOS/
-   170331_t2_CAFOS/ 170518_t2_CAFOS/ 170627_t2_CAFOS/ 170825_t2_CAFOS/
-   170403_t2_CAFOS/ 170519_t2_CAFOS/ 170628_t2_CAFOS/ 170903_t2_CAFOS/
-   170408_t2_CAFOS/ 170524_t2_CAFOS/ 170629_t2_CAFOS/ 170918_t2_CAFOS/
-   170420_t2_CAFOS/ 170525_t2_CAFOS/ 170713_t2_CAFOS/ 170926_t2_CAFOS/
-   170422_t2_CAFOS/ 170526_t2_CAFOS/ 170720_t2_CAFOS/ 170928_t2_CAFOS/
-   170502_t2_CAFOS/ 170527_t2_CAFOS/ 170724_t2_CAFOS/
-   170505_t2_CAFOS/ 170528_t2_CAFOS/ 170731_t2_CAFOS/
+  $ ls lists/
+  170225_t2_CAFOS/ 170524_t2_CAFOS/ 170807_t2_CAFOS/ 171108_t2_CAFOS/
+  170226_t2_CAFOS/ 170525_t2_CAFOS/ 170809_t2_CAFOS/ 171116_t2_CAFOS/
+  170319_t2_CAFOS/ 170526_t2_CAFOS/ 170811_t2_CAFOS/ 171120_t2_CAFOS/
+  170331_t2_CAFOS/ 170527_t2_CAFOS/ 170825_t2_CAFOS/ 171121_t2_CAFOS/
+  170403_t2_CAFOS/ 170528_t2_CAFOS/ 170903_t2_CAFOS/ 171209_t2_CAFOS/
+  170408_t2_CAFOS/ 170601_t2_CAFOS/ 170918_t2_CAFOS/ 171217_t2_CAFOS/
+  170420_t2_CAFOS/ 170602_t2_CAFOS/ 170926_t2_CAFOS/ 171218_t2_CAFOS/
+  170422_t2_CAFOS/ 170621_t2_CAFOS/ 170928_t2_CAFOS/ 171219_t2_CAFOS/
+  170502_t2_CAFOS/ 170627_t2_CAFOS/ 170929_t2_CAFOS/ 171221_t2_CAFOS/
+  170505_t2_CAFOS/ 170628_t2_CAFOS/ 171002_t2_CAFOS/ 171223_t2_CAFOS/
+  170506_t2_CAFOS/ 170629_t2_CAFOS/ 171008_t2_CAFOS/ 171225_t2_CAFOS/
+  170507_t2_CAFOS/ 170713_t2_CAFOS/ 171011_t2_CAFOS/ 171228_t2_CAFOS/
+  170517_t2_CAFOS/ 170720_t2_CAFOS/ 171015_t2_CAFOS/ 171230_t2_CAFOS/
+  170518_t2_CAFOS/ 170724_t2_CAFOS/ 171016_t2_CAFOS/
+  170519_t2_CAFOS/ 170731_t2_CAFOS/ 171101_t2_CAFOS/
 
 Within each night, a file ``imagedb_cafos.json`` should have been created, 
 storing the image classification.
 
 ::
 
-   (filabres) $ ls lists/170225_t2_CAFOS/
-   imagedb_cafos.json
+  $ ls lists/170225_t2_CAFOS/
+  imagedb_cafos.json
 
 For those nights with images that have raised WARNINGS during the image
 classification, an additional ``imagedb_cafos.log`` file should also have been
@@ -182,36 +198,36 @@ created containing the warning messages:
 
 ::
 
-   (filabres) $ find lists/ -name *log
-   lists//170929_t2_CAFOS/imagedb_cafos.log
-   lists//170928_t2_CAFOS/imagedb_cafos.log
-   lists//171108_t2_CAFOS/imagedb_cafos.log
-   lists//170731_t2_CAFOS/imagedb_cafos.log
-   lists//170713_t2_CAFOS/imagedb_cafos.log
-   lists//170502_t2_CAFOS/imagedb_cafos.log
-   lists//171016_t2_CAFOS/imagedb_cafos.log
-   lists//171120_t2_CAFOS/imagedb_cafos.log
-   lists//171011_t2_CAFOS/imagedb_cafos.log
-   lists//170628_t2_CAFOS/imagedb_cafos.log
-   lists//170629_t2_CAFOS/imagedb_cafos.log
-   lists//170526_t2_CAFOS/imagedb_cafos.log
-   lists//170527_t2_CAFOS/imagedb_cafos.log
-   lists//170518_t2_CAFOS/imagedb_cafos.log
-   lists//171015_t2_CAFOS/imagedb_cafos.log
-   lists//171116_t2_CAFOS/imagedb_cafos.log
-   lists//170408_t2_CAFOS/imagedb_cafos.log
-   lists//170627_t2_CAFOS/imagedb_cafos.log
-   lists//170528_t2_CAFOS/imagedb_cafos.log
-   lists//170517_t2_CAFOS/imagedb_cafos.log
-   lists//171218_t2_CAFOS/imagedb_cafos.log
-   lists//171219_t2_CAFOS/imagedb_cafos.log
-   lists//170525_t2_CAFOS/imagedb_cafos.log
-   lists//170524_t2_CAFOS/imagedb_cafos.log
-   lists//170811_t2_CAFOS/imagedb_cafos.log
-   lists//170918_t2_CAFOS/imagedb_cafos.log
-   lists//170807_t2_CAFOS/imagedb_cafos.log
-   lists//170507_t2_CAFOS/imagedb_cafos.log
-   lists//170621_t2_CAFOS/imagedb_cafos.log
+  $ find lists -name *log | sort
+  lists/170408_t2_CAFOS/imagedb_cafos.log
+  lists/170502_t2_CAFOS/imagedb_cafos.log
+  lists/170507_t2_CAFOS/imagedb_cafos.log
+  lists/170517_t2_CAFOS/imagedb_cafos.log
+  lists/170518_t2_CAFOS/imagedb_cafos.log
+  lists/170524_t2_CAFOS/imagedb_cafos.log
+  lists/170525_t2_CAFOS/imagedb_cafos.log
+  lists/170526_t2_CAFOS/imagedb_cafos.log
+  lists/170527_t2_CAFOS/imagedb_cafos.log
+  lists/170528_t2_CAFOS/imagedb_cafos.log
+  lists/170621_t2_CAFOS/imagedb_cafos.log
+  lists/170627_t2_CAFOS/imagedb_cafos.log
+  lists/170628_t2_CAFOS/imagedb_cafos.log
+  lists/170629_t2_CAFOS/imagedb_cafos.log
+  lists/170713_t2_CAFOS/imagedb_cafos.log
+  lists/170731_t2_CAFOS/imagedb_cafos.log
+  lists/170807_t2_CAFOS/imagedb_cafos.log
+  lists/170811_t2_CAFOS/imagedb_cafos.log
+  lists/170918_t2_CAFOS/imagedb_cafos.log
+  lists/170928_t2_CAFOS/imagedb_cafos.log
+  lists/170929_t2_CAFOS/imagedb_cafos.log
+  lists/171011_t2_CAFOS/imagedb_cafos.log
+  lists/171015_t2_CAFOS/imagedb_cafos.log
+  lists/171016_t2_CAFOS/imagedb_cafos.log
+  lists/171108_t2_CAFOS/imagedb_cafos.log
+  lists/171116_t2_CAFOS/imagedb_cafos.log
+  lists/171120_t2_CAFOS/imagedb_cafos.log
+  lists/171218_t2_CAFOS/imagedb_cafos.log
+  lists/171219_t2_CAFOS/imagedb_cafos.log
 
 All the warnings raised in the classification of the CAFOS 2017 data can safely
 be ignored.
@@ -225,45 +241,49 @@ Select image type
 Although you can always try to open any of the files ``imagedb_cafos.json``
 directly (using a proper JSON editor), **filabres** provides an easier way to
 examine the image classification previously performed (using the argument
-``-lc <imagetype>``; list classified images). 
+``-lc/--list_classified <imagetype>``; list classified images). 
 For example, to list the different image types available:
 
 ::
 
-   (filabres) $ filabres -lc
-   Valid imagetypes:
-   - bias
-   - flat-imaging
-   - flat-spectroscopy
-   - arc
-   - science-imaging
-   - science-spectroscopy
-   - wrong-bias
-   - wrong-flat-imaging
-   - wrong-flat-spectroscopy
-   - wrong-arc
-   - wrong-science-imaging
-   - wrong-science-spectroscopy
-   - wrong-instrument
-   - ignored
-   - unclassified
+  $ filabres -lc
+  Valid imagetypes:
+  - bias
+  - flat-imaging
+  - flat-imaging-wollaston
+  - flat-spectroscopy
+  - arc
+  - science-imaging
+  - science-imaging-wollaston
+  - science-spectroscopy
+  - wrong-bias
+  - wrong-flat-imaging
+  - wrong-flat-imaging-wollaston
+  - wrong-flat-spectroscopy
+  - wrong-arc
+  - wrong-science-imaging
+  - wrong-science-imaging-wollaston
+  - wrong-science-spectroscopy
+  - wrong-instrument
+  - ignored
+  - unclassified
 
 You can repeat the same command by adding any of the above image types:
 
 ::
 
-   (filabres) $ filabres -lc bias
-                                                                                            file NAXIS1 NAXIS2
-   1    /Users/cardiel/CAFOS2017/170225_t2_CAFOS/caf-20170224-21:27:48-cal-krek.fits  1650   1650 
-   2    /Users/cardiel/CAFOS2017/170225_t2_CAFOS/caf-20170224-21:29:09-cal-krek.fits  1650   1650 
-   3    /Users/cardiel/CAFOS2017/170225_t2_CAFOS/caf-20170224-21:30:31-cal-krek.fits  1650   1650 
-   4    /Users/cardiel/CAFOS2017/170225_t2_CAFOS/caf-20170224-21:31:52-cal-krek.fits  1650   1650 
-   ...
-   ...
-   824  /Users/cardiel/CAFOS2017/171230_t2_CAFOS/caf-20171229-10:16:48-cal-lilj.fits  800    800  
-   825  /Users/cardiel/CAFOS2017/171230_t2_CAFOS/caf-20171229-10:17:24-cal-lilj.fits  800    800  
-   826  /Users/cardiel/CAFOS2017/171230_t2_CAFOS/caf-20171229-10:18:00-cal-lilj.fits  800    800  
-   Total: 826 files
+  $ filabres -lc bias
+                                                                                           file NAXIS1 NAXIS2
+  1    /Volumes/NicoPassport/CAHA/CAFOS2017/170225_t2_CAFOS/caf-20170224-21:27:48-cal-krek.fits  1650   1650 
+  2    /Volumes/NicoPassport/CAHA/CAFOS2017/170225_t2_CAFOS/caf-20170224-21:29:09-cal-krek.fits  1650   1650 
+  3    /Volumes/NicoPassport/CAHA/CAFOS2017/170225_t2_CAFOS/caf-20170224-21:30:31-cal-krek.fits  1650   1650 
+  4    /Volumes/NicoPassport/CAHA/CAFOS2017/170225_t2_CAFOS/caf-20170224-21:31:52-cal-krek.fits  1650   1650 
+  ...
+  ...
+  824  /Volumes/NicoPassport/CAHA/CAFOS2017/171230_t2_CAFOS/caf-20171229-10:16:48-cal-lilj.fits  800    800  
+  825  /Volumes/NicoPassport/CAHA/CAFOS2017/171230_t2_CAFOS/caf-20171229-10:17:24-cal-lilj.fits  800    800  
+  826  /Volumes/NicoPassport/CAHA/CAFOS2017/171230_t2_CAFOS/caf-20171229-10:18:00-cal-lilj.fits  800    800  
+  Total: 826 files
 
 By default the list displays the full path to the original files and their
 dimensiones (``NAXIS1`` and ``NAXIS2``).
@@ -277,17 +297,17 @@ here):
 
 ::
 
-   (filabres) $ filabres -lc bias -n 1702*
-                                                                                              file NAXIS1 NAXIS2
-   1   /Users/cardiel/CAFOS2017/170225_t2_CAFOS/caf-20170224-21:27:48-cal-krek.fits  1650   1650 
-   2   /Users/cardiel/CAFOS2017/170225_t2_CAFOS/caf-20170224-21:29:09-cal-krek.fits  1650   1650 
-   3   /Users/cardiel/CAFOS2017/170225_t2_CAFOS/caf-20170224-21:30:31-cal-krek.fits  1650   1650 
-   ...
-   ...
-   28  /Users/cardiel/CAFOS2017/170226_t2_CAFOS/caf-20170226-11:47:59-cal-bomd.fits  1000   2048 
-   29  /Users/cardiel/CAFOS2017/170226_t2_CAFOS/caf-20170226-11:49:11-cal-bomd.fits  1000   2048 
-   30  /Users/cardiel/CAFOS2017/170226_t2_CAFOS/caf-20170226-11:50:23-cal-bomd.fits  1000   2048 
-   Total: 30 files
+  $ filabres -lc bias -n 1702*
+                                                                                          file NAXIS1 NAXIS2
+  1   /Volumes/NicoPassport/CAHA/CAFOS2017/170225_t2_CAFOS/caf-20170224-21:27:48-cal-krek.fits  1650   1650 
+  2   /Volumes/NicoPassport/CAHA/CAFOS2017/170225_t2_CAFOS/caf-20170224-21:29:09-cal-krek.fits  1650   1650 
+  3   /Volumes/NicoPassport/CAHA/CAFOS2017/170225_t2_CAFOS/caf-20170224-21:30:31-cal-krek.fits  1650   1650 
+  ...
+  ...
+  28  /Volumes/NicoPassport/CAHA/CAFOS2017/170226_t2_CAFOS/caf-20170226-11:47:59-cal-bomd.fits  1000   2048 
+  29  /Volumes/NicoPassport/CAHA/CAFOS2017/170226_t2_CAFOS/caf-20170226-11:49:11-cal-bomd.fits  1000   2048 
+  30  /Volumes/NicoPassport/CAHA/CAFOS2017/170226_t2_CAFOS/caf-20170226-11:50:23-cal-bomd.fits  1000   2048 
+  Total: 30 files
 
 Select image type and relevant keywords
 ---------------------------------------
@@ -299,20 +319,20 @@ keywords:
 
 ::
 
-   (filabres) $ filabres -lc bias -k all
-   Valid keywords: ['NAXIS', 'NAXIS1', 'NAXIS2', 'OBJECT', 'RA', 'DEC',
-   'EQUINOX', 'DATE', 'MJD-OBS', 'AIRMASS', 'EXPTIME', 'INSTRUME', 'CCDNAME',
-   'ORIGSECX', 'ORIGSECY', 'CCDSEC', 'BIASSEC', 'DATASEC', 'CCDBINX',
-   'CCDBINY', 'IMAGETYP', 'INSTRMOD', 'INSAPID', 'INSTRSCL', 'INSTRPIX',
-   'INSTRPX0', 'INSTRPY0', 'INSFLID', 'INSFLNAM', 'INSGRID', 'INSGRNAM',
-   'INSGRROT', 'INSGRWL0', 'INSGRRES', 'INSPOFPI', 'INSPOROT', 'INSFPZ',
-   'INSFPWL', 'INSFPDWL', 'INSFPORD', 'INSCALST', 'INSCALID', 'INSCALNM',
-   'NPOINTS', 'FMINIMUM', 'QUANT025', 'QUANT159', 'QUANT250', 'QUANT500',
-   'QUANT750', 'QUANT841', 'QUANT975', 'FMAXIMUM', 'ROBUSTSTD']
+  $ filabres -lc bias -k all
+  Valid keywords: ['NAXIS', 'NAXIS1', 'NAXIS2', 'OBJECT', 'RA', 'DEC',
+  'EQUINOX', 'DATE', 'MJD-OBS', 'AIRMASS', 'EXPTIME', 'INSTRUME', 'CCDNAME',
+  'ORIGSECX', 'ORIGSECY', 'CCDSEC', 'BIASSEC', 'DATASEC', 'CCDBINX',
+  'CCDBINY', 'IMAGETYP', 'INSTRMOD', 'INSAPID', 'INSTRSCL', 'INSTRPIX',
+  'INSTRPX0', 'INSTRPY0', 'INSFLID', 'INSFLNAM', 'INSGRID', 'INSGRNAM',
+  'INSGRROT', 'INSGRWL0', 'INSGRRES', 'INSPOFPI', 'INSPOROT', 'INSFPZ',
+  'INSFPWL', 'INSFPDWL', 'INSFPORD', 'INSCALST', 'INSCALID', 'INSCALNM',
+  'NPOINTS', 'FMINIMUM', 'QUANT025', 'QUANT159', 'QUANT250', 'QUANT500',
+  'QUANT750', 'QUANT841', 'QUANT975', 'FMAXIMUM', 'ROBUSTSTD']
 
 .. note::
 
-   Note that apart from the keywords belonging to the ``masterkeywords`` list
+   Note that, apart from the keywords belonging to the ``masterkeywords`` list
    in the file ``configuration_cafos.yaml``, some additional *statistical*
    keywords are also available:
 
@@ -332,17 +352,17 @@ standard deviation of the image):
 
 ::
 
-   (filabres) $ filabres -lc bias -k quant500 -k quant975 -k robuststd
-                                                                                            file   QUANT500   QUANT975  ROBUSTSTD
-   1    /Users/cardiel/CAFOS2017/170225_t2_CAFOS/caf-20170224-21:27:48-cal-krek.fits  666.00000  686.00000  11.11950 
-   2    /Users/cardiel/CAFOS2017/170225_t2_CAFOS/caf-20170224-21:29:09-cal-krek.fits  666.00000  687.00000  10.37820 
-   3    /Users/cardiel/CAFOS2017/170225_t2_CAFOS/caf-20170224-21:30:31-cal-krek.fits  666.00000  683.00000  10.37820 
-   ...
-   ...
-   824  /Users/cardiel/CAFOS2017/171230_t2_CAFOS/caf-20171229-10:16:48-cal-lilj.fits  658.00000  680.00000  11.11950 
-   825  /Users/cardiel/CAFOS2017/171230_t2_CAFOS/caf-20171229-10:17:24-cal-lilj.fits  658.00000  680.00000  11.11950 
-   826  /Users/cardiel/CAFOS2017/171230_t2_CAFOS/caf-20171229-10:18:00-cal-lilj.fits  658.00000  680.00000  11.11950 
-   Total: 826 files
+  $ filabres -lc bias -k quant500 -k quant975 -k robuststd
+                                                                                           file   QUANT500   QUANT975  ROBUSTSTD
+  1    /Volumes/NicoPassport/CAHA/CAFOS2017/170225_t2_CAFOS/caf-20170224-21:27:48-cal-krek.fits  666.00000  686.00000  11.11950 
+  2    /Volumes/NicoPassport/CAHA/CAFOS2017/170225_t2_CAFOS/caf-20170224-21:29:09-cal-krek.fits  666.00000  687.00000  10.37820 
+  3    /Volumes/NicoPassport/CAHA/CAFOS2017/170225_t2_CAFOS/caf-20170224-21:30:31-cal-krek.fits  666.00000  683.00000  10.37820
+  ...
+  ...
+  824  /Volumes/NicoPassport/CAHA/CAFOS2017/171230_t2_CAFOS/caf-20171229-10:16:48-cal-lilj.fits  658.00000  680.00000  11.11950 
+  825  /Volumes/NicoPassport/CAHA/CAFOS2017/171230_t2_CAFOS/caf-20171229-10:17:24-cal-lilj.fits  658.00000  680.00000  11.11950 
+  826  /Volumes/NicoPassport/CAHA/CAFOS2017/171230_t2_CAFOS/caf-20171229-10:18:00-cal-lilj.fits  658.00000  680.00000  11.11950 
+  Total: 826 files
 
 Note that each keyword is preceded by ``-k`` (following the astropy convention
 for the ``fitsheader`` utility).
@@ -352,26 +372,28 @@ to the selected keywords (several keys can be used for a hierarchical sorting):
 
 ::
 
-   (filabres) $ filabres -lc bias -k quant500 -k quant975 -ks robuststd
-            file   QUANT500   QUANT975  ROBUSTSTD
-   456  /Users/cardiel/CAFOS2017/170929_t2_CAFOS/caf-20170929-13:52:35-cal-bias.fits  661.40002  666.70001  2.81693  
-   206  /Users/cardiel/CAFOS2017/170526_t2_CAFOS/caf-20170526-15:44:34-cal-boeh.fits  667.00000  683.00000  6.67170  
-   207  /Users/cardiel/CAFOS2017/170526_t2_CAFOS/caf-20170526-15:45:45-cal-boeh.fits  667.00000  683.00000  6.67170  
-   ...
-   ...
-   241  /Users/cardiel/CAFOS2017/170601_t2_CAFOS/caf-20170601-13:12:14-cal-bomd.fits  723.00000  776.00000  25.94550 
-   245  /Users/cardiel/CAFOS2017/170601_t2_CAFOS/caf-20170601-13:17:01-cal-bomd.fits  723.00000  776.00000  25.94550 
-   311  /Users/cardiel/CAFOS2017/170628_t2_CAFOS/caf-20170628-17:29:10-cal-pelm.fits  693.00000  729.00000  25.94550 
-   Total: 826 files
+  $ filabres -lc bias -k quant500 -k quant975 -ks robuststd
+                                                                                           file   QUANT500   QUANT975  ROBUSTSTD
+  456  /Volumes/NicoPassport/CAHA/CAFOS2017/170929_t2_CAFOS/caf-20170929-13:52:35-cal-bias.fits  661.40002  666.70001  2.81693  
+  206  /Volumes/NicoPassport/CAHA/CAFOS2017/170526_t2_CAFOS/caf-20170526-15:44:34-cal-boeh.fits  667.00000  683.00000  6.67170  
+  207  /Volumes/NicoPassport/CAHA/CAFOS2017/170526_t2_CAFOS/caf-20170526-15:45:45-cal-boeh.fits  667.00000  683.00000  6.67170  
+  ...
+  ...
+  241  /Volumes/NicoPassport/CAHA/CAFOS2017/170601_t2_CAFOS/caf-20170601-13:12:14-cal-bomd.fits  723.00000  776.00000  25.94550 
+  245  /Volumes/NicoPassport/CAHA/CAFOS2017/170601_t2_CAFOS/caf-20170601-13:17:01-cal-bomd.fits  723.00000  776.00000  25.94550 
+  311  /Volumes/NicoPassport/CAHA/CAFOS2017/170628_t2_CAFOS/caf-20170628-17:29:10-cal-pelm.fits  693.00000  729.00000  25.94550 
 
-Note that now the values in the column ``ROBUSTSTD`` apear sorted.
+Now the values in the column ``ROBUSTSTD`` have appeared sorted. 
+
+Note that the sorted keys are always the last columns in the table,
+independently of their location in the command line.
 
 Is is also possible to generate plots with the selected keywords. For that
 purpose, employ the ``-pxy`` argument:
 
 ::
 
-   (filabres) $ filabres -lc bias -k mjd-obs -k quant500 -k quant975 -ks robuststd -pxy
+  $ filabres -lc bias -k mjd-obs -k quant500 -k quant975 -ks robuststd -pxy
 
 .. image:: images/pxy_classified_bias.png
    :width: 100%
@@ -393,20 +415,19 @@ For example, we can filter imposing fixed image dimensions:
 
 ::
 
-   (filabres) $ filabres -lc bias --filter 'k[naxis1]==1650 and k[naxis2]==1650'
-                                                                                           file NAXIS1 NAXIS2
-   1   /Users/cardiel/CAFOS2017/170225_t2_CAFOS/caf-20170224-21:27:48-cal-krek.fits  1650   1650 
-   2   /Users/cardiel/CAFOS2017/170225_t2_CAFOS/caf-20170224-21:29:09-cal-krek.fits  1650   1650 
-   3   /Users/cardiel/CAFOS2017/170225_t2_CAFOS/caf-20170224-21:30:31-cal-krek.fits  1650   1650 
-   4   /Users/cardiel/CAFOS2017/170225_t2_CAFOS/caf-20170224-21:31:52-cal-krek.fits  1650   1650 
-   5   /Users/cardiel/CAFOS2017/170225_t2_CAFOS/caf-20170224-21:33:14-cal-krek.fits  1650   1650 
-   6   /Users/cardiel/CAFOS2017/170225_t2_CAFOS/caf-20170224-21:34:36-cal-krek.fits  1650   1650 
-   7   /Users/cardiel/CAFOS2017/170225_t2_CAFOS/caf-20170224-21:35:57-cal-krek.fits  1650   1650 
-   8   /Users/cardiel/CAFOS2017/170225_t2_CAFOS/caf-20170224-21:37:19-cal-krek.fits  1650   1650 
-   9   /Users/cardiel/CAFOS2017/170225_t2_CAFOS/caf-20170224-21:38:41-cal-krek.fits  1650   1650 
-   10  /Users/cardiel/CAFOS2017/170225_t2_CAFOS/caf-20170224-21:40:03-cal-krek.fits  1650   1650 
-   Total: 10 files
-   * program STOP
+  $ filabres -lc bias --filter 'k[naxis1]==1650 and k[naxis2]==1650'
+                                                                                          file NAXIS1 NAXIS2
+  1   /Volumes/NicoPassport/CAHA/CAFOS2017/170225_t2_CAFOS/caf-20170224-21:27:48-cal-krek.fits  1650   1650 
+  2   /Volumes/NicoPassport/CAHA/CAFOS2017/170225_t2_CAFOS/caf-20170224-21:29:09-cal-krek.fits  1650   1650 
+  3   /Volumes/NicoPassport/CAHA/CAFOS2017/170225_t2_CAFOS/caf-20170224-21:30:31-cal-krek.fits  1650   1650 
+  4   /Volumes/NicoPassport/CAHA/CAFOS2017/170225_t2_CAFOS/caf-20170224-21:31:52-cal-krek.fits  1650   1650 
+  5   /Volumes/NicoPassport/CAHA/CAFOS2017/170225_t2_CAFOS/caf-20170224-21:33:14-cal-krek.fits  1650   1650 
+  6   /Volumes/NicoPassport/CAHA/CAFOS2017/170225_t2_CAFOS/caf-20170224-21:34:36-cal-krek.fits  1650   1650 
+  7   /Volumes/NicoPassport/CAHA/CAFOS2017/170225_t2_CAFOS/caf-20170224-21:35:57-cal-krek.fits  1650   1650 
+  8   /Volumes/NicoPassport/CAHA/CAFOS2017/170225_t2_CAFOS/caf-20170224-21:37:19-cal-krek.fits  1650   1650 
+  9   /Volumes/NicoPassport/CAHA/CAFOS2017/170225_t2_CAFOS/caf-20170224-21:38:41-cal-krek.fits  1650   1650 
+  10  /Volumes/NicoPassport/CAHA/CAFOS2017/170225_t2_CAFOS/caf-20170224-21:40:03-cal-krek.fits  1650   1650 
+  Total: 10 files
 
 
 Is there something wrong with the image classification?
@@ -430,7 +451,7 @@ There should be no images classified as ``wrong-instrument``:
 
 ::
 
-   (filabres) $ filabres -lc wrong-instrument
+   $ filabres -lc wrong-instrument
    Total: 0 files
 
 
@@ -442,7 +463,7 @@ defined in ``configuration_cafos.yaml``:
 
 ::
 
-   (filabres) $ filabres -lc unclassified -k object
+   $ filabres -lc unclassified -k object
                                                                            file              OBJECT
    1  /Users/cardiel/CAFOS2017/170225_t2_CAFOS/caf-20170225-18:44:14-tst-test.fits  [focus] Telescope 
    2  /Users/cardiel/CAFOS2017/170505_t2_CAFOS/caf-20170506-02:53:44-tst-test.fits  [focus] Telescope 
@@ -462,7 +483,7 @@ the argument ``-pi`` (plot image):
 
 ::
 
-   (filabres) $ filabres -lc unclassified -k object -pi
+   $ filabres -lc unclassified -k object -pi
    ...
    ...
 
@@ -506,7 +527,7 @@ These are the bias images that passed the ``requirements`` set in
 
 ::
 
-   (filabres) $ filabres -lc wrong-bias
+   $ filabres -lc wrong-bias
    Total: 0 files
 
 None.
@@ -520,7 +541,7 @@ These are the flat-imaging images that passed the ``requirements`` set in
 
 ::
 
-   (filabres) $ filabres -lc wrong-flat-imaging
+   $ filabres -lc wrong-flat-imaging
                                                                                  file NAXIS1 NAXIS2
    1  /Users/cardiel/CAFOS2017/170225_t2_CAFOS/caf-20170226-06:11:17-cal-krek.fits  1650   1650 
    2  /Users/cardiel/CAFOS2017/170225_t2_CAFOS/caf-20170226-06:22:28-cal-krek.fits  1650   1650 
@@ -536,7 +557,7 @@ the classification of these images, let's display the value of the 0.500
 
 ::
 
-   (filabres) $ filabres -lc wrong-flat-imaging -k quant500 -k quant975
+   $ filabres -lc wrong-flat-imaging -k quant500 -k quant975
                                                                               file  QUANT500  QUANT975
    1  /Users/cardiel/CAFOS2017/170225_t2_CAFOS/caf-20170226-06:11:17-cal-krek.fits  51930.0   60050.0 
    2  /Users/cardiel/CAFOS2017/170225_t2_CAFOS/caf-20170226-06:22:28-cal-krek.fits  57062.0   64891.0 
@@ -549,7 +570,7 @@ These images are saturated. You can display them using ``-pi``:
 
 ::
 
-   (filabres) $ filabres -lc wrong-flat-imaging -k quant500 -k quant975 -pi
+   $ filabres -lc wrong-flat-imaging -k quant500 -k quant975 -pi
    ...
    ...
 
@@ -572,7 +593,7 @@ These are the science-imaging images that passed the ``requirements`` set in
 
 ::
 
-   (filabres) $ filabres -lc wrong-science-imaging
+   $ filabres -lc wrong-science-imaging
                                                                                file NAXIS1 NAXIS2
    1   /Users/cardiel/CAFOS2017/170502_t2_CAFOS/caf-20170503-00:58:59-sci-alex.fits  512    850  
    2   /Users/cardiel/CAFOS2017/170526_t2_CAFOS/caf-20170527-03:57:08-sci-boeh.fits  1024   1024 
@@ -589,7 +610,7 @@ display additional keywords:
 
 ::
 
-   (filabres) $ filabres -lc wrong-science-imaging -k object -k imagetyp -k exptime -k quant500 -k quant975
+   $ filabres -lc wrong-science-imaging -k object -k imagetyp -k exptime -k quant500 -k quant975
                                                                                file              OBJECT IMAGETYP  EXPTIME  QUANT500  QUANT975
    1   /Users/cardiel/CAFOS2017/170502_t2_CAFOS/caf-20170503-00:58:59-sci-alex.fits  HAT-P-12b B         science  0.0      698.0     727.0   
    2   /Users/cardiel/CAFOS2017/170526_t2_CAFOS/caf-20170527-03:57:08-sci-boeh.fits  [IMG]RXCJ1913+7403  science  120.0    65531.0   65531.0 
@@ -683,7 +704,7 @@ the full classification of all the images within only these three nights:
 
 ::
 
-   (filabres) $ filabres -rs initialize -n 17052[678]* --force
+   $ filabres -rs initialize -n 17052[678]* --force
    * Number of nights found: 3
    * Working with night 170526_t2_CAFOS (1/3) ---> 52 FITS files
    ...
@@ -701,7 +722,7 @@ of the new 30 images, this number is 856:
 
 ::
 
-   (filabres) $ filabres -lc bias
+   $ filabres -lc bias
                                                                                             file NAXIS1 NAXIS2
    1    /Users/cardiel/CAFOS2017/170225_t2_CAFOS/caf-20170224-21:27:48-cal-krek.fits  1650   1650 
    2    /Users/cardiel/CAFOS2017/170225_t2_CAFOS/caf-20170224-21:29:09-cal-krek.fits  1650   1650 
@@ -723,7 +744,7 @@ argument to display the images on the screen):
 
 ::
 
-   (filabres) $ filabres -lc wrong-science-imaging -k object -k imagetyp -k exptime -k quant500 -k quant975 -pi
+   $ filabres -lc wrong-science-imaging -k object -k imagetyp -k exptime -k quant500 -k quant975 -pi
                                                                            file              OBJECT IMAGETYP  EXPTIME  QUANT500  QUANT975
    1  /Users/cardiel/CAFOS2017/170502_t2_CAFOS/caf-20170503-00:58:59-sci-alex.fits  HAT-P-12b B         science  0.0      698.0     727.0   
    2  /Users/cardiel/CAFOS2017/170526_t2_CAFOS/caf-20170527-03:57:08-sci-boeh.fits  [IMG]RXCJ1913+7403  science  120.0    65531.0   65531.0 

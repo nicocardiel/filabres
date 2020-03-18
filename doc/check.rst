@@ -10,51 +10,49 @@ This can be easily checked using:
 
 ::
 
-   (filabres) $ filabres --check
-   Night 170225_t2_CAFOS -> number of files:   140 --> TOTAL:   140
-   Night 170226_t2_CAFOS -> number of files:    55 --> TOTAL:   195
-   Night 170319_t2_CAFOS -> number of files:   149 --> TOTAL:   344
-   Night 170331_t2_CAFOS -> number of files:   119 --> TOTAL:   463
-   Night 170403_t2_CAFOS -> number of files:   336 --> TOTAL:   799
-   Night 170408_t2_CAFOS -> number of files:   153 --> TOTAL:   952
-   ...
-   ...
-   Night 171221_t2_CAFOS -> number of files:   185 --> TOTAL:  8839
-   Night 171223_t2_CAFOS -> number of files:    74 --> TOTAL:  8913
-   Night 171225_t2_CAFOS -> number of files:    86 --> TOTAL:  8999
-   Night 171228_t2_CAFOS -> number of files:    50 --> TOTAL:  9049
-   Night 171230_t2_CAFOS -> number of files:   383 --> TOTAL:  9432
-   WARNING: There are repeated files!
-   Press <ENTER> to display duplicate files...
+  $ filabres --check
+  Night 170225_t2_CAFOS -> number of files:   140, ignored:     0 --> TOTAL:   140
+  Night 170226_t2_CAFOS -> number of files:    55, ignored:     0 --> TOTAL:   195
+  Night 170319_t2_CAFOS -> number of files:   149, ignored:     0 --> TOTAL:   344
+  Night 170331_t2_CAFOS -> number of files:   119, ignored:     0 --> TOTAL:   463
+  Night 170403_t2_CAFOS -> number of files:   336, ignored:     0 --> TOTAL:   799
+  Night 170408_t2_CAFOS -> number of files:   153, ignored:     0 --> TOTAL:   952
+  ...
+  ...
+  Night 171221_t2_CAFOS -> number of files:   185, ignored:     0 --> TOTAL:  8839
+  Night 171223_t2_CAFOS -> number of files:    74, ignored:     0 --> TOTAL:  8913
+  Night 171225_t2_CAFOS -> number of files:    86, ignored:     0 --> TOTAL:  8999
+  Night 171228_t2_CAFOS -> number of files:    50, ignored:     0 --> TOTAL:  9049
+  Night 171230_t2_CAFOS -> number of files:   383, ignored:     0 --> TOTAL:  9432
+  WARNING: There are repeated files!
+  Press <ENTER> to display duplicate files...
 
 At this point the program has revealed that there are repeated files. The
 duplicate cases are displayed after pressing ``<ENTER>``
 
 ::
 
-   * File caf-20170505-13:42:00-cal-reba.fits appears in:
-   /Users/cardiel/CAFOS2017/170505_t2_CAFOS/caf-20170505-13:42:00-cal-reba.fits
-   /Users/cardiel/CAFOS2017/170506_t2_CAFOS/caf-20170505-13:42:00-cal-reba.fits
-   /Users/cardiel/CAFOS2017/170507_t2_CAFOS/caf-20170505-13:42:00-cal-reba.fits
+  * File caf-20170505-09:57:54-cal-agui.fits appears in:
+  /Volumes/NicoPassport/CAHA/CAFOS2017/170505_t2_CAFOS/caf-20170505-09:57:54-cal-agui.fits
+  /Volumes/NicoPassport/CAHA/CAFOS2017/170506_t2_CAFOS/caf-20170505-09:57:54-cal-agui.fits
+  /Volumes/NicoPassport/CAHA/CAFOS2017/170507_t2_CAFOS/caf-20170505-09:57:54-cal-agui.fits
+  
+  * File caf-20170505-09:58:58-cal-agui.fits appears in:
+  /Volumes/NicoPassport/CAHA/CAFOS2017/170505_t2_CAFOS/caf-20170505-09:58:58-cal-agui.fits
+  /Volumes/NicoPassport/CAHA/CAFOS2017/170506_t2_CAFOS/caf-20170505-09:58:58-cal-agui.fits
+  /Volumes/NicoPassport/CAHA/CAFOS2017/170507_t2_CAFOS/caf-20170505-09:58:58-cal-agui.fits
 
-   * File caf-20170505-21:30:03-sci-agui.fits appears in:
-   /Users/cardiel/CAFOS2017/170505_t2_CAFOS/caf-20170505-21:30:03-sci-agui.fits
-   /Users/cardiel/CAFOS2017/170506_t2_CAFOS/caf-20170505-21:30:03-sci-agui.fits
+  ...
+  ...
 
-   * File caf-20170505-10:08:36-cal-agui.fits appears in:
-   /Users/cardiel/CAFOS2017/170505_t2_CAFOS/caf-20170505-10:08:36-cal-agui.fits
-   /Users/cardiel/CAFOS2017/170506_t2_CAFOS/caf-20170505-10:08:36-cal-agui.fits
-   /Users/cardiel/CAFOS2017/170507_t2_CAFOS/caf-20170505-10:08:36-cal-agui.fits
-   ...
-   ...
-   * File caf-20171225-19:28:31-cal-bard.fits appears in:
-   /Users/cardiel/CAFOS2017/171217_t2_CAFOS/caf-20171225-19:28:31-cal-bard.fits
-   /Users/cardiel/CAFOS2017/171225_t2_CAFOS/caf-20171225-19:28:31-cal-bard.fits
-
-   * File caf-20171225-19:42:55-cal-bard.fits appears in:
-   /Users/cardiel/CAFOS2017/171217_t2_CAFOS/caf-20171225-19:42:55-cal-bard.fits
-   /Users/cardiel/CAFOS2017/171225_t2_CAFOS/caf-20171225-19:42:55-cal-bard.fits
-   * program STOP
+  * File caf-20171225-20:00:06-cal-bard.fits appears in:
+  /Volumes/NicoPassport/CAHA/CAFOS2017/171217_t2_CAFOS/caf-20171225-20:00:06-cal-bard.fits
+  /Volumes/NicoPassport/CAHA/CAFOS2017/171225_t2_CAFOS/caf-20171225-20:00:06-cal-bard.fits
+  
+  * File caf-20171225-20:01:34-cal-bard.fits appears in:
+  /Volumes/NicoPassport/CAHA/CAFOS2017/171217_t2_CAFOS/caf-20171225-20:01:34-cal-bard.fits
+  /Volumes/NicoPassport/CAHA/CAFOS2017/171225_t2_CAFOS/caf-20171225-20:01:34-cal-bard.fits
+  * program STOP
 
 The detailed examination of the above output reveals that:
 
@@ -106,20 +104,22 @@ initial check must indicate that there are no repeated files:
 
 ::
 
-   (filabres) $ filabres --check
-   Night 170225_t2_CAFOS -> number of files:   140 --> TOTAL:   140
-   Night 170226_t2_CAFOS -> number of files:    55 --> TOTAL:   195
-   Night 170319_t2_CAFOS -> number of files:   149 --> TOTAL:   344
-   Night 170331_t2_CAFOS -> number of files:   119 --> TOTAL:   463
-   Night 170403_t2_CAFOS -> number of files:   336 --> TOTAL:   799
-   Night 170408_t2_CAFOS -> number of files:   153 --> TOTAL:   952
-   ...
-   ...
-   Night 171221_t2_CAFOS -> number of files:   185 --> TOTAL:  8839
-   Night 171223_t2_CAFOS -> number of files:    74 --> TOTAL:  8913
-   Night 171225_t2_CAFOS -> number of files:    86 --> TOTAL:  8999
-   Night 171228_t2_CAFOS -> number of files:    50 --> TOTAL:  9049
-   Night 171230_t2_CAFOS -> number of files:   383 --> TOTAL:  9432
-   There are not repeated files
-   * program STOP
+  $ filabres --check
+  Night 170225_t2_CAFOS -> number of files:   140, ignored:     0 --> TOTAL:   140
+  Night 170226_t2_CAFOS -> number of files:    55, ignored:     0 --> TOTAL:   195
+  Night 170319_t2_CAFOS -> number of files:   149, ignored:     0 --> TOTAL:   344
+  Night 170331_t2_CAFOS -> number of files:   119, ignored:     0 --> TOTAL:   463
+  Night 170403_t2_CAFOS -> number of files:   336, ignored:     0 --> TOTAL:   799
+  Night 170408_t2_CAFOS -> number of files:   153, ignored:     0 --> TOTAL:   952
+  ...
+  ...
+  Night 171221_t2_CAFOS -> number of files:   185, ignored:     0 --> TOTAL:  8584
+  Night 171223_t2_CAFOS -> number of files:    74, ignored:     0 --> TOTAL:  8658
+  Night 171225_t2_CAFOS -> number of files:    86, ignored:     0 --> TOTAL:  8744
+  Night 171228_t2_CAFOS -> number of files:    50, ignored:     0 --> TOTAL:  8794
+  Night 171230_t2_CAFOS -> number of files:   383, ignored:     0 --> TOTAL:  9177
+  There are not repeated files
+  * program STOP
 
+Note that now the total number of files has decreased from 9432 (the initial
+value with repeated files) to 9177.

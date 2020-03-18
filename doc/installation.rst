@@ -41,7 +41,7 @@ installation, you can call conda commands directly in the shell, like this:
 
 ::
 
-   $ conda info
+  $ conda info
 
 If not, you will need the add the path to the command, like:
 
@@ -61,16 +61,16 @@ together with some additional packages:
 
 ::
 
-   $ conda create --name filabres python=3 \
-   astropy \
-   ipython \
-   matplotlib \
-   numpy \
-   pandas \
-   python-dateutil \
-   PyYaml \
-   scipy \
-   setuptools
+  $ conda create --name filabres python=3 \
+  astropy \
+  ipython \
+  matplotlib \
+  numpy \
+  pandas \
+  python-dateutil \
+  PyYaml \
+  scipy \
+  setuptools
 
 and answer ``y`` to the question ``Proceed ([y]/n)?``
 
@@ -78,13 +78,13 @@ and answer ``y`` to the question ``Proceed ([y]/n)?``
 
 ::
 
-   $ conda activate filabres
+  $ conda activate filabres
 
 which yields a different system prompt to the user:
 
 ::
 
-   (filabres) $ 
+  (filabres) $ 
 
 
 **Deactivate the environment**
@@ -94,8 +94,8 @@ command:
 
 ::
   
-   (filabres) $ conda deactivate
-   $
+  (filabres) $ conda deactivate
+  $
 
 **Removing the environment**
 
@@ -104,14 +104,14 @@ environment and remove it through conda:
 
 ::
 
-   (filabres) $ conda deactivate
-   $ conda remove --name filabres --all
+  (filabres) $ conda deactivate
+  $ conda remove --name filabres --all
 
 To verify that the environment was removed, execute:
 
 ::
 
-   $ conda info --envs
+  $ conda info --envs
 
 If you want to know more about **conda**, have a look to the `on-line
 documentation <https://docs.conda.io/projects/conda/en/latest/index.html>`_.
@@ -127,23 +127,23 @@ can be easily installed in your system by executing the following steps:
 
   ::
 
-     $ conda activate filabres
-     (filabres) $
+    $ conda activate filabres
+    (filabres) $
 
 
 2. Download the development version using git:
 
   ::
 
-     (filabres) $ git clone https://github.com/nicocardiel/filabres.git
-     (filabres) $ cd filabres
+    (filabres) $ git clone https://github.com/nicocardiel/filabres.git
+    (filabres) $ cd filabres
 
 3. Build and install the code:
 
   ::
 
-     (filabres) $ python setup.py build
-     (filabres) $ python setup.py install
+    (filabres) $ python setup.py build
+    (filabres) $ python setup.py install
 
 
   If you have **filabres** already installed in your system, but want to update
@@ -153,23 +153,23 @@ can be easily installed in your system by executing the following steps:
 
   ::
 
-     (filabres) $ cd filabres
-     (filabres) $ git pull
-     (filabres) $ python setup.py build
-     (filabres) $ python setup.py install
+    (filabres) $ cd filabres
+    (filabres) $ git pull
+    (filabres) $ python setup.py build
+    (filabres) $ python setup.py install
 
 4. Install some additional Python packages:
 
   ::
 
-     (filabres) $ conda install -c conda-forge pyvo
+    (filabres) $ conda install -c conda-forge pyvo
 
 5. Check that **filabres** works:
 
   ::
 
-     (filabres) $ filabres-version
-     Version: 0.9.0
+    (filabres) $ filabres-version
+    Version: 0.9.0
 
   Note that your version can be different to the one shown above.
 
@@ -177,7 +177,7 @@ can be easily installed in your system by executing the following steps:
 
   ::
 
-     (filabres) $ filabres -h
+    (filabres) $ filabres -h
 
 Required additional software packages
 -------------------------------------
@@ -237,8 +237,8 @@ it within the ``filabres`` environment:
 
 ::
 
-   $ conda activate filabres
-   (filabres) $ conda install -c conda-forge astrometry
+  $ conda activate filabres
+  (filabres) $ conda install -c conda-forge astrometry
 
 Installing AstrOmatic.net
 .........................
@@ -250,7 +250,7 @@ to install both programs within the ``filabres`` environment:
 
 ::
 
-   $ conda activate filabres
-   (filabres) $ conda install -c conda-forge astromatic-source-extractor
-   (filabres) $ conda install -c conda-forge astromatic-scamp
+  $ conda activate filabres
+  (filabres) $ conda install -c conda-forge astromatic-source-extractor
+  (filabres) $ conda install -c conda-forge astromatic-scamp
 

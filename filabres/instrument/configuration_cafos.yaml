@@ -10,7 +10,7 @@
 
 # instrument definitions for filabres
 instname: cafos
-version: 2.4
+version: 2.6
 requirements:
   INSTRUME: 'CAFOS 2.2'
 masterkeywords:
@@ -80,11 +80,11 @@ imagetypes:
     requirements:
       IMAGETYP: 'flat'
       INSGRID: 'GRISM-11'
+      INSPOFPI.NE.: 'Wollaston'
     requirementx:
       EXPTIME.GT.: 0
       QUANT975.GT.: 5000
       QUANT975.LT.: 60000
-      INSPOFPI.NE.: 'Wollaston'
     signature:
       - CCDNAME
       - NAXIS1
@@ -94,6 +94,8 @@ imagetypes:
       - CCDBINY
       - INSGRID
       - INSFLID
+      - INSPOFPI
+      - INSPOROT
     maxtimespan_hours: 1
   flat-imaging-wollaston:
     executable: False
@@ -101,11 +103,11 @@ imagetypes:
     requirements:
       IMAGETYP: 'flat'
       INSGRID: 'GRISM-11'
+      INSPOFPI: 'Wollaston'
     requirementx:
       EXPTIME.GT.: 0
       QUANT975.GT.: 5000
       QUANT975.LT.: 60000
-      INSPOFPI: 'Wollaston'
     signature:
       - CCDNAME
       - NAXIS1
@@ -115,6 +117,8 @@ imagetypes:
       - CCDBINY
       - INSGRID
       - INSFLID
+      - INSPOFPI
+      - INSPOROT
     maxtimespan_hours: 1
   flat-spectroscopy:
     executable: False
@@ -134,6 +138,8 @@ imagetypes:
       - CCDBINY
       - INSGRID
       - INSFLID
+      - INSPOFPI
+      - INSPOROT
     maxtimespan_hours: 1
   arc:
     executable: False
@@ -153,6 +159,8 @@ imagetypes:
       - CCDBINY
       - INSGRID
       - INSFLID
+      - INSPOFPI
+      - INSPOROT
       - RA
       - DEC
     maxtimespan_hours: 0
@@ -176,6 +184,8 @@ imagetypes:
       - CCDBINY
       - INSGRID
       - INSFLID
+      - INSPOFPI
+      - INSPOROT
       - RA
       - DEC
     maxtimespan_hours: 0
@@ -199,6 +209,8 @@ imagetypes:
       - CCDBINY
       - INSGRID
       - INSFLID
+      - INSPOFPI
+      - INSPOROT
       - RA
       - DEC
     maxtimespan_hours: 0
@@ -208,7 +220,6 @@ imagetypes:
     requirements:
       IMAGETYP: 'science'
       INSGRID.NE.: 'GRISM-11'
-      INSPOFPI.NE.: 'Wollaston'
     requirementx:
       EXPTIME.GT.: 0
       QUANT975.LT.: 60000
@@ -221,28 +232,8 @@ imagetypes:
       - CCDBINY
       - INSGRID
       - INSFLID
-      - RA
-      - DEC
-    maxtimespan_hours: 0
-  science-spectroscopy-wollaston:
-    classification: science
-    executable: False
-    requirements:
-      IMAGETYP: 'science'
-      INSGRID.NE.: 'GRISM-11'
-      INSPOFPI: 'Wollaston'
-    requirementx:
-      EXPTIME.GT.: 0
-      QUANT975.LT.: 60000
-    signature:
-      - CCDNAME
-      - NAXIS1
-      - NAXIS2
-      - DATASEC
-      - CCDBINX
-      - CCDBINY
-      - INSGRID
-      - INSFLID
+      - INSPOFPI
+      - INSPOROT
       - RA
       - DEC
     maxtimespan_hours: 0

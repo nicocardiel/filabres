@@ -19,7 +19,7 @@ from .load_instrument_configuration import load_instrument_configuration
 from .show_df import show_df
 
 
-def list_reduced(instrument, img, listmode, args_night, args_keyword,
+def list_reduced(instrument, img, list_mode, args_night, args_keyword,
                  args_keyword_sort, args_filter, args_plotxy, args_plotimage,
                  args_ndecimal=5):
     """
@@ -32,7 +32,7 @@ def list_reduced(instrument, img, listmode, args_night, args_keyword,
     img : str or None
         Image type. It should coincide with any of the available
         image types declared in the instrument configuration file.
-    listmode : str
+    list_mode : str
         List mode:
         - long: each file in a single line with additional keywords
         - basic: each file in a single line without the file path and
@@ -61,14 +61,14 @@ def list_reduced(instrument, img, listmode, args_night, args_keyword,
     """
 
     # protections
-    if listmode in ["basic", "singleline"]:
+    if list_mode in ["basic", "singleline"]:
         msg = None
         if args_keyword is not None:
-            msg = 'ERROR: -k KEYWORD is invalid with --listmode {}'.format(listmode)
+            msg = 'ERROR: -k KEYWORD is invalid with --list_mode {}'.format(list_mode)
         if args_keyword_sort is not None:
-            msg = 'ERROR: -ks KEYWORD is invalid with --listmode {}'.format(listmode)
+            msg = 'ERROR: -ks KEYWORD is invalid with --list_mode {}'.format(list_mode)
         if args_plotxy:
-            msg = 'ERROR: -pxy KEYWORD is invalid with --listmode {}'.format(listmode)
+            msg = 'ERROR: -pxy KEYWORD is invalid with --list_mode {}'.format(list_mode)
         if msg is not None:
             raise SystemError(msg)
 
@@ -84,7 +84,7 @@ def list_reduced(instrument, img, listmode, args_night, args_keyword,
                 lkeyword.append(kwd)
 
     if len(lkeyword) == 0:
-        if listmode == "long":
+        if list_mode == "long":
             # display at least NAXIS1 and NAXIS2
             for kwd in ['NAXIS2', 'NAXIS1']:
                 if kwd not in lkeyword:
@@ -184,11 +184,11 @@ def list_reduced(instrument, img, listmode, args_night, args_keyword,
                         nightok = fnmatch.fnmatch(minidict[mjdobs]['night'], night)
                         if nightok:
                             n += 1
-                            if listmode == "singleline":
+                            if list_mode == "singleline":
                                 print(outfile, end=' ')
-                            elif listmode == "basic":
+                            elif list_mode == "basic":
                                 print(' - {}'.format(os.path.basename(outfile)))
-                            elif listmode == "long":
+                            elif list_mode == "long":
                                 # show all valid keywords and exit
                                 if 'ALL' in lkeyword:
                                     valid_keywords = instconf['masterkeywords']
@@ -224,7 +224,7 @@ def list_reduced(instrument, img, listmode, args_night, args_keyword,
                                         new_df_row += [storedkeywords[keyword]]
                                 df.loc[n-1] = new_df_row
                             else:
-                                msg = 'Unexpected listmode {}'.format(listmode)
+                                msg = 'Unexpected list_mode {}'.format(list_mode)
                                 raise SystemError(msg)
         elif classification == 'science':
             for fname in database[imagetype]:
@@ -233,11 +233,11 @@ def list_reduced(instrument, img, listmode, args_night, args_keyword,
                 nightok = fnmatch.fnmatch(minidict['night'], night)
                 if nightok:
                     n += 1
-                    if listmode == "singleline":
+                    if list_mode == "singleline":
                         print(outfile, end=' ')
-                    elif listmode == "basic":
+                    elif list_mode == "basic":
                         print(' - {}'.format(os.path.basename(outfile)))
-                    elif listmode == "long":
+                    elif list_mode == "long":
                         # show all valid keywords and exit
                         if 'ALL' in lkeyword:
                             valid_keywords = instconf['masterkeywords']
@@ -276,7 +276,7 @@ def list_reduced(instrument, img, listmode, args_night, args_keyword,
                                 new_df_row += [storedkeywords[keyword]]
                         df.loc[n - 1] = new_df_row
                     else:
-                        msg = 'Unexpected listmode {}'.format(listmode)
+                        msg = 'Unexpected list_mode {}'.format(list_mode)
                         raise SystemError(msg)
         else:
             msg = 'Unexpected classification {}'.format(classification)
@@ -284,7 +284,7 @@ def list_reduced(instrument, img, listmode, args_night, args_keyword,
 
     show_df(df=df,
             n=n,
-            listmode=listmode,
+            list_mode=list_mode,
             imagetype=imagetype,
             args_keyword_sort=args_keyword_sort,
             args_ndecimal=args_ndecimal,

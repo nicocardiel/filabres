@@ -23,7 +23,7 @@ employed during the observation:
 
 ::
 
-   (filabres) $ $ filabres -rs flat-imaging
+   $ filabres -rs flat-imaging
    * Number of nights found: 58
 
    * Working with night 170225_t2_CAFOS (1/58)
@@ -66,7 +66,7 @@ under the current directory:
 
 ::
 
-   (filabres) $ tree flat-imaging
+   $ tree flat-imaging
    flat-imaging/
    ├── 170225_t2_CAFOS
    │   ├── flat-imaging_caf-20170224-20:20:04-cal-krek_mask.fits
@@ -106,7 +106,7 @@ repeat the reduction of the night ``170319_t2_CAFOS``:
 
 ::
 
-   (filabres) $ filabres -rs flat-imaging -n 170319* -v
+   $ filabres -rs flat-imaging -n 170319* -v
    * instrument............: cafos
    * datadir...............: /Users/cardiel/CAFOS2017
    * ignored_images_file...: ignored_images.yaml
@@ -170,7 +170,7 @@ additional argument --force in the command line:
 
 ::
 
-   (filabres) $ filabres -rs flat-imaging -n 170319* -v --force
+   $ filabres -rs flat-imaging -n 170319* -v --force
    ...
    ...
    -> Number of images with expected signature and within time span: 20
@@ -249,7 +249,7 @@ In order to obtain a list with al the reduced flat-imaging frames just execute:
 
 ::
 
-   (filabres) $ filabres -lr flat-imaging
+   $ filabres -lr flat-imaging
                                                                                      file NAXIS1 NAXIS2
    1    flat-imaging/170225_t2_CAFOS/flat-imaging_caf-20170224-20:20:04-cal-krek_red.fits  1650   1650 
    2    flat-imaging/170225_t2_CAFOS/flat-imaging_caf-20170226-06:24:27-cal-krek_red.fits  1650   1650 
@@ -299,12 +299,12 @@ from zero in any of the reduced flat-imaging frames:
 
 ::
 
-   (filabres) $ filabres -lr flat-imaging --filter 'k[ierr_bias] != 0'
+   $ filabres -lr flat-imaging --filter 'k[ierr_bias] != 0'
    Total: 0 files
 
 ::
 
-   (filabres) $ filabres -lr flat-imaging  --filter 'k[ierr_flat] != 0'
+   $ filabres -lr flat-imaging  --filter 'k[ierr_flat] != 0'
                                                                                       file NAXIS1 NAXIS2
    1  flat-imaging/170621_t2_CAFOS/flat-imaging_caf-20170621-21:31:58-cal-agui_red.fits  1024   1024 
    2  flat-imaging/170621_t2_CAFOS/flat-imaging_caf-20170622-02:41:15-cal-agui_red.fits  1024   1024 
@@ -315,14 +315,18 @@ from zero in any of the reduced flat-imaging frames:
 There are five reduced flat-imaging frames with problems in the reduction of
 the individual flat exposures.
 
+(Work in progress from here!)
 
+(Work in progress from here!)
+
+(Work in progress from here!)
 
 
 It is also useful to examine the ``QUANT500`` and ``ROBUSTSTD`` keywords:
 
 ::
 
-   (filabres) $ filabres -lr flat-imaging -k quant500 -k robuststd -pxy
+   $ filabres -lr flat-imaging -k quant500 -k robuststd -pxy
    ...
    ...
 

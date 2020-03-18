@@ -15,12 +15,12 @@ from pandas.plotting import scatter_matrix
 from .ximshow import ximshow_file
 
 
-def show_df(df, n, listmode, imagetype, args_keyword_sort, args_ndecimal,
+def show_df(df, n, list_mode, imagetype, args_keyword_sort, args_ndecimal,
             args_plotxy, args_plotimage):
-    if listmode == "singleline":
+    if list_mode == "singleline":
         if n > 0:
             print()
-    elif listmode == "basic":
+    elif list_mode == "basic":
         print('Total: {} files'.format(n))
     else:
         if df is not None:

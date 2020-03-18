@@ -21,7 +21,7 @@ The first calibration images to be reduced are the bias frames:
 
 ::
 
-   (filabres) $ filabres -rs bias
+   $ filabres -rs bias
    * Number of nights found: 58
    
    * Working with night 170225_t2_CAFOS (1/58)
@@ -47,7 +47,7 @@ current directory:
 
 ::
 
-   (filabres) $ tree bias
+   $ tree bias
    bias
    ├── 170225_t2_CAFOS
    │   ├── bias_caf-20170224-21:27:48-cal-krek_red.fits
@@ -79,7 +79,7 @@ can try to repeat the reduction of the last night ``171230_t2_CAFOS``:
 
 ::
 
-   (filabres) $ filabres -rs bias -n 171230* -v
+   $ filabres -rs bias -n 171230* -v
    * instrument............: cafos
    * datadir...............: /Users/cardiel/CAFOS2017
    * ignored_images_file...: ignored_images.yaml
@@ -317,7 +317,7 @@ In order to check the reduction of the bias images just execute:
 
 ::
 
-   (filabres) $ filabres -lr bias
+   $ filabres -lr bias
                                                                     file NAXIS1 NAXIS2
    1   bias/170225_t2_CAFOS/bias_caf-20170224-21:27:48-cal-krek_red.fits  1650   1650 
    2   bias/170225_t2_CAFOS/bias_caf-20170225-10:03:09-cal-bomd_red.fits  1000   2048 
@@ -334,7 +334,7 @@ example, for the first night:
 
 ::
 
-   (filabres) $ filabres -lr bias -n 170225*
+   $ filabres -lr bias -n 170225*
                                                                    file NAXIS1 NAXIS2
    1  bias/170225_t2_CAFOS/bias_caf-20170224-21:27:48-cal-krek_red.fits  1650   1650 
    2  bias/170225_t2_CAFOS/bias_caf-20170225-10:03:09-cal-bomd_red.fits  1000   2048
@@ -344,7 +344,7 @@ them (``-pi``):
 
 ::
 
-   (filabres) $ filabres -lr bias -n 170225* -pi
+   $ filabres -lr bias -n 170225* -pi
    ...
    ...
 
@@ -361,7 +361,7 @@ You can use ``-k all`` to show the whole list of available keywords:
 
 ::
 
-   (filabres) $ filabres -lr bias -k all
+   $ filabres -lr bias -k all
    Valid keywords: ['NAXIS', 'NAXIS1', 'NAXIS2', 'OBJECT', 'RA', 'DEC',
    'EQUINOX', 'DATE', 'MJD-OBS', 'AIRMASS', 'EXPTIME', 'INSTRUME', 'CCDNAME',
    'ORIGSECX', 'ORIGSECY', 'CCDSEC', 'BIASSEC', 'DATASEC', 'CCDBINX',
@@ -384,7 +384,7 @@ evolution of the median bias level (``QUANT500``) with the observation date
 
 ::
 
-   (filabres) $ filabres -lr bias -k mjd-obs -k quant500 -ks robuststd -pxy
+   $ filabres -lr bias -k mjd-obs -k quant500 -ks robuststd -pxy
                                                                     file      MJD-OBS   QUANT500  ROBUSTSTD
    78  bias/171116_t2_CAFOS/bias_caf-20171116-14:06:06-cal-lilj_red.fits  58073.58750  657.00000  1.48260  
    58  bias/171121_t2_CAFOS/bias_caf-20171121-15:21:37-cal-bomd_red.fits  58078.64000  666.00000  1.85325  
@@ -409,7 +409,7 @@ master bias generated in that night:
 
 ::
 
-   (filabres) $ filabres -lr bias -k mjd-obs -k quant500 -ks robuststd -n 170601* -pi
+   $ filabres -lr bias -k mjd-obs -k quant500 -ks robuststd -n 170601* -pi
                                                                    file     MJD-OBS  QUANT500  ROBUSTSTD
    2  bias/170601_t2_CAFOS/bias_caf-20170601-15:14:47-cal-pelm_red.fits  57905.6352  680.0     5.18910  
    1  bias/170601_t2_CAFOS/bias_caf-20170601-13:06:15-cal-bomd_red.fits  57905.5460  723.0     24.09225 
@@ -436,7 +436,7 @@ additional use of ``-k <keyword>``, ``-ks <keyword>``, ``-pxy`` and ``-pi``):
 
 ::
 
-   (filabres) $ filabres -of bias/170601_t2_CAFOS/bias_caf-20170601-13:06:15-cal-bomd_red.fits \
+   $ filabres -of bias/170601_t2_CAFOS/bias_caf-20170601-13:06:15-cal-bomd_red.fits \
    -k quant500 -k robuststd
    > Signature: SITE#1d_15__1000__2048__[501,1:1500,2048]__1__1
    > Available images with this signature:
@@ -492,7 +492,7 @@ present in the 10 individual images, as can be easily visualized using ``-pi``:
 
 ::
 
-   (filabres) $ filabres -of bias/170601_t2_CAFOS/bias_caf-20170601-13:06:15-cal-bomd_red.fits \
+   $ filabres -of bias/170601_t2_CAFOS/bias_caf-20170601-13:06:15-cal-bomd_red.fits \
    -k quant500 -k robuststd -pi
    ...
    ...
@@ -517,7 +517,7 @@ Let's have a look to images with ``ROBUSTSTD`` > 5:
 
 ::
 
-   (filabres) $ $ filabres -lr bias -k quant500 -ks robuststd --filter 'k[robuststd] > 5' -pi
+   $ filabres -lr bias -k quant500 -ks robuststd --filter 'k[robuststd] > 5' -pi
    ...
    ...
 
@@ -535,7 +535,7 @@ image:
 
 ::
 
-   (filabres) $ filabres -of bias/170525_t2_CAFOS/bias_caf-20170525-16:33:40-cal-boeh_red.fits \
+   $ filabres -of bias/170525_t2_CAFOS/bias_caf-20170525-16:33:40-cal-boeh_red.fits \
    -k quant500 -k robuststd -pi
    > Signature: SITE#1d_15__1000__2048__[501,1:1500,2048]__1__1
    > Available images with this signature:
@@ -590,7 +590,7 @@ Removing invalid reduced bias
 
       ::
 
-        (filabres) $ filabres -of bias/170525_t2_CAFOS/bias_caf-20170525-16:33:40-cal-boeh_red.fits -lm basic
+        $ filabres -of bias/170525_t2_CAFOS/bias_caf-20170525-16:33:40-cal-boeh_red.fits -lm basic
         ...
         ...
         > List of individual frames:
@@ -612,7 +612,7 @@ Removing invalid reduced bias
       ::
 
 
-        (filabres) $ filabres -of bias/170601_t2_CAFOS/bias_caf-20170601-13:06:15-cal-bomd_red.fits -lm basic
+        $ filabres -of bias/170601_t2_CAFOS/bias_caf-20170601-13:06:15-cal-bomd_red.fits -lm basic
         ...
         ...
         > List of individual frames:
@@ -652,7 +652,7 @@ Removing invalid reduced bias
 
    ::
 
-      (filabres) $ filabres -rs initialize -n 170525*
+      $ filabres -rs initialize -n 170525*
       * Number of nights found: 1
       File ./lists/170525_t2_CAFOS/imagedb_cafos.json already exists: skipping directory.
       * program STOP
@@ -662,7 +662,7 @@ Removing invalid reduced bias
 
    ::
 
-      (filabres) $ filabres -rs initialize -n 170525* --force
+      $ filabres -rs initialize -n 170525* --force
       * Number of nights found: 1
       * Working with night 170601_t2_CAFOS (1/1) ---> 62 FITS files
       * program STOP
@@ -689,7 +689,7 @@ Removing invalid reduced bias
 
    ::
 
-      (filabres) $ filabres -rs initialize -n 170601* --force
+      $ filabres -rs initialize -n 170601* --force
       * Number of nights found: 1
       * Working with night 170601_t2_CAFOS (1/1) ---> 96 FITS files
       * program STOP
@@ -725,7 +725,7 @@ Removing invalid reduced bias
 
    ::
 
-      (filabres) $ filabres --delete bias/170525_t2_CAFOS/bias_caf-20170525-16:33:40-cal-boeh_red.fits 
+      $ filabres --delete bias/170525_t2_CAFOS/bias_caf-20170525-16:33:40-cal-boeh_red.fits 
       > Image to be deleted bias/170525_t2_CAFOS/bias_caf-20170525-16:33:40-cal-boeh_red.fits
       > Signature: SITE#1d_15__1000__2048__[501,1:1500,2048]__1__1
       > MJD-OBS..: 57898.69377
@@ -738,7 +738,7 @@ Removing invalid reduced bias
 
    ::
 
-      (filabres) $ filabres --delete bias/170601_t2_CAFOS/bias_caf-20170601-13:06:15-cal-bomd_red.fits
+      $ filabres --delete bias/170601_t2_CAFOS/bias_caf-20170601-13:06:15-cal-bomd_red.fits
       > Image to be deleted bias/170601_t2_CAFOS/bias_caf-20170601-13:06:15-cal-bomd_red.fits
       > Signature: SITE#1d_15__1000__2048__[501,1:1500,2048]__1__1
       > MJD-OBS..: 57905.54971
