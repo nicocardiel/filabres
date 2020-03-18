@@ -1,0 +1,11 @@
+# file setup_filabres.yaml
+#
+# generated automatically by filabres v.0.9.31
+#
+# creation date 2020-03-18T12:08:54.533352
+#
+instrument: cafos
+datadir: /Volumes/NicoPassport/CAHA/CAFOS2017
+ignored_images_file: ignored_images.yaml
+image_header_corrections_file: image_header_corrections.yaml
+forced_classifications_file: forced_classifications.yaml

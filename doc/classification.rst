@@ -640,7 +640,7 @@ The last table reveals several cases:
    ::
 
      $ filabres -lc wrong-flat-imaging -k quant500 -ks quant975 -k object \
-     -k exptime --filter "800 < k[quant500] < 5000 and 'flat' in k[object].lower()"
+     -k exptime --filter "800 < k[quant500] < 50000 and 'flat' in k[object].lower()"
         QUANT500       OBJECT  EXPTIME  QUANT975                                                                                      file
      2  1050.0    [Flat]Sky U  5.0      1096.0    /Volumes/NicoPassport/CAHA/CAFOS2017/170628_t2_CAFOS/caf-20170628-20:17:39-cal-mirl.fits
      1  3539.0    [Flat]Sky U  5.0      3696.0    /Volumes/NicoPassport/CAHA/CAFOS2017/170627_t2_CAFOS/caf-20170627-20:07:30-cal-mirl.fits
@@ -649,51 +649,95 @@ The last table reveals several cases:
      Total: 4 files
 
    These image were classified as ``wrong-flat-imaging`` because
-   ``QUANT975`` was lower than 5000 ADUs.
+   ``QUANT975`` was lower than 5000 ADUs (this is one of the ``requirementx``
+   for this type of images).
 
-   .. warning::
+   We are going to modify the automatic image classification performed by
+   **filabres** by forcing these 4 images to be reclassified as valid
+   ``flat-imaging`` frames. To perform this manual classification, the first
+   step is the inclusion of those files in the file configuration YAML file
+   ``forced_classifications.yaml``:
 
-      (Work in progress): include these images in
-      ``forced_classifications.yaml`` file.
+   .. literalinclude:: forced_classifications_1.yaml
+      :linenos:
+      :lineno-start: 1
 
----
+   Ignoring the initial comment lines (starting by ``#``), here we have created
+   two blocks, separated by ``---`` (the YAML block separator).
+   **Important**: the separator must not appear before the first block nor
+   after the last block.  Within each block, the following arguments must be
+   provided:
 
-::
+   - ``night``: observing night. Note that wildcards can not be used here,
+     although the same night label can appear in different blocks.
 
-  $ filabres -lc wrong-flat-imaging -k exptime -k quant975
+   - ``enabled``: this key indicates that the current block must be used (this
+     keyword allows a quick way to disable a whole block by setting this value
+     to ``False``, without the need of removing it from this file).
 
-In this case there are 6 files. In order to dig deeper into the reason for
-the classification of these images, let's display the value of the 0.500
-(median) and 0.975 quantiles:
+   - ``files``:  is the list of files to be considered within the specified 
+     night. The list of files can be provided by given the name of each file in
+     separate line, preceded by an indented - symbol. Wildcards are valid here.
 
-::
+   - ``classification``: classification label for the images listed in the
+     block.
 
-   $ filabres -lc wrong-flat-imaging -k quant500 -k quant975
-                                                                              file  QUANT500  QUANT975
-   1  /Users/cardiel/CAFOS2017/170225_t2_CAFOS/caf-20170226-06:11:17-cal-krek.fits  51930.0   60050.0 
-   2  /Users/cardiel/CAFOS2017/170225_t2_CAFOS/caf-20170226-06:22:28-cal-krek.fits  57062.0   64891.0 
-   3  /Users/cardiel/CAFOS2017/170929_t2_CAFOS/caf-20170929-18:05:56-cal-wenj.fits  65531.0   65531.0 
-   4  /Users/cardiel/CAFOS2017/170929_t2_CAFOS/caf-20170929-18:06:46-cal-wenj.fits  65531.0   65531.0 
-   5  /Users/cardiel/CAFOS2017/170929_t2_CAFOS/caf-20170929-18:11:14-cal-wenj.fits  65531.0   65531.0 
-   6  /Users/cardiel/CAFOS2017/170929_t2_CAFOS/caf-20170929-18:12:02-cal-wenj.fits  60313.0   61806.0 
+   Additional comment lines (starting by ``#``) or blank lines can be used in
+   this YAML file.
 
-These images are saturated. You can display them using ``-pi``:
+   Once we have inserted the 4 problematic images within this file, we can
+   repeat the classification of these images. Since the images correspond to
+   two different nights, it is necessary to repeat the classification in the
+   corresponding nights:
 
-::
+   ::
 
-   $ filabres -lc wrong-flat-imaging -k quant500 -k quant975 -pi
-   ...
-   ...
+     $ filabres -rs initialize -n 170627* --force
+     ...
+     ...
+     $ filabres -rs initialize -n 170628* --force
+     ...
+     ...
 
-Here we show the first and the third image:
+   Finally, it is possible to double check that the 4 images do not longer
+   appear as classified as ``wrong-flat-imaging``
 
-.. image:: images/pi_wrong-flat-imaging1.png
-   :width: 100%
-   :alt: Wrong flat-imaging image 1
+   ::
 
-.. image:: images/pi_wrong-flat-imaging3.png
-   :width: 100%
-   :alt: Wrong flat-imaging image 2
+     $ filabres -lc wrong-flat-imaging -k quant500 -ks quant975 -k object \
+     -k exptime --filter "800 < k[quant500] < 50000 and 'flat' in k[object].lower()"
+     Total: 0 files
+
+4. Saturated images: in this case we list images classified as
+``wrong-flat-imaging`` but with a median signal above 60000 ADUs:
+
+   ::
+
+     $ filabres -lc wrong-flat-imaging -k exptime -k quant500 -k quant975 -k object \
+     --filter "k[quant500] >= 60000"
+        EXPTIME  QUANT500  QUANT975        OBJECT                                                                                      file
+     1  0.1      65531.0   65531.0   [flat] sky B  /Volumes/NicoPassport/CAHA/CAFOS2017/170929_t2_CAFOS/caf-20170929-18:05:56-cal-wenj.fits
+     2  0.1      65531.0   65531.0   [flat] sky R  /Volumes/NicoPassport/CAHA/CAFOS2017/170929_t2_CAFOS/caf-20170929-18:06:46-cal-wenj.fits
+     3  0.1      65531.0   65531.0   [flat] sky R  /Volumes/NicoPassport/CAHA/CAFOS2017/170929_t2_CAFOS/caf-20170929-18:11:14-cal-wenj.fits
+     4  0.1      60313.0   61806.0   [flat] sky R  /Volumes/NicoPassport/CAHA/CAFOS2017/170929_t2_CAFOS/caf-20170929-18:12:02-cal-wenj.fits
+     Total: 4 files
+
+   These images are clearly saturated. You can display them using ``-pi``:
+
+   ::
+
+     $ filabres -lc wrong-flat-imaging -k exptime -k quant500 -k quant975 -k object \
+     --filter "k[quant500] >= 60000" -pi
+
+   Here we show the first and the third image:
+   
+   .. image:: images/pi_wrong-flat-imaging_saturated1.png
+      :width: 100%
+      :alt: Wrong flat-imaging image 1
+   
+   .. image:: images/pi_wrong-flat-imaging_saturated4.png
+      :width: 100%
+      :alt: Wrong flat-imaging image 2
 
 
 Wrong science-imaging
