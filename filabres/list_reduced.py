@@ -15,6 +15,7 @@ import os
 import pandas as pd
 
 from .check_list_filter import check_list_filter
+from .check_list_mode import check_list_mode
 from .load_instrument_configuration import load_instrument_configuration
 from .show_df import show_df
 
@@ -61,16 +62,7 @@ def list_reduced(instrument, img, list_mode, args_night, args_keyword,
     """
 
     # protections
-    if list_mode in ["basic", "singleline"]:
-        msg = None
-        if args_keyword is not None:
-            msg = 'ERROR: -k KEYWORD is invalid with --list_mode {}'.format(list_mode)
-        if args_keyword_sort is not None:
-            msg = 'ERROR: -ks KEYWORD is invalid with --list_mode {}'.format(list_mode)
-        if args_plotxy:
-            msg = 'ERROR: -pxy KEYWORD is invalid with --list_mode {}'.format(list_mode)
-        if msg is not None:
-            raise SystemError(msg)
+    check_list_mode(list_mode, args_keyword, args_keyword_sort, args_plotxy, args_plotimage, args_ndecimal)
 
     if args_keyword is not None:
         lkeyword = [item[0].upper() for item in args_keyword]

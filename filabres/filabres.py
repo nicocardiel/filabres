@@ -103,7 +103,8 @@ def main():
     group_lists.add_argument("-pxy", "--plotxy", action="store_true", help="display scatter plots when listing files")
     group_lists.add_argument("-pi", "--plotimage", action="store_true", help="display images when listing files")
     group_lists.add_argument("-nd", "--ndecimal", type=int,
-                             help="Number of decimal places for floats when using -lc/-lr")
+                             help="Number of decimal places for floats when using -lc/-lr",
+                             metavar=('INTEGER'))
 
     # other arguments
     group_other.add_argument("-n", "--night", type=str, help="night label (wildcards are valid within quotes)")

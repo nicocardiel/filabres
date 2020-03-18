@@ -290,7 +290,7 @@ Select image type and observing nights
 --------------------------------------
 
 It is possible to constraint the list of files to those corresponding to a
-given subset of nights (using the argument ``-n <night>``; wildcards are valid
+given subset of nights (using the argument ``-n/--night <night>``; wildcards are valid
 here):
 
 ::
@@ -351,15 +351,15 @@ standard deviation of the image):
 ::
 
   $ filabres -lc bias -k quant500 -k quant975 -k robuststd
-                                                                                           file   QUANT500   QUANT975  ROBUSTSTD
-  1    /Volumes/NicoPassport/CAHA/CAFOS2017/170225_t2_CAFOS/caf-20170224-21:27:48-cal-krek.fits  666.00000  686.00000  11.11950 
-  2    /Volumes/NicoPassport/CAHA/CAFOS2017/170225_t2_CAFOS/caf-20170224-21:29:09-cal-krek.fits  666.00000  687.00000  10.37820 
-  3    /Volumes/NicoPassport/CAHA/CAFOS2017/170225_t2_CAFOS/caf-20170224-21:30:31-cal-krek.fits  666.00000  683.00000  10.37820
+        QUANT500   QUANT975  ROBUSTSTD                                                                                      file
+  1    666.00000  686.00000  11.11950   /Volumes/NicoPassport/CAHA/CAFOS2017/170225_t2_CAFOS/caf-20170224-21:27:48-cal-krek.fits
+  2    666.00000  687.00000  10.37820   /Volumes/NicoPassport/CAHA/CAFOS2017/170225_t2_CAFOS/caf-20170224-21:29:09-cal-krek.fits
+  3    666.00000  683.00000  10.37820   /Volumes/NicoPassport/CAHA/CAFOS2017/170225_t2_CAFOS/caf-20170224-21:30:31-cal-krek.fits
   ...
   ...
-  824  /Volumes/NicoPassport/CAHA/CAFOS2017/171230_t2_CAFOS/caf-20171229-10:16:48-cal-lilj.fits  658.00000  680.00000  11.11950 
-  825  /Volumes/NicoPassport/CAHA/CAFOS2017/171230_t2_CAFOS/caf-20171229-10:17:24-cal-lilj.fits  658.00000  680.00000  11.11950 
-  826  /Volumes/NicoPassport/CAHA/CAFOS2017/171230_t2_CAFOS/caf-20171229-10:18:00-cal-lilj.fits  658.00000  680.00000  11.11950 
+  824  658.00000  680.00000  11.11950   /Volumes/NicoPassport/CAHA/CAFOS2017/171230_t2_CAFOS/caf-20171229-10:16:48-cal-lilj.fits
+  825  658.00000  680.00000  11.11950   /Volumes/NicoPassport/CAHA/CAFOS2017/171230_t2_CAFOS/caf-20171229-10:17:24-cal-lilj.fits
+  826  658.00000  680.00000  11.11950   /Volumes/NicoPassport/CAHA/CAFOS2017/171230_t2_CAFOS/caf-20171229-10:18:00-cal-lilj.fits
   Total: 826 files
 
 Note that each keyword is preceded by ``-k`` (following the astropy convention
@@ -372,20 +372,20 @@ a hierarchical sorting):
 ::
 
   $ filabres -lc bias -k quant500 -k quant975 -ks robuststd
-                                                                                           file   QUANT500   QUANT975  ROBUSTSTD
-  456  /Volumes/NicoPassport/CAHA/CAFOS2017/170929_t2_CAFOS/caf-20170929-13:52:35-cal-bias.fits  661.40002  666.70001  2.81693  
-  206  /Volumes/NicoPassport/CAHA/CAFOS2017/170526_t2_CAFOS/caf-20170526-15:44:34-cal-boeh.fits  667.00000  683.00000  6.67170  
-  207  /Volumes/NicoPassport/CAHA/CAFOS2017/170526_t2_CAFOS/caf-20170526-15:45:45-cal-boeh.fits  667.00000  683.00000  6.67170  
+        QUANT500   QUANT975  ROBUSTSTD                                                                                      file
+  456  661.40002  666.70001  2.81693    /Volumes/NicoPassport/CAHA/CAFOS2017/170929_t2_CAFOS/caf-20170929-13:52:35-cal-bias.fits
+  206  667.00000  683.00000  6.67170    /Volumes/NicoPassport/CAHA/CAFOS2017/170526_t2_CAFOS/caf-20170526-15:44:34-cal-boeh.fits
+  207  667.00000  683.00000  6.67170    /Volumes/NicoPassport/CAHA/CAFOS2017/170526_t2_CAFOS/caf-20170526-15:45:45-cal-boeh.fits
   ...
   ...
-  241  /Volumes/NicoPassport/CAHA/CAFOS2017/170601_t2_CAFOS/caf-20170601-13:12:14-cal-bomd.fits  723.00000  776.00000  25.94550 
-  245  /Volumes/NicoPassport/CAHA/CAFOS2017/170601_t2_CAFOS/caf-20170601-13:17:01-cal-bomd.fits  723.00000  776.00000  25.94550 
-  311  /Volumes/NicoPassport/CAHA/CAFOS2017/170628_t2_CAFOS/caf-20170628-17:29:10-cal-pelm.fits  693.00000  729.00000  25.94550 
+  241  723.00000  776.00000  25.94550   /Volumes/NicoPassport/CAHA/CAFOS2017/170601_t2_CAFOS/caf-20170601-13:12:14-cal-bomd.fits
+  245  723.00000  776.00000  25.94550   /Volumes/NicoPassport/CAHA/CAFOS2017/170601_t2_CAFOS/caf-20170601-13:17:01-cal-bomd.fits
+  311  693.00000  729.00000  25.94550   /Volumes/NicoPassport/CAHA/CAFOS2017/170628_t2_CAFOS/caf-20170628-17:29:10-cal-pelm.fits
+  Total: 826 files
 
-Now the values in the column ``ROBUSTSTD`` have appeared sorted. 
-
-Note that the sorted keys are always the last columns in the table,
-independently of their location in the command line.
+Now the values in the column ``ROBUSTSTD`` have appeared sorted
+(note that the sorted keys are always the last columns preceding the `file`
+column in the table, independently of their location in the command line).
 
 Is is also possible to generate plots with the selected keywords. For that
 purpose, employ the ``-pxy`` argument:
@@ -393,6 +393,8 @@ purpose, employ the ``-pxy`` argument:
 ::
 
   $ filabres -lc bias -k mjd-obs -k quant500 -k quant975 -ks robuststd -pxy
+  ...
+  ...
 
 .. image:: images/pxy_classified_bias.png
    :width: 100%
@@ -408,25 +410,30 @@ It is also possible to filter the displayed list by using ``--filter
 EXPRESSION``, where ``EXPRESSION`` is any generic logical expression involving
 valid keywords (i.e., belonging to the ``masterkeywords`` list) written as a
 valid Python command, but using the special syntax ``k[<keyword>]`` to specify
-the keywords. Note that arithmetic and logical operators are also valid. 
+the keywords. Note that arithmetic and logical operators are valid in
+``EXPRESSION``. 
 
 For example, we can filter imposing fixed image dimensions:
 
 ::
 
-  $ filabres -lc bias --filter 'k[naxis1]==1650 and k[naxis2]==1650'
-                                                                                          file NAXIS1 NAXIS2
-  1   /Volumes/NicoPassport/CAHA/CAFOS2017/170225_t2_CAFOS/caf-20170224-21:27:48-cal-krek.fits  1650   1650 
-  2   /Volumes/NicoPassport/CAHA/CAFOS2017/170225_t2_CAFOS/caf-20170224-21:29:09-cal-krek.fits  1650   1650 
-  3   /Volumes/NicoPassport/CAHA/CAFOS2017/170225_t2_CAFOS/caf-20170224-21:30:31-cal-krek.fits  1650   1650 
-  4   /Volumes/NicoPassport/CAHA/CAFOS2017/170225_t2_CAFOS/caf-20170224-21:31:52-cal-krek.fits  1650   1650 
-  5   /Volumes/NicoPassport/CAHA/CAFOS2017/170225_t2_CAFOS/caf-20170224-21:33:14-cal-krek.fits  1650   1650 
-  6   /Volumes/NicoPassport/CAHA/CAFOS2017/170225_t2_CAFOS/caf-20170224-21:34:36-cal-krek.fits  1650   1650 
-  7   /Volumes/NicoPassport/CAHA/CAFOS2017/170225_t2_CAFOS/caf-20170224-21:35:57-cal-krek.fits  1650   1650 
-  8   /Volumes/NicoPassport/CAHA/CAFOS2017/170225_t2_CAFOS/caf-20170224-21:37:19-cal-krek.fits  1650   1650 
-  9   /Volumes/NicoPassport/CAHA/CAFOS2017/170225_t2_CAFOS/caf-20170224-21:38:41-cal-krek.fits  1650   1650 
-  10  /Volumes/NicoPassport/CAHA/CAFOS2017/170225_t2_CAFOS/caf-20170224-21:40:03-cal-krek.fits  1650   1650 
+  $ filabres -lc bias -k naxis1 -k naxis2 --filter 'k[naxis1]==1650 and k[naxis2]==1650'
+     NAXIS1 NAXIS2                                                                                      file
+  1   1650   1650   /Volumes/NicoPassport/CAHA/CAFOS2017/170225_t2_CAFOS/caf-20170224-21:27:48-cal-krek.fits
+  2   1650   1650   /Volumes/NicoPassport/CAHA/CAFOS2017/170225_t2_CAFOS/caf-20170224-21:29:09-cal-krek.fits
+  3   1650   1650   /Volumes/NicoPassport/CAHA/CAFOS2017/170225_t2_CAFOS/caf-20170224-21:30:31-cal-krek.fits
+  4   1650   1650   /Volumes/NicoPassport/CAHA/CAFOS2017/170225_t2_CAFOS/caf-20170224-21:31:52-cal-krek.fits
+  5   1650   1650   /Volumes/NicoPassport/CAHA/CAFOS2017/170225_t2_CAFOS/caf-20170224-21:33:14-cal-krek.fits
+  6   1650   1650   /Volumes/NicoPassport/CAHA/CAFOS2017/170225_t2_CAFOS/caf-20170224-21:34:36-cal-krek.fits
+  7   1650   1650   /Volumes/NicoPassport/CAHA/CAFOS2017/170225_t2_CAFOS/caf-20170224-21:35:57-cal-krek.fits
+  8   1650   1650   /Volumes/NicoPassport/CAHA/CAFOS2017/170225_t2_CAFOS/caf-20170224-21:37:19-cal-krek.fits
+  9   1650   1650   /Volumes/NicoPassport/CAHA/CAFOS2017/170225_t2_CAFOS/caf-20170224-21:38:41-cal-krek.fits
+  10  1650   1650   /Volumes/NicoPassport/CAHA/CAFOS2017/170225_t2_CAFOS/caf-20170224-21:40:03-cal-krek.fits
   Total: 10 files
+
+The keywords employed in ``EXPRESSION`` do not have to be explicitly shown in
+the table using ``-k <keyword>`` (in the last example they appear because we
+want to check that the ``--filter`` argument is working properly).
 
 
 Is there something wrong with the image classification?
@@ -463,13 +470,13 @@ defined in ``configuration_cafos.yaml``:
 ::
 
   $ filabres -lc unclassified -k object
-                                                                                         file              OBJECT
-  1  /Volumes/NicoPassport/CAHA/CAFOS2017/170225_t2_CAFOS/caf-20170225-18:44:14-tst-test.fits  [focus] Telescope 
-  2  /Volumes/NicoPassport/CAHA/CAFOS2017/170505_t2_CAFOS/caf-20170506-02:53:44-tst-test.fits  [focus] Telescope 
-  3  /Volumes/NicoPassport/CAHA/CAFOS2017/170601_t2_CAFOS/caf-20170601-14:00:42-sci-etac.fits  ETALON_calibration
-  4  /Volumes/NicoPassport/CAHA/CAFOS2017/170628_t2_CAFOS/caf-20170628-16:26:53-sci-etac.fits  ETALON_calibration
-  5  /Volumes/NicoPassport/CAHA/CAFOS2017/170628_t2_CAFOS/caf-20170628-16:35:52-sci-etac.fits  ETALON_calibration
-  6  /Volumes/NicoPassport/CAHA/CAFOS2017/170807_t2_CAFOS/caf-20170807-21:10:39-cal-schn.fits  [focus] Telescope 
+                 OBJECT                                                                                      file
+  1  [focus] Telescope   /Volumes/NicoPassport/CAHA/CAFOS2017/170225_t2_CAFOS/caf-20170225-18:44:14-tst-test.fits
+  2  [focus] Telescope   /Volumes/NicoPassport/CAHA/CAFOS2017/170505_t2_CAFOS/caf-20170506-02:53:44-tst-test.fits
+  3  ETALON_calibration  /Volumes/NicoPassport/CAHA/CAFOS2017/170601_t2_CAFOS/caf-20170601-14:00:42-sci-etac.fits
+  4  ETALON_calibration  /Volumes/NicoPassport/CAHA/CAFOS2017/170628_t2_CAFOS/caf-20170628-16:26:53-sci-etac.fits
+  5  ETALON_calibration  /Volumes/NicoPassport/CAHA/CAFOS2017/170628_t2_CAFOS/caf-20170628-16:35:52-sci-etac.fits
+  6  [focus] Telescope   /Volumes/NicoPassport/CAHA/CAFOS2017/170807_t2_CAFOS/caf-20170807-21:10:39-cal-schn.fits
   Total: 6 files
    
 Only 6 images appear in this category. The keyword ``OBJECT`` indicates that
@@ -507,15 +514,15 @@ These are simply the images that we have included in the file
 ::
 
   $ filabres -lc ignored
-                                                                                           file NAXIS1 NAXIS2
-  1    /Volumes/NicoPassport/CAHA/CAFOS2017/170506_t2_CAFOS/caf-20170505-09:57:54-cal-agui.fits  1024   1024 
-  2    /Volumes/NicoPassport/CAHA/CAFOS2017/170506_t2_CAFOS/caf-20170505-09:58:58-cal-agui.fits  1024   1024 
-  3    /Volumes/NicoPassport/CAHA/CAFOS2017/170506_t2_CAFOS/caf-20170505-10:00:02-cal-agui.fits  1024   1024
+                                                                                           file
+  1    /Volumes/NicoPassport/CAHA/CAFOS2017/170506_t2_CAFOS/caf-20170505-09:57:54-cal-agui.fits
+  2    /Volumes/NicoPassport/CAHA/CAFOS2017/170506_t2_CAFOS/caf-20170505-09:58:58-cal-agui.fits
+  3    /Volumes/NicoPassport/CAHA/CAFOS2017/170506_t2_CAFOS/caf-20170505-10:00:02-cal-agui.fits
   ...
   ...
-  253  /Volumes/NicoPassport/CAHA/CAFOS2017/171219_t2_CAFOS/caf-20171218-17:43:07-cal-bard.fits  1700   1700 
-  254  /Volumes/NicoPassport/CAHA/CAFOS2017/171219_t2_CAFOS/caf-20171218-17:45:23-cal-bard.fits  1700   1700 
-  255  /Volumes/NicoPassport/CAHA/CAFOS2017/171219_t2_CAFOS/caf-20171218-17:47:46-cal-bard.fits  1700   1700
+  253  /Volumes/NicoPassport/CAHA/CAFOS2017/171219_t2_CAFOS/caf-20171218-17:43:07-cal-bard.fits
+  254  /Volumes/NicoPassport/CAHA/CAFOS2017/171219_t2_CAFOS/caf-20171218-17:45:23-cal-bard.fits
+  255  /Volumes/NicoPassport/CAHA/CAFOS2017/171219_t2_CAFOS/caf-20171218-17:47:46-cal-bard.fits
   Total: 255 files
 
 Wrong bias
@@ -567,19 +574,57 @@ Let's examine the signal, using the median ``QUANT500`` and the quantile 0.975
 
 The last table reveals several cases:
 
-1. Images with unexpectedly low signal (even without bias level):
+1. Images with unexpectedly low signal:
+
+  ::
+  
+    $ filabres -lc wrong-flat-imaging -k quant500 -ks quant975 --filter 'k[quant500] < 100'
+       QUANT500  QUANT975                                                                                      file
+    1 -0.01052  -0.00291   /Volumes/NicoPassport/CAHA/CAFOS2017/170929_t2_CAFOS/caf-20170929-14:38:37-cal-delt.fits
+    2  0.99903   1.00470   /Volumes/NicoPassport/CAHA/CAFOS2017/170929_t2_CAFOS/caf-20170929-14:40:39-cal-quot.fits
+    Total: 2 files
+
+  There are only two images in this situation. The visual examination reveals
+  that they lack even the bias level (the median ``QUANT500`` should be around
+  the usual bias signal, in this case slightly below 700 ADUs, which is not the
+  case) and should be ignored:
 
   ::
   
     $ filabres -lc wrong-flat-imaging -k quant500 -ks quant975 --filter 'k[quant500] < 100' -pi
-                                                                                           file  QUANT500  QUANT975
-    1  /Volumes/NicoPassport/CAHA/CAFOS2017/170929_t2_CAFOS/caf-20170929-14:38:37-cal-delt.fits -0.01052  -0.00291 
-    2  /Volumes/NicoPassport/CAHA/CAFOS2017/170929_t2_CAFOS/caf-20170929-14:40:39-cal-quot.fits  0.99903   1.00470 
-    Total: 2 files
+    ...
+    ...
   
   .. image:: images/pi_wrong-flat-imaging_lowsignal.png
      :width: 100%
      :alt: Wrong flat-imaging with low signal
+
+2. Images compatible with being bias frames but with a wrong ``IMAGETYP`` set
+   to ``flat`` in the original FITS header:
+
+  ::
+
+    $ filabres -lc wrong-flat-imaging -k quant500 -ks quant975 -k imagetyp --filter '100 < k[quant500] < 800' 
+       QUANT500 IMAGETYP  QUANT975                                                                                      file
+    5  705.0     flat     731.0     /Volumes/NicoPassport/CAHA/CAFOS2017/170929_t2_CAFOS/caf-20170929-18:27:21-cal-wenj.fits
+    3  706.0     flat     732.0     /Volumes/NicoPassport/CAHA/CAFOS2017/170929_t2_CAFOS/caf-20170929-18:23:42-cal-wenj.fits
+    4  706.0     flat     732.0     /Volumes/NicoPassport/CAHA/CAFOS2017/170929_t2_CAFOS/caf-20170929-18:25:39-cal-wenj.fits
+    6  705.0     flat     732.0     /Volumes/NicoPassport/CAHA/CAFOS2017/170929_t2_CAFOS/caf-20170929-18:28:45-cal-wenj.fits
+    1  706.0     flat     733.0     /Volumes/NicoPassport/CAHA/CAFOS2017/170929_t2_CAFOS/caf-20170929-18:21:50-cal-wenj.fits
+    2  706.0     flat     733.0     /Volumes/NicoPassport/CAHA/CAFOS2017/170929_t2_CAFOS/caf-20170929-18:22:37-cal-wenj.fits
+    Total: 6 files
+
+  The visual inspection shows that this is the case:
+
+  ::
+
+    $ filabres -lc wrong-flat-imaging -k quant500 -ks quant975 -k imagetyp --filter '100 < k[quant500] < 800' -pi
+    ...
+    ...
+
+  .. image:: images/pi_wrong-flat-imaging_bias.png
+     :width: 100%
+     :alt: Wrong flat-imaging, likely bias frame
 
 
 ---
