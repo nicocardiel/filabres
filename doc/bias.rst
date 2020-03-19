@@ -1,4 +1,4 @@
-.. _bias_reduction:
+.. _reduction_of_bias_images:
 
 ************************
 Reduction of bias images
@@ -141,7 +141,9 @@ however that, since **filabres** detects that the output image already exists,
 the output file is not overwritten (you can force to overwrite the output file
 by using the additional argument ``--force`` in the command line).
 
-Database of bias master frames
+.. _database_of_master_bias_frames:
+
+Database of master bias frames
 ==============================
 
 The reduction of the bias images generates a file, placed in the current
@@ -313,6 +315,8 @@ the file name for the corresponding master bias ``fname``, the individual
 images involved ``originf``, the values of all the FITS keywords listed in
 ``masterkeywords``, and the statistical summary of the master image
 ``statsumm``, to mention the most relevant items.
+
+.. _checking_the_bias_reduction:
 
 Checking the bias reduction
 ===========================
@@ -601,6 +605,8 @@ image:
   Total: 10 files
   
 Again, the problem is present in the individual images. 
+
+.. _removing_invalid_reduced_bias:
 
 Removing invalid reduced bias
 =============================

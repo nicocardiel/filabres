@@ -4,6 +4,8 @@
 Image classification
 ********************
 
+.. _rules_for_the_classification_of_the_images:
+
 Rules for the classification of the images
 ==========================================
 
@@ -135,6 +137,8 @@ the following keys: ``instname``, ``version``, ``requirements``,
 Note that images previously included in the file ``ignored_images.yaml`` will
 be classified as ``ignored``.
 
+.. _initial_image_classification:
+
 Inital image classification
 ===========================
 
@@ -254,6 +258,8 @@ created containing the warning messages:
 
 All the warnings raised in the classification of the CAFOS 2017 data can safely
 be ignored.
+
+.. _examine_the_image_classification:
 
 Examine the image classification
 ================================
@@ -458,6 +464,8 @@ The keywords employed in ``EXPRESSION`` do not have to be explicitly shown in
 the table using ``-k <keyword>`` (in the last example they appear because we
 want to check that the ``--filter`` argument is working properly).
 
+
+.. _is_there_something_wrong_with_the_image_classification:
 
 Is there something wrong with the image classification?
 =======================================================

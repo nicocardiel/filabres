@@ -1,4 +1,4 @@
-.. _flat-imaging_reduction:
+.. _reduction_of_flat-imaging:
 
 *************************
 Reduction of flat-imaging
@@ -209,19 +209,24 @@ output file by using the additional argument ``--force`` in the command line:
   * program STOP
 
 Note that the reduction of the flat-imaging files requires the use of a master
-bias with a particular signature (in this case 
-``SITE#1d_15__1024__1024__[513,513:1536,1536]__1__1``). Several master bias
-frames with this signature are found, each one with a different modified Julian
-Date. The selected one is the closest, in time, with the observing time of the
-flat images. The median value in each individual exposure is also shown (note
-that his value is computed in the useful image region, where the computed mask
-is different from zero).
+bias with a particular signature, in this case
+``SITE#1d_15__1700__1700__[201,201:1900,1900]__1__1``, which is compatible with
+the signature of the considered flat-imaging files:
+``SITE#1d_15__1700__1700__[201,201:1900,1900]__1__1__GRISM-11__FILT-
+5__FREE__0`` (the bias signature does not depend on the use of grism and/or
+filters). Several master bias frames with this signature are found, each one
+with a different modified Julian Date. The selected one is the closest, in
+time, with the observing time of the flat images. In addition,  the median
+signal in each individual exposure is also shown (note that this value is
+computed in the useful image region, where the computed mask is different from
+zero).
    
+.. _database_of_master_flat-imaging_frames:
 
-Database of flat-imaging master frames
+Database of master flat-imaging frames
 ======================================
 
-The reduction of the bias images generates a file, placed in the current
+The reduction of the flat-imaging files generates a file, placed in the current
 directory, called ``filabres_db_cafos_flat-imaging.json``. This constitutes a
 database with the information of all the flat-imaging images, sorted by
 signature and, within each signature, sorted by the Modified Julian Date (FITS
@@ -231,8 +236,10 @@ calibration signature and then select the closest calibration to the
 corresponding observation time.
 
 The structure of ``filabres_db_cafos_flat-imaging.json`` is similar to the one
-previously explained for ``filabres_db_cafos_bias.json``, and is not going to
-be repeated here.
+previously explained for ``filabres_db_cafos_bias.json`` in the section
+:ref:`database_of_master_bias_frames`, and is not going to be repeated here.
+
+.. _checking_the_flat-imaging_reduction:
 
 Checking the flat-imaging reduction
 ===================================
@@ -241,92 +248,91 @@ In order to obtain a list with al the reduced flat-imaging frames just execute:
 
 ::
 
-   $ filabres -lr flat-imaging
-                                                                                     file NAXIS1 NAXIS2
-   1    flat-imaging/170225_t2_CAFOS/flat-imaging_caf-20170224-20:20:04-cal-krek_red.fits  1650   1650 
-   2    flat-imaging/170225_t2_CAFOS/flat-imaging_caf-20170226-06:24:27-cal-krek_red.fits  1650   1650 
-   3    flat-imaging/170225_t2_CAFOS/flat-imaging_caf-20170224-20:49:51-cal-krek_red.fits  1650   1650 
-   ...
-   ...
-   129  flat-imaging/171225_t2_CAFOS/flat-imaging_caf-20171225-17:31:09-cal-bard_red.fits  1700   1700 
-   130  flat-imaging/171225_t2_CAFOS/flat-imaging_caf-20171225-20:09:53-cal-bard_red.fits  1700   1700 
-   131  flat-imaging/171228_t2_CAFOS/flat-imaging_caf-20171228-13:14:11-cal-bard_red.fits  1700   1700 
-   Total: 131 files
+  $ filabres -lr flat-imaging
+                                                                                   file
+  1   flat-imaging/170225_t2_CAFOS/flat-imaging_caf-20170224-20:20:04-cal-krek_red.fits
+  2   flat-imaging/170225_t2_CAFOS/flat-imaging_caf-20170226-06:24:27-cal-krek_red.fits
+  3   flat-imaging/170225_t2_CAFOS/flat-imaging_caf-20170224-20:49:51-cal-krek_red.fits
+  ...
+  ...
+  84  flat-imaging/171225_t2_CAFOS/flat-imaging_caf-20171225-17:31:09-cal-bard_red.fits
+  85  flat-imaging/171225_t2_CAFOS/flat-imaging_caf-20171225-20:09:53-cal-bard_red.fits
+  86  flat-imaging/171228_t2_CAFOS/flat-imaging_caf-20171228-13:14:11-cal-bard_red.fits
+  Total: 86 files
 
-The available keywords for these images are:
+The available keywords for this type of images are:
 
 ::
 
-   (filabfes) $ filabres -lr flat-imaging -k all
-   Valid keywords: ['NAXIS', 'NAXIS1', 'NAXIS2', 'OBJECT', 'RA', 'DEC',
-   'EQUINOX', 'DATE', 'MJD-OBS', 'AIRMASS', 'EXPTIME', 'INSTRUME', 'CCDNAME',
-   'ORIGSECX', 'ORIGSECY', 'CCDSEC', 'BIASSEC', 'DATASEC', 'CCDBINX',
-   'CCDBINY', 'IMAGETYP', 'INSTRMOD', 'INSAPID', 'INSTRSCL', 'INSTRPIX',
-   'INSTRPX0', 'INSTRPY0', 'INSFLID', 'INSFLNAM', 'INSGRID', 'INSGRNAM',
-   'INSGRROT', 'INSGRWL0', 'INSGRRES', 'INSPOFPI', 'INSPOROT', 'INSFPZ',
-   'INSFPWL', 'INSFPDWL', 'INSFPORD', 'INSCALST', 'INSCALID', 'INSCALNM',
-   'NPOINTS', 'FMINIMUM', 'QUANT025', 'QUANT159', 'QUANT250', 'QUANT500',
-   'QUANT750', 'QUANT841', 'QUANT975', 'FMAXIMUM', 'ROBUSTSTD', 'NORIGIN',
-   'IERR_BIAS', 'DELTA_MJD_BIAS', 'IERR_FLAT']
+  (filabfes) $ filabres -lr flat-imaging -k all
+  Valid keywords: ['NAXIS', 'NAXIS1', 'NAXIS2', 'OBJECT', 'RA', 'DEC',
+  'EQUINOX', 'DATE', 'MJD-OBS', 'AIRMASS', 'EXPTIME', 'INSTRUME', 'CCDNAME',
+  'ORIGSECX', 'ORIGSECY', 'CCDSEC', 'BIASSEC', 'DATASEC', 'CCDBINX',
+  'CCDBINY', 'IMAGETYP', 'INSTRMOD', 'INSAPID', 'INSTRSCL', 'INSTRPIX',
+  'INSTRPX0', 'INSTRPY0', 'INSFLID', 'INSFLNAM', 'INSGRID', 'INSGRNAM',
+  'INSGRROT', 'INSGRWL0', 'INSGRRES', 'INSPOFPI', 'INSPOROT', 'INSFPZ',
+  'INSFPWL', 'INSFPDWL', 'INSFPORD', 'INSCALST', 'INSCALID', 'INSCALNM',
+  'NPOINTS', 'FMINIMUM', 'QUANT025', 'QUANT159', 'QUANT250', 'QUANT500',
+  'QUANT750', 'QUANT841', 'QUANT975', 'FMAXIMUM', 'ROBUSTSTD', 'NORIGIN',
+  'IERR_BIAS', 'DELTA_MJD_BIAS', 'IERR_FLAT']
 
 Note some new useful keywords:
 
 - ``IERR_BIAS``: flag that indicates whether there was a problem when trying to
   retrieve the master bias frame corresponding to the signature of the flat
-  images. The value 0 means that the master bias was found, whereas a value of 1
-  indicates that no master bias was found with the requested signature (in this
-  case, the median value of the closest bias is chosen, independently of its
-  signature).
+  images. The value 0 means that the master bias was found, whereas a value of
+  1 indicates that no master bias was found with the requested signature (in
+  this case, the median value of the closest bias is chosen, independently of
+  its signature).
 
 - ``DELTA_MJD_BIAS``: time distance (days) between the master bias and the flat
   images being reduced.
 
 - ``IERR_FLAT``: flag that indicates a problem in the reduction of the flat
-  images themselves (a negative median signal for example). These image should
+  images themselves (a negative median signal for example). These images should
   be revised.
 
 For example, it is possible to quickly determine if ``IERR_BIAS`` or
-``IERR_FLAT`` are different
-from zero in any of the reduced flat-imaging frames:
+``IERR_FLAT`` are different from zero in any of the reduced flat-imaging
+frames:
 
 ::
 
-   $ filabres -lr flat-imaging --filter 'k[ierr_bias] != 0'
-   Total: 0 files
+  $ filabres -lr flat-imaging --filter 'k[ierr_bias] != 0'
+  Total: 0 files
 
 ::
 
-   $ filabres -lr flat-imaging  --filter 'k[ierr_flat] != 0'
-                                                                                      file NAXIS1 NAXIS2
-   1  flat-imaging/170621_t2_CAFOS/flat-imaging_caf-20170621-21:31:58-cal-agui_red.fits  1024   1024 
-   2  flat-imaging/170621_t2_CAFOS/flat-imaging_caf-20170622-02:41:15-cal-agui_red.fits  1024   1024 
-   3  flat-imaging/170627_t2_CAFOS/flat-imaging_caf-20170627-20:57:40-cal-agui_red.fits  1024   1024 
-   4  flat-imaging/171015_t2_CAFOS/flat-imaging_caf-20171016-10:15:35-cal-agui_red.fits  1024   1024 
-   5  flat-imaging/170929_t2_CAFOS/flat-imaging_caf-20170929-13:52:28-cal-flat_red.fits  1024   1024 
+  $ filabres -lr flat-imaging  --filter 'k[ierr_flat] != 0'
+  Total: 0 files
 
-There are five reduced flat-imaging frames with problems in the reduction of
-the individual flat exposures.
-
-(Work in progress from here!)
-
-(Work in progress from here!)
-
-(Work in progress from here!)
+None of the reduced flat-imaging frames has had any problem in the reduction
+process.
 
 
-It is also useful to examine the ``QUANT500`` and ``ROBUSTSTD`` keywords:
+
+It is also useful to examine some statistical parameters of the reduced images:
 
 ::
 
-   $ filabres -lr flat-imaging -k quant500 -k robuststd -pxy
-   ...
-   ...
+  $ filabres -lr flat-imaging -k quant250 -k quant500 -k quant750 -k robuststd -pxy
+  ...
+  ...
 
 .. image:: images/pxy_reduced_flat-imaging.png
    :width: 100%
    :alt: Reduced flat-imaging summary
 
+We find that all the reduced flat-imaging frames exhibit the expected
+statistical behavior
+
+.. _removing_invalid_reduced_flat-imaging:
 
 Removing invalid reduced flat-imaging
 =====================================
+
+In this case there is no apparent reason to remove any of the reduced
+flat-imaging frames. If that were the case, the method would be similar to that
+described in section :ref:`removing_invalid_reduced_bias` for the reduced
+master bias images.
 

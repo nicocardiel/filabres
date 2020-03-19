@@ -68,6 +68,8 @@ The detailed examination of the above output reveals that:
 - the files ``caf-20171225-*`` are duplicated in subdirectory night
   ``171217_t2_CAFOS``
 
+.. _updating_ignored_images_yaml:
+
 Updating ``ignored_images.yaml``
 ================================
 
@@ -95,6 +97,8 @@ block, the following arguments must be provided:
 - ``files``: is the list of files to be ignored within the specified night. 
   The list of files can be provided by given the name of each file in separate
   line, preceded by an indented ``-`` symbol. Wildcards are valid here.
+
+.. _re-check_the_image_tree:
 
 Re-check the image tree
 =======================
