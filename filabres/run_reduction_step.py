@@ -231,7 +231,12 @@ def run_reduction_step(redustep, interactive, datadir, list_of_nights, filename,
                         # apply useful region mask
                         image2d *= mask2d
                         # compute statistical analysis and update the image header
-                        image2d_statsum = statsumm(image2d, output_header, redustep, rm_nan=True)
+                        image2d_statsumm = statsumm(
+                            image2d=image2d,
+                            mask2d=mask2d,
+                            header=output_header,
+                            redustep=redustep,
+                            rm_nan=True)
                         # compute run_astrometry: note that the function generates the output file
                         if 'maxfieldview_arcmin' in instconf['imagetypes'][redustep]:
                             maxfieldview_arcmin = instconf['imagetypes'][redustep]['maxfieldview_arcmin']
@@ -256,7 +261,7 @@ def run_reduction_step(redustep, interactive, datadir, list_of_nights, filename,
                     database[redustep][fname]['night'] = night
                     database[redustep][fname]['signature'] = imgsignature
                     database[redustep][fname]['fname'] = output_fname
-                    database[redustep][fname]['statsumm'] = image2d_statsum
+                    database[redustep][fname]['statsumm'] = image2d_statsumm
                     dumdict = dict()
                     for keyword in instconf['masterkeywords']:
                         dumdict[keyword] = output_header[keyword]
