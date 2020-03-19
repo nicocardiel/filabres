@@ -24,7 +24,7 @@ def delete_reduced(instrument, reducedima):
     reducedima : str
         Full path and file name of the reduced calibration image.
     """
-    print('> Image to be deleted {}'.format(reducedima))
+    print('Image to be deleted {}'.format(reducedima))
 
     # determine image type and night
     islash = reducedima.find('/')
@@ -82,11 +82,11 @@ def delete_reduced(instrument, reducedima):
             raise SystemError(msg)
 
         # display signature and modified Julian Date
-        print('> Signature: {}'.format(particular_signature))
-        print('> MJD-OBS..: {}'.format(particular_mjd))
+        print('Signature: {}'.format(particular_signature))
+        print('MJD-OBS..: {}'.format(particular_mjd))
 
         ncal_with_signature = len(database[imagetype][particular_signature])
-        print('> Number of reduced {} images with this signature: {}'.format(imagetype, ncal_with_signature))
+        print('Number of reduced {} images with this signature: {}'.format(imagetype, ncal_with_signature))
         if ncal_with_signature > 1:
             del database[imagetype][particular_signature][particular_mjd]
         elif ncal_with_signature == 1:

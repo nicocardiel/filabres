@@ -17,6 +17,42 @@ from .ximshow import ximshow_file
 
 def show_df(df, n, list_mode, imagetype, args_keyword_sort, args_ndecimal,
             args_plotxy, args_plotimage):
+    """
+    Display list, plot XY diagrams and display images.
+
+    Parameters
+    ----------
+    df : pandas dataframe or None
+        Dataframe with the information to be displayed.
+    n : int
+        Number of rows in input dataframe 'df'.
+    list_mode : str
+        List mode:
+        - long: each file in a single line with additional keywords
+        - basic: each file in a single line without the file path and
+                 without additional keywords
+        - singleline: all the files in a single line without additional keywords
+    imagetype : str
+        Image type. It should coincide with any of the available
+        image types declared in the instrument configuration file.
+    args_keyword_sort: list or None
+        List with keywords to be used to sort the displayed table.
+        If not given in args_keyword, the keywords will be appended
+        to the list of displayed keywords.
+    args_ndecimal : int or None
+        Number of decimal places for floats.
+    args_plotxy : bool
+        If True, plot scatter matrices to visualize trends in the
+        selected keywords.
+    args_plotimage: bool
+        If True, display selected images.
+    """
+
+    if args_ndecimal is None:
+        ndecimal = 5
+    else:
+        ndecimal = args_ndecimal
+
     if list_mode == "singleline":
         if n > 0:
             print()
@@ -24,10 +60,6 @@ def show_df(df, n, list_mode, imagetype, args_keyword_sort, args_ndecimal,
         print('Total: {} files'.format(n))
     else:
         if df is not None:
-            if args_ndecimal is None:
-                ndecimal = 5
-            else:
-                ndecimal = args_ndecimal
             if df.shape[0] > 0:
                 # start dataframe index at 1 instead of 0
                 df.index += 1

@@ -143,16 +143,16 @@ def list_originf(instrument, args_originf, list_mode, datadir,
         raise SystemError(msg)
 
     # display signature and list all reduced images with the same signature
-    print('> Signature: {}'.format(particular_signature))
-    print('> Available images with this signature:')
+    print('Signature: {}'.format(particular_signature))
+    print('Available images with this signature:')
     for mjd in database[imagetype][particular_signature].keys():
         fname = database[imagetype][particular_signature][mjd]['fname']
         if fname == args_originf:
             fname += ' (*)'
         print('MJD-OBS: {}, calibration: {}'.format(mjd, fname))
     print('---')
-    print('> List of individual frames:')
-    print('  (involved in the computation of {})'.format(args_originf))
+    print('List of individual frames:')
+    print('(involved in the computation of {})'.format(args_originf))
 
     # read local image database for the corresponding night
     jsonfname = LISTDIR + night + '/imagedb_{}.json'.format(instrument)

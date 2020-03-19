@@ -416,17 +416,17 @@ evolution of the median bias level (``QUANT500``) with the observation date
 
 ::
 
-   $ filabres -lr bias -k mjd-obs -k quant500 -ks robuststd -pxy
-                                                                    file      MJD-OBS   QUANT500  ROBUSTSTD
-   78  bias/171116_t2_CAFOS/bias_caf-20171116-14:06:06-cal-lilj_red.fits  58073.58750  657.00000  1.48260  
-   58  bias/171121_t2_CAFOS/bias_caf-20171121-15:21:37-cal-bomd_red.fits  58078.64000  666.00000  1.85325  
-   46  bias/171101_t2_CAFOS/bias_caf-20171031-14:14:01-cal-agui_red.fits  58057.59300  665.00000  2.22390  
-   ...
-   ...
-   72  bias/170628_t2_CAFOS/bias_caf-20170628-17:29:10-cal-pelm_red.fits  57932.72860  698.00000  8.52495  
-   56  bias/170629_t2_CAFOS/bias_caf-20170629-17:41:33-cal-mirl_red.fits  57933.73719  666.00000  8.89560  
-   14  bias/170601_t2_CAFOS/bias_caf-20170601-13:06:15-cal-bomd_red.fits  57905.54600  723.00000  24.09225 
-   Total: 83 files
+  $ filabres -lr bias -k mjd-obs -k quant500 -ks robuststd -pxy
+          MJD-OBS   QUANT500  ROBUSTSTD                                                               file
+  79  58073.58750  657.00000  1.48260    bias/171116_t2_CAFOS/bias_caf-20171116-14:06:06-cal-lilj_red.fits
+  59  58078.64000  666.00000  1.85325    bias/171121_t2_CAFOS/bias_caf-20171121-15:21:37-cal-bomd_red.fits
+  46  58057.59300  665.00000  2.22390    bias/171101_t2_CAFOS/bias_caf-20171031-14:14:01-cal-agui_red.fits
+  ...
+  ...
+  57  57933.73719  666.00000  8.89560    bias/170629_t2_CAFOS/bias_caf-20170629-17:41:33-cal-mirl_red.fits
+  53  57876.04090  698.00000  14.08470   bias/170502_t2_CAFOS/bias_caf-20170503-00:58:59-sci-alex_red.fits
+  14  57905.54600  723.00000  24.09225   bias/170601_t2_CAFOS/bias_caf-20170601-13:06:15-cal-bomd_red.fits
+  Total: 84 files
 
 .. image:: images/pxy_reduced_bias.png
    :width: 100%
@@ -441,11 +441,11 @@ master bias generated in that night:
 
 ::
 
-   $ filabres -lr bias -k mjd-obs -k quant500 -ks robuststd -n 170601* -pi
-                                                                   file     MJD-OBS  QUANT500  ROBUSTSTD
-   2  bias/170601_t2_CAFOS/bias_caf-20170601-15:14:47-cal-pelm_red.fits  57905.6352  680.0     5.18910  
-   1  bias/170601_t2_CAFOS/bias_caf-20170601-13:06:15-cal-bomd_red.fits  57905.5460  723.0     24.09225 
-   Total: 2 files
+  $ filabres -lr bias -k mjd-obs -k quant500 -ks robuststd -n 170601* -pi
+        MJD-OBS  QUANT500  ROBUSTSTD                                                               file
+  2  57905.6352  680.0     5.18910    bias/170601_t2_CAFOS/bias_caf-20170601-15:14:47-cal-pelm_red.fits
+  1  57905.5460  723.0     24.09225   bias/170601_t2_CAFOS/bias_caf-20170601-13:06:15-cal-bomd_red.fits
+  Total: 2 files
 
 The first master bias looks normal:
 
@@ -468,44 +468,44 @@ additional use of ``-k <keyword>``, ``-ks <keyword>``, ``-pxy`` and ``-pi``):
 
 ::
 
-   $ filabres -of bias/170601_t2_CAFOS/bias_caf-20170601-13:06:15-cal-bomd_red.fits \
-   -k quant500 -k robuststd
-   > Signature: SITE#1d_15__1000__2048__[501,1:1500,2048]__1__1
-   > Available images with this signature:
-   MJD-OBS: 57809.42257, calibration: bias/170225_t2_CAFOS/bias_caf-20170225-10:03:09-cal-bomd_red.fits
-   MJD-OBS: 57810.48956, calibration: bias/170226_t2_CAFOS/bias_caf-20170226-11:39:37-cal-bomd_red.fits
-   MJD-OBS: 57890.69435, calibration: bias/170517_t2_CAFOS/bias_caf-20170517-16:34:30-cal-bomd_red.fits
-   MJD-OBS: 57891.57056, calibration: bias/170518_t2_CAFOS/bias_caf-20170518-13:36:14-cal-bomd_red.fits
-   MJD-OBS: 57897.69934, calibration: bias/170524_t2_CAFOS/bias_caf-20170524-16:41:41-cal-boeh_red.fits
-   MJD-OBS: 57898.17553, calibration: bias/170524_t2_CAFOS/bias_caf-20170525-04:07:28-cal-boeh_red.fits
-   MJD-OBS: 57898.69377, calibration: bias/170525_t2_CAFOS/bias_caf-20170525-16:33:40-cal-boeh_red.fits
-   MJD-OBS: 57899.16265, calibration: bias/170525_t2_CAFOS/bias_caf-20170526-03:48:53-cal-boeh_red.fits
-   MJD-OBS: 57899.65963, calibration: bias/170526_t2_CAFOS/bias_caf-20170526-15:44:34-cal-boeh_red.fits
-   MJD-OBS: 57900.17332, calibration: bias/170526_t2_CAFOS/bias_caf-20170527-04:04:16-cal-boeh_red.fits
-   MJD-OBS: 57900.69400, calibration: bias/170527_t2_CAFOS/bias_caf-20170527-16:34:04-cal-boeh_red.fits
-   MJD-OBS: 57901.68921, calibration: bias/170528_t2_CAFOS/bias_caf-20170528-16:27:05-cal-boeh_red.fits
-   MJD-OBS: 57905.54971, calibration: bias/170601_t2_CAFOS/bias_caf-20170601-13:06:15-cal-bomd_red.fits (*)
-   ---
-   > List of individual frames:
-     (involved in the computation of bias/170601_t2_CAFOS/bias_caf-20170601-13:06:15-cal-bomd_red.fits)
-                                                                               file  QUANT500  ROBUSTSTD
-   1   /Users/cardiel/CAFOS2017/170601_t2_CAFOS/caf-20170601-13:06:15-cal-bomd.fits  722.0     25.2042  
-   2   /Users/cardiel/CAFOS2017/170601_t2_CAFOS/caf-20170601-13:07:26-cal-bomd.fits  722.0     25.2042  
-   3   /Users/cardiel/CAFOS2017/170601_t2_CAFOS/caf-20170601-13:08:38-cal-bomd.fits  722.0     25.2042  
-   4   /Users/cardiel/CAFOS2017/170601_t2_CAFOS/caf-20170601-13:09:50-cal-bomd.fits  722.0     25.2042  
-   5   /Users/cardiel/CAFOS2017/170601_t2_CAFOS/caf-20170601-13:11:02-cal-bomd.fits  722.0     25.2042  
-   6   /Users/cardiel/CAFOS2017/170601_t2_CAFOS/caf-20170601-13:12:14-cal-bomd.fits  723.0     25.9455  
-   7   /Users/cardiel/CAFOS2017/170601_t2_CAFOS/caf-20170601-13:13:25-cal-bomd.fits  723.0     25.2042  
-   8   /Users/cardiel/CAFOS2017/170601_t2_CAFOS/caf-20170601-13:14:37-cal-bomd.fits  723.0     25.2042  
-   9   /Users/cardiel/CAFOS2017/170601_t2_CAFOS/caf-20170601-13:15:48-cal-bomd.fits  723.0     25.2042  
-   10  /Users/cardiel/CAFOS2017/170601_t2_CAFOS/caf-20170601-13:17:01-cal-bomd.fits  723.0     25.9455  
-   Total: 10 files
+  $ filabres -of bias/170601_t2_CAFOS/bias_caf-20170601-13:06:15-cal-bomd_red.fits \
+  -k quant500 -k robuststd
+  Signature: SITE#1d_15__1000__2048__[501,1:1500,2048]__1__1
+  Available images with this signature:
+  MJD-OBS: 57809.42257, calibration: bias/170225_t2_CAFOS/bias_caf-20170225-10:03:09-cal-bomd_red.fits
+  MJD-OBS: 57810.48956, calibration: bias/170226_t2_CAFOS/bias_caf-20170226-11:39:37-cal-bomd_red.fits
+  MJD-OBS: 57890.69435, calibration: bias/170517_t2_CAFOS/bias_caf-20170517-16:34:30-cal-bomd_red.fits
+  MJD-OBS: 57891.57056, calibration: bias/170518_t2_CAFOS/bias_caf-20170518-13:36:14-cal-bomd_red.fits
+  MJD-OBS: 57897.69934, calibration: bias/170524_t2_CAFOS/bias_caf-20170524-16:41:41-cal-boeh_red.fits
+  MJD-OBS: 57898.17553, calibration: bias/170524_t2_CAFOS/bias_caf-20170525-04:07:28-cal-boeh_red.fits
+  MJD-OBS: 57898.69377, calibration: bias/170525_t2_CAFOS/bias_caf-20170525-16:33:40-cal-boeh_red.fits
+  MJD-OBS: 57899.16265, calibration: bias/170525_t2_CAFOS/bias_caf-20170526-03:48:53-cal-boeh_red.fits
+  MJD-OBS: 57899.65963, calibration: bias/170526_t2_CAFOS/bias_caf-20170526-15:44:34-cal-boeh_red.fits
+  MJD-OBS: 57900.17332, calibration: bias/170526_t2_CAFOS/bias_caf-20170527-04:04:16-cal-boeh_red.fits
+  MJD-OBS: 57900.69400, calibration: bias/170527_t2_CAFOS/bias_caf-20170527-16:34:04-cal-boeh_red.fits
+  MJD-OBS: 57901.68921, calibration: bias/170528_t2_CAFOS/bias_caf-20170528-16:27:05-cal-boeh_red.fits
+  MJD-OBS: 57905.54971, calibration: bias/170601_t2_CAFOS/bias_caf-20170601-13:06:15-cal-bomd_red.fits (*)
+  ---
+  List of individual frames:
+    (involved in the computation of bias/170601_t2_CAFOS/bias_caf-20170601-13:06:15-cal-bomd_red.fits)
+      QUANT500  ROBUSTSTD                                                                                      file
+  1   722.0     25.2042    /Volumes/NicoPassport/CAHA/CAFOS2017/170601_t2_CAFOS/caf-20170601-13:06:15-cal-bomd.fits
+  2   722.0     25.2042    /Volumes/NicoPassport/CAHA/CAFOS2017/170601_t2_CAFOS/caf-20170601-13:07:26-cal-bomd.fits
+  3   722.0     25.2042    /Volumes/NicoPassport/CAHA/CAFOS2017/170601_t2_CAFOS/caf-20170601-13:08:38-cal-bomd.fits
+  4   722.0     25.2042    /Volumes/NicoPassport/CAHA/CAFOS2017/170601_t2_CAFOS/caf-20170601-13:09:50-cal-bomd.fits
+  5   722.0     25.2042    /Volumes/NicoPassport/CAHA/CAFOS2017/170601_t2_CAFOS/caf-20170601-13:11:02-cal-bomd.fits
+  6   723.0     25.9455    /Volumes/NicoPassport/CAHA/CAFOS2017/170601_t2_CAFOS/caf-20170601-13:12:14-cal-bomd.fits
+  7   723.0     25.2042    /Volumes/NicoPassport/CAHA/CAFOS2017/170601_t2_CAFOS/caf-20170601-13:13:25-cal-bomd.fits
+  8   723.0     25.2042    /Volumes/NicoPassport/CAHA/CAFOS2017/170601_t2_CAFOS/caf-20170601-13:14:37-cal-bomd.fits
+  9   723.0     25.2042    /Volumes/NicoPassport/CAHA/CAFOS2017/170601_t2_CAFOS/caf-20170601-13:15:48-cal-bomd.fits
+  10  723.0     25.9455    /Volumes/NicoPassport/CAHA/CAFOS2017/170601_t2_CAFOS/caf-20170601-13:17:01-cal-bomd.fits
+  Total: 10 files
 
 The output of the last command provides very useful information:
 
-- ``> Signature``: indicates the particular signature of the calibration image.
+- ``Signature``: indicates the particular signature of the calibration image.
 
-- ``> Available reduced images with this signature``: the modified Julian Date
+- ``Available reduced images with this signature``: the modified Julian Date
   and the name of the calibration file is given. An asterisk ``(*)`` appears
   after the name of the reduced image we are investigating. **The list reveals
   that there are other reduced bias images with the same signature**. This is
@@ -513,7 +513,7 @@ The output of the last command provides very useful information:
   there will be additional calibration images with the same signature that can
   be employed (although from different nights).
 
-- ``> List of individual frames:`` list of individual images employed in the
+- ``List of individual frames:`` list of individual images employed in the
   reduction of the reduced image indicated after the argument ``-of``. This
   list is a table with the additional requested keywords.
 
@@ -524,10 +524,10 @@ present in the 10 individual images, as can be easily visualized using ``-pi``:
 
 ::
 
-   $ filabres -of bias/170601_t2_CAFOS/bias_caf-20170601-13:06:15-cal-bomd_red.fits \
-   -k quant500 -k robuststd -pi
-   ...
-   ...
+  $ filabres -of bias/170601_t2_CAFOS/bias_caf-20170601-13:06:15-cal-bomd_red.fits \
+  -k quant500 -k robuststd -pi
+  ...
+  ...
 
 (Note: the 10 displayed images are quite similar to the one shown here)
 
@@ -541,17 +541,17 @@ inspect other reduced bias frames with high ``ROBUSTSTD``.
 
 ::
 
-   (filabres ) $ filabres -lr bias -k quant500 -ks robuststd
-   ...
-   ...
+  (filabres ) $ filabres -lr bias -k quant500 -ks robuststd
+  ...
+  ...
 
 Let's have a look to images with ``ROBUSTSTD`` > 5:
 
 ::
 
-   $ filabres -lr bias -k quant500 -ks robuststd --filter 'k[robuststd] > 5' -pi
-   ...
-   ...
+  $ filabres -lr bias -k quant500 -ks robuststd --filter 'k[robuststd] > 5' -pi
+  ...
+  ...
 
 Apart from
 ``bias/170601_t2_CAFOS/bias_caf-20170601-13:06:15-cal-bomd_red.fits``, there is
@@ -567,39 +567,39 @@ image:
 
 ::
 
-   $ filabres -of bias/170525_t2_CAFOS/bias_caf-20170525-16:33:40-cal-boeh_red.fits \
-   -k quant500 -k robuststd -pi
-   > Signature: SITE#1d_15__1000__2048__[501,1:1500,2048]__1__1
-   > Available images with this signature:
-   MJD-OBS: 57809.42257, calibration: bias/170225_t2_CAFOS/bias_caf-20170225-10:03:09-cal-bomd_red.fits
-   MJD-OBS: 57810.48956, calibration: bias/170226_t2_CAFOS/bias_caf-20170226-11:39:37-cal-bomd_red.fits
-   MJD-OBS: 57890.69435, calibration: bias/170517_t2_CAFOS/bias_caf-20170517-16:34:30-cal-bomd_red.fits
-   MJD-OBS: 57891.57056, calibration: bias/170518_t2_CAFOS/bias_caf-20170518-13:36:14-cal-bomd_red.fits
-   MJD-OBS: 57897.69934, calibration: bias/170524_t2_CAFOS/bias_caf-20170524-16:41:41-cal-boeh_red.fits
-   MJD-OBS: 57898.17553, calibration: bias/170524_t2_CAFOS/bias_caf-20170525-04:07:28-cal-boeh_red.fits
-   MJD-OBS: 57898.69377, calibration: bias/170525_t2_CAFOS/bias_caf-20170525-16:33:40-cal-boeh_red.fits (*)
-   MJD-OBS: 57899.16265, calibration: bias/170525_t2_CAFOS/bias_caf-20170526-03:48:53-cal-boeh_red.fits
-   MJD-OBS: 57899.65963, calibration: bias/170526_t2_CAFOS/bias_caf-20170526-15:44:34-cal-boeh_red.fits
-   MJD-OBS: 57900.17332, calibration: bias/170526_t2_CAFOS/bias_caf-20170527-04:04:16-cal-boeh_red.fits
-   MJD-OBS: 57900.69400, calibration: bias/170527_t2_CAFOS/bias_caf-20170527-16:34:04-cal-boeh_red.fits
-   MJD-OBS: 57901.68921, calibration: bias/170528_t2_CAFOS/bias_caf-20170528-16:27:05-cal-boeh_red.fits
-   MJD-OBS: 57905.54971, calibration: bias/170601_t2_CAFOS/bias_caf-20170601-13:06:15-cal-bomd_red.fits
-   ---
-   > List of individual frames:
-     (involved in the computation of bias/170525_t2_CAFOS/bias_caf-20170525-16:33:40-cal-boeh_red.fits)
-                                                                                           file  QUANT500  ROBUSTSTD
-   1   /Users/cardiel/CAFOS2017/170525_t2_CAFOS/caf-20170525-16:33:40-cal-boeh.fits  683.0     11.8608  
-   2   /Users/cardiel/CAFOS2017/170525_t2_CAFOS/caf-20170525-16:34:51-cal-boeh.fits  683.0     11.8608  
-   3   /Users/cardiel/CAFOS2017/170525_t2_CAFOS/caf-20170525-16:36:02-cal-boeh.fits  683.0     11.8608  
-   4   /Users/cardiel/CAFOS2017/170525_t2_CAFOS/caf-20170525-16:37:14-cal-boeh.fits  683.0     11.8608  
-   5   /Users/cardiel/CAFOS2017/170525_t2_CAFOS/caf-20170525-16:38:26-cal-boeh.fits  682.0     11.8608  
-   6   /Users/cardiel/CAFOS2017/170525_t2_CAFOS/caf-20170525-16:39:37-cal-boeh.fits  682.0     11.8608  
-   7   /Users/cardiel/CAFOS2017/170525_t2_CAFOS/caf-20170525-16:40:49-cal-boeh.fits  678.0     8.1543   
-   8   /Users/cardiel/CAFOS2017/170525_t2_CAFOS/caf-20170525-16:42:01-cal-boeh.fits  678.0     8.1543   
-   9   /Users/cardiel/CAFOS2017/170525_t2_CAFOS/caf-20170525-16:43:13-cal-boeh.fits  678.0     8.1543   
-   10  /Users/cardiel/CAFOS2017/170525_t2_CAFOS/caf-20170525-16:44:25-cal-boeh.fits  678.0     8.1543   
-   Total: 10 files
-
+  $ filabres -of bias/170525_t2_CAFOS/bias_caf-20170525-16:33:40-cal-boeh_red.fits \
+  -k quant500 -k robuststd -pi
+  Signature: SITE#1d_15__1000__2048__[501,1:1500,2048]__1__1
+  Available images with this signature:
+  MJD-OBS: 57809.42257, calibration: bias/170225_t2_CAFOS/bias_caf-20170225-10:03:09-cal-bomd_red.fits
+  MJD-OBS: 57810.48956, calibration: bias/170226_t2_CAFOS/bias_caf-20170226-11:39:37-cal-bomd_red.fits
+  MJD-OBS: 57890.69435, calibration: bias/170517_t2_CAFOS/bias_caf-20170517-16:34:30-cal-bomd_red.fits
+  MJD-OBS: 57891.57056, calibration: bias/170518_t2_CAFOS/bias_caf-20170518-13:36:14-cal-bomd_red.fits
+  MJD-OBS: 57897.69934, calibration: bias/170524_t2_CAFOS/bias_caf-20170524-16:41:41-cal-boeh_red.fits
+  MJD-OBS: 57898.17553, calibration: bias/170524_t2_CAFOS/bias_caf-20170525-04:07:28-cal-boeh_red.fits
+  MJD-OBS: 57898.69377, calibration: bias/170525_t2_CAFOS/bias_caf-20170525-16:33:40-cal-boeh_red.fits (*)
+  MJD-OBS: 57899.16265, calibration: bias/170525_t2_CAFOS/bias_caf-20170526-03:48:53-cal-boeh_red.fits
+  MJD-OBS: 57899.65963, calibration: bias/170526_t2_CAFOS/bias_caf-20170526-15:44:34-cal-boeh_red.fits
+  MJD-OBS: 57900.17332, calibration: bias/170526_t2_CAFOS/bias_caf-20170527-04:04:16-cal-boeh_red.fits
+  MJD-OBS: 57900.69400, calibration: bias/170527_t2_CAFOS/bias_caf-20170527-16:34:04-cal-boeh_red.fits
+  MJD-OBS: 57901.68921, calibration: bias/170528_t2_CAFOS/bias_caf-20170528-16:27:05-cal-boeh_red.fits
+  MJD-OBS: 57905.54971, calibration: bias/170601_t2_CAFOS/bias_caf-20170601-13:06:15-cal-bomd_red.fits
+  ---
+  List of individual frames:
+    (involved in the computation of bias/170525_t2_CAFOS/bias_caf-20170525-16:33:40-cal-boeh_red.fits)
+      QUANT500  ROBUSTSTD                                                                                      file
+  1   683.0     11.8608    /Volumes/NicoPassport/CAHA/CAFOS2017/170525_t2_CAFOS/caf-20170525-16:33:40-cal-boeh.fits
+  2   683.0     11.8608    /Volumes/NicoPassport/CAHA/CAFOS2017/170525_t2_CAFOS/caf-20170525-16:34:51-cal-boeh.fits
+  3   683.0     11.8608    /Volumes/NicoPassport/CAHA/CAFOS2017/170525_t2_CAFOS/caf-20170525-16:36:02-cal-boeh.fits
+  4   683.0     11.8608    /Volumes/NicoPassport/CAHA/CAFOS2017/170525_t2_CAFOS/caf-20170525-16:37:14-cal-boeh.fits
+  5   682.0     11.8608    /Volumes/NicoPassport/CAHA/CAFOS2017/170525_t2_CAFOS/caf-20170525-16:38:26-cal-boeh.fits
+  6   682.0     11.8608    /Volumes/NicoPassport/CAHA/CAFOS2017/170525_t2_CAFOS/caf-20170525-16:39:37-cal-boeh.fits
+  7   678.0     8.1543     /Volumes/NicoPassport/CAHA/CAFOS2017/170525_t2_CAFOS/caf-20170525-16:40:49-cal-boeh.fits
+  8   678.0     8.1543     /Volumes/NicoPassport/CAHA/CAFOS2017/170525_t2_CAFOS/caf-20170525-16:42:01-cal-boeh.fits
+  9   678.0     8.1543     /Volumes/NicoPassport/CAHA/CAFOS2017/170525_t2_CAFOS/caf-20170525-16:43:13-cal-boeh.fits
+  10  678.0     8.1543     /Volumes/NicoPassport/CAHA/CAFOS2017/170525_t2_CAFOS/caf-20170525-16:44:25-cal-boeh.fits
+  Total: 10 files
+  
 Again, the problem is present in the individual images. 
 
 Removing invalid reduced bias
@@ -610,7 +610,8 @@ Removing invalid reduced bias
    In order to remove a particular reduced calibration (in this case a master
    bias) it is important to follow **all the steps** here given.
 
-1. Include individual images in ``ignored_images.yaml``: in this example, we
+1. Include the individual images involved in the generation of the reduced
+   image in ``ignored_images.yaml``: in this example, we
    want to exclude 10 images from night ``170525_t2_CAFOS`` and another set of
    10 images from ``170601_t2_CAFOS``. The easiest way
    is to repeat the execution of the last **filabres** command, by adding
@@ -620,46 +621,46 @@ Removing invalid reduced bias
 
    - 1.a. For the first wrong reduced bias execute:
 
-      ::
+     ::
 
-        $ filabres -of bias/170525_t2_CAFOS/bias_caf-20170525-16:33:40-cal-boeh_red.fits -lm basic
-        ...
-        ...
-        > List of individual frames:
-          (involved in the computation of bias/170525_t2_CAFOS/bias_caf-20170525-16:33:40-cal-boeh_red.fits)
-         - caf-20170525-16:33:40-cal-boeh.fits
-         - caf-20170525-16:34:51-cal-boeh.fits
-         - caf-20170525-16:36:02-cal-boeh.fits
-         - caf-20170525-16:37:14-cal-boeh.fits
-         - caf-20170525-16:38:26-cal-boeh.fits
-         - caf-20170525-16:39:37-cal-boeh.fits
-         - caf-20170525-16:40:49-cal-boeh.fits
-         - caf-20170525-16:42:01-cal-boeh.fits
-         - caf-20170525-16:43:13-cal-boeh.fits
-         - caf-20170525-16:44:25-cal-boeh.fits
-        Total: 10 files
+       $ filabres -of bias/170525_t2_CAFOS/bias_caf-20170525-16:33:40-cal-boeh_red.fits -lm basic
+       ...
+       ...
+       List of individual frames:
+       (involved in the computation of bias/170525_t2_CAFOS/bias_caf-20170525-16:33:40-cal-boeh_red.fits)
+        - caf-20170525-16:33:40-cal-boeh.fits
+        - caf-20170525-16:34:51-cal-boeh.fits
+        - caf-20170525-16:36:02-cal-boeh.fits
+        - caf-20170525-16:37:14-cal-boeh.fits
+        - caf-20170525-16:38:26-cal-boeh.fits
+        - caf-20170525-16:39:37-cal-boeh.fits
+        - caf-20170525-16:40:49-cal-boeh.fits
+        - caf-20170525-16:42:01-cal-boeh.fits
+        - caf-20170525-16:43:13-cal-boeh.fits
+        - caf-20170525-16:44:25-cal-boeh.fits
+       Total: 10 files
 
-     For the second wrong bias:
+     For the second wrong reduced bias:
 
-      ::
+     ::
 
 
-        $ filabres -of bias/170601_t2_CAFOS/bias_caf-20170601-13:06:15-cal-bomd_red.fits -lm basic
-        ...
-        ...
-        > List of individual frames:
-          (involved in the computation of bias/170601_t2_CAFOS/bias_caf-20170601-13:06:15-cal-bomd_red.fits)
-         - caf-20170601-13:06:15-cal-bomd.fits
-         - caf-20170601-13:07:26-cal-bomd.fits
-         - caf-20170601-13:08:38-cal-bomd.fits
-         - caf-20170601-13:09:50-cal-bomd.fits
-         - caf-20170601-13:11:02-cal-bomd.fits
-         - caf-20170601-13:12:14-cal-bomd.fits
-         - caf-20170601-13:13:25-cal-bomd.fits
-         - caf-20170601-13:14:37-cal-bomd.fits
-         - caf-20170601-13:15:48-cal-bomd.fits
-         - caf-20170601-13:17:01-cal-bomd.fits
-        Total: 10 files
+       $ filabres -of bias/170601_t2_CAFOS/bias_caf-20170601-13:06:15-cal-bomd_red.fits -lm basic
+       ...
+       ...
+       List of individual frames:
+       (involved in the computation of bias/170601_t2_CAFOS/bias_caf-20170601-13:06:15-cal-bomd_red.fits)
+        - caf-20170601-13:06:15-cal-bomd.fits
+        - caf-20170601-13:07:26-cal-bomd.fits
+        - caf-20170601-13:08:38-cal-bomd.fits
+        - caf-20170601-13:09:50-cal-bomd.fits
+        - caf-20170601-13:11:02-cal-bomd.fits
+        - caf-20170601-13:12:14-cal-bomd.fits
+        - caf-20170601-13:13:25-cal-bomd.fits
+        - caf-20170601-13:14:37-cal-bomd.fits
+        - caf-20170601-13:15:48-cal-bomd.fits
+        - caf-20170601-13:17:01-cal-bomd.fits
+       Total: 10 files
 
    - 1.b. Cut and paste each block of 10 lines starting by ``-`` into the file
      ``ignored_image.yaml``, creating a new block for each night.  Considering
@@ -684,97 +685,97 @@ Removing invalid reduced bias
 
    ::
 
-      $ filabres -rs initialize -n 170525*
-      * Number of nights found: 1
-      File ./lists/170525_t2_CAFOS/imagedb_cafos.json already exists: skipping directory.
-      * program STOP
+     $ filabres -rs initialize -n 170525*
+     * Number of nights found: 1
+     File ./lists/170525_t2_CAFOS/imagedb_cafos.json already exists: skipping directory.
+     * program STOP
 
    nothing really happens because the local database already exists. You have
-   to force the classification in order to override the database file:
+   to force the classification in order to override the database file (using
+   the argument ``--force``):
 
    ::
 
-      $ filabres -rs initialize -n 170525* --force
-      * Number of nights found: 1
-      * Working with night 170601_t2_CAFOS (1/1) ---> 62 FITS files
-      * program STOP
+     $ filabres -rs initialize -n 170525* --force
+     * Number of nights found: 1
+     * Working with night 170601_t2_CAFOS (1/1) ---> 62 FITS files
+     * program STOP
 
    Check that the images have in fact been ignored:
 
    ::
 
-      $ filabres -lc ignored -n 170525*
-                                                                                              file NAXIS1 NAXIS2
-      1   /Users/cardiel/CAFOS2017/170525_t2_CAFOS/caf-20170525-16:33:40-cal-boeh.fits  1000   2048 
-      2   /Users/cardiel/CAFOS2017/170525_t2_CAFOS/caf-20170525-16:34:51-cal-boeh.fits  1000   2048 
-      3   /Users/cardiel/CAFOS2017/170525_t2_CAFOS/caf-20170525-16:36:02-cal-boeh.fits  1000   2048 
-      4   /Users/cardiel/CAFOS2017/170525_t2_CAFOS/caf-20170525-16:37:14-cal-boeh.fits  1000   2048 
-      5   /Users/cardiel/CAFOS2017/170525_t2_CAFOS/caf-20170525-16:38:26-cal-boeh.fits  1000   2048 
-      6   /Users/cardiel/CAFOS2017/170525_t2_CAFOS/caf-20170525-16:39:37-cal-boeh.fits  1000   2048 
-      7   /Users/cardiel/CAFOS2017/170525_t2_CAFOS/caf-20170525-16:40:49-cal-boeh.fits  1000   2048 
-      8   /Users/cardiel/CAFOS2017/170525_t2_CAFOS/caf-20170525-16:42:01-cal-boeh.fits  1000   2048 
-      9   /Users/cardiel/CAFOS2017/170525_t2_CAFOS/caf-20170525-16:43:13-cal-boeh.fits  1000   2048 
-      10  /Users/cardiel/CAFOS2017/170525_t2_CAFOS/caf-20170525-16:44:25-cal-boeh.fits  1000   2048 
-      Total: 10 files
+     $ filabres -lc ignored -n 170525*
+                                                                                             file
+     1   /Volumes/NicoPassport/CAHA/CAFOS2017/170525_t2_CAFOS/caf-20170525-16:33:40-cal-boeh.fits
+     2   /Volumes/NicoPassport/CAHA/CAFOS2017/170525_t2_CAFOS/caf-20170525-16:34:51-cal-boeh.fits
+     3   /Volumes/NicoPassport/CAHA/CAFOS2017/170525_t2_CAFOS/caf-20170525-16:36:02-cal-boeh.fits
+     4   /Volumes/NicoPassport/CAHA/CAFOS2017/170525_t2_CAFOS/caf-20170525-16:37:14-cal-boeh.fits
+     5   /Volumes/NicoPassport/CAHA/CAFOS2017/170525_t2_CAFOS/caf-20170525-16:38:26-cal-boeh.fits
+     6   /Volumes/NicoPassport/CAHA/CAFOS2017/170525_t2_CAFOS/caf-20170525-16:39:37-cal-boeh.fits
+     7   /Volumes/NicoPassport/CAHA/CAFOS2017/170525_t2_CAFOS/caf-20170525-16:40:49-cal-boeh.fits
+     8   /Volumes/NicoPassport/CAHA/CAFOS2017/170525_t2_CAFOS/caf-20170525-16:42:01-cal-boeh.fits
+     9   /Volumes/NicoPassport/CAHA/CAFOS2017/170525_t2_CAFOS/caf-20170525-16:43:13-cal-boeh.fits
+     10  /Volumes/NicoPassport/CAHA/CAFOS2017/170525_t2_CAFOS/caf-20170525-16:44:25-cal-boeh.fits
+     Total: 10 files
 
    Repeat the same for the second night:
 
    ::
 
-      $ filabres -rs initialize -n 170601* --force
-      * Number of nights found: 1
-      * Working with night 170601_t2_CAFOS (1/1) ---> 96 FITS files
-      * program STOP
+     $ filabres -rs initialize -n 170601* --force
+     * Number of nights found: 1
+     * Working with night 170601_t2_CAFOS (1/1) ---> 96 FITS files
+     * program STOP
 
    ::
 
-      $ filabres -lc ignored -n 170601*
-                                                                                              file NAXIS1 NAXIS2
-                                                                                      1   /Users/cardiel/CAFOS2017/170601_t2_CAFOS/caf-20170601-13:06:15-cal-bomd.fits  1000   2048 
-      2   /Users/cardiel/CAFOS2017/170601_t2_CAFOS/caf-20170601-13:07:26-cal-bomd.fits  1000   2048 
-      3   /Users/cardiel/CAFOS2017/170601_t2_CAFOS/caf-20170601-13:08:38-cal-bomd.fits  1000   2048 
-      4   /Users/cardiel/CAFOS2017/170601_t2_CAFOS/caf-20170601-13:09:50-cal-bomd.fits  1000   2048 
-      5   /Users/cardiel/CAFOS2017/170601_t2_CAFOS/caf-20170601-13:11:02-cal-bomd.fits  1000   2048 
-      6   /Users/cardiel/CAFOS2017/170601_t2_CAFOS/caf-20170601-13:12:14-cal-bomd.fits  1000   2048 
-      7   /Users/cardiel/CAFOS2017/170601_t2_CAFOS/caf-20170601-13:13:25-cal-bomd.fits  1000   2048 
-      8   /Users/cardiel/CAFOS2017/170601_t2_CAFOS/caf-20170601-13:14:37-cal-bomd.fits  1000   2048 
-      9   /Users/cardiel/CAFOS2017/170601_t2_CAFOS/caf-20170601-13:15:48-cal-bomd.fits  1000   2048 
-      10  /Users/cardiel/CAFOS2017/170601_t2_CAFOS/caf-20170601-13:17:01-cal-bomd.fits  1000   2048 
-      Total: 10 files
+     $ filabres -lc ignored -n 170601*
+                                                                                             file
+     1   /Volumes/NicoPassport/CAHA/CAFOS2017/170601_t2_CAFOS/caf-20170601-13:06:15-cal-bomd.fits
+     2   /Volumes/NicoPassport/CAHA/CAFOS2017/170601_t2_CAFOS/caf-20170601-13:07:26-cal-bomd.fits
+     3   /Volumes/NicoPassport/CAHA/CAFOS2017/170601_t2_CAFOS/caf-20170601-13:08:38-cal-bomd.fits
+     4   /Volumes/NicoPassport/CAHA/CAFOS2017/170601_t2_CAFOS/caf-20170601-13:09:50-cal-bomd.fits
+     5   /Volumes/NicoPassport/CAHA/CAFOS2017/170601_t2_CAFOS/caf-20170601-13:11:02-cal-bomd.fits
+     6   /Volumes/NicoPassport/CAHA/CAFOS2017/170601_t2_CAFOS/caf-20170601-13:12:14-cal-bomd.fits
+     7   /Volumes/NicoPassport/CAHA/CAFOS2017/170601_t2_CAFOS/caf-20170601-13:13:25-cal-bomd.fits
+     8   /Volumes/NicoPassport/CAHA/CAFOS2017/170601_t2_CAFOS/caf-20170601-13:14:37-cal-bomd.fits
+     9   /Volumes/NicoPassport/CAHA/CAFOS2017/170601_t2_CAFOS/caf-20170601-13:15:48-cal-bomd.fits
+     10  /Volumes/NicoPassport/CAHA/CAFOS2017/170601_t2_CAFOS/caf-20170601-13:17:01-cal-bomd.fits
+     Total: 10 files
 
 
-
-3. Remove the problematic reduced image from ``filabres_db_cafos_bias.json``,
+3. Remove the problematic reduced images from ``filabres_db_cafos_bias.json``,
    the database that contains all the reduced bias frames. Note that the
    undesired reduced calibration is not only still present in that database,
-   but the reduced FITS file is still under the ``bias`` subdirectory that
+   but the reduced FITS files are still under the ``bias`` subdirectory that
    hosts all the reduced bias frames (so far we have only removed the
    individual original FITS files from the classication of the images). 
 
-   Taking care of removing both the reduced image from the database and the
-   actual FITS file from the hard disk is handled by **filabres** using a
+   Taking care of removing both the reduced images from the database and the
+   actual FITS files from the hard disk is handled by **filabres** using a
    single command. For the first wrong reduced bias:
 
    ::
 
-      $ filabres --delete bias/170525_t2_CAFOS/bias_caf-20170525-16:33:40-cal-boeh_red.fits 
-      > Image to be deleted bias/170525_t2_CAFOS/bias_caf-20170525-16:33:40-cal-boeh_red.fits
-      > Signature: SITE#1d_15__1000__2048__[501,1:1500,2048]__1__1
-      > MJD-OBS..: 57898.69377
-      > Number of reduced bias images with this signature: 13
-      -> Updating filabres_db_cafos_bias.json
-      -> Deleting file bias/170525_t2_CAFOS/bias_caf-20170525-16:33:40-cal-boeh_red.fits
-      * program STOP
+     $ filabres --delete bias/170525_t2_CAFOS/bias_caf-20170525-16:33:40-cal-boeh_red.fits 
+     Image to be deleted bias/170525_t2_CAFOS/bias_caf-20170525-16:33:40-cal-boeh_red.fits
+     Signature: SITE#1d_15__1000__2048__[501,1:1500,2048]__1__1
+     MJD-OBS..: 57898.69377
+     Number of reduced bias images with this signature: 13
+     -> Updating filabres_db_cafos_bias.json
+     -> Deleting file bias/170525_t2_CAFOS/bias_caf-20170525-16:33:40-cal-boeh_red.fits
+     * program STOP
 
    For the second wrong reduced bias:
 
    ::
 
-      $ filabres --delete bias/170601_t2_CAFOS/bias_caf-20170601-13:06:15-cal-bomd_red.fits
-      > Image to be deleted bias/170601_t2_CAFOS/bias_caf-20170601-13:06:15-cal-bomd_red.fits
-      > Signature: SITE#1d_15__1000__2048__[501,1:1500,2048]__1__1
-      > MJD-OBS..: 57905.54971
-      > Number of reduced bias images with this signature: 13
-      -> Updating filabres_db_cafos_bias.json
-      -> Deleting file bias/170601_t2_CAFOS/bias_caf-20170601-13:06:15-cal-bomd_red.fits
+     $ filabres --delete bias/170601_t2_CAFOS/bias_caf-20170601-13:06:15-cal-bomd_red.fits
+     Image to be deleted bias/170601_t2_CAFOS/bias_caf-20170601-13:06:15-cal-bomd_red.fits
+     Signature: SITE#1d_15__1000__2048__[501,1:1500,2048]__1__1
+     MJD-OBS..: 57905.54971
+     Number of reduced bias images with this signature: 12
+     -> Updating filabres_db_cafos_bias.json
+     -> Deleting file bias/170601_t2_CAFOS/bias_caf-20170601-13:06:15-cal-bomd_red.fits
 
