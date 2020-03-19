@@ -27,6 +27,7 @@ Maintainer: Nicolás Cardiel <cardiel@ucm.es>
 """
 
 import argparse
+import sys
 
 from .check_args_compatibility import check_args_compatibility
 from .check_datadir import check_datadir
@@ -81,30 +82,30 @@ def main():
 
     # group_delet
     group_delet.add_argument("--delete", type=str, help="delete reduced image",
-                             metavar=('REDUCED_IMAGE'))
+                             metavar='REDUCED_IMAGE')
 
     # group_lists
     group_lists.add_argument("-lc", "--list_classified", type=str, nargs='?', const="None",
                              help="list classified images of the selected type (with additional keyword information)",
-                             metavar=('REDUCTION_STEP'))
+                             metavar='REDUCTION_STEP')
     group_lists.add_argument("-lr", "--list_reduced", type=str, nargs='?', const="None",
                              help="list reduced images of the selected type (with additional keyword information)",
-                             metavar=('REDUCTION_STEP'))
+                             metavar='REDUCTION_STEP')
     group_lists.add_argument("-of", "--originf", type=str, help="list original individual images employed to "
                                                                 "generate a particular reduced calibration image")
     group_lists.add_argument("-lm", "--list_mode", type=str, help="display mode for list of files",
-                             choices=["long", "singleline", "basic"], metavar=('MODE'))
+                             choices=["long", "singleline", "basic"], metavar='MODE')
     group_lists.add_argument("-k", "--keyword", type=str, action='append', nargs=1,
                              help="keyword for the -lc/-lr option")
     group_lists.add_argument("-ks", "--keyword_sort", type=str, action='append', nargs=1,
                              help="sorting keyword for the -lc/-lr option")
     group_lists.add_argument("--filter", type=str, help="filter list by evaluating logical expression",
-                             metavar=('EXPRESSION'))
+                             metavar='EXPRESSION')
     group_lists.add_argument("-pxy", "--plotxy", action="store_true", help="display scatter plots when listing files")
     group_lists.add_argument("-pi", "--plotimage", action="store_true", help="display images when listing files")
     group_lists.add_argument("-nd", "--ndecimal", type=int,
                              help="Number of decimal places for floats when using -lc/-lr",
-                             metavar=('INTEGER'))
+                             metavar='INTEGER')
 
     # other arguments
     group_other.add_argument("-n", "--night", type=str, help="night label (wildcards are valid within quotes)")
@@ -113,6 +114,10 @@ def main():
     group_other.add_argument("--debug", action="store_true", help="display debugging information")
 
     args = parser.parse_args()
+
+    if len(sys.argv) == 1:
+        parser.print_usage()
+        raise SystemExit()
 
     # ---
     # ToDo: implementar argumento --filename para reducir una unica imagen cientifica

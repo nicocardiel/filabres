@@ -134,12 +134,12 @@ can try to repeat the reduction of the last night ``171230_t2_CAFOS``:
 For this particular night, the bias images exhibit a single signature. The 10
 available individual frames where obtained within one hour (the
 ``maxtimespan_hours`` value). For that reason all of them are selected to be
-combined in a single master bias frame. The name of output file is taken from
-the first image in the sequence of 10 images, adding the prefix ``bias_`` and
-the suffix ``_red`` (the latter prior to the extension ``.fits``). Note however
-that, since **filabres** detects that the output image already exists, the
-output file is not overwritten (you can force to overwrite the output file by
-using the additional argument ``--force`` in the command line).
+combined in a single master bias frame. The name of the output file is taken
+from the first image in the sequence of 10 images, adding the prefix ``bias_``
+and the suffix ``_red`` (the latter prior to the extension ``.fits``). Note
+however that, since **filabres** detects that the output image already exists,
+the output file is not overwritten (you can force to overwrite the output file
+by using the additional argument ``--force`` in the command line).
 
 Database of bias master frames
 ==============================

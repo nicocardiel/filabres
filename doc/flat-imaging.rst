@@ -16,42 +16,50 @@ Reduction of flat-imaging
    ``configuration_cafos.yaml`` for the considered image type (``bias``,
    ``flat-imaging``,...).
 
-The reduction of flat-imaging files is quite similar to the process followed 
-for the bias images. Note that now the signature of the images also depend on
-the position of the grism wheel (no grism for imaging mode) and the filter
-employed during the observation:
+The reduction of flat-imaging files is quite similar to the process followed
+for the bias images. Note that now the signature of the images also depends on
+the position of the grism wheel (keyword ``INSGRID``; no grism for imaging
+mode), the filter employed during the observation (keyword ``INSFLID``), and
+the absence of the wollaston prism required for imaging polarimetry (keywords
+``INSPOFPI`` and ``INSPOROT``).
 
 ::
 
-   $ filabres -rs flat-imaging
-   * Number of nights found: 58
+  $ filabres -rs flat-imaging
+  * Number of nights found: 58
 
-   * Working with night 170225_t2_CAFOS (1/58)
-   ---
-   Working with signature SITE#1d_15__1650__1650__[251,221:1900,1870]__1__1__GRISM-11__FILT- 9
-   Creating flat-imaging/170225_t2_CAFOS/flat-imaging_caf-20170224-20:20:04-cal-krek_red.fits
-   Creating flat-imaging/170225_t2_CAFOS/flat-imaging_caf-20170224-20:20:04-cal-krek_mask.fits
-   ---
-   Working with signature SITE#1d_15__1650__1650__[251,221:1900,1870]__1__1__GRISM-11__FILT- 9
-   Creating flat-imaging/170225_t2_CAFOS/flat-imaging_caf-20170226-06:24:27-cal-krek_red.fits
-   Creating flat-imaging/170225_t2_CAFOS/flat-imaging_caf-20170226-06:24:27-cal-krek_mask.fits
-   ---
-   Working with signature SITE#1d_15__1650__1650__[251,221:1900,1870]__1__1__GRISM-11__FILT-10
-   Creating flat-imaging/170225_t2_CAFOS/flat-imaging_caf-20170224-20:49:51-cal-krek_red.fits
-   Creating flat-imaging/170225_t2_CAFOS/flat-imaging_caf-20170224-20:49:51-cal-krek_mask.fits
-   ...
-   ...
-   
-   * Working with night 171230_t2_CAFOS (58/58)
-   ---
-   Working with signature SITE#1d_15__800__800__[601,601:1400,1400]__1__1__GRISM-11__FILT-11
-   Creating flat-imaging/171230_t2_CAFOS/flat-imaging_caf-20171229-10:04:54-cal-lilj_red.fits
-   Creating flat-imaging/171230_t2_CAFOS/flat-imaging_caf-20171229-10:04:54-cal-lilj_mask.fits
-   ---
-   Working with signature SITE#1d_15__800__800__[601,601:1400,1400]__1__1__GRISM-11__FILT-11
-   Creating flat-imaging/171230_t2_CAFOS/flat-imaging_caf-20171231-06:30:10-cal-lilj_red.fits
-   Creating flat-imaging/171230_t2_CAFOS/flat-imaging_caf-20171231-06:30:10-cal-lilj_mask.fits
-   * program STOP
+  * Working with night 170225_t2_CAFOS (1/58)
+  ---
+  Working with signature SITE#1d_15__1650__1650__[251,221:1900,1870]__1__1__GRISM-11__FILT- 9__FREE__0
+  Creating flat-imaging/170225_t2_CAFOS/flat-imaging_caf-20170224-20:20:04-cal-krek_red.fits
+  Creating flat-imaging/170225_t2_CAFOS/flat-imaging_caf-20170224-20:20:04-cal-krek_mask.fits
+  ---
+  Working with signature SITE#1d_15__1650__1650__[251,221:1900,1870]__1__1__GRISM-11__FILT- 9__FREE__0
+  Creating flat-imaging/170225_t2_CAFOS/flat-imaging_caf-20170226-06:24:27-cal-krek_red.fits
+  Creating flat-imaging/170225_t2_CAFOS/flat-imaging_caf-20170226-06:24:27-cal-krek_mask.fits
+  ---
+  Working with signature SITE#1d_15__1650__1650__[251,221:1900,1870]__1__1__GRISM-11__FILT-10__FREE__0
+  Creating flat-imaging/170225_t2_CAFOS/flat-imaging_caf-20170224-20:49:51-cal-krek_red.fits
+  Creating flat-imaging/170225_t2_CAFOS/flat-imaging_caf-20170224-20:49:51-cal-krek_mask.fits
+  ...
+  ...
+  * Working with night 171228_t2_CAFOS (57/58)
+  ---
+  Working with signature SITE#1d_15__1700__1700__[201,201:1900,1900]__1__1__GRISM-11__FILT- 5__FREE__0
+  Creating flat-imaging/171228_t2_CAFOS/flat-imaging_caf-20171228-13:14:11-cal-bard_red.fits
+  Creating flat-imaging/171228_t2_CAFOS/flat-imaging_caf-20171228-13:14:11-cal-bard_mask.fits
+  
+  * Working with night 171230_t2_CAFOS (58/58)
+  ---
+  Working with signature SITE#1d_15__800__800__[601,601:1400,1400]__1__1__GRISM-11__FILT-11__FREE__0
+  Creating flat-imaging/171230_t2_CAFOS/flat-imaging_caf-20171229-10:04:54-cal-lilj_red.fits
+  Creating flat-imaging/171230_t2_CAFOS/flat-imaging_caf-20171229-10:04:54-cal-lilj_mask.fits
+  ---
+  Working with signature SITE#1d_15__800__800__[601,601:1400,1400]__1__1__GRISM-11__FILT-11__FREE__0
+  Creating flat-imaging/171230_t2_CAFOS/flat-imaging_caf-20171231-06:30:10-cal-lilj_red.fits
+  Creating flat-imaging/171230_t2_CAFOS/flat-imaging_caf-20171231-06:30:10-cal-lilj_mask.fits
+  * program STOP
+  
 
 
 Several warning messages may appear during the reduction of these images
@@ -66,155 +74,139 @@ under the current directory:
 
 ::
 
-   $ tree flat-imaging
-   flat-imaging/
-   ├── 170225_t2_CAFOS
-   │   ├── flat-imaging_caf-20170224-20:20:04-cal-krek_mask.fits
-   │   ├── flat-imaging_caf-20170224-20:20:04-cal-krek_red.fits
-   │   ├── flat-imaging_caf-20170224-20:49:51-cal-krek_mask.fits
-   │   ├── flat-imaging_caf-20170224-20:49:51-cal-krek_red.fits
-   │   ├── flat-imaging_caf-20170224-21:12:37-cal-krek_mask.fits
-   │   ├── flat-imaging_caf-20170224-21:12:37-cal-krek_red.fits
-   │   ├── flat-imaging_caf-20170225-18:28:50-cal-krek_mask.fits
-   │   ├── flat-imaging_caf-20170225-18:28:50-cal-krek_red.fits
-   │   ├── flat-imaging_caf-20170226-06:05:08-cal-krek_mask.fits
-   │   ├── flat-imaging_caf-20170226-06:05:08-cal-krek_red.fits
-   │   ├── flat-imaging_caf-20170226-06:24:27-cal-krek_mask.fits
-   │   └── flat-imaging_caf-20170226-06:24:27-cal-krek_red.fits
-   ├── 170319_t2_CAFOS
-   │   ├── flat-imaging_caf-20170319-08:56:20-cal-agui_mask.fits
-   │   └── flat-imaging_caf-20170319-08:56:20-cal-agui_red.fits
-   ├── 170331_t2_CAFOS
-   │   ├── flat-imaging_caf-20170401-05:16:29-cal-agui_mask.fits
-   │   └── flat-imaging_caf-20170401-05:16:29-cal-agui_red.fits
-   ...
-   ...
-   ├── 171228_t2_CAFOS
-   │   ├── flat-imaging_caf-20171228-12:46:39-cal-agui_mask.fits
-   │   ├── flat-imaging_caf-20171228-12:46:39-cal-agui_red.fits
-   │   ├── flat-imaging_caf-20171228-13:14:11-cal-bard_mask.fits
-   │   └── flat-imaging_caf-20171228-13:14:11-cal-bard_red.fits
-   └── 171230_t2_CAFOS
-       ├── flat-imaging_caf-20171229-10:04:54-cal-lilj_mask.fits
-       ├── flat-imaging_caf-20171229-10:04:54-cal-lilj_red.fits
-       ├── flat-imaging_caf-20171231-06:30:10-cal-lilj_mask.fits
-       └── flat-imaging_caf-20171231-06:30:10-cal-lilj_red.fits
+  $ tree flat-imaging
+  flat-imaging/
+  ├── 170225_t2_CAFOS
+  │   ├── flat-imaging_caf-20170224-20:20:04-cal-krek_mask.fits
+  │   ├── flat-imaging_caf-20170224-20:20:04-cal-krek_red.fits
+  │   ├── flat-imaging_caf-20170224-20:49:51-cal-krek_mask.fits
+  │   ├── flat-imaging_caf-20170224-20:49:51-cal-krek_red.fits
+  │   ├── flat-imaging_caf-20170224-21:12:37-cal-krek_mask.fits
+  │   ├── flat-imaging_caf-20170224-21:12:37-cal-krek_red.fits
+  │   ├── flat-imaging_caf-20170225-18:28:50-cal-krek_mask.fits
+  │   ├── flat-imaging_caf-20170225-18:28:50-cal-krek_red.fits
+  │   ├── flat-imaging_caf-20170226-06:05:08-cal-krek_mask.fits
+  │   ├── flat-imaging_caf-20170226-06:05:08-cal-krek_red.fits
+  │   ├── flat-imaging_caf-20170226-06:24:27-cal-krek_mask.fits
+  │   └── flat-imaging_caf-20170226-06:24:27-cal-krek_red.fits
+  ├── 170403_t2_CAFOS
+  │   ├── flat-imaging_caf-20170403-17:19:21-cal-lilj_mask.fits
+  │   ├── flat-imaging_caf-20170403-17:19:21-cal-lilj_red.fits
+  │   ├── flat-imaging_caf-20170403-18:44:42-cal-lilj_mask.fits
+  │   └── flat-imaging_caf-20170403-18:44:42-cal-lilj_red.fits
+  ...
+  ...
+  ├── 171228_t2_CAFOS
+  │   ├── flat-imaging_caf-20171228-13:14:11-cal-bard_mask.fits
+  │   └── flat-imaging_caf-20171228-13:14:11-cal-bard_red.fits
+  └── 171230_t2_CAFOS
+      ├── flat-imaging_caf-20171229-10:04:54-cal-lilj_mask.fits
+      ├── flat-imaging_caf-20171229-10:04:54-cal-lilj_red.fits
+      ├── flat-imaging_caf-20171231-06:30:10-cal-lilj_mask.fits
+      └── flat-imaging_caf-20171231-06:30:10-cal-lilj_red.fits
 
 If you want to get more information concerning the reduction of these type of
 images, just add -v to increase the verbosity level. For example, we can try to
-repeat the reduction of the night ``170319_t2_CAFOS``:
+repeat the reduction of the night ``171228_t2_CAFOS``:
 
 ::
 
-   $ filabres -rs flat-imaging -n 170319* -v
-   * instrument............: cafos
-   * datadir...............: /Users/cardiel/CAFOS2017
-   * ignored_images_file...: ignored_images.yaml
-   * image_corrections_file: image_header_corrections.yaml
-   * Loading instrument configuration
-   * Number of nights found: 1
-   * List of nights: ['170319_t2_CAFOS']
-   
-   Results database set to filabres_db_cafos_flat-imaging.json
-      
-   Subdirectory flat-imaging found
-   
-   * Working with night 170319_t2_CAFOS (1/1)
-   Reading file ./lists/170319_t2_CAFOS/imagedb_cafos.json
-   Number of flat-imaging images found 20
-   Subdirectory flat-imaging/170319_t2_CAFOS found
-   Number of different signatures found: 1
-   Signature (1/1):
-    - CCDNAME: SITE#1d_15
-    - NAXIS1: 1024
-    - NAXIS2: 1024
-    - DATASEC: [513,513:1536,1536]
-    - CCDBINX: 1
-    - CCDBINY: 1
-    - INSGRID: GRISM-11
-    - INSFLID: FILT- 3
-   Total number of images with this signature: 20
-    - /Users/cardiel/CAFOS2017/170319_t2_CAFOS/caf-20170319-08:56:20-cal-agui.fits
-    - /Users/cardiel/CAFOS2017/170319_t2_CAFOS/caf-20170319-08:57:25-cal-agui.fits
-    - /Users/cardiel/CAFOS2017/170319_t2_CAFOS/caf-20170319-08:58:29-cal-agui.fits
-    - /Users/cardiel/CAFOS2017/170319_t2_CAFOS/caf-20170319-08:59:34-cal-agui.fits
-    - /Users/cardiel/CAFOS2017/170319_t2_CAFOS/caf-20170319-09:00:38-cal-agui.fits
-    - /Users/cardiel/CAFOS2017/170319_t2_CAFOS/caf-20170319-09:01:46-cal-agui.fits
-    - /Users/cardiel/CAFOS2017/170319_t2_CAFOS/caf-20170319-09:02:51-cal-agui.fits
-    - /Users/cardiel/CAFOS2017/170319_t2_CAFOS/caf-20170319-09:03:55-cal-agui.fits
-    - /Users/cardiel/CAFOS2017/170319_t2_CAFOS/caf-20170319-09:05:00-cal-agui.fits
-    - /Users/cardiel/CAFOS2017/170319_t2_CAFOS/caf-20170319-09:06:04-cal-agui.fits
-    - /Users/cardiel/CAFOS2017/170319_t2_CAFOS/caf-20170319-09:07:13-cal-agui.fits
-    - /Users/cardiel/CAFOS2017/170319_t2_CAFOS/caf-20170319-09:08:18-cal-agui.fits
-    - /Users/cardiel/CAFOS2017/170319_t2_CAFOS/caf-20170319-09:09:22-cal-agui.fits
-    - /Users/cardiel/CAFOS2017/170319_t2_CAFOS/caf-20170319-09:10:27-cal-agui.fits
-    - /Users/cardiel/CAFOS2017/170319_t2_CAFOS/caf-20170319-09:11:32-cal-agui.fits
-    - /Users/cardiel/CAFOS2017/170319_t2_CAFOS/caf-20170319-09:12:40-cal-agui.fits
-    - /Users/cardiel/CAFOS2017/170319_t2_CAFOS/caf-20170319-09:13:45-cal-agui.fits
-    - /Users/cardiel/CAFOS2017/170319_t2_CAFOS/caf-20170319-09:14:49-cal-agui.fits
-    - /Users/cardiel/CAFOS2017/170319_t2_CAFOS/caf-20170319-09:15:54-cal-agui.fits
-    - /Users/cardiel/CAFOS2017/170319_t2_CAFOS/caf-20170319-09:16:58-cal-agui.fits
-   -> Number of images with expected signature and within time span: 20
-   File flat-imaging/170319_t2_CAFOS/flat-imaging_caf-20170319-08:56:20-cal-agui_red.fits already exists: skipping reduction.
-   * program STOP
+  $ filabres -rs flat-imaging -n 171228* -v
+  * instrument: cafos
+  * datadir: /Volumes/NicoPassport/CAHA/CAFOS2017
+  * ignored_images_file: ignored_images.yaml
+  * image_header_corrections_file: image_header_corrections.yaml
+  * forced_classifications_file: forced_classifications.yaml
+  * Loading instrument configuration
+  * Number of nights found: 1
+  * List of nights: ['171228_t2_CAFOS']
 
-For this particular night, the all the flat-imaging files exhibit a single
-signature. The 20 available individual frames where obtained within one hour.
+  Results database set to filabres_db_cafos_flat-imaging.json
+  
+  Subdirectory flat-imaging found
+  maxtimespan_hours: 1
+  
+  * Working with night 171228_t2_CAFOS (1/1)
+  Reading file ./lists/171228_t2_CAFOS/imagedb_cafos.json
+  Number of flat-imaging images found 10
+  Subdirectory flat-imaging/171228_t2_CAFOS found
+  Number of different signatures found: 1
+  Signature (1/1):
+   - CCDNAME: SITE#1d_15
+   - NAXIS1: 1700
+   - NAXIS2: 1700
+   - DATASEC: [201,201:1900,1900]
+   - CCDBINX: 1
+   - CCDBINY: 1
+   - INSGRID: GRISM-11
+   - INSFLID: FILT- 5
+   - INSPOFPI: FREE
+   - INSPOROT: 0
+  Total number of images with this signature: 10
+   - /Volumes/NicoPassport/CAHA/CAFOS2017/171228_t2_CAFOS/caf-20171228-13:14:11-cal-bard.fits
+   - /Volumes/NicoPassport/CAHA/CAFOS2017/171228_t2_CAFOS/caf-20171228-13:15:44-cal-bard.fits
+   - /Volumes/NicoPassport/CAHA/CAFOS2017/171228_t2_CAFOS/caf-20171228-13:17:17-cal-bard.fits
+   - /Volumes/NicoPassport/CAHA/CAFOS2017/171228_t2_CAFOS/caf-20171228-13:18:51-cal-bard.fits
+   - /Volumes/NicoPassport/CAHA/CAFOS2017/171228_t2_CAFOS/caf-20171228-13:20:24-cal-bard.fits
+   - /Volumes/NicoPassport/CAHA/CAFOS2017/171228_t2_CAFOS/caf-20171228-13:21:57-cal-bard.fits
+   - /Volumes/NicoPassport/CAHA/CAFOS2017/171228_t2_CAFOS/caf-20171228-13:23:31-cal-bard.fits
+   - /Volumes/NicoPassport/CAHA/CAFOS2017/171228_t2_CAFOS/caf-20171228-13:25:05-cal-bard.fits
+   - /Volumes/NicoPassport/CAHA/CAFOS2017/171228_t2_CAFOS/caf-20171228-13:26:39-cal-bard.fits
+   - /Volumes/NicoPassport/CAHA/CAFOS2017/171228_t2_CAFOS/caf-20171228-13:28:12-cal-bard.fits
+  -> Number of images with expected signature and within time span: 10
+  File flat-imaging/171228_t2_CAFOS/flat-imaging_caf-20171228-13:14:11-cal-bard_red.fits already exists: skipping reduction.
+  * program STOP
+   
+For this particular night, all the flat-imaging files exhibit a single
+signature. The 10 available individual frames were obtained within one hour.
 For that reason all of them are selected to be combined in a single master
-flat-imaging frame. The name of output file is taken from the first image in
-the sequence of 20 images, adding the prefix ``flat-imaging_`` and the suffix
-``_red`` (the latter prior to the extension ``.fits``). Note however that,
-since filabres detects that the output image already exists, the output file is
-not overwritten. You can force to overwrite the output file by using the
-additional argument --force in the command line:
+flat-imaging frame. The name of the output file is taken from the first image
+in the sequence of 10 images, adding the prefix ``flat-imaging_`` and the
+suffix ``_red`` (the latter prior to the extension ``.fits``). 
+
+An additional output file, containing a mask of useful pixels, is also
+generated, using the same file name but changing the suffix ``_red`` by
+``_mask``. In this mask a value of 0 is assigned to pixels without useful
+signal (probably due to vignetting), whereas a value of 1 is employed for the
+pixels in the useful image region.
+
+Note however that since **filabres** has detected that the output image already
+exists, the output file is not overwritten. You can force to overwrite the
+output file by using the additional argument ``--force`` in the command line:
 
 ::
 
-   $ filabres -rs flat-imaging -n 170319* -v --force
-   ...
-   ...
-   -> Number of images with expected signature and within time span: 20
-   -> output fname will be flat-imaging/170319_t2_CAFOS/flat-imaging_caf-20170319-08:56:20-cal-agui_red.fits
-   -> output mname will be flat-imaging/170319_t2_CAFOS/flat-imaging_caf-20170319-08:56:20-cal-agui_mask.fits
-   Deleting flat-imaging/170319_t2_CAFOS/flat-imaging_caf-20170319-08:56:20-cal-agui_red.fits
-   Deleting flat-imaging/170319_t2_CAFOS/flat-imaging_caf-20170319-08:56:20-cal-agui_mask.fits
-   WARNING: deleting previous database entry: flat-imaging --> SITE#1d_15__1024__1024__[513,513:1536,1536]__1__1__GRISM-11__FILT- 3 --> 57831.37960
-   
-   Calibration database set to filabres_db_cafos_bias.json
-   -> looking for calibration bias with signature SITE#1d_15__1024__1024__[513,513:1536,1536]__1__1
-   ->   mjdobsarray.......: [57831.39    57843.70215 57850.5884  57863.6782  57865.73029 57875.77454
-    57878.44105 57892.5731  57898.82681 57900.68725 57901.68225 57906.55349
-    57925.6386  57931.53584 57931.81129 57965.79275 57990.51175 57999.79004
-    58014.69839 58024.43495 58025.51284 58025.      58028.75765 58032.62474
-    58035.24015 58036.6024  58037.7204  58041.75144 58042.25475 58043.57286
-    58057.54025 58057.59541 58065.69286 58077.70469 58078.67014 58115.57878]
-   ->   looking for mjdobs: 57831.3724
-   ->   nearest value is..: 57831.39000
-   ->   delta_mjd (days)..: 0.017599999999220017
-   Median value in frame #1/20: 34681.0
-   Median value in frame #2/20: 34593.0
-   Median value in frame #3/20: 34722.0
-   Median value in frame #4/20: 34849.0
-   Median value in frame #5/20: 34810.0
-   Median value in frame #6/20: 34808.0
-   Median value in frame #7/20: 34954.0
-   Median value in frame #8/20: 34970.0
-   Median value in frame #9/20: 35079.0
-   Median value in frame #10/20: 35013.0
-   Median value in frame #11/20: 35281.0
-   Median value in frame #12/20: 35101.0
-   Median value in frame #13/20: 35316.0
-   Median value in frame #14/20: 35140.0
-   Median value in frame #15/20: 35405.0
-   Median value in frame #16/20: 35348.0
-   Median value in frame #17/20: 35229.0
-   Median value in frame #18/20: 35245.0
-   Median value in frame #19/20: 35188.0
-   Median value in frame #20/20: 35120.0
-   Working with signature SITE#1d_15__1024__1024__[513,513:1536,1536]__1__1__GRISM-11__FILT- 3
-   Creating flat-imaging/170319_t2_CAFOS/flat-imaging_caf-20170319-08:56:20-cal-agui_red.fits
-   Creating flat-imaging/170319_t2_CAFOS/flat-imaging_caf-20170319-08:56:20-cal-agui_mask.fits
-   * program STOP
+  $ filabres -rs flat-imaging -n 171228* -v --force
+  ...
+  ...
+  -> Number of images with expected signature and within time span: 10
+  -> output fname will be flat-imaging/171228_t2_CAFOS/flat-imaging_caf-20171228-13:14:11-cal-bard_red.fits
+  -> output mname will be flat-imaging/171228_t2_CAFOS/flat-imaging_caf-20171228-13:14:11-cal-bard_mask.fits
+  Deleting flat-imaging/171228_t2_CAFOS/flat-imaging_caf-20171228-13:14:11-cal-bard_red.fits
+  Deleting flat-imaging/171228_t2_CAFOS/flat-imaging_caf-20171228-13:14:11-cal-bard_mask.fits
+  WARNING: deleting previous database entry: flat-imaging --> SITE#1d_15__1700__1700__[201,201:1900,1900]__1__1__GRISM-11__FILT- 5__FREE__0 --> 58115.55635
+  
+  Calibration database set to filabres_db_cafos_bias.json
+  -> looking for calibration bias with signature SITE#1d_15__1700__1700__[201,201:1900,1900]__1__1
+  ->   mjdobsarray.......: [57905.6372  58102.60078 58105.56892 58108.57108 58111.0489  58112.72261
+   58112.82979 58115.568  ]
+  ->   looking for mjdobs: 58115.5515
+  ->   nearest value is..: 58115.56800
+  ->   delta_mjd (days)..: 0.016499999997904524
+  Median value in frame #1/10: 28403.5
+  Median value in frame #2/10: 28546.0
+  Median value in frame #3/10: 28278.5
+  Median value in frame #4/10: 28265.0
+  Median value in frame #5/10: 28226.0
+  Median value in frame #6/10: 28062.5
+  Median value in frame #7/10: 28058.0
+  Median value in frame #8/10: 28298.5
+  Median value in frame #9/10: 28038.5
+  Median value in frame #10/10: 28083.0
+  Working with signature SITE#1d_15__1700__1700__[201,201:1900,1900]__1__1__GRISM-11__FILT- 5__FREE__0
+  Creating flat-imaging/171228_t2_CAFOS/flat-imaging_caf-20171228-13:14:11-cal-bard_red.fits
+  Creating flat-imaging/171228_t2_CAFOS/flat-imaging_caf-20171228-13:14:11-cal-bard_mask.fits
+  * program STOP
 
 Note that the reduction of the flat-imaging files requires the use of a master
 bias with a particular signature (in this case 
