@@ -74,6 +74,8 @@ def run_calibration_step(redustep, datadir, list_of_nights,
 
     # set maxtimespan_hours
     maxtimespan_hours = instconf['imagetypes'][redustep]['maxtimespan_hours']
+    if verbose:
+        print('maxtimespan_hours: {}'.format(maxtimespan_hours))
 
     # define signature keys
     signaturekeys = instconf['imagetypes'][redustep]['signature']
@@ -405,9 +407,10 @@ def run_calibration_step(redustep, datadir, list_of_nights,
                         print('Working with signature {}'.format(ssig))
                         print('Creating {}'.format(output_fname))
                         # save mask
-                        hdu = fits.PrimaryHDU(mask2d.astype(np.float32), output_header)
-                        hdu.writeto(output_mname, overwrite=True)
-                        print('Creating {}'.format(output_mname))
+                        if mask2d is not None:
+                            hdu = fits.PrimaryHDU(mask2d.astype(np.float32), output_header)
+                            hdu.writeto(output_mname, overwrite=True)
+                            print('Creating {}'.format(output_mname))
 
                         # update database with result using the mean MJD-OBS of
                         # the combined images as index

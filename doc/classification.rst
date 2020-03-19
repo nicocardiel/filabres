@@ -1173,7 +1173,7 @@ screen; here we are sorting by the median ``QUANT500``):
   Total: 3 files
   
 
-The first image in this list if a is a scientific exposure with many saturated
+The first image in this list is a scientific exposure with many saturated
 stars. We are going to ignore it:
 
 .. image:: images/pi_wrong-science-imaging1.png
@@ -1189,4 +1189,5 @@ The last two images are clearly saturated and useless.
 .. image:: images/pi_wrong-science-imaging3.png
    :width: 100%
    :alt: Wrong science-imaging 3
+
 

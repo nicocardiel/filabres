@@ -17,23 +17,33 @@ Reduction of bias images
    ``flat-imaging``,...).
 
 
-The first calibration images to be reduced are the bias frames:
+The first calibration images to be reduced are the bias frames. The reduction
+is performed by using the reduction step ``bias``:
 
 ::
 
-   $ filabres -rs bias
-   * Number of nights found: 58
-   
-   * Working with night 170225_t2_CAFOS (1/58)
-   Creating bias/170225_t2_CAFOS/bias_caf-20170224-21:27:48-cal-krek_red.fits with signature SITE#1d_15__1650__1650__[251,221:1900,1870]__1__1
-   Creating bias/170225_t2_CAFOS/bias_caf-20170225-10:03:09-cal-bomd_red.fits with signature SITE#1d_15__1000__2048__[501,1:1500,2048]__1__1
-   
-   ...
-   ...
+  $ filabres -rs bias
+  * Number of nights found: 58
+  ---
+  Working with signature SITE#1d_15__1650__1650__[251,221:1900,1870]__1__1
+  Creating bias/170225_t2_CAFOS/bias_caf-20170224-21:27:48-cal-krek_red.fits
+  ---
+  Working with signature SITE#1d_15__1000__2048__[501,1:1500,2048]__1__1
+  Creating bias/170225_t2_CAFOS/bias_caf-20170225-10:03:09-cal-bomd_red.fits
+  
+  * Working with night 170226_t2_CAFOS (2/58)
+  ---
+  Working with signature SITE#1d_15__1000__2048__[501,1:1500,2048]__1__1
+  Creating bias/170226_t2_CAFOS/bias_caf-20170226-11:39:37-cal-bomd_red.fits
 
-   * Working with night 171230_t2_CAFOS (58/58)
-   Creating bias/171230_t2_CAFOS/bias_caf-20171229-10:12:35-cal-lilj_red.fits with signature SITE#1d_15__800__800__[601,601:1400,1400]__1__1
-   * program STOP
+  ...
+  ...
+
+  * Working with night 171230_t2_CAFOS (58/58)
+  ---
+  Working with signature SITE#1d_15__800__800__[601,601:1400,1400]__1__1
+  Creating bias/171230_t2_CAFOS/bias_caf-20171229-10:12:35-cal-lilj_red.fits
+  * program STOP
 
 Several warning messages may appear during the reduction of these images (they
 should be the same found when classifying the images; just
@@ -47,30 +57,30 @@ current directory:
 
 ::
 
-   $ tree bias
-   bias
-   ├── 170225_t2_CAFOS
-   │   ├── bias_caf-20170224-21:27:48-cal-krek_red.fits
-   │   └── bias_caf-20170225-10:03:09-cal-bomd_red.fits
-   ├── 170226_t2_CAFOS
-   │   └── bias_caf-20170226-11:39:37-cal-bomd_red.fits
-   ├── 170319_t2_CAFOS
-   │   └── bias_caf-20170319-09:20:09-cal-agui_red.fits
-   ├── 170331_t2_CAFOS
-   │   └── bias_caf-20170331-16:47:53-cal-agui_red.fits
-   ├── 170403_t2_CAFOS
-   │   └── bias_caf-20170403-17:27:07-cal-lilj_red.fits
-   ...
-   ...
-   ├── 171225_t2_CAFOS
-   │   ├── bias_caf-20171225-17:14:00-cal-bard_red.fits
-   │   ├── bias_caf-20171225-17:43:07-cal-bard_red.fits
-   │   └── bias_caf-20171225-19:48:21-cal-bard_red.fits
-   ├── 171228_t2_CAFOS
-   │   ├── bias_caf-20171228-13:31:20-cal-bard_red.fits
-   │   └── bias_caf-20171228-13:50:00-cal-agui_red.fits
-   └── 171230_t2_CAFOS
-       └── bias_caf-20171229-10:12:35-cal-lilj_red.fits
+  $ tree bias
+  bias
+  ├── 170225_t2_CAFOS
+  │   ├── bias_caf-20170224-21:27:48-cal-krek_red.fits
+  │   └── bias_caf-20170225-10:03:09-cal-bomd_red.fits
+  ├── 170226_t2_CAFOS
+  │   └── bias_caf-20170226-11:39:37-cal-bomd_red.fits
+  ├── 170319_t2_CAFOS
+  │   └── bias_caf-20170319-09:20:09-cal-agui_red.fits
+  ├── 170331_t2_CAFOS
+  │   └── bias_caf-20170331-16:47:53-cal-agui_red.fits
+  ├── 170403_t2_CAFOS
+  │   └── bias_caf-20170403-17:27:07-cal-lilj_red.fits
+  ...
+  ...
+  ├── 171225_t2_CAFOS
+  │   ├── bias_caf-20171225-17:14:00-cal-bard_red.fits
+  │   ├── bias_caf-20171225-17:43:07-cal-bard_red.fits
+  │   └── bias_caf-20171225-19:48:21-cal-bard_red.fits
+  ├── 171228_t2_CAFOS
+  │   ├── bias_caf-20171228-13:31:20-cal-bard_red.fits
+  │   └── bias_caf-20171228-13:50:00-cal-agui_red.fits
+  └── 171230_t2_CAFOS
+      └── bias_caf-20171229-10:12:35-cal-lilj_red.fits
 
 If you want to get more information concerning the reduction of these type of
 images, just add ``-v`` to increase the verbosity level. For example, we
@@ -79,55 +89,57 @@ can try to repeat the reduction of the last night ``171230_t2_CAFOS``:
 
 ::
 
-   $ filabres -rs bias -n 171230* -v
-   * instrument............: cafos
-   * datadir...............: /Users/cardiel/CAFOS2017
-   * ignored_images_file...: ignored_images.yaml
-   * image_corrections_file: image_header_corrections.yaml
-   * Loading instrument configuration
-   * Number of nights found: 1
-   * List of nights: ['171230_t2_CAFOS']
-   
-   Results database set to filabres_db_cafos_bias.json
-   
-   Subdirectory bias found
-   
-   * Working with night 171230_t2_CAFOS (1/1)
-   Reading file ./lists/171230_t2_CAFOS/imagedb_cafos.json
-   Number of bias images found 10
-   Subdirectory bias/171230_t2_CAFOS found
-   Number of different signatures found: 1
-   Signature (1/1):
-    - CCDNAME: SITE#1d_15
-    - NAXIS1: 800
-    - NAXIS2: 800
-    - DATASEC: [601,601:1400,1400]
-    - CCDBINX: 1
-    - CCDBINY: 1
-   Total number of images with this signature: 10
-    - /Users/cardiel/CAFOS2017/171230_t2_CAFOS/caf-20171229-10:12:35-cal-lilj.fits
-    - /Users/cardiel/CAFOS2017/171230_t2_CAFOS/caf-20171229-10:13:11-cal-lilj.fits
-    - /Users/cardiel/CAFOS2017/171230_t2_CAFOS/caf-20171229-10:13:48-cal-lilj.fits
-    - /Users/cardiel/CAFOS2017/171230_t2_CAFOS/caf-20171229-10:14:23-cal-lilj.fits
-    - /Users/cardiel/CAFOS2017/171230_t2_CAFOS/caf-20171229-10:14:59-cal-lilj.fits
-    - /Users/cardiel/CAFOS2017/171230_t2_CAFOS/caf-20171229-10:15:35-cal-lilj.fits
-    - /Users/cardiel/CAFOS2017/171230_t2_CAFOS/caf-20171229-10:16:11-cal-lilj.fits
-    - /Users/cardiel/CAFOS2017/171230_t2_CAFOS/caf-20171229-10:16:48-cal-lilj.fits
-    - /Users/cardiel/CAFOS2017/171230_t2_CAFOS/caf-20171229-10:17:24-cal-lilj.fits
-    - /Users/cardiel/CAFOS2017/171230_t2_CAFOS/caf-20171229-10:18:00-cal-lilj.fits
-   -> Number of images with expected signature and within time span: 10
-   File bias/171230_t2_CAFOS/bias_caf-20171229-10:12:35-cal-lilj_red.fits already exists: skipping reduction.
-   * program STOP
+  $ filabres -rs bias -n 171230* -v
+  * instrument: cafos
+  * datadir: /Volumes/NicoPassport/CAHA/CAFOS2017
+  * ignored_images_file: ignored_images.yaml
+  * image_header_corrections_file: image_header_corrections.yaml
+  * forced_classifications_file: forced_classifications.yaml
+  * Loading instrument configuration
+  * Number of nights found: 1
+  * List of nights: ['171230_t2_CAFOS']
+  
+  Results database set to filabres_db_cafos_bias.json
+  
+  Subdirectory bias found
+  maxtimespan_hours: 1
+  
+  * Working with night 171230_t2_CAFOS (1/1)
+  Reading file ./lists/171230_t2_CAFOS/imagedb_cafos.json
+  Number of bias images found 10
+  Subdirectory bias/171230_t2_CAFOS found
+  Number of different signatures found: 1
+  Signature (1/1):
+   - CCDNAME: SITE#1d_15
+   - NAXIS1: 800
+   - NAXIS2: 800
+   - DATASEC: [601,601:1400,1400]
+   - CCDBINX: 1
+   - CCDBINY: 1
+  Total number of images with this signature: 10
+   - /Volumes/NicoPassport/CAHA/CAFOS2017/171230_t2_CAFOS/caf-20171229-10:12:35-cal-lilj.fits
+   - /Volumes/NicoPassport/CAHA/CAFOS2017/171230_t2_CAFOS/caf-20171229-10:13:11-cal-lilj.fits
+   - /Volumes/NicoPassport/CAHA/CAFOS2017/171230_t2_CAFOS/caf-20171229-10:13:48-cal-lilj.fits
+   - /Volumes/NicoPassport/CAHA/CAFOS2017/171230_t2_CAFOS/caf-20171229-10:14:23-cal-lilj.fits
+   - /Volumes/NicoPassport/CAHA/CAFOS2017/171230_t2_CAFOS/caf-20171229-10:14:59-cal-lilj.fits
+   - /Volumes/NicoPassport/CAHA/CAFOS2017/171230_t2_CAFOS/caf-20171229-10:15:35-cal-lilj.fits
+   - /Volumes/NicoPassport/CAHA/CAFOS2017/171230_t2_CAFOS/caf-20171229-10:16:11-cal-lilj.fits
+   - /Volumes/NicoPassport/CAHA/CAFOS2017/171230_t2_CAFOS/caf-20171229-10:16:48-cal-lilj.fits
+   - /Volumes/NicoPassport/CAHA/CAFOS2017/171230_t2_CAFOS/caf-20171229-10:17:24-cal-lilj.fits
+   - /Volumes/NicoPassport/CAHA/CAFOS2017/171230_t2_CAFOS/caf-20171229-10:18:00-cal-lilj.fits
+  -> Number of images with expected signature and within time span: 10
+  File bias/171230_t2_CAFOS/bias_caf-20171229-10:12:35-cal-lilj_red.fits already exists: skipping reduction.
+  * program STOP
 
 For this particular night, the bias images exhibit a single signature. The 10
-available individual frames where obtained within one hour. For that reason all
-of them are selected to be combined in a single master bias frame. The name of
-output file is taken from the first image in the sequence of 10 images, adding
-the prefix ``bias_`` and the suffix ``_red`` (the latter prior to the extension
-``.fits``). Note however that, since **filabres** detects that the output image
-already exists, the output file is not overwritten (you can force to overwrite
-the output file by using the additional argument ``--force`` in the command
-line).
+available individual frames where obtained within one hour (the
+``maxtimespan_hours`` value). For that reason all of them are selected to be
+combined in a single master bias frame. The name of output file is taken from
+the first image in the sequence of 10 images, adding the prefix ``bias_`` and
+the suffix ``_red`` (the latter prior to the extension ``.fits``). Note however
+that, since **filabres** detects that the output image already exists, the
+output file is not overwritten (you can force to overwrite the output file by
+using the additional argument ``--force`` in the command line).
 
 Database of bias master frames
 ==============================
