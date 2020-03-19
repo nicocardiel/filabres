@@ -1,8 +1,8 @@
-.. _reduction_of_science_images:
+.. _reduction_of_science_imaging_frames:
 
-***************************
-Reduction of science images
-***************************
+***********************************
+Reduction of science-imaging frames
+***********************************
 
 .. note::
 
@@ -44,8 +44,8 @@ that in all the following examples we are using enhanced verbosity (argument
 ``-i/--interactive``; this is going to stop the reduction to show some
 intermediate plots and results).
 
-The different possibilities are (do not try these examples yet! its purpose is
-to illustrate the different approaches):
+The different possibilities are (do not try these examples yet! their purpose
+here is simply to illustrate the different approaches):
 
 1. Reduce a single ``science-imaging`` image using the argument ``-n/--night``
    for the night and the argument ``--filename`` followed by the explicit name

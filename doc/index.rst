@@ -63,7 +63,7 @@ this documentation.
    classification
    bias
    flat-imaging
-   science
+   science-imaging
 
 ----
 
