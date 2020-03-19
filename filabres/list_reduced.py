@@ -190,7 +190,7 @@ def list_reduced(instrument, img, list_mode, args_night, args_keyword,
                                             valid_keywords.append(kwd.upper())
                                     print('Valid keywords:', valid_keywords)
                                     raise SystemExit()
-                                colnames_ = ['file']
+                                colnames_ = []
                                 if lkeyword is not None:
                                     for keyword in lkeyword:
                                         if keyword not in storedkeywords:
@@ -198,6 +198,7 @@ def list_reduced(instrument, img, list_mode, args_night, args_keyword,
                                                   'database'.format(keyword))
                                             raise SystemExit()
                                         colnames_ += [keyword]
+                                colnames_ += ['file']
                                 if n == 1:
                                     colnames = colnames_
                                     df = pd.DataFrame(columns=colnames)
@@ -209,10 +210,11 @@ def list_reduced(instrument, img, list_mode, args_night, args_keyword,
                                         raise SystemExit()
 
                                 # new_df_row = [os.path.basename(outfile)]
-                                new_df_row = [outfile]
+                                new_df_row = []
                                 if lkeyword is not None:
                                     for keyword in lkeyword:
                                         new_df_row += [storedkeywords[keyword]]
+                                new_df_row += [outfile]
                                 df.loc[n-1] = new_df_row
                             else:
                                 msg = 'Unexpected list_mode {}'.format(list_mode)

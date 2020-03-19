@@ -347,30 +347,32 @@ In order to check the reduction of the bias images just execute:
 
 ::
 
-   $ filabres -lr bias
-                                                                    file NAXIS1 NAXIS2
-   1   bias/170225_t2_CAFOS/bias_caf-20170224-21:27:48-cal-krek_red.fits  1650   1650 
-   2   bias/170225_t2_CAFOS/bias_caf-20170225-10:03:09-cal-bomd_red.fits  1000   2048 
-   3   bias/170226_t2_CAFOS/bias_caf-20170226-11:39:37-cal-bomd_red.fits  1000   2048 
-   ...
-   ...
-   81  bias/170807_t2_CAFOS/bias_caf-20170808-04:55:29-cal-schn_red.fits  400    2048 
-   82  bias/170928_t2_CAFOS/bias_caf-20170928-15:14:46-cal-wenj_red.fits  801    1027 
-   83  bias/170929_t2_CAFOS/bias_caf-20170929-14:26:11-cal-wenj_red.fits  501    501  
-   Total: 83 files
+  $ filabres -lr bias
+  filabres -lr bias
+                                                                   file
+  1   bias/170225_t2_CAFOS/bias_caf-20170224-21:27:48-cal-krek_red.fits
+  2   bias/170225_t2_CAFOS/bias_caf-20170225-10:03:09-cal-bomd_red.fits
+  3   bias/170226_t2_CAFOS/bias_caf-20170226-11:39:37-cal-bomd_red.fits
+  ...
+  ...
+  82  bias/170807_t2_CAFOS/bias_caf-20170808-04:55:29-cal-schn_red.fits
+  83  bias/170928_t2_CAFOS/bias_caf-20170928-15:14:46-cal-wenj_red.fits
+  84  bias/170929_t2_CAFOS/bias_caf-20170929-14:26:11-cal-wenj_red.fits
+  Total: 84 files
 
 It is possible to filter the list by night (wildcards allowed here). For
 example, for the first night:
 
 ::
 
-   $ filabres -lr bias -n 170225*
-                                                                   file NAXIS1 NAXIS2
-   1  bias/170225_t2_CAFOS/bias_caf-20170224-21:27:48-cal-krek_red.fits  1650   1650 
-   2  bias/170225_t2_CAFOS/bias_caf-20170225-10:03:09-cal-bomd_red.fits  1000   2048
+  $ filabres -lr bias -n 170225*
+                                                                  file
+  1  bias/170225_t2_CAFOS/bias_caf-20170224-21:27:48-cal-krek_red.fits
+  2  bias/170225_t2_CAFOS/bias_caf-20170225-10:03:09-cal-bomd_red.fits
+  Total: 2 files
 
-There are two master bias, with different signature. It is possible to display
-them (``-pi``):
+There are two master bias for this night, with different signature. It is 
+possible to display them (``-pi``):
 
 ::
 
