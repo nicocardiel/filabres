@@ -73,7 +73,7 @@ def main():
                              help="check original FITS files in DATADIR are not repeated")
 
     # group_reduc
-    group_reduc.add_argument("-rs", "--reduction_step", type=str)
+    group_reduc.add_argument("-rs", "--reduction_step", type=str, nargs='?', const="None")
     group_reduc.add_argument("-f", "--force", action="store_true", help="force reduction of already reduced files")
     group_reduc.add_argument("-i", "--interactive", action="store_true", help="enable interactive execution")
     group_reduc.add_argument("--filename", type=str,
@@ -84,11 +84,11 @@ def main():
                              metavar=('REDUCED_IMAGE'))
 
     # group_lists
-    group_lists.add_argument("-lc", "--list_classified", type=str, nargs='*',
-                             help="list classified images of the selected type with quantile information",
+    group_lists.add_argument("-lc", "--list_classified", type=str, nargs='?', const="None",
+                             help="list classified images of the selected type (with additional keyword information)",
                              metavar=('REDUCTION_STEP'))
-    group_lists.add_argument("-lr", "--list_reduced", type=str, nargs='*',
-                             help="list reduced images of the selected type with quantile information",
+    group_lists.add_argument("-lr", "--list_reduced", type=str, nargs='?', const="None",
+                             help="list reduced images of the selected type (with additional keyword information)",
                              metavar=('REDUCTION_STEP'))
     group_lists.add_argument("-of", "--originf", type=str, help="list original individual images employed to "
                                                                 "generate a particular reduced calibration image")
@@ -121,7 +121,7 @@ def main():
     # check argument compatibility
     check_args_compatibility(args, debug=False)
 
-    # set default values
+    # set default values that cannot be set
     if args.list_mode is None:
         args.list_mode = 'long'
 

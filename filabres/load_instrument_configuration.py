@@ -68,7 +68,7 @@ def load_instrument_configuration(instrument, redustep,
             if not defined_redusteps[redustep]:
                 redustep_is_ok = False
         if not redustep_is_ok:
-            if redustep is None:
+            if redustep is None or redustep == "None":
                 print('ERROR: missing reduction step / image type!')
             else:
                 print('ERROR: invalid or unavailable reduction step: {}'.format(redustep))

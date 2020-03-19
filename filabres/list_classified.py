@@ -100,14 +100,10 @@ def list_classified(instrument, img, list_mode, datadir, args_night,
         ['wrong-' + kwd for kwd in basic_imagetypes] + \
         ['wrong-instrument', 'ignored', 'unclassified']
 
-    if img is None or img == []:
+    if img is None or img == "None":
         imagetype = None
     else:
-        if len(img) > 1:
-            print('ERROR: multiple image types given')
-            imagetype = None
-        else:
-            imagetype = img[0]
+        imagetype = img
 
     if imagetype is not None:
         if imagetype not in valid_imagetypes:

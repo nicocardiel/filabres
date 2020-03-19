@@ -344,7 +344,6 @@ def run_calibration_step(redustep, datadir, list_of_nights,
                             mask2d = None
                         # ---------------------------------------------------------
                         elif redustep == 'flat-imaging':
-                            ierr_bias = 0
                             ierr_flat = 0
                             mjdobs = output_header['MJD-OBS']
                             # retrieve master bias

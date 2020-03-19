@@ -93,32 +93,29 @@ def list_reduced(instrument, img, list_mode, args_night, args_keyword,
 
     # check imagetype is a valid reduction step
     basic_imagetypes = list(instconf['imagetypes'].keys())
-    valid_imagetypes = basic_imagetypes + \
-        ['wrong-' + kwd for kwd in basic_imagetypes] + \
-        ['wrong-instrument', 'unclassified']
+    basic_imagetypes_available = dict()
+    for item in basic_imagetypes:
+        # check there is a directory with this name
+        basic_imagetypes_available[item] = os.path.isdir(item)
 
-    if img is None or img == []:
+    if img is None or img == "None":
         imagetype = None
     else:
-        if len(img) > 1:
-            print('ERROR: multiple image types given')
-            imagetype = None
-        else:
-            imagetype = img[0]
+        imagetype = img
 
     if imagetype is not None:
-        if imagetype not in valid_imagetypes:
+        if imagetype not in basic_imagetypes:
             print('ERROR: invalid image type: {}'.format(imagetype))
-    if imagetype is None or imagetype not in valid_imagetypes:
+    if imagetype is None or imagetype not in basic_imagetypes:
         print('Valid imagetypes:')
-        for item in valid_imagetypes:
-            print('- {}'.format(item))
+        for item in basic_imagetypes:
+            print('- {} (available={})'.format(item, basic_imagetypes_available[item]))
         raise SystemExit()
 
     # check for imagetype subdirectory
-    if not os.path.isdir(imagetype):
-        msg = "Subdirectory {} not found".format(imagetype)
-        raise SystemError(msg)
+    if not basic_imagetypes_available[imagetype]:
+        msg = "ERROR: Subdirectory {} not found".format(imagetype)
+        raise SystemExit(msg)
 
     # selected nights to be displayed
     if args_night is None:

@@ -308,7 +308,7 @@ Within each date, the contents have the following structure:
         ]
       }
 
-Without entering in too many details, the displayed information includes
+Without entering into too many details, the displayed information includes
 the file name for the corresponding master bias ``fname``, the individual
 images involved ``originf``, the values of all the FITS keywords listed in
 ``masterkeywords``, and the statistical summary of the master image
@@ -320,10 +320,28 @@ Checking the bias reduction
 Fortunately, you do not need to manually examine the file
 ``filabres_db_cafos_bias.json`` to check the reduction of bias images.
 
-The argument ``-lr`` allows to list the result of the reduction of some
-particular images. It works in a similar way as the ``-lc`` argument,
-previously used to list the classified images (*be careful not to confuse
-them*).
+The argument ``-lr/--list_reduced`` allows to list the result of the reduction
+of some particular images. It works in a similar way as the
+``-lc/--list_classified`` argument, previously used to list the classified
+images (*be careful not to confuse them*).
+
+If you simply execute:
+
+::
+
+  $ filabres -lr
+  Valid imagetypes:
+  - bias (available=True)
+  - flat-imaging (available=False)
+  - flat-imaging-wollaston (available=False)
+  - flat-spectroscopy (available=False)
+  - arc (available=False)
+  - science-imaging (available=False)
+  - science-imaging-wollaston (available=False)
+  - science-spectroscopy (available=False)
+
+you get a list of possible image types. Note that here only ``bias`` is
+available (is the only reduction step we have performed so far).
 
 In order to check the reduction of the bias images just execute:
 

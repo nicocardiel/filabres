@@ -7,9 +7,8 @@ Image classification
 Rules for the classification of the images
 ==========================================
 
-The image
-classification will take place by generating a local database (a JSON file
-called ``imagedb_cafos.json``) for each observing night. For this purpose,
+The image classification will take place by generating a local database (a JSON
+file called ``imagedb_cafos.json``) for each observing night. For this purpose,
 **filabres** will follow the rules provided in the instrument configuration
 file ``configuration_cafos.yaml``. Note that this file is embedded in the
 distribution source code, under the directory ``filabres/instrument/``.
@@ -141,8 +140,32 @@ Inital image classification
 
 The image classification is performed by starting the reduction step
 ``initialize``. Reduction steps are executed with the argument
-``-rs/--reduction_step``. In this case execute (note that this can take several
-minutes!):
+``-rs/--reduction_step``. 
+
+Just to see the available reduction steps, execute:
+
+::
+
+  $ filabres -rs
+  ERROR: missing reduction step / image type!
+  Initial options are:
+  - initialize  (available: True)
+  - bias  (available: True)
+  - flat-imaging  (available: True)
+  - flat-imaging-wollaston  (available: False)
+  - flat-spectroscopy  (available: False)
+  - arc  (available: False)
+  - science-imaging  (available: True)
+  - science-imaging-wollaston  (available: False)
+  - science-spectroscopy  (available: False)
+
+Next to each displayed reduction step you can see whether the considered
+reduction step is actually available or not (not available
+means that **filabres** will classify the corresponding images within that
+category but the reduction of those images is still missing in the code).
+
+Since we are now interested in starting with the image classification, execute:
+(note that this can take several minutes!):
 
 ::
 
