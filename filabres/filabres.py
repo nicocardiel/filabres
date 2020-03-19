@@ -120,7 +120,6 @@ def main():
         raise SystemExit()
 
     # ---
-    # ToDo: implementar argumento --filename para reducir una unica imagen cientifica
     # ToDo: incluir varios WCS en la misma imagen
 
     # check argument compatibility

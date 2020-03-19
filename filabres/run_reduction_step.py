@@ -107,9 +107,10 @@ def run_reduction_step(redustep, interactive, datadir, list_of_nights, filename,
                 list_of_images = [filename]
             else:
                 print('WARNING: image {} not found in night {}'.format(filename, night))
+                list_of_images = []
         nlist_of_images = len(list_of_images)
         if verbose:
-            print('Number of {} images found {}'.format(redustep, nlist_of_images))
+            print('Number of {} images found: {}'.format(redustep, nlist_of_images))
 
         if nlist_of_images > 0:
 
@@ -145,12 +146,13 @@ def run_reduction_step(redustep, interactive, datadir, list_of_nights, filename,
                 output_fname = nightdir + '/' + redustep + '_'
                 output_fname += fname[:-5] + '_red.fits'
                 execute_reduction = True
+                print('-> input file name is......: {}'.format(input_fname))
+                print('-> output file name will be: {}'.format(output_fname))
                 if os.path.exists(output_fname) and not force:
                     execute_reduction = False
                     print('File {} already exists: skipping reduction.'.format(output_fname))
 
                 if execute_reduction:
-                    print('-> output file name will be {}'.format(output_fname))
                     # signature of particular image
                     imgsignature = dict()
                     for keyword in signaturekeys:
