@@ -120,7 +120,7 @@ def main():
         raise SystemExit()
 
     # ---
-    # ToDo: incluir varios WCS en la misma imagen
+    # ToDo: remove reduced science-imaging
 
     # check argument compatibility
     check_args_compatibility(args, debug=False)

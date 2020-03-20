@@ -165,6 +165,9 @@ def run_astrometry(image2d, mask2d, saturpix,
     for kwd in ['pc001001', 'pc001002', 'pc002001', 'pc002002']:
         if kwd in header:
             del header[kwd]
+    # rename deprecated RADECSYS as RADESYS
+    if 'RADECSYS' in header:
+        header.rename_keyword('RADECSYS', 'RADESYS')
 
     # RA, DEC, and DATE-OBS from the image header
     ra_initial = header['ra']
@@ -537,10 +540,6 @@ def run_astrometry(image2d, mask2d, saturpix,
             except ValueError:
                 value = kwd_value.replace('\'', ' ')
             newheader[kwd] = (value, kwd_comment.rstrip())
-
-    # if RADECSYS present, delete it (RADESYS has been set by SCAMP)
-    if 'RADECSYS' in newheader:
-        del newheader['RADECSYS']
 
     # set CTYPE1 and CTYPE2 from 'RA---TAN' and 'DEC--TAN' to 'RA---TPV' and 'DEC--TPV'
     newheader['CTYPE1'] = 'RA---TPV'
