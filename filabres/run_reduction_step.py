@@ -245,10 +245,18 @@ def run_reduction_step(redustep, interactive, datadir, list_of_nights, filename,
                         else:
                             msg = 'maxfieldview_arcmin missing in instrument configuration'
                             raise SystemError(msg)
+                        # define possible P values for build-astrometry-index (scale number)
+                        # in the order to be employed (if one fails, the next one is used)
+                        # [see help of build-astrometry-index for details]
+                        if instrument == 'cafos':
+                            pvalues = [2, 3, 1, 0, 4, 5, 6]
+                        else:
+                            msg = 'ERROR: instrument not included here!'
+                            raise SystemError(msg)
                         ierr_astr = run_astrometry(
                             image2d=image2d, mask2d=mask2d, saturpix=image2d_saturpix,
                             header=output_header,
-                            maxfieldview_arcmin=maxfieldview_arcmin, fieldfactor=1.1,
+                            maxfieldview_arcmin=maxfieldview_arcmin, fieldfactor=1.1, pvalues=pvalues,
                             nightdir=nightdir, output_fname=output_fname,
                             interactive=interactive, verbose=verbose, debug=False
                         )

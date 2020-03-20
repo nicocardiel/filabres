@@ -71,6 +71,7 @@ class CmdExecute(object):
             self.logfile.print('[Working in {}]'.format(cwd))
         self.logfile.print('$ {}'.format(command))
         p = subprocess.Popen(command.split(), cwd=cwd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        p.wait()
         pout = p.stdout.read().decode('utf-8')
         perr = p.stderr.read().decode('utf-8')
         p.stdout.close()
@@ -88,7 +89,7 @@ class CmdExecute(object):
 
 
 def run_astrometry(image2d, mask2d, saturpix,
-                   header, maxfieldview_arcmin, fieldfactor,
+                   header, maxfieldview_arcmin, fieldfactor, pvalues,
                    nightdir, output_fname,
                    interactive, verbose, debug=False):
     """
@@ -113,6 +114,10 @@ def run_astrometry(image2d, mask2d, saturpix,
     fieldfactor : float
         Multiplicative factor to enlarge the required field of view
         in order to facilitate the reuse of the downloaded GAIA data.
+    pvalues : list of int
+        Possible P values for build-astrometry-index (scale number)
+        in the order to be employed (if one fails, the next one is used).
+        See help of build-astrometry-index for details.
     nightdir : str or None
         Directory where the raw image is stored and the auxiliary
         images created by run_astrometry will be placed.
@@ -331,19 +336,6 @@ def run_astrometry(image2d, mask2d, saturpix,
         if verbose:
             print('-> Saving {}'.format(outfname))
 
-        # generate index file with GAIA data
-        command = 'build-astrometry-index -i {}/{}/GaiaDR2-query.fits'.format(nightdir, subdir)
-        command += ' -o {}/{}/index-image.fits'.format(nightdir, subdir)
-        command += ' -A ra -D dec -S phot_g_mean_mag'
-        pvalue = int((np.log(maxfieldview_arcmin)-np.log(6))/np.log(np.sqrt(2)) + 0.5)
-        if pvalue < 0:
-            pvalue = 0
-        elif pvalue > 19:
-            pvalue = 19
-        command += ' -P {}'.format(pvalue)
-        command += ' -E -I {}'.format(indexid)
-        cmd.run(command)
-
         # update JSON file with central coordinates of fields already calibrated
         ccbase[subdir] = {
             'ra': c_fk5_j2000.ra.degree,
@@ -363,9 +355,6 @@ def run_astrometry(image2d, mask2d, saturpix,
     command = 'cp {}/{}/GaiaDR2-query.fits {}/work/'.format(nightdir, subdir, nightdir)
     cmd.run(command)
 
-    command = 'cp {}/{}/index-image.fits {}/work/'.format(nightdir, subdir, nightdir)
-    cmd.run(command)
-
     # image dimensions
     naxis2, naxis1 = image2d.shape
 
@@ -375,14 +364,37 @@ def run_astrometry(image2d, mask2d, saturpix,
     hdu = fits.PrimaryHDU(image2d.astype(np.float32), header)
     hdu.writeto(tmpfname, overwrite=True)
 
-    # solve field
-    command = 'solve-field -p'
-    command += ' --config myastrometry.cfg --overwrite'.format(newsubdir)
-    command += ' --ra ' + str(c_fk5_j2000.ra.degree)
-    command += ' --dec ' + str(c_fk5_j2000.dec.degree)
-    command += ' --radius {}'.format(maxfieldview_arcmin / 120)
-    command += ' xxx.fits'
-    cmd.run(command, cwd=workdir)
+    ip = 0
+    loop = True
+    while loop:
+        # generate index file with GAIA data
+        command = 'build-astrometry-index -i GaiaDR2-query.fits'
+        command += ' -o index-image.fits'
+        command += ' -A ra -D dec -S phot_g_mean_mag'
+        command += ' -P {}'.format(pvalues[ip])
+        command += ' -E -I {}'.format(indexid)
+        cmd.run(command, cwd=workdir)
+
+        # solve field
+        command = 'solve-field -p'
+        command += ' --config myastrometry.cfg --overwrite'
+        command += ' --ra ' + str(c_fk5_j2000.ra.degree)
+        command += ' --dec ' + str(c_fk5_j2000.dec.degree)
+        command += ' --radius {}'.format(maxfieldview_arcmin / 120)
+        command += ' xxx.fits'
+        cmd.run(command, cwd=workdir)
+
+        # check that the field solved
+        if not os.path.isfile('{}/xxx.solved'.format(workdir)):
+            logfile.print('WARNING: field did not solve.')
+            if ip < len(pvalues) - 1:
+                logfile.print('WARNING: trying with new P value.')
+                ip += 1
+            else:
+                ierr_astr = 1
+                return ierr_astr
+        else:
+            loop = False
 
     # check for saturated objects
     with fits.open('{}/xxx.axy'.format(workdir), 'update') as hdul_table:
@@ -403,7 +415,7 @@ def run_astrometry(image2d, mask2d, saturpix,
     if len(isaturated) > 0:
         # rerun code
         command = 'solve-field -p'
-        command += ' --config myastrometry.cfg --continue'.format(newsubdir)
+        command += ' --config myastrometry.cfg --continue'
         command += ' --width {} --height {}'.format(naxis1, naxis2)
         command += ' --x-column X --y-column Y --sort-column FLUX'
         command += ' --ra ' + str(c_fk5_j2000.ra.degree)
@@ -411,6 +423,13 @@ def run_astrometry(image2d, mask2d, saturpix,
         command += ' --radius {}'.format(maxfieldview_arcmin / 120)
         command += ' xxx.axy'
         cmd.run(command, cwd=workdir)
+
+        # check that the field solved
+        if not os.path.isfile('{}/xxx.solved'.format(workdir)):
+            logfile.print('WARNING: field did not solve.')
+            ierr_astr = 1
+            return ierr_astr
+
         # insert new WCS into image header
         command = 'new-wcs -i xxx.fits -w xxx.wcs -o xxx.new -d'
         cmd.run(command, cwd=workdir)
