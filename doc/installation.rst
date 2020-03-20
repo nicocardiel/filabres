@@ -188,37 +188,14 @@ specially suited for this task:
 - `Astrometry.net <http://astrometry.net/doc/readme.html>`_: determines an
   initial astrometric calibration using a gnomic projection ``RA---TAN`` and
   ``DEC--TAN``, with SIP (Simple Imaging Polynomial) distortions. The
-  required binaries are:
-
-   - ``build-astrometry-index``: computes a suitable index file (containing
-     hash codes of typically sets of four stars) that facilitates the alignment
-     of the requested image. Note that **filabres** does not use the
-     pre-computed index files provided by Astrometry.net, but uses index files
-     especially suited for each region of the sky covered by the science images.
-     These files are built from GAIA data downloaded from the internet while
-     executing the code. Within each night, a database is created with the
-     regions of the sky covered by the different images. This avoids the need
-     to regenerate the index files for images that correspond to close
-     pointings.
-
-   - ``solve-field``: determines the astrometric calibration using the index
-     file previously computed.
-
-  The initial astrometric calibration provides typical errors of the order
-  of the seeing, although we have checked that these errors are larger at
-  the image borders in a systematic way, probably because the distortion is
-  determined using a second-order polynomial, which is not good enough.
-  For that reason, this astrometric calibration is refined by using
+  required binaries are ``build-astrometry-index`` and ``solve-field``.
+  This initial astrometric calibration is refined by using
   the AstrOmatic.net tools.
 
 - `AstrOmatic.net <https://www.astromatic.net/>`_: ``sextractor`` and ``scamp``
   are employed to detect the image sources and perform a refined astrometric
   calibration, using the TPV World Coordinate System to map the image
-  distortions. The initial WCS solution provided by the Astrometry.net software
-  allows ``scamp`` to determine a much better WCS solution by setting the
-  TPV polynomial degrees to 3, leading to typical errors within a fraction of
-  a pixel. Again, GAIA data is retrieved from the internet to carry out this
-  astrometric calibration.
+  distortions.
 
 .. warning::
 
@@ -230,23 +207,23 @@ specially suited for this task:
 Installing Astrometry.net
 .........................
 
-For the installation of this code you can follow the instructions given in
-`Building/installing the Astrometry.net code
-<http://astrometry.net/doc/build.html>`_, or make use of **conda** to install
-it within the ``filabres`` environment:
+For the installation of this code you can use **conda** to install within
+the ``filabres`` environment:
 
 ::
 
   $ conda activate filabres
   (filabres) $ conda install -c conda-forge astrometry
 
+or follow the instructions given in
+`Building/installing the Astrometry.net code
+<http://astrometry.net/doc/build.html>`_.
+
+
 Installing AstrOmatic.net
 .........................
 
-Here you can follow the instructions provided in the official web pages for
-`sextractor <https://www.astromatic.net/software/sextractor>`_ and
-`scamp <https://www.astromatic.net/software/scamp>`_, or make use of **conda**
-to install both programs within the ``filabres`` environment:
+Here you can also use **conda**:
 
 ::
 
@@ -254,3 +231,6 @@ to install both programs within the ``filabres`` environment:
   (filabres) $ conda install -c conda-forge astromatic-source-extractor
   (filabres) $ conda install -c conda-forge astromatic-scamp
 
+or follow the instructions provided in the official web pages for
+`sextractor <https://www.astromatic.net/software/sextractor>`_ and
+`scamp <https://www.astromatic.net/software/scamp>`_.

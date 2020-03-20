@@ -363,7 +363,10 @@ def run_astrometry(image2d, mask2d, saturpix,
     header.add_history('--Computing Astrometry.net WCS solution--')
     hdu = fits.PrimaryHDU(image2d.astype(np.float32), header)
     hdu.writeto(tmpfname, overwrite=True)
+    logfile.print('\nGenerating reduced image {}/xxx.fits (after bias '
+                  'subtraction and flatfielding)\n'.format(workdir))
 
+    logfile.print('\n*** Using Astrometry.net tools ***')
     ip = 0
     loop = True
     while loop:
@@ -405,12 +408,16 @@ def run_astrometry(image2d, mask2d, saturpix,
             iy = int(tbl['Y'][i] + 0.5)
             if saturpix[iy, ix]:
                 isaturated.append(i)
-        if len(isaturated) > 0:
-            if verbose:
-                print('Number of saturated objects found: {}/{}'.format(len(isaturated), tbl.shape[0]))
+        if verbose:
+            print('Checking file: {}/xxx.axy'.format(workdir))
+            print('Number of saturated objects found: {}/{}'.format(len(isaturated), tbl.shape[0]))
+            if len(isaturated) > 0:
                 for i in isaturated:
                     print('Saturated object: {}'.format(tbl[i]))
+        if len(isaturated) > 0:
             hdul_table[1].data = np.delete(tbl, isaturated)
+            if verbose:
+                print('File: {}/xxx.axy updated\n'.format(workdir))
 
     if len(isaturated) > 0:
         # rerun code
@@ -468,7 +475,8 @@ def run_astrometry(image2d, mask2d, saturpix,
     with fits.open(result_fname) as hdul:
         newheader = hdul[0].header
 
-    # copy configuration files for astrometric
+    # copy configuration files for astrometric.net
+    logfile.print('\n*** Using AstrOmatic.net tools ***')
     conffiles = ['default.param', 'config.sex', 'config.scamp']
     for fname in conffiles:
         dumdata = pkgutil.get_data('filabres.astromatic', fname)
@@ -476,6 +484,8 @@ def run_astrometry(image2d, mask2d, saturpix,
         logfile.print('Generating {}'.format(txtfname))
         with open(txtfname, 'wt') as f:
             f.write(str(dumdata.decode('utf8')))
+    if verbose:
+        logfile.print(' ')
 
     # run sextractor
     command = 'sex xxx.new -c config.sex -CATALOG_NAME xxx.ldac'
