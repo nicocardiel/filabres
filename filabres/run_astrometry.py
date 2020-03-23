@@ -573,13 +573,9 @@ def run_astrometry(image2d, mask2d, saturpix,
     newheader['CTYPE1'] = 'RA---TPV'
     newheader['CTYPE2'] = 'DEC--TPV'
 
-    # save result
-    hdu = fits.PrimaryHDU(image2d.astype(np.float32), newheader)
-    hdu.writeto(output_fname, overwrite=True)
-    logfile.print('-> file {} created'.format(output_fname))
-
     # load WCS computed with SCAMP
-    w = WCS(output_fname)
+    # w = WCS(output_fname)
+    w = WCS(newheader)
     # compute pixel scale (mean in both axis) in arcsec/pix
     pixel_scales_arcsec_pix = proj_plane_pixel_scales(w)*3600
     logfile.print('astrometry> pixel scales (arcsec/pix): {}'.format(pixel_scales_arcsec_pix))
@@ -606,6 +602,21 @@ def run_astrometry(image2d, mask2d, saturpix,
         interactive=interactive, logfile=logfile,
         suffix='scamp'
     )
+
+    # store astrometric summaries in history
+    newheader['history'] = 'Summary of astrometric calibration with Astrometry.net:'
+    newheader['history'] = '- pixscale: {}'.format(astrsumm1.pixscale)
+    newheader['history'] = '- ntargets: {}'.format(astrsumm1.ntargets)
+    newheader['history'] = '- meanerr: {}'.format(astrsumm1.meanerr)
+    newheader['history'] = 'Summary of astrometric calibration with AstrOmatic.net:'
+    newheader['history'] = '- pixscale: {}'.format(astrsumm2.pixscale)
+    newheader['history'] = '- ntargets: {}'.format(astrsumm2.ntargets)
+    newheader['history'] = '- meanerr: {}'.format(astrsumm2.meanerr)
+
+    # save result
+    hdu = fits.PrimaryHDU(image2d.astype(np.float32), newheader)
+    hdu.writeto(output_fname, overwrite=True)
+    logfile.print('-> file {} created'.format(output_fname))
 
     # close logfile
     logfile.close()

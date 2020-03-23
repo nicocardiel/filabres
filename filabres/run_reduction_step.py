@@ -212,7 +212,7 @@ def run_reduction_step(redustep, interactive, datadir, list_of_nights, filename,
                                 instrument, 'bias', imgsignature, mjdobs,
                                 verbose=verbose
                             )
-                        output_header.add_history('Subtracting bias:')
+                        output_header.add_history('Subtracting master bias:')
                         output_header.add_history(bias_fname)
                         if debug:
                             print('bias level:', np.median(image2d_bias))
@@ -222,7 +222,7 @@ def run_reduction_step(redustep, interactive, datadir, list_of_nights, filename,
                                 instrument, 'flat-imaging', imgsignature,
                                 mjdobs, verbose=verbose
                             )
-                        output_header.add_history('Applying flatfield:')
+                        output_header.add_history('Applying master flatfield:')
                         output_header.add_history(flat_fname)
                         if debug:
                             print('flat level:', np.median(image2d_flat))

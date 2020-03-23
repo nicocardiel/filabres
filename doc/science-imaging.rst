@@ -956,15 +956,6 @@ The output of the execution of ``SCAMP`` is shown next:
 
 **Results of the new astrometric calibration**
 
-The final image after the execution of the AstrOmatic.net tools is then 
-generated:
-
-::
-
-  -> file science-imaging/170225_t2_CAFOS/science-imaging_caf-20170225-18:59:12-sci-krek_red.fits created
-
-
-
 The next output is a brief summary displaying the plate scales (arcsec/pix),
 the number of sources found, the mean error (in arcsec), and some of the
 outliers:
@@ -1007,6 +998,14 @@ case it is clear the reduction of the error on the astrometric solution.
 .. image:: images/astrometry-scamp_image1_plot4.png
    :width: 100%
    :alt: astromatic.net image 1 plot 4
+
+The final image after the execution of the AstrOmatic.net tools is then 
+generated:
+
+::
+
+  -> file science-imaging/170225_t2_CAFOS/science-imaging_caf-20170225-18:59:12-sci-krek_red.fits created
+
 
 **Storing the results**
 

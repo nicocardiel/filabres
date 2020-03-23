@@ -353,7 +353,7 @@ def run_calibration_step(redustep, datadir, list_of_nights,
                                     verbose=verbose
                                 )
                             # subtract bias
-                            output_header.add_history('Subtracting bias:')
+                            output_header.add_history('Subtracting master bias:')
                             output_header.add_history(bias_fname)
                             if debug:
                                 print('bias level:', np.median(image2d_bias))

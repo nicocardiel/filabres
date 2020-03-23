@@ -22,6 +22,25 @@ NMAXGAIA = 2000
 class AstrSummary(object):
     """
     Store relevant information concerning the astrometric calibration.
+
+    Parameters
+    ----------
+    pixscale : float
+        Pixel scale (in arcsec/pixel).
+    ntargets : int
+        Number of targets.
+    meanerr : float
+        Mean error (in arcseconds).
+
+    Attributes
+    ----------
+    pixscale : float
+        Pixel scale (in arcsec/pixel).
+    ntargets : int
+        Number of targets.
+    meanerr : float
+        Mean error (in arcseconds).
+
     """
     def __init__(self, pixscale, ntargets, meanerr):
         self.pixscale = pixscale
@@ -72,24 +91,20 @@ def plot_astrometry(output_fname, image2d,
 
     Returns
     -------
-    mean_pixel_scale_arcsec_pix : float
-        Mean pixel scale (in arcsec/pixel).
-    ntargets : int
-        Number of targets.
-    meanerr: float
-        Mean error (in arcsec).
+    astrsumm : instance of AstrSumm
+        Summary of astrometric calibration.
 
     """
 
     ntargets = len(peak_x)
     naxis2, naxis1 = image2d.shape
 
-    mean_pixel_scale_arcsec_pix = np.mean(pixel_scales_arcsec_pix)
+    mean_pixel_scale_arcsec_pix = float(np.mean(pixel_scales_arcsec_pix))
     delta_x = (pred_x - peak_x) * mean_pixel_scale_arcsec_pix
     delta_y = (pred_y - peak_y) * mean_pixel_scale_arcsec_pix
     delta_r = np.sqrt(delta_x * delta_x + delta_y * delta_y)
     rorder = np.argsort(delta_r)
-    meanerr = np.mean(delta_r)
+    meanerr = float(np.mean(delta_r))
     logfile.print('astrometry-{}> Number of targest found: {}'.format(suffix, ntargets))
     logfile.print('astrometry-{}> Mean error (arcsec)....: {}'.format(suffix, meanerr))
     for i, iorder in enumerate(rorder):
@@ -138,7 +153,7 @@ def plot_astrometry(output_fname, image2d,
         if interactive:
             plt.show()
     # plot 3: image with identified objects
-    ax = ximshow(image2d, cmap='gray', show=False, geometry=None, figuredict={'figsize': (11.7, 8.3)},
+    ax = ximshow(image2d, cmap='gray_r', show=False, geometry=None, figuredict={'figsize': (11.7, 8.3)},
                  title=plot_title, tight_layout=False)
     ax.plot(peak_x, peak_y, 'bo', fillstyle='none', markersize=10, label='peaks')
     for i, iorder in enumerate(rorder):
