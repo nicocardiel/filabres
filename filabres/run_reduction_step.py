@@ -278,8 +278,10 @@ def run_reduction_step(redustep, interactive, datadir, list_of_nights, filename,
                     database[redustep][fname]['masterkeywords'] = dumdict
                     database[redustep][fname]['ierr_bias'] = ierr_bias
                     database[redustep][fname]['delta_mjd_bias'] = delta_mjd_bias
+                    database[redustep][fname]['bias_fname'] = bias_fname
                     database[redustep][fname]['ierr_flat'] = ierr_flat
                     database[redustep][fname]['delta_mjd_flat'] = delta_mjd_flat
+                    database[redustep][fname]['flat_fname'] = flat_fname
                     database[redustep][fname]['ierr_astr'] = ierr_astr
 
                 # update results database

@@ -1045,17 +1045,19 @@ Reducing multiple science-imaging files
 The previous sections have illustrated the reduction of a single
 ``science-imaging`` frame. As previously mentioned, this process can be
 trivially executed with all the similar images in a particular night by
-avoiding the use of the ``--filename`` argument:
+avoiding the use of the ``--filename`` argument. In addition, it is also
+convenient to exclude the use of ``-i/--interactive`` to prevent **filabres**
+from pausing the reduction after finishing each scientific image:
 
 ::
 
-  $ filabres -rs science-imaging -v -i -n 170225*
+  $ filabres -rs science-imaging -v -n 170225*
 
 or even to all nights by removing the ``-n/--night`` argument:
 
 ::
 
-  $ filabres -rs science-imaging -v -i
+  $ filabres -rs science-imaging -v
 
 
 .. _checking_the_science-imaging_reduction:
