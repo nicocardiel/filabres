@@ -247,12 +247,12 @@ The astrometric calibration is performed in two steps:
    For that reason, this astrometric calibration is refined by using
    the AstrOmatic.net tools.
 
-2. Using `AstrOmatic.net <https://www.astromatic.net/>`_ tools: ``sextractor`` 
-   and ``scamp`` are employed to detect the image sources and perform a refined
+2. Using `AstrOmatic.net <https://www.astromatic.net/>`_ tools: ``SExtractor`` 
+   and ``SCAMP`` are employed to detect the image sources and perform a refined
    astrometric calibration, using the `TPV World Coordinate System
    <https://fits.gsfc.nasa.gov/registry/tpvwcs/tpv.html>`_  to map the image
    distortions. The initial WCS solution provided by the Astrometry.net
-   software allows ``scamp`` to determine a much better WCS solution by setting
+   software allows ``SCAMP`` to determine a much better WCS solution by setting
    the TPV polynomial degrees to 3, leading to typical errors within a fraction
    of a pixel. Again, GAIA data is retrieved from the internet to carry out
    this astrometric calibration.
@@ -729,9 +729,13 @@ predicted positions of the detected sources.
 Astrometric calibration with AstrOmatic.net tools
 -------------------------------------------------
 
-(Work in progress)
+The initial astrometric calibration obtained with the Astrometry.net tools is
+refined now using the AstrOmatic software.
 
 **Creating the configuration files**
+
+The first step is the generation of the configuration files required by
+``SExtractor`` and ``SCAMP``.
 
 ::
 
@@ -740,14 +744,16 @@ Astrometric calibration with AstrOmatic.net tools
   Generating science-imaging/170225_t2_CAFOS/work/config.sex
   Generating science-imaging/170225_t2_CAFOS/work/config.scamp
 
-**Running SExtractor**
+**Running ``SExtractor``**
 
+Next, ``SExtractor`` is executed in order to build the catalog of objects in
+the reduced image, which will be called ``xxx.ldac``.
 ::
 
   [Working in science-imaging/170225_t2_CAFOS/work]
   $ sex xxx.new -c config.sex -CATALOG_NAME xxx.ldac
 
-The output of the execution of SExtractor is also shown:
+The output of the execution of ``SExtractor`` is also shown:
 
 ::
 
@@ -863,14 +869,15 @@ The output of the execution of SExtractor is also shown:
   > 
   > All done (in 0.1 s: 14925.8 lines/s , 479.4 detections/s)
 
-**Running Scamp**
+**Running ``SCAMP``**
 
+Finally, ``SCAMP`` is executed to compute the refined astrometric calibration.
 ::
 
   [Working in science-imaging/170225_t2_CAFOS/work]
   $ scamp xxx.ldac -c config.scamp
 
-The output of the execution of Scamp is shown next:
+The output of the execution of ``SCAMP`` is shown next:
 
 ::
 
@@ -949,6 +956,19 @@ The output of the execution of Scamp is shown next:
 
 **Results of the new astrometric calibration**
 
+The final image after the execution of the AstrOmatic.net tools is then 
+generated:
+
+::
+
+  -> file science-imaging/170225_t2_CAFOS/science-imaging_caf-20170225-18:59:12-sci-krek_red.fits created
+
+
+
+The next output is a brief summary displaying the plate scales (arcsec/pix),
+the number of sources found, the mean error (in arcsec), and some of the
+outliers:
+
 ::
 
   -> file science-imaging/170225_t2_CAFOS/science-imaging_caf-20170225-18:59:12-sci-krek_red.fits created
@@ -968,6 +988,9 @@ The output of the execution of Scamp is shown next:
   -> outlier point #49, delta_r (arcsec): 0.18797255871764804
   -> outlier point #50, delta_r (arcsec): 0.19884266054034697
 
+In addition, **filabres** generates the same plots previously displayed when
+computing the astrometric solution with the Astrometry.net software. In this
+case it is clear the reduction of the error on the astrometric solution.
 
 .. image:: images/astrometry-scamp_image1_plot1.png
    :width: 100%
@@ -985,20 +1008,88 @@ The output of the execution of Scamp is shown next:
    :width: 100%
    :alt: astromatic.net image 1 plot 4
 
+**Storing the results**
+
+**Filabres** stores not only the reduced image, but also some auxiliary files
+associated to the astrometric calibration.  All that information is kept under
+a subdirectory with the same name as the reduced image (without the ``.fits``
+extension):
+
+::
+
+  Subdirectory science-imaging/170225_t2_CAFOS/science-imaging_caf-20170225-18:59:12-sci-krek_red not found. Creating it!
+  [Working in science-imaging/170225_t2_CAFOS/work]
+  $ cp astrometry-net.pdf ../science-imaging_caf-20170225-18:59:12-sci-krek_red/
+  [Working in science-imaging/170225_t2_CAFOS/work]
+  $ cp astrometry-scamp.pdf ../science-imaging_caf-20170225-18:59:12-sci-krek_red/
+  [Working in science-imaging/170225_t2_CAFOS/work]
+  $ cp astrometry.log ../science-imaging_caf-20170225-18:59:12-sci-krek_red/
+  [Working in science-imaging/170225_t2_CAFOS/work]
+  $ cp xxx.new ../science-imaging_caf-20170225-18:59:12-sci-krek_red/
+  [Working in science-imaging/170225_t2_CAFOS/work]
+  $ cp full_1.cat ../science-imaging_caf-20170225-18:59:12-sci-krek_red/
+  [Working in science-imaging/170225_t2_CAFOS/work]
+  $ cp merged_1.cat ../science-imaging_caf-20170225-18:59:12-sci-krek_red/
+  Press 'x' + <ENTER> to stop, or simply <ENTER> to continue... 
+
+Those files include a log file with the output of the astrometric calibration,
+the PDF version of the previously displayed plots, the reduced image after the
+initial astrometric calibration with Astrometry.net (this file is called
+``xxx.new``), and some catalogues generated by AstrOmatic.net.
 
 .. _checking_the_science-imaging_reduction:
 
 Checking the science-imaging reduction
 ======================================
 
-(Work in progress)
+To check the results of the ``science-imaging`` files, you can use the
+``-lr/--list_reduced`` argument, as previouly described for the calibration
+images.
 
 ::
 
+  $ filabres -lr science-imaging
+  ...
+  ...
+
   $ filabres -lr science-imaging -k all
-  $ filabres -lr science-imaging -k ierr_bias -k ierr_flat
+  ...
+  ...
+
+It is interesting to check whether there has been any error when retrieveing
+the bias and flatfield calibrations, or during the astrometric calibration:
+
+::
+
+
+  $ filabres -lr science-imaging -k ierr_bias -k ierr_flat -k ierr_astr
+    IERR_BIAS IERR_FLAT IERR_ASTR                                                                                     file
+  1  0         0         0         science-imaging/170225_t2_CAFOS/science-imaging_caf-20170225-18:59:12-sci-krek_red.fits
+  Total: 1 files
+  
 
 Removing invalid reduced science-imaging frames
 ===============================================
 
-(Work in progress)
+To remove a particular reduced ``science-imaging`` result, it is important to
+delete not only the actual FITS file, but also the associated files
+stored during the data reduction, as well as the corresponding entry in the
+database file ``filabres_db_cafos_science-imaging.json``.  Fortunately, all
+these actions are performed automatically by **filabres** using the
+``--delete`` argument followed by the full path to the reduced file:
+
+::
+
+  filabres --delete science-imaging/170225_t2_CAFOS/science-imaging_caf-20170225-18:59:12-sci-krek_red.fits
+  Image to be deleted science-imaging/170225_t2_CAFOS/science-imaging_caf-20170225-18:59:12-sci-krek_red.fits
+  -> Deleting entry in science-imaging/170225_t2_CAFOS/filabres_db_cafos_science-imaging.json
+  -> Updating science-imaging/170225_t2_CAFOS/filabres_db_cafos_science-imaging.json
+  -> Deleting file: science-imaging/170225_t2_CAFOS/science-imaging_caf-20170225-18:59:12-sci-krek_red.fits
+  -> Removing file: science-imaging/170225_t2_CAFOS/science-imaging_caf-20170225-18:59:12-sci-krek_red/astrometry-scamp.pdf
+  -> Removing file: science-imaging/170225_t2_CAFOS/science-imaging_caf-20170225-18:59:12-sci-krek_red/astrometry-net.pdf
+  -> Removing file: science-imaging/170225_t2_CAFOS/science-imaging_caf-20170225-18:59:12-sci-krek_red/merged_1.cat
+  -> Removing file: science-imaging/170225_t2_CAFOS/science-imaging_caf-20170225-18:59:12-sci-krek_red/full_1.cat
+  -> Removing file: science-imaging/170225_t2_CAFOS/science-imaging_caf-20170225-18:59:12-sci-krek_red/xxx.new
+  -> Removing file: science-imaging/170225_t2_CAFOS/science-imaging_caf-20170225-18:59:12-sci-krek_red/astrometry.log
+  -> Removing subdirectory: science-imaging/170225_t2_CAFOS/science-imaging_caf-20170225-18:59:12-sci-krek_red
+  * program STOP 

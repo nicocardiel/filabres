@@ -8,6 +8,7 @@
 # License-Filename: LICENSE.txt
 #
 
+import glob
 import json
 import os
 
@@ -34,6 +35,10 @@ def delete_reduced(instrument, reducedima):
     imagetype = reducedima[:islash]
     iislash = reducedima[(islash + 1):].find('/')
     night = reducedima[(islash + 1):(islash + 1 + iislash)]
+    basename = reducedima[(islash + 1 + iislash + 1):]
+    idum1 = basename.find(imagetype)
+    idum2 = basename.find('_red.fits')
+    original_basename = basename[(idum1 + 1 + len(imagetype)):idum2] + '.fits'
 
     # load instrument configuration, determine calibration image types
     # and check that the current image type is one of them
@@ -98,17 +103,63 @@ def delete_reduced(instrument, reducedima):
             raise SystemError(msg)
 
         # save new updated database
-        databasefile = 'filabres_db_{}_{}.json'.format(instrument, imagetype)
+        with open(databasefile, 'w') as outfile:
+            json.dump(database, outfile, indent=2)
+        print('-> Updating {}'.format(databasefile))
+    elif classification == 'science':
+        # look for the expected results database
+        databasefile = '{}/{}/filabres_db_{}_{}.json'.format(imagetype, night, instrument, imagetype)
+        try:
+            with open(databasefile) as jfile:
+                database = json.load(jfile)
+        except FileNotFoundError:
+            msg = 'ERROR: expected database file {} not found'.format(databasefile)
+            print(msg)
+            return
+
+        if imagetype not in database:
+            msg = 'ERROR: keyword {} not found in {}'.format(imagetype, databasefile)
+            print(msg)
+            return
+
+        if original_basename not in database[imagetype]:
+            msg = 'ERROR: filename {} not found in {}'.format(original_basename, databasefile)
+            print(msg)
+            return
+
+        # remove database entry
+        del database[imagetype][original_basename]
+        print('-> Deleting entry in {}'.format(databasefile))
+
+        # save new updated database
         with open(databasefile, 'w') as outfile:
             json.dump(database, outfile, indent=2)
         print('-> Updating {}'.format(databasefile))
     else:
-        # ToDo: remove entry in scientific database
-        pass
+        msg = 'ERROR: unexpected classification: {}'.format(classification)
+        raise SystemError(msg)
 
     # remove the actual file
     try:
         os.remove(reducedima)
-        print('-> Deleting file {}'.format(reducedima))
+        print('-> Deleting file: {}'.format(reducedima))
     except:
         print("Error while deleting file : ", reducedima)
+
+    # remove auxiliary subdirectory
+    if classification == 'science':
+        idum = reducedima.find('.fits')
+        subdir = reducedima[:idum]
+        filelist = glob.glob('{}/*'.format(subdir))
+        for filepath in filelist:
+            try:
+                os.remove(filepath)
+                print('-> Removing file: {}'.format(filepath))
+            except:
+                print("ERROR while deleting file: ".format(filepath))
+        # remove subdirectory
+        try:
+            os.rmdir(subdir)
+            print('-> Removing subdirectory: {}'.format(subdir))
+        except:
+            print("ERROR while deleting subdirectory: {}".format(subdir))
