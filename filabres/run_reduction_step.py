@@ -146,7 +146,7 @@ def run_reduction_step(redustep, interactive, datadir, list_of_nights, filename,
                 output_fname = nightdir + '/' + redustep + '_'
                 output_fname += fname[:-5] + '_red.fits'
                 execute_reduction = True
-                print('-> input file name is......: {}'.format(input_fname))
+                print('\n-> input file name is......: {}'.format(input_fname))
                 print('-> output file name will be: {}'.format(output_fname))
                 if os.path.exists(output_fname) and not force:
                     execute_reduction = False

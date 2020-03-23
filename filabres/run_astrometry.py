@@ -146,7 +146,8 @@ def run_astrometry(image2d, mask2d, saturpix,
         os.makedirs(workdir)
     else:
         filelist = glob.glob('{}/*'.format(workdir))
-        print('\nRemoving previous files: {}'.format(filelist))
+        if verbose:
+            print('\nRemoving previous files: {}'.format(filelist))
         for filepath in filelist:
             try:
                 os.remove(filepath)
@@ -231,8 +232,7 @@ def run_astrometry(image2d, mask2d, saturpix,
         # generate additional logfile for retrieval of GAIA data
         loggaianame = '{}/gaialog.log'.format(newsubdir)
         loggaia = open(loggaianame, 'wt')
-        if verbose:
-            print('-> Creating {}'.format(loggaianame))
+        logfile.print('-> Creating {}'.format(loggaianame))
         loggaia.write('Querying GAIA data...\n')
         # generate query for GAIA
         search_radius_arcmin = fieldfactor * (maxfieldview_arcmin / 2)
@@ -243,8 +243,7 @@ def run_astrometry(image2d, mask2d, saturpix,
         gaia_query_line, tap_result = retrieve_gaia(c_fk5_j2000.ra.deg, c_fk5_j2000.dec.deg, search_radius_degree,
                                                     mag_minimum, loggaia)
         nobjects_mag_minimum = len(tap_result)
-        if verbose:
-            print('-> Gaia data: magnitude, nobjects: {:.3f}, {}'.format(mag_minimum, nobjects_mag_minimum))
+        logfile.print('-> Gaia data: magnitude, nobjects: {:.3f}, {}'.format(mag_minimum, nobjects_mag_minimum))
         if nobjects_mag_minimum >= NMAXGAIA:
             raise SystemError('Unexpected')
         # ---
@@ -252,8 +251,7 @@ def run_astrometry(image2d, mask2d, saturpix,
         gaia_query_line, tap_result = retrieve_gaia(c_fk5_j2000.ra.deg, c_fk5_j2000.dec.deg, search_radius_degree,
                                                     mag_maximum, loggaia)
         nobjects_mag_maximum = len(tap_result)
-        if verbose:
-            print('-> Gaia data: magnitude, nobjects: {:.3f}, {}'.format(mag_maximum, nobjects_mag_maximum))
+        logfile.print('-> Gaia data: magnitude, nobjects: {:.3f}, {}'.format(mag_maximum, nobjects_mag_maximum))
         if nobjects_mag_maximum < NMAXGAIA:
             loop_in_gaia = False
         else:
@@ -268,8 +266,7 @@ def run_astrometry(image2d, mask2d, saturpix,
             gaia_query_line, tap_result = retrieve_gaia(c_fk5_j2000.ra.deg, c_fk5_j2000.dec.deg, search_radius_degree,
                                                         mag_medium, loggaia)
             nobjects = len(tap_result)
-            if verbose:
-                print('-> Gaia data: magnitude, nobjects: {:.3f}, {}'.format(mag_medium, nobjects))
+            logfile.print('-> Gaia data: magnitude, nobjects: {:.3f}, {}'.format(mag_medium, nobjects))
             if nobjects < NMAXGAIA:
                 if mag_maximum - mag_minimum < 0.1:
                     loop_in_gaia = False
@@ -284,12 +281,10 @@ def run_astrometry(image2d, mask2d, saturpix,
         loggaia.write(str(tap_result.to_table()) + '\n')
         loggaia.close()
 
-        if verbose:
-            print('Querying GAIA data: {} objects found'.format(len(tap_result)))
+        logfile.print('Querying GAIA data: {} objects found'.format(len(tap_result)))
 
         # proper motion correction
-        if verbose:
-            print('-> Applying proper motion correction...')
+        logfile.print('-> Applying proper motion correction...')
         source_id = []
         ra_corrected = []
         dec_corrected = []
@@ -333,8 +328,7 @@ def run_astrometry(image2d, mask2d, saturpix,
         hdul = fits.HDUList([primary_hdu, hdu])
         outfname = nightdir + '/' + subdir + '/GaiaDR2-query.fits'
         hdul.writeto(outfname, overwrite=True)
-        if verbose:
-            print('-> Saving {}'.format(outfname))
+        logfile.print('-> Saving {}'.format(outfname))
 
         # update JSON file with central coordinates of fields already calibrated
         ccbase[subdir] = {
@@ -408,16 +402,14 @@ def run_astrometry(image2d, mask2d, saturpix,
             iy = int(tbl['Y'][i] + 0.5)
             if saturpix[iy, ix]:
                 isaturated.append(i)
-        if verbose:
-            print('Checking file: {}/xxx.axy'.format(workdir))
-            print('Number of saturated objects found: {}/{}'.format(len(isaturated), tbl.shape[0]))
-            if len(isaturated) > 0:
-                for i in isaturated:
-                    print('Saturated object: {}'.format(tbl[i]))
+        logfile.print('Checking file: {}/xxx.axy'.format(workdir))
+        logfile.print('Number of saturated objects found: {}/{}'.format(len(isaturated), tbl.shape[0]))
+        if len(isaturated) > 0:
+            for i in isaturated:
+                logfile.print('Saturated object: {}'.format(tbl[i]))
         if len(isaturated) > 0:
             hdul_table[1].data = np.delete(tbl, isaturated)
-            if verbose:
-                print('File: {}/xxx.axy updated\n'.format(workdir))
+            logfile.print('File: {}/xxx.axy updated\n'.format(workdir))
 
     if len(isaturated) > 0:
         # rerun code
@@ -446,7 +438,8 @@ def run_astrometry(image2d, mask2d, saturpix,
     # $ wcs-rd2xy -w xxx.wcs -i GaiaDR2-query.fits -o gaia-xy.fits)
     with fits.open('{}/GaiaDR2-query.fits'.format(workdir)) as hdul_table:
         gaiadr2 = hdul_table[1].data
-    w = WCS('{}/xxx.wcs'.format(workdir))
+    with fits.open('{}/xxx.new'.format(workdir)) as hdul:
+        w = WCS(hdul[0].header)
     xgaia, ygaia = w.all_world2pix(gaiadr2.ra, gaiadr2.dec, 1)
     # compute pixel scale (mean in both axis) in arcsec/pix
     pixel_scales_arcsec_pix = proj_plane_pixel_scales(w)*3600
@@ -577,8 +570,7 @@ def run_astrometry(image2d, mask2d, saturpix,
     # save result
     hdu = fits.PrimaryHDU(image2d.astype(np.float32), newheader)
     hdu.writeto(output_fname, overwrite=True)
-    if verbose:
-        print('-> file {} created'.format(output_fname))
+    logfile.print('-> file {} created'.format(output_fname))
 
     # load WCS computed with SCAMP
     w = WCS(output_fname)
@@ -587,8 +579,8 @@ def run_astrometry(image2d, mask2d, saturpix,
     logfile.print('astrometry> pixel scales (arcsec/pix): {}'.format(pixel_scales_arcsec_pix))
 
     # load peak location from catalogue
-    peak_x, peak_y = load_scamp_cat('full', workdir, verbose)
-    peak_ra, peak_dec = load_scamp_cat('merged', workdir, verbose)
+    peak_x, peak_y = load_scamp_cat('full', workdir, logfile)
+    peak_ra, peak_dec = load_scamp_cat('merged', workdir, logfile)
     pred_x, pred_y = w.wcs_world2pix(peak_ra, peak_dec, 1)
 
     # predict expected location of GAIA data

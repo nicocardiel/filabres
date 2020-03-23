@@ -11,7 +11,7 @@
 import numpy as np
 
 
-def load_scamp_cat(catalogue, workdir, verbose):
+def load_scamp_cat(catalogue, workdir, logfile):
     """
     Load X, Y coordinates from catalogue generated with SCAMP
 
@@ -21,8 +21,8 @@ def load_scamp_cat(catalogue, workdir, verbose):
         Catalogue to be read. It must be 'full' or 'merged'.
     workdir : str
         Work subdirectory.
-    verbose : bool or None
-        If True, display intermediate information.
+    logfile: instance of ToLogFile
+        Log file to store information.
 
     Returns
     =======
@@ -39,8 +39,7 @@ def load_scamp_cat(catalogue, workdir, verbose):
     with open(fname, 'rt') as f:
         fulltxt = f.readlines()
 
-    if verbose:
-        print('Reading {}'.format(fname))
+    logfile.print('Reading {}'.format(fname))
 
     # determine relevant column numbers
     if catalogue == 'full':
@@ -57,8 +56,7 @@ def load_scamp_cat(catalogue, workdir, verbose):
         if ii is None:
             msg = '{} not found in {}'.format(col, fname)
             raise SystemError(msg)
-        if verbose:
-            print('{} is located in column #{}'.format(col, ii))
+        logfile.print('{} is located in column #{}'.format(col, ii))
         ncol.append(ii - 1)
 
     # read full data set
@@ -67,8 +65,7 @@ def load_scamp_cat(catalogue, workdir, verbose):
     if catalogue == 'full':
         # delete invalid rows (those with CATALOG_NUMBER == 0)
         valid_rows = np.where(fulltable[:, ncol[2]] != 0)[0]
-        if verbose:
-            print('Number of objects read: {}'.format(len(valid_rows)))
+        logfile.print('Number of objects read: {}'.format(len(valid_rows)))
         newtable = fulltable[valid_rows, :]
     else:
         newtable = fulltable
