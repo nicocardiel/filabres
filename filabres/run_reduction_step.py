@@ -146,7 +146,8 @@ def run_reduction_step(redustep, interactive, datadir, list_of_nights, filename,
                 output_fname = nightdir + '/' + redustep + '_'
                 output_fname += fname[:-5] + '_red.fits'
                 execute_reduction = True
-                print('\n-> input file name is......: {}'.format(input_fname))
+                print('---')
+                print('-> input file name is......: {}'.format(input_fname))
                 print('-> output file name will be: {}'.format(output_fname))
                 if os.path.exists(output_fname) and not force:
                     execute_reduction = False
@@ -253,7 +254,7 @@ def run_reduction_step(redustep, interactive, datadir, list_of_nights, filename,
                         else:
                             msg = 'ERROR: instrument not included here!'
                             raise SystemError(msg)
-                        ierr_astr = run_astrometry(
+                        ierr_astr, astrsumm1, astrsumm2 = run_astrometry(
                             image2d=image2d, mask2d=mask2d, saturpix=image2d_saturpix,
                             header=output_header,
                             maxfieldview_arcmin=maxfieldview_arcmin, fieldfactor=1.1, pvalues=pvalues,
@@ -283,6 +284,14 @@ def run_reduction_step(redustep, interactive, datadir, list_of_nights, filename,
                     database[redustep][fname]['delta_mjd_flat'] = delta_mjd_flat
                     database[redustep][fname]['flat_fname'] = flat_fname
                     database[redustep][fname]['ierr_astr'] = ierr_astr
+                    if astrsumm1 is not None:
+                        database[redustep][fname]['astr1_pixscale'] = astrsumm1.pixscale
+                        database[redustep][fname]['astr1_ntargets'] = astrsumm1.ntargets
+                        database[redustep][fname]['astr1_meanerr'] = astrsumm1.meanerr
+                    if astrsumm2 is not None:
+                        database[redustep][fname]['astr2_pixscale'] = astrsumm2.pixscale
+                        database[redustep][fname]['astr2_ntargets'] = astrsumm2.ntargets
+                        database[redustep][fname]['astr2_meanerr'] = astrsumm2.meanerr
 
                 # update results database
                 with open(databasefile, 'w') as outfile:

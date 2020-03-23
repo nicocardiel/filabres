@@ -8,7 +8,7 @@
 # License-Filename: LICENSE.txt
 #
 
-version = '0.9.46'
+version = '0.9.47'
 
 
 def main():

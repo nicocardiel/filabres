@@ -274,7 +274,7 @@ The available keywords for this type of images are:
   'INSFPWL', 'INSFPDWL', 'INSFPORD', 'INSCALST', 'INSCALID', 'INSCALNM',
   'NPOINTS', 'FMINIMUM', 'QUANT025', 'QUANT159', 'QUANT250', 'QUANT500',
   'QUANT750', 'QUANT841', 'QUANT975', 'FMAXIMUM', 'ROBUSTSTD', 'NORIGIN',
-  'IERR_BIAS', 'DELTA_MJD_BIAS', 'IERR_FLAT']
+  'IERR_BIAS', 'DELTA_MJD_BIAS', 'BIAS_FNAME', 'IERR_FLAT']
 
 Note some new useful keywords:
 
@@ -287,6 +287,9 @@ Note some new useful keywords:
 
 - ``DELTA_MJD_BIAS``: time distance (days) between the master bias and the flat
   images being reduced.
+
+- ``BIAS_FNAME``: path to the master bias image employed in the reduction of
+  the flat images.
 
 - ``IERR_FLAT``: flag that indicates a problem in the reduction of the flat
   images themselves (a negative median signal for example). These images should

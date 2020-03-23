@@ -98,7 +98,7 @@ def run_astrometry(image2d, mask2d, saturpix,
     Note that the input parameter header is modified in output.
 
     Parameters
-    ==========
+    ----------
     image2d : numpy 2D array
         Image to be calibrated.
     mask2d : numpy 2D array
@@ -131,13 +131,19 @@ def run_astrometry(image2d, mask2d, saturpix,
         Display additional debugging information.
 
     Returns
-    =======
+    -------
     ierr_astr : int
         Error status value. 0: no error. 1: error while performing
         astrometric calibration.
+    astrsumm1 : instance of AstrSumm
+        Summary of the astrometric calibration with Astronomy.net.
+    astrsumm2 : instance of AstrSumm
+        Summary of the astrometric calibration with AstrOmatic.net.
     """
 
     ierr_astr = 0
+    astrsumm1 = None
+    astrsumm2 = None
 
     # creating work subdirectory
     workdir = nightdir + '/work'
@@ -389,7 +395,7 @@ def run_astrometry(image2d, mask2d, saturpix,
                 ip += 1
             else:
                 ierr_astr = 1
-                return ierr_astr
+                return ierr_astr, astrsumm1, astrsumm2
         else:
             loop = False
 
@@ -427,7 +433,7 @@ def run_astrometry(image2d, mask2d, saturpix,
         if not os.path.isfile('{}/xxx.solved'.format(workdir)):
             logfile.print('WARNING: field did not solve.')
             ierr_astr = 1
-            return ierr_astr
+            return ierr_astr, astrsumm1, astrsumm2
 
         # insert new WCS into image header
         command = 'new-wcs -i xxx.fits -w xxx.wcs -o xxx.new -d'
@@ -451,7 +457,7 @@ def run_astrometry(image2d, mask2d, saturpix,
         tcorr = hdul_table[1].data
 
     # generate plots
-    plot_astrometry(
+    astrsumm1 = plot_astrometry(
         output_fname=output_fname,
         image2d=image2d,
         peak_x=tcorr.field_x, peak_y=tcorr.field_y,
@@ -493,7 +499,7 @@ def run_astrometry(image2d, mask2d, saturpix,
         pass
     else:
         ierr_astr = 1
-        return ierr_astr
+        return ierr_astr, astrsumm1, astrsumm2
 
     # remove SIP parameters in newheader
     newheader['history'] = '--Deleting SIP from Astrometry.net WCS solution--'
@@ -589,7 +595,7 @@ def run_astrometry(image2d, mask2d, saturpix,
     xgaia, ygaia = w.wcs_world2pix(gaiadr2.ra, gaiadr2.dec, 1)
 
     # generate plots
-    plot_astrometry(
+    astrsumm2 = plot_astrometry(
         output_fname=output_fname,
         image2d=image2d,
         peak_x=peak_x, peak_y=peak_y,
@@ -621,4 +627,4 @@ def run_astrometry(image2d, mask2d, saturpix,
         command = 'cp {} ../{}/'.format(filepath, backupsubdir)
         cmd.run(command, cwd=workdir)
 
-    return ierr_astr
+    return ierr_astr, astrsumm1, astrsumm2

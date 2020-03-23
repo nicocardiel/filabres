@@ -19,6 +19,16 @@ from .pause_debugplot import pause_debugplot
 NMAXGAIA = 2000
 
 
+class AstrSummary(object):
+    """
+    Store relevant information concerning the astrometric calibration.
+    """
+    def __init__(self, pixscale, ntargets, meanerr):
+        self.pixscale = pixscale
+        self.ntargets = ntargets
+        self.meanerr = meanerr
+
+
 def plot_astrometry(output_fname, image2d,
                     peak_x, peak_y, pred_x, pred_y, xcatag, ycatag,
                     pixel_scales_arcsec_pix, workdir, interactive, logfile,
@@ -27,7 +37,7 @@ def plot_astrometry(output_fname, image2d,
     Generate plots with the results of the astrometric calibration.
 
     Parameters
-    ==========
+    ----------
     output_fname : str or None
         Output file name.
     image2d : numpy 2D array
@@ -59,6 +69,16 @@ def plot_astrometry(output_fname, image2d,
         stored.
     suffix : str
         Suffix to be appended to PDF output.
+
+    Returns
+    -------
+    mean_pixel_scale_arcsec_pix : float
+        Mean pixel scale (in arcsec/pixel).
+    ntargets : int
+        Number of targets.
+    meanerr: float
+        Mean error (in arcsec).
+
     """
 
     ntargets = len(peak_x)
@@ -134,3 +154,6 @@ def plot_astrometry(output_fname, image2d,
         pause_debugplot(debugplot=12, pltshow=True, tight_layout=False)
     pp.close()
     plt.close()
+
+    astrsumm = AstrSummary(mean_pixel_scale_arcsec_pix, ntargets, meanerr)
+    return astrsumm

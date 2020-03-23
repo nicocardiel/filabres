@@ -11,6 +11,7 @@
 import fnmatch
 import glob
 import json
+import numpy as np
 import os
 import pandas as pd
 
@@ -141,7 +142,10 @@ def list_reduced(instrument, img, list_mode, args_night, args_keyword,
     list_of_databases.sort()
 
     additional_kwd = ['ierr_bias', 'delta_mjd_bias', 'bias_fname',
-                      'ierr_flat', 'delta_mjd_flat', 'flat_fname']
+                      'ierr_flat', 'delta_mjd_flat', 'flat_fname',
+                      'ierr_astr',
+                      'astr1_pixscale', 'astr1_ntargets', 'astr1_meanerr',
+                      'astr2_pixscale', 'astr2_ntargets', 'astr2_meanerr']
 
     n = 0
     colnames = None
@@ -246,6 +250,8 @@ def list_reduced(instrument, img, list_mode, args_night, args_keyword,
                         for kwd in additional_kwd:
                             if kwd in minidict:
                                 storedkeywords.update({kwd.upper(): minidict[kwd]})
+                            else:
+                                storedkeywords.update({kwd.upper(): np.nan})
                         colnames_ = []
                         if lkeyword is not None:
                             for keyword in lkeyword:
