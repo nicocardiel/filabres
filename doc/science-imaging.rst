@@ -1088,7 +1088,7 @@ the bias and flatfield calibrations, or during the astrometric calibration:
     IERR_BIAS IERR_FLAT IERR_ASTR                                                                                     file
   1  0         0         0         science-imaging/170225_t2_CAFOS/science-imaging_caf-20170225-18:59:12-sci-krek_red.fits
   Total: 1 files
-  
+
 
 Removing invalid reduced science-imaging frames
 ===============================================
