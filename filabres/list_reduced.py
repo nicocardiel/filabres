@@ -241,8 +241,8 @@ def list_reduced(instrument, img, list_mode, args_night, args_keyword,
                             valid_keywords = instconf['masterkeywords']
                             valid_keywords += list(minidict['statsumm'].keys())
                             for kwd in additional_kwd:
-                                if kwd in minidict:
-                                    valid_keywords.append(kwd.upper())
+                                # add all the keywords (even if not available; a NaN will be stored)
+                                valid_keywords.append(kwd.upper())
                             print('Valid keywords:', valid_keywords)
                             raise SystemExit()
                         storedkeywords = minidict['masterkeywords']

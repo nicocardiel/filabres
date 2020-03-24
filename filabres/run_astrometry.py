@@ -40,6 +40,7 @@ class ToLogFile(object):
             print(line)
         if not self.logfile.closed:
             self.logfile.write(line + '\n')
+            self.logfile.flush()
 
     def close(self):
         self.logfile.close()
@@ -88,6 +89,42 @@ class CmdExecute(object):
                 self.logfile.print(perr)
 
 
+def save_auxfiles(output_fname, nightdir, workdir, cmd, verbose):
+    """
+    Auxiliary function to store relevant files after astrometric calibration
+
+    Parameters
+    ----------
+    output_fname : str or None
+        Output file name.
+    nightdir : str
+        Directory where the reduced images will be stored.
+    workdir : str
+        Auxiliary working directory where the actual astrometric calibration
+        takes place.
+    cmd : instance of CmdExecute
+        Auxiliary class to execute a command line.
+    verbose : bool or None
+       If True, display intermediate information.
+    """
+    basename = os.path.basename(output_fname)
+    backupsubdir = basename[:-5]
+    backupsubdirfull = '{}/{}'.format(nightdir, backupsubdir)
+    if os.path.isdir(backupsubdirfull):
+        if verbose:
+            print('Subdirectory {} found'.format(backupsubdirfull))
+    else:
+        if verbose:
+            print('Subdirectory {} not found. Creating it!'.format(backupsubdirfull))
+        os.makedirs(backupsubdirfull)
+    tobesaved = ['astrometry-net.pdf', 'astrometry-scamp.pdf', 'astrometry.log',
+                 'xxx.new', 'full_1.cat', 'merged_1.cat']
+    for filename in tobesaved:
+        if os.path.isfile('{}/{}'.format(workdir, filename)):
+            command = 'cp {} ../{}/'.format(filename, backupsubdir)
+            cmd.run(command, cwd=workdir)
+
+
 def run_astrometry(image2d, mask2d, saturpix,
                    header, maxfieldview_arcmin, fieldfactor, pvalues,
                    nightdir, output_fname,
@@ -119,8 +156,7 @@ def run_astrometry(image2d, mask2d, saturpix,
         in the order to be employed (if one fails, the next one is used).
         See help of build-astrometry-index for details.
     nightdir : str or None
-        Directory where the raw image is stored and the auxiliary
-        images created by run_astrometry will be placed.
+        Directory where the reduced images will be stored.
     output_fname : str or None
         Output file name.
     interactive : bool or None
@@ -350,7 +386,7 @@ def run_astrometry(image2d, mask2d, saturpix,
 
     else:
         # copying the previously computed WCS image
-        logfile.print('Reusing previously downloaded GAIA catalogue and index')
+        logfile.print('Reusing previously downloaded GAIA catalogue')
 
     command = 'cp {}/{}/GaiaDR2-query.fits {}/work/'.format(nightdir, subdir, nightdir)
     cmd.run(command)
@@ -378,7 +414,7 @@ def run_astrometry(image2d, mask2d, saturpix,
         command += ' -E -I {}'.format(indexid)
         cmd.run(command, cwd=workdir)
 
-        # solve field
+        # solve fieldmormo
         command = 'solve-field -p'
         command += ' --config myastrometry.cfg --overwrite'
         command += ' --ra ' + str(c_fk5_j2000.ra.degree)
@@ -395,6 +431,14 @@ def run_astrometry(image2d, mask2d, saturpix,
                 ip += 1
             else:
                 ierr_astr = 1
+                msg = 'Unable to solve the field with Astrometry.net'
+                logfile.print(msg)
+                header.add_history(msg)
+                hdu = fits.PrimaryHDU(image2d.astype(np.float32), header)
+                hdu.writeto(output_fname, overwrite=True)
+                logfile.print('-> file {} created'.format(output_fname))
+                save_auxfiles(output_fname=output_fname, nightdir=nightdir, workdir=workdir, cmd=cmd, verbose=verbose)
+                logfile.close()
                 return ierr_astr, astrsumm1, astrsumm2
         else:
             loop = False
@@ -431,8 +475,15 @@ def run_astrometry(image2d, mask2d, saturpix,
 
         # check that the field solved
         if not os.path.isfile('{}/xxx.solved'.format(workdir)):
-            logfile.print('WARNING: field did not solve.')
             ierr_astr = 1
+            msg = 'Unable to solve the field with Astrometry.net'
+            logfile.print(msg)
+            header.add_history(msg)
+            hdu = fits.PrimaryHDU(image2d.astype(np.float32), header)
+            hdu.writeto(output_fname, overwrite=True)
+            logfile.print('-> file {} created'.format(output_fname))
+            save_auxfiles(output_fname=output_fname, nightdir=nightdir, workdir=workdir, cmd=cmd, verbose=verbose)
+            logfile.close()
             return ierr_astr, astrsumm1, astrsumm2
 
         # insert new WCS into image header
@@ -460,6 +511,7 @@ def run_astrometry(image2d, mask2d, saturpix,
     astrsumm1 = plot_astrometry(
         output_fname=output_fname,
         image2d=image2d,
+        mask2d=mask2d,
         peak_x=tcorr.field_x, peak_y=tcorr.field_y,
         pred_x=tcorr.index_x, pred_y=tcorr.index_y,
         xcatag=xgaia, ycatag=ygaia,
@@ -496,9 +548,27 @@ def run_astrometry(image2d, mask2d, saturpix,
 
     # check there is a useful result
     if os.path.exists('{}/xxx.head'.format(workdir)):
-        pass
+        with open('{}/xxx.head'.format(workdir)) as fdum:
+            singleline = fdum.read()
+        if 'PV2_10' not in singleline:
+            ierr_astr = 2
     else:
-        ierr_astr = 1
+        ierr_astr = 2
+    if ierr_astr == 2:
+        msg = 'Unable to solve the field with AstrOmatic.net'
+        logfile.print(msg)
+        newheader.add_history(msg)
+        newheader['history'] = '-------------------------------------------------------'
+        newheader['history'] = 'Summary of astrometric calibration with Astrometry.net:'
+        newheader['history'] = '- pixscale: {}'.format(astrsumm1.pixscale)
+        newheader['history'] = '- ntargets: {}'.format(astrsumm1.ntargets)
+        newheader['history'] = '- meanerr: {}'.format(astrsumm1.meanerr)
+        newheader['history'] = '-------------------------------------------------------'
+        hdu = fits.PrimaryHDU(image2d.astype(np.float32), newheader)
+        hdu.writeto(output_fname, overwrite=True)
+        logfile.print('-> file {} created'.format(output_fname))
+        save_auxfiles(output_fname=output_fname, nightdir=nightdir, workdir=workdir, cmd=cmd, verbose=verbose)
+        logfile.close()
         return ierr_astr, astrsumm1, astrsumm2
 
     # remove SIP parameters in newheader
@@ -574,7 +644,6 @@ def run_astrometry(image2d, mask2d, saturpix,
     newheader['CTYPE2'] = 'DEC--TPV'
 
     # load WCS computed with SCAMP
-    # w = WCS(output_fname)
     w = WCS(newheader)
     # compute pixel scale (mean in both axis) in arcsec/pix
     pixel_scales_arcsec_pix = proj_plane_pixel_scales(w)*3600
@@ -594,6 +663,7 @@ def run_astrometry(image2d, mask2d, saturpix,
     astrsumm2 = plot_astrometry(
         output_fname=output_fname,
         image2d=image2d,
+        mask2d=mask2d,
         peak_x=peak_x, peak_y=peak_y,
         pred_x=pred_x, pred_y=pred_y,
         xcatag=xgaia, ycatag=ygaia,
@@ -604,14 +674,17 @@ def run_astrometry(image2d, mask2d, saturpix,
     )
 
     # store astrometric summaries in history
+    newheader['history'] = '-------------------------------------------------------'
     newheader['history'] = 'Summary of astrometric calibration with Astrometry.net:'
     newheader['history'] = '- pixscale: {}'.format(astrsumm1.pixscale)
     newheader['history'] = '- ntargets: {}'.format(astrsumm1.ntargets)
     newheader['history'] = '- meanerr: {}'.format(astrsumm1.meanerr)
+    newheader['history'] = '-------------------------------------------------------'
     newheader['history'] = 'Summary of astrometric calibration with AstrOmatic.net:'
     newheader['history'] = '- pixscale: {}'.format(astrsumm2.pixscale)
     newheader['history'] = '- ntargets: {}'.format(astrsumm2.ntargets)
     newheader['history'] = '- meanerr: {}'.format(astrsumm2.meanerr)
+    newheader['history'] = '-------------------------------------------------------'
 
     # save result
     hdu = fits.PrimaryHDU(image2d.astype(np.float32), newheader)
@@ -622,20 +695,6 @@ def run_astrometry(image2d, mask2d, saturpix,
     logfile.close()
 
     # storing relevant files in corresponding subdirectory
-    basename = os.path.basename(output_fname)
-    backupsubdir = basename[:-5]
-    backupsubdirfull = '{}/{}'.format(nightdir, backupsubdir)
-    if os.path.isdir(backupsubdirfull):
-        if verbose:
-            print('Subdirectory {} found'.format(backupsubdirfull))
-    else:
-        if verbose:
-            print('Subdirectory {} not found. Creating it!'.format(backupsubdirfull))
-        os.makedirs(backupsubdirfull)
-    tobesaved = ['astrometry-net.pdf', 'astrometry-scamp.pdf', 'astrometry.log',
-                 'xxx.new', 'full_1.cat', 'merged_1.cat']
-    for filepath in tobesaved:
-        command = 'cp {} ../{}/'.format(filepath, backupsubdir)
-        cmd.run(command, cwd=workdir)
+    save_auxfiles(output_fname=output_fname, nightdir=nightdir, workdir=workdir, cmd=cmd, verbose=verbose)
 
     return ierr_astr, astrsumm1, astrsumm2

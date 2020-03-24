@@ -13,8 +13,9 @@ import matplotlib.pyplot as plt
 import numpy as np
 import os
 
-from .ximshow import ximshow
 from .pause_debugplot import pause_debugplot
+from .statsumm import statsumm
+from .ximshow import ximshow
 
 NMAXGAIA = 2000
 
@@ -48,7 +49,7 @@ class AstrSummary(object):
         self.meanerr = meanerr
 
 
-def plot_astrometry(output_fname, image2d,
+def plot_astrometry(output_fname, image2d, mask2d,
                     peak_x, peak_y, pred_x, pred_y, xcatag, ycatag,
                     pixel_scales_arcsec_pix, workdir, interactive, logfile,
                     suffix):
@@ -61,6 +62,8 @@ def plot_astrometry(output_fname, image2d,
         Output file name.
     image2d : numpy 2D array
         Image to be calibrated.
+    mask2d : numpy 2D array
+        Useful region mask.
     peak_x : numpy 1D array
         Measured X coordinate of the detected objects.
     peak_y : numpy 1D array
@@ -153,15 +156,21 @@ def plot_astrometry(output_fname, image2d,
         if interactive:
             plt.show()
     # plot 3: image with identified objects
-    ax = ximshow(image2d, cmap='gray_r', show=False, geometry=None, figuredict={'figsize': (11.7, 8.3)},
+    stdum = statsumm(image2d=image2d, mask2d=mask2d, rm_nan=True)
+    z1 = stdum['QUANT500'] - 1 * stdum['ROBUSTSTD']
+    z2 = stdum['QUANT500'] + 10 * stdum['ROBUSTSTD']
+    ax = ximshow(image2d, cmap='gray_r', show=False, z1z2=(z1, z2),
+                 geometry=None, figuredict={'figsize': (11.7, 8.3)},
                  title=plot_title, tight_layout=False)
     ax.plot(peak_x, peak_y, 'bo', fillstyle='none', markersize=10, label='peaks')
     for i, iorder in enumerate(rorder):
         ax.text(peak_x[iorder], peak_y[iorder], str(i + 1), fontsize=15, color='blue')
-    ax.plot(xcatag, ycatag, 'mx', alpha=0.2, markersize=10, label='predicted_gaiacat')
-    ax.plot(pred_x, pred_y, 'g+', markersize=10, label='predicted_peaks')
-    ax.set_xlim([min(np.min(xcatag), -0.5), max(np.max(xcatag), naxis1 + 0.5)])
-    ax.set_ylim([min(np.min(ycatag), -0.5), max(np.max(ycatag), naxis2 + 0.5)])
+    ax.plot(xcatag, ycatag, 'mo', alpha=0.5, markersize=10, fillstyle='none', label='predicted GaiaDR2')
+    ax.plot(pred_x, pred_y, 'g+', markersize=10, label='predicted peaks')
+    # ax.set_xlim([min(np.min(xcatag), -0.5), max(np.max(xcatag), naxis1 + 0.5)])
+    ax.set_xlim([-0.05 * naxis1, 1.05 * naxis1])
+    # ax.set_ylim([min(np.min(ycatag), -0.5), max(np.max(ycatag), naxis2 + 0.5)])
+    ax.set_ylim([-0.05 * naxis2, 1.05 * naxis2])
     ax.legend()
     plt.suptitle(plot_suptitle)
     pp.savefig()
