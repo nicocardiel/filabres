@@ -70,7 +70,7 @@ def show_df(df, n, list_mode, imagetype, args_keyword_sort, args_ndecimal,
                 pd.set_option('display.max_rows', None)
                 pd.set_option('display.max_columns', None)
                 pd.set_option('display.width', None)
-                pd.set_option('display.max_colwidth', -1)
+                pd.set_option('display.max_colwidth', 10000)
                 print(df.round(ndecimal).to_string(index=True))
             print('Total: {} files'.format(df.shape[0]))
         else:
