@@ -13,6 +13,7 @@ import datetime
 import json
 import numpy as np
 import os
+import subprocess
 import sys
 
 from .maskfromflat import maskfromflat
@@ -20,6 +21,7 @@ from .retrieve_calibration import retrieve_calibration
 from .run_astrometry import run_astrometry
 from .signature import getkey_from_signature
 from .statsumm import statsumm
+from .tologfile import ToLogFile
 from .version import version
 
 from filabres import LISTDIR
@@ -126,6 +128,10 @@ def run_reduction_step(redustep, interactive, datadir, list_of_nights, filename,
 
             # execute reduction for all the selected files
             for ifname, fname in enumerate(list_of_images):
+                # define ToLogFile object
+                logfile = ToLogFile(workdir=nightdir, basename='basicred.log', verbose=verbose)
+                logfile.print('\nBasic reduction of {}'.format(fname))
+
                 # set the expected database: note that for science images, this
                 # database is stored as an independent JSON file for each night
                 # which is read and updated after the reduction of every single
@@ -137,8 +143,7 @@ def run_reduction_step(redustep, interactive, datadir, list_of_nights, filename,
                         database = json.load(jfile)
                 except FileNotFoundError:
                     database = {}
-                if verbose:
-                    print('\nResults database set to {}'.format(databasefile))
+                logfile.print('\nResults database set to {}'.format(databasefile))
 
                 # define input file name
                 input_fname = datadir + night + '/' + fname
@@ -146,15 +151,15 @@ def run_reduction_step(redustep, interactive, datadir, list_of_nights, filename,
                 output_fname = nightdir + '/' + redustep + '_'
                 output_fname += fname[:-5] + '_red.fits'
                 execute_reduction = True
-                print('---')
-                print('-> Working with file {} ({}/{})'.format(fname, ifname + 1, len(list_of_images)))
-                print('-> Input file name is......: {}'.format(input_fname))
-                print('-> Output file name will be: {}'.format(output_fname))
+                logfile.print('---', f=True)
+                logfile.print('-> Working with file {} ({}/{})'.format(fname, ifname + 1, len(list_of_images)), f=True)
+                logfile.print('-> Input file name is......: {}'.format(input_fname), f=True)
+                logfile.print('-> Output file name will be: {}'.format(output_fname), f=True)
                 datetime_ini = datetime.datetime.now()
-                print('-> Reduction starts at.....: {}'.format(datetime_ini))
+                logfile.print('-> Reduction starts at.....: {}'.format(datetime_ini), f=True)
                 if os.path.exists(output_fname) and not force:
                     execute_reduction = False
-                    print('File {} already exists: skipping reduction.'.format(output_fname))
+                    logfile.print('File {} already exists: skipping reduction.'.format(output_fname), f=True)
 
                 if execute_reduction:
                     # signature of particular image
@@ -197,7 +202,7 @@ def run_reduction_step(redustep, interactive, datadir, list_of_nights, filename,
                         val2 = imagedb[redustep][fname][keyword]
                         if val1 != val2:
                             output_header[keyword] = val2
-                            print('WARNING: {} changed from {} to {}'.format(keyword, val1, val2))
+                            logfile.print('WARNING: {} changed from {} to {}'.format(keyword, val1, val2), f=True)
                     output_header.add_history('Creating {} file:'.format(redustep))
                     saturpix = np.where(image2d >= SATURATION_LEVEL)
                     image2d_saturpix[saturpix] = True
@@ -212,28 +217,24 @@ def run_reduction_step(redustep, interactive, datadir, list_of_nights, filename,
                         mjdobs = output_header['MJD-OBS']
                         # retrieve and subtract bias
                         ierr_bias, delta_mjd_bias, image2d_bias, bias_fname = retrieve_calibration(
-                                instrument, 'bias', imgsignature, mjdobs,
-                                verbose=verbose
-                            )
+                                instrument, 'bias', imgsignature, mjdobs, logfile=logfile)
                         output_header.add_history('Subtracting master bias:')
                         output_header.add_history(bias_fname)
                         if debug:
-                            print('bias level:', np.median(image2d_bias))
+                            logfile.print('bias level: {}'.format(np.median(image2d_bias)), f=True)
                         image2d -= image2d_bias
                         # retrieve and divide by flatfield
                         ierr_flat, delta_mjd_flat, image2d_flat, flat_fname = retrieve_calibration(
-                                instrument, 'flat-imaging', imgsignature,
-                                mjdobs, verbose=verbose
-                            )
+                                instrument, 'flat-imaging', imgsignature, mjdobs, logfile=logfile)
                         output_header.add_history('Applying master flatfield:')
                         output_header.add_history(flat_fname)
                         if debug:
-                            print('flat level:', np.median(image2d_flat))
+                            logfile.print('flat level: {}'.format(np.median(image2d_flat)), f=True)
                         image2d /= image2d_flat
                         # generate useful region mask from flatfield
                         mask2d = maskfromflat(image2d_flat)
                         if debug:
-                            print('masked pixels: {}/{}'.format(np.sum(mask2d == 0.0), naxis1 * naxis2))
+                            logfile.print('masked pixels: {}/{}'.format(np.sum(mask2d == 0.0), naxis1 * naxis2), f=True)
                         # apply useful region mask
                         image2d *= mask2d
                         # compute statistical analysis and update the image header
@@ -301,8 +302,30 @@ def run_reduction_step(redustep, interactive, datadir, list_of_nights, filename,
                     json.dump(database, outfile, indent=2)
 
                 datetime_end = datetime.datetime.now()
-                print('-> Reduction ends at..,,...: {}'.format(datetime_end))
-                print('-> Elapsed time............: {}'.format(datetime_end - datetime_ini))
+                logfile.print('-> Reduction ends at..,,...: {}'.format(datetime_end), f=True)
+                logfile.print('-> Elapsed time............: {}'.format(datetime_end - datetime_ini), f=True)
+
+                # close and store log file with basic reduction
+                logfile.close()
+                basename = os.path.basename(output_fname)
+                backupsubdir = basename[:-5]
+                backupsubdirfull = '{}/{}'.format(nightdir, backupsubdir)
+                if os.path.isdir(backupsubdirfull):
+                    command = 'mv {}/basicred.log {}/'.format(nightdir, backupsubdirfull)
+                    p = subprocess.Popen(command.split(), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                    p.wait()
+                    pout = p.stdout.read().decode('utf-8')
+                    perr = p.stderr.read().decode('utf-8')
+                    p.stdout.close()
+                    p.stderr.close()
+                    if pout != '':
+                        print(pout)
+                    if perr != '':
+                        print(perr)
+                    input('Paused here')
+                else:
+                    msg = 'ERROR: espected subdir {} not found'.format(backupsubdirfull)
+                    raise SystemError(msg)
 
                 if interactive:
                     ckey = input("Press 'x' + <ENTER> to stop, or simply <ENTER> to continue... ")
@@ -311,5 +334,4 @@ def run_reduction_step(redustep, interactive, datadir, list_of_nights, filename,
 
         else:
             # skipping night (no images of sought type found)
-            if verbose:
-                print('No {} images found. Skipping night!'.format(redustep))
+            print('No {} images found. Skipping night!'.format(redustep))

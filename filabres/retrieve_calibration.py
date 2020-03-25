@@ -60,6 +60,7 @@ def findclosestquant(mjdobs, database, quantile):
     """
     result = None
     delta_mjdobs = None
+    delta_mjdobs_abs = None
     for ssig in database.keys():
         for smjd in database[ssig].keys():
             mjdobs_ = float(smjd)
@@ -75,7 +76,7 @@ def findclosestquant(mjdobs, database, quantile):
     return delta_mjdobs, result
 
 
-def retrieve_calibration(instrument, redustep, signature, mjdobs, verbose=False):
+def retrieve_calibration(instrument, redustep, signature, mjdobs, verbose=False, logfile=None):
     """
     Retrieve calibration from main database.
 
@@ -92,7 +93,10 @@ def retrieve_calibration(instrument, redustep, signature, mjdobs, verbose=False)
         Modified Julian Date, use to locate the closest calibration
         available in the main database.
     verbose : bool
-        If True, display intermediate information.
+        If True, display intermediate information. This parameter is
+        ignored if 'logfile' is not None.
+    logfile : instance of ToLogFile
+        Logfile to store the output.
 
     Returns
     =======
@@ -126,8 +130,13 @@ def retrieve_calibration(instrument, redustep, signature, mjdobs, verbose=False)
     except FileNotFoundError:
         msg = '* ERROR: {} calibration database not found'.format(databasefile)
         raise SystemError(msg)
-    if verbose:
-        print('\nCalibration database set to {}'.format(databasefile))
+
+    msg = '\nCalibration database set to {}'.format(databasefile)
+    if logfile is not None:
+        logfile.print(msg)
+    else:
+        if verbose:
+            print(msg)
 
     # check that the requested calibration is available in the calibration
     # database
@@ -147,19 +156,28 @@ def retrieve_calibration(instrument, redustep, signature, mjdobs, verbose=False)
 
     # check that the calibration key is available in the main database
     if ssig in database[redustep]:
-        if verbose:
-            print('-> looking for calibration {} with signature {}'.format(
-                redustep, ssig))
+        msg = '-> looking for calibration {} with signature {}'.format(redustep, ssig)
+        if logfile is not None:
+            logfile.print(msg)
+        else:
+            if verbose:
+                print(msg)
         mjdobsarray_str = np.array([strmjd for strmjd in database[redustep][ssig].keys()])
         mjdobsarray_float = np.array([float(strmjd) for strmjd in database[redustep][ssig].keys()])
         ipos = find_nearest(mjdobsarray_float, mjdobs)
         mjdkey = mjdobsarray_str[ipos]
         delta_mjd = float(mjdkey) - mjdobs
-        if verbose:
-            print('->   mjdobsarray.......:', mjdobsarray_float)
-            print('->   looking for mjdobs:', mjdobs)
-            print('->   nearest value is..:', mjdkey)
-            print('->   delta_mjd (days)..:', delta_mjd)
+        if logfile is not None:
+            logfile.print('->   mjdobsarray.......: {}'.format(mjdobsarray_float))
+            logfile.print('->   looking for mjdobs: {}'.format(mjdobs))
+            logfile.print('->   nearest value is..: {}'.format(mjdkey))
+            logfile.print('->   delta_mjd (days)..: {}'.format(delta_mjd))
+        else:
+            if verbose:
+                print('->   mjdobsarray.......: {}'.format(mjdobsarray_float))
+                print('->   looking for mjdobs: {}'.format(mjdobs))
+                print('->   nearest value is..: {}'.format(mjdkey))
+                print('->   delta_mjd (days)..: {}'.format(delta_mjd))
         calfname = database[redustep][ssig][mjdkey]['fname']
         with fits.open(calfname) as hdul:
             image2d_cal = hdul[0].data

@@ -26,25 +26,9 @@ import subprocess
 from .load_scamp_cat import load_scamp_cat
 from .retrieve_gaia import retrieve_gaia
 from .plot_astrometry import plot_astrometry
+from .tologfile import ToLogFile
 
 NMAXGAIA = 2000
-
-
-class ToLogFile(object):
-    def __init__(self, workdir, verbose):
-        self.fname = '{}/astrometry.log'.format(workdir)
-        self.logfile = open(self.fname, 'wt')
-        self.verbose = verbose
-
-    def print(self, line):
-        if self.verbose:
-            print(line)
-        if not self.logfile.closed:
-            self.logfile.write(line + '\n')
-            self.logfile.flush()
-
-    def close(self):
-        self.logfile.close()
 
 
 class CmdExecute(object):
@@ -198,7 +182,7 @@ def run_astrometry(image2d, mask2d, saturpix,
                 print("Error while deleting file : ", filepath)
 
     # define ToLogFile object
-    logfile = ToLogFile(workdir=workdir, verbose=verbose)
+    logfile = ToLogFile(workdir=workdir, basename='astrometry.log', verbose=verbose)
     logfile.print('\nAstrometric calibration of {}'.format(output_fname))
 
     # define CmdExecute object
