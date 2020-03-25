@@ -149,6 +149,8 @@ def run_reduction_step(redustep, interactive, datadir, list_of_nights, filename,
                 print('---')
                 print('-> input file name is......: {}'.format(input_fname))
                 print('-> output file name will be: {}'.format(output_fname))
+                datetime_ini = datetime.datetime.now()
+                print('-> reduction starts at.....: {}'.format(datetime_ini))
                 if os.path.exists(output_fname) and not force:
                     execute_reduction = False
                     print('File {} already exists: skipping reduction.'.format(output_fname))
@@ -296,6 +298,10 @@ def run_reduction_step(redustep, interactive, datadir, list_of_nights, filename,
                 # update results database
                 with open(databasefile, 'w') as outfile:
                     json.dump(database, outfile, indent=2)
+
+                datetime_end = datetime.datetime.now()
+                print('-> reduction ends at..,,...: {}'.format(datetime_end))
+                print('-> elapsed time............: {}'.format(datetime_end - datetime_ini))
 
                 if interactive:
                     ckey = input("Press 'x' + <ENTER> to stop, or simply <ENTER> to continue... ")
