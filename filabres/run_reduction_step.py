@@ -306,6 +306,7 @@ def run_reduction_step(redustep, interactive, datadir, list_of_nights, filename,
                 logfile.print('-> Elapsed time............: {}'.format(datetime_end - datetime_ini), f=True)
 
                 # close and store log file with basic reduction
+                logfile.print('Saving basicred.log')
                 logfile.close()
                 basename = os.path.basename(output_fname)
                 backupsubdir = basename[:-5]

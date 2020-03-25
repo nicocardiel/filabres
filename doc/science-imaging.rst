@@ -216,6 +216,12 @@ to the observation time of the scientific image is employed.
 The same action is performed with the flatfield. The master flatfield is
 retrieved from the database ``filabres_db_cafos_flat-imaging.json``.
 
+The information displayed in the terminal while executing these basic reduction
+steps is also stored in an auxiliary file called ``basicred.log``, which is
+placed in the same directory where other auxiliary files, generated during the
+astrometric calibration, are also stored (as explained below).
+
+
 Astrometric calibration: description of the method
 --------------------------------------------------
 
