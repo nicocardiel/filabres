@@ -323,7 +323,6 @@ def run_reduction_step(redustep, interactive, datadir, list_of_nights, filename,
                         print(pout)
                     if perr != '':
                         print(perr)
-                    input('Paused here')
                 else:
                     msg = 'ERROR: espected subdir {} not found'.format(backupsubdirfull)
                     raise SystemError(msg)
