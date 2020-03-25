@@ -152,7 +152,8 @@ def run_reduction_step(redustep, interactive, datadir, list_of_nights, filename,
                 output_fname += fname[:-5] + '_red.fits'
                 execute_reduction = True
                 logfile.print('---', f=True)
-                logfile.print('-> Working with file {} ({}/{})'.format(fname, ifname + 1, len(list_of_images)), f=True)
+                logfile.print('-> Working with file {} ({}/{})  [Night {}/{}]'.format(
+                    fname, ifname + 1, len(list_of_images), inight + 1, len(list_of_nights)), f=True)
                 logfile.print('-> Input file name is......: {}'.format(input_fname), f=True)
                 logfile.print('-> Output file name will be: {}'.format(output_fname), f=True)
                 datetime_ini = datetime.datetime.now()
@@ -308,24 +309,25 @@ def run_reduction_step(redustep, interactive, datadir, list_of_nights, filename,
                 # close and store log file with basic reduction
                 logfile.print('Saving basicred.log')
                 logfile.close()
-                basename = os.path.basename(output_fname)
-                backupsubdir = basename[:-5]
-                backupsubdirfull = '{}/{}'.format(nightdir, backupsubdir)
-                if os.path.isdir(backupsubdirfull):
-                    command = 'mv {}/basicred.log {}/'.format(nightdir, backupsubdirfull)
-                    p = subprocess.Popen(command.split(), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-                    p.wait()
-                    pout = p.stdout.read().decode('utf-8')
-                    perr = p.stderr.read().decode('utf-8')
-                    p.stdout.close()
-                    p.stderr.close()
-                    if pout != '':
-                        print(pout)
-                    if perr != '':
-                        print(perr)
-                else:
-                    msg = 'ERROR: espected subdir {} not found'.format(backupsubdirfull)
-                    raise SystemError(msg)
+                if execute_reduction:
+                    basename = os.path.basename(output_fname)
+                    backupsubdir = basename[:-5]
+                    backupsubdirfull = '{}/{}'.format(nightdir, backupsubdir)
+                    if os.path.isdir(backupsubdirfull):
+                        command = 'mv {}/basicred.log {}/'.format(nightdir, backupsubdirfull)
+                        p = subprocess.Popen(command.split(), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                        p.wait()
+                        pout = p.stdout.read().decode('utf-8')
+                        perr = p.stderr.read().decode('utf-8')
+                        p.stdout.close()
+                        p.stderr.close()
+                        if pout != '':
+                            print(pout)
+                        if perr != '':
+                            print(perr)
+                    else:
+                        msg = 'ERROR: espected subdir {} not found'.format(backupsubdirfull)
+                        raise SystemError(msg)
 
                 if interactive:
                     ckey = input("Press 'x' + <ENTER> to stop, or simply <ENTER> to continue... ")
