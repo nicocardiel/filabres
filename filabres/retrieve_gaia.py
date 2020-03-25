@@ -61,6 +61,9 @@ def retrieve_gaia(ra_deg, dec_deg, radius_deg, magnitude, loggaia):
     # retrieve GAIA data using the Table Access Protocol;
     # see specific details for retrieval of GAIA data in
     # https://gaia.aip.de/cms/documentation/tap-interface/
-    tap_service = pyvo.dal.TAPService('https://gaia.aip.de/tap')
-    tap_result = tap_service.run_sync(gaia_query_line)
+    try:
+        tap_service = pyvo.dal.TAPService('https://gaia.aip.de/tap')
+        tap_result = tap_service.run_sync(gaia_query_line)
+    except:
+        tap_result = None
     return gaia_query_line, tap_result

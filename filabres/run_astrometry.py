@@ -308,18 +308,25 @@ def run_astrometry(image2d, mask2d, saturpix,
             mag_medium = (mag_minimum + mag_maximum) / 2
             gaia_query_line, tap_result = retrieve_gaia(c_fk5_j2000.ra.deg, c_fk5_j2000.dec.deg, search_radius_degree,
                                                         mag_medium, loggaia)
-            nobjects = len(tap_result)
-            logfile.print('-> Gaia data: magnitude, nobjects: {:.3f}, {}'.format(mag_medium, nobjects))
-            if nobjects < NMAXGAIA:
-                if mag_maximum - mag_minimum < 0.1:
-                    loop_in_gaia = False
-                else:
-                    mag_minimum = mag_medium
+            if tap_result is None:
+                msg = 'WARNING: unable to retrieve GAIA data (tap_result is None)'
+                logfile.print(msg)
             else:
-                mag_maximum = mag_medium
+                nobjects = len(tap_result)
+                logfile.print('-> Gaia data: magnitude, nobjects: {:.3f}, {}'.format(mag_medium, nobjects))
+                if nobjects < NMAXGAIA:
+                    if mag_maximum - mag_minimum < 0.1:
+                        loop_in_gaia = False
+                    else:
+                        mag_minimum = mag_medium
+                else:
+                    mag_maximum = mag_medium
             if niter > nitermax:
                 loggaia.write('ERROR: nitermax reached while retrieving GAIA data')
                 loop_in_gaia = False
+
+        if tap_result is None:
+            raise SystemError('FATAL ERROR: unable to retrieve GAIA data (tap_result is None; check http connection)')
 
         loggaia.write(str(tap_result.to_table()) + '\n')
         loggaia.close()
