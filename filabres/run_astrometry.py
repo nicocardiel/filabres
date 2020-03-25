@@ -13,6 +13,7 @@ from astropy.coordinates import SkyCoord, FK5
 from astropy.io import fits
 from astropy.time import Time
 from astropy.wcs import WCS
+from astropy.wcs import NoConvergence
 from astropy.wcs.utils import proj_plane_pixel_scales
 import glob
 import json
@@ -497,7 +498,12 @@ def run_astrometry(image2d, mask2d, saturpix,
         gaiadr2 = hdul_table[1].data
     with fits.open('{}/xxx.new'.format(workdir)) as hdul:
         w = WCS(hdul[0].header)
-    xgaia, ygaia = w.all_world2pix(gaiadr2.ra, gaiadr2.dec, 1)
+    try:
+        xgaia, ygaia = w.all_world2pix(gaiadr2.ra, gaiadr2.dec, 1)
+    except NoConvergence:
+        msg = 'WARNING: NoConvergence exception in WCS.all_world2pix() call (using quiet=True instead)'
+        print(msg)
+        xgaia, ygaia = w.all_world2pix(gaiadr2.ra, gaiadr2.dec, 1, quiet=True)
     # compute pixel scale (mean in both axis) in arcsec/pix
     pixel_scales_arcsec_pix = proj_plane_pixel_scales(w)*3600
     logfile.print('astrometry.net> pixel scales (arcsec/pix): {}'.format(pixel_scales_arcsec_pix))
