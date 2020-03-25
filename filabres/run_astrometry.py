@@ -450,7 +450,7 @@ def run_astrometry(image2d, mask2d, saturpix,
         for i in range(tbl.shape[0]):
             ix = int(tbl['X'][i] + 0.5)
             iy = int(tbl['Y'][i] + 0.5)
-            if saturpix[iy, ix]:
+            if saturpix[iy - 1, ix - 1]:
                 isaturated.append(i)
         logfile.print('Checking file: {}/xxx.axy'.format(workdir))
         logfile.print('Number of saturated objects found: {}/{}'.format(len(isaturated), tbl.shape[0]))
