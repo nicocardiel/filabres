@@ -171,6 +171,8 @@ def list_reduced(instrument, img, list_mode, args_night, args_keyword,
                     for kwd in additional_kwd:
                         if kwd in minidict[mjdobs]:
                             storedkeywords.update({kwd.upper(): minidict[mjdobs][kwd]})
+                        else:
+                            storedkeywords.update({kwd.upper(): np.nan})
                     if args_filter is not None:
                         filterok = check_list_filter(args_filter, storedkeywords)
                     else:
@@ -230,56 +232,61 @@ def list_reduced(instrument, img, list_mode, args_night, args_keyword,
                 outfile = minidict['fname']
                 nightok = fnmatch.fnmatch(minidict['night'], night)
                 if nightok:
-                    n += 1
-                    if list_mode == "singleline":
-                        print(outfile, end=' ')
-                    elif list_mode == "basic":
-                        print(' - {}'.format(os.path.basename(outfile)))
-                    elif list_mode == "long":
-                        # show all valid keywords and exit
-                        if 'ALL' in lkeyword:
-                            valid_keywords = instconf['masterkeywords']
-                            valid_keywords += list(minidict['statsumm'].keys())
-                            for kwd in additional_kwd:
-                                # add all the keywords (even if not available; a NaN will be stored)
-                                valid_keywords.append(kwd.upper())
-                            print('Valid keywords:', valid_keywords)
-                            raise SystemExit()
-                        storedkeywords = minidict['masterkeywords']
-                        storedkeywords.update(minidict['statsumm'])
-                        for kwd in additional_kwd:
-                            if kwd in minidict:
-                                storedkeywords.update({kwd.upper(): minidict[kwd]})
-                            else:
-                                storedkeywords.update({kwd.upper(): np.nan})
-                        colnames_ = []
-                        if lkeyword is not None:
-                            for keyword in lkeyword:
-                                if keyword not in storedkeywords:
-                                    print('ERROR: keyword {} is not stored in the image database'.format(keyword))
-                                    raise SystemExit()
-                                colnames_ += [keyword]
-                        colnames_ += ['file']
-                        if n == 1:
-                            colnames = colnames_
-                            df = pd.DataFrame(columns=colnames)
+                    storedkeywords = minidict['masterkeywords']
+                    storedkeywords.update(minidict['statsumm'])
+                    for kwd in additional_kwd:
+                        if kwd in minidict:
+                            storedkeywords.update({kwd.upper(): minidict[kwd]})
                         else:
-                            if colnames_ != colnames:
-                                print("ERROR: number of keywords do not match for file {}".format(outfile))
-                                print("- expected:", colnames)
-                                print("- required:", colnames_)
-                                raise SystemExit()
-
-                        # new_df_row = [os.path.basename(outfile)]
-                        new_df_row = []
-                        if lkeyword is not None:
-                            for keyword in lkeyword:
-                                new_df_row += [storedkeywords[keyword]]
-                        new_df_row += [outfile]
-                        df.loc[n - 1] = new_df_row
+                            storedkeywords.update({kwd.upper(): np.nan})
+                    if args_filter is not None:
+                        filterok = check_list_filter(args_filter, storedkeywords)
                     else:
-                        msg = 'Unexpected list_mode {}'.format(list_mode)
-                        raise SystemError(msg)
+                        filterok = True
+                    if filterok:
+                        n += 1
+                        if list_mode == "singleline":
+                            print(outfile, end=' ')
+                        elif list_mode == "basic":
+                            print(' - {}'.format(os.path.basename(outfile)))
+                        elif list_mode == "long":
+                            # show all valid keywords and exit
+                            if 'ALL' in lkeyword:
+                                valid_keywords = instconf['masterkeywords']
+                                valid_keywords += list(minidict['statsumm'].keys())
+                                for kwd in additional_kwd:
+                                    # add all the keywords (even if not available; a NaN will be stored)
+                                    valid_keywords.append(kwd.upper())
+                                print('Valid keywords:', valid_keywords)
+                                raise SystemExit()
+                            colnames_ = []
+                            if lkeyword is not None:
+                                for keyword in lkeyword:
+                                    if keyword not in storedkeywords:
+                                        print('ERROR: keyword {} is not stored in the image database'.format(keyword))
+                                        raise SystemExit()
+                                    colnames_ += [keyword]
+                            colnames_ += ['file']
+                            if n == 1:
+                                colnames = colnames_
+                                df = pd.DataFrame(columns=colnames)
+                            else:
+                                if colnames_ != colnames:
+                                    print("ERROR: number of keywords do not match for file {}".format(outfile))
+                                    print("- expected:", colnames)
+                                    print("- required:", colnames_)
+                                    raise SystemExit()
+
+                            # new_df_row = [os.path.basename(outfile)]
+                            new_df_row = []
+                            if lkeyword is not None:
+                                for keyword in lkeyword:
+                                    new_df_row += [storedkeywords[keyword]]
+                            new_df_row += [outfile]
+                            df.loc[n - 1] = new_df_row
+                        else:
+                            msg = 'Unexpected list_mode {}'.format(list_mode)
+                            raise SystemError(msg)
         else:
             msg = 'Unexpected classification {}'.format(classification)
             raise SystemError(msg)
