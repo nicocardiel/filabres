@@ -125,7 +125,7 @@ def run_reduction_step(redustep, interactive, datadir, list_of_nights, filename,
                 os.makedirs(nightdir)
 
             # execute reduction for all the selected files
-            for fname in list_of_images:
+            for ifname, fname in enumerate(list_of_images):
                 # set the expected database: note that for science images, this
                 # database is stored as an independent JSON file for each night
                 # which is read and updated after the reduction of every single
@@ -147,10 +147,11 @@ def run_reduction_step(redustep, interactive, datadir, list_of_nights, filename,
                 output_fname += fname[:-5] + '_red.fits'
                 execute_reduction = True
                 print('---')
-                print('-> input file name is......: {}'.format(input_fname))
-                print('-> output file name will be: {}'.format(output_fname))
+                print('-> Working with file {} ({}/{})'.format(fname, ifname + 1, len(list_of_images)))
+                print('-> Input file name is......: {}'.format(input_fname))
+                print('-> Output file name will be: {}'.format(output_fname))
                 datetime_ini = datetime.datetime.now()
-                print('-> reduction starts at.....: {}'.format(datetime_ini))
+                print('-> Reduction starts at.....: {}'.format(datetime_ini))
                 if os.path.exists(output_fname) and not force:
                     execute_reduction = False
                     print('File {} already exists: skipping reduction.'.format(output_fname))
@@ -300,8 +301,8 @@ def run_reduction_step(redustep, interactive, datadir, list_of_nights, filename,
                     json.dump(database, outfile, indent=2)
 
                 datetime_end = datetime.datetime.now()
-                print('-> reduction ends at..,,...: {}'.format(datetime_end))
-                print('-> elapsed time............: {}'.format(datetime_end - datetime_ini))
+                print('-> Reduction ends at..,,...: {}'.format(datetime_end))
+                print('-> Elapsed time............: {}'.format(datetime_end - datetime_ini))
 
                 if interactive:
                     ckey = input("Press 'x' + <ENTER> to stop, or simply <ENTER> to continue... ")

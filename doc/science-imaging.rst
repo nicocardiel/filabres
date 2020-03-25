@@ -171,8 +171,12 @@ more detail below.
 
 ::
 
-  -> input file name is......: /Volumes/NicoPassport/CAHA/CAFOS2017/170225_t2_CAFOS/caf-20170225-18:59:12-sci-krek.fits
-  -> output file name will be: science-imaging/170225_t2_CAFOS/science-imaging_caf-20170225-18:59:12-sci-krek_red.fits
+  ---
+  -> Working with file caf-20170225-18:59:12-sci-krek.fits (1/1)
+  -> Input file name is......: /Volumes/NicoPassport/CAHA/CAFOS2017/170225_t2_CAFOS/caf-20170225-18:59:12-sci-krek.fits
+  -> Output file name will be: science-imaging/170225_t2_CAFOS/science-imaging_caf-20170225-18:59:12-sci-krek_red.fits
+  -> Reduction starts at.....: 2020-03-25 10:23:23.597982
+
 
 The absolute path to the input file name is shown, as well as the relative path
 to the main output file, which basename is identical to the input file, adding
@@ -1029,6 +1033,8 @@ extension):
   $ cp full_1.cat ../science-imaging_caf-20170225-18:59:12-sci-krek_red/
   [Working in science-imaging/170225_t2_CAFOS/work]
   $ cp merged_1.cat ../science-imaging_caf-20170225-18:59:12-sci-krek_red/
+  -> Reduction ends at..,,...: 2020-03-25 10:24:06.429420
+  -> Elapsed time............: 0:00:42.831438
   Press 'x' + <ENTER> to stop, or simply <ENTER> to continue... 
 
 Those files include a log file with the output of the astrometric calibration,
