@@ -234,13 +234,14 @@ def run_calibration_step(redustep, datadir, list_of_nights,
                         ssig = signature_string(signaturekeys, signature)
                         logfile = ToLogFile(basename=output_logfile, verbose=verbose)
                         datetime_ini = datetime.datetime.now()
-                        logfile.print('\n-> Reduction starts at.: {}'.format(datetime_ini))
-                        logfile.print('Working with signature {}'.format(ssig))
+                        logfile.print('---', f=True)
+                        logfile.print('-> Reduction starts at.: {}'.format(datetime_ini))
+                        logfile.print('Working with signature {}'.format(ssig), f=True)
                         logfile.print('-> Number of images with expected signature '
                                       'and within time span: {}'.format(nfiles))
                         for fname in imgblock:
                             logfile.print(' - {}'.format(fname))
-                        logfile.print('-> Output fname will be: {}'.format(output_fname), f=True)
+                        logfile.print('-> Output fname will be: {}'.format(output_fname))
 
                         # note: the following step must be performed before
                         # saving the combined image; otherwise, the cleanup
@@ -400,12 +401,12 @@ def run_calibration_step(redustep, datadir, list_of_nights,
                         # save result
                         hdu = fits.PrimaryHDU(image2d.astype(np.float32), output_header)
                         hdu.writeto(output_fname, overwrite=True)
-                        logfile.print('Creating {}'.format(output_fname))
+                        logfile.print('Creating {}'.format(output_fname), f=True)
                         # save mask
                         if mask2d is not None:
                             hdu = fits.PrimaryHDU(mask2d.astype(np.float32), output_header)
                             hdu.writeto(output_mname, overwrite=True)
-                            logfile.print('Creating {}'.format(output_mname))
+                            logfile.print('Creating {}'.format(output_mname), f=True)
 
                         # update database with result using the mean MJD-OBS of
                         # the combined images as index
