@@ -16,6 +16,7 @@ import os
 import subprocess
 import sys
 
+from .cmdexecute import CmdExecute
 from .maskfromflat import maskfromflat
 from .retrieve_calibration import retrieve_calibration
 from .run_astrometry import run_astrometry
@@ -129,7 +130,7 @@ def run_reduction_step(redustep, interactive, datadir, list_of_nights, filename,
             # execute reduction for all the selected files
             for ifname, fname in enumerate(list_of_images):
                 # define ToLogFile object
-                logfile = ToLogFile(workdir=nightdir, basename='basicred.log', verbose=verbose)
+                logfile = ToLogFile(workdir=nightdir, basename='reduction.log', verbose=verbose)
                 logfile.print('\nBasic reduction of {}'.format(fname))
 
                 # set the expected database: note that for science images, this
@@ -264,7 +265,7 @@ def run_reduction_step(redustep, interactive, datadir, list_of_nights, filename,
                             header=output_header,
                             maxfieldview_arcmin=maxfieldview_arcmin, fieldfactor=1.1, pvalues=pvalues,
                             nightdir=nightdir, output_fname=output_fname,
-                            interactive=interactive, verbose=verbose, debug=False
+                            interactive=interactive, logfile=logfile, debug=False
                         )
                     # ---------------------------------------------------------
                     else:
@@ -307,24 +308,16 @@ def run_reduction_step(redustep, interactive, datadir, list_of_nights, filename,
                 logfile.print('-> Elapsed time............: {}'.format(datetime_end - datetime_ini), f=True)
 
                 # close and store log file with basic reduction
-                logfile.print('Saving basicred.log')
+                logfile.print('Saving {}'.format(logfile.fname))
                 logfile.close()
                 if execute_reduction:
                     basename = os.path.basename(output_fname)
                     backupsubdir = basename[:-5]
                     backupsubdirfull = '{}/{}'.format(nightdir, backupsubdir)
                     if os.path.isdir(backupsubdirfull):
-                        command = 'mv {}/basicred.log {}/'.format(nightdir, backupsubdirfull)
-                        p = subprocess.Popen(command.split(), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-                        p.wait()
-                        pout = p.stdout.read().decode('utf-8')
-                        perr = p.stderr.read().decode('utf-8')
-                        p.stdout.close()
-                        p.stderr.close()
-                        if pout != '':
-                            print(pout)
-                        if perr != '':
-                            print(perr)
+                        command = 'mv {} {}/'.format(logfile.fname, backupsubdirfull)
+                        cmd = CmdExecute()
+                        cmd.run(command)
                     else:
                         msg = 'ERROR: espected subdir {} not found'.format(backupsubdirfull)
                         raise SystemError(msg)

@@ -20,61 +20,16 @@ import json
 import numpy as np
 import os
 import pkgutil
-import re
-import subprocess
 
+from .cmdexecute import CmdExecute
 from .load_scamp_cat import load_scamp_cat
 from .retrieve_gaia import retrieve_gaia
 from .plot_astrometry import plot_astrometry
-from .tologfile import ToLogFile
 
 NMAXGAIA = 2000
 
 
-class CmdExecute(object):
-    def __init__(self, logfile):
-        self.logfile = logfile
-
-    def run(self, command, cwd=None):
-        # define regex to filter out ANSI escape sequences
-        ansi_regex = r'\x1b(' \
-                     r'(\[\??\d+[hl])|' \
-                     r'([=<>a-kzNM78])|' \
-                     r'([\(\)][a-b0-2])|' \
-                     r'(\[\d{0,2}[ma-dgkjqi])|' \
-                     r'(\[\d+;\d+[hfy]?)|' \
-                     r'(\[;?[hf])|' \
-                     r'(#[3-68])|' \
-                     r'([01356]n)|' \
-                     r'(O[mlnp-z]?)|' \
-                     r'(/Z)|' \
-                     r'(\d+)|' \
-                     r'(\[\?\d;\d0c)|' \
-                     r'(\d;\dR))'
-        ansi_escape = re.compile(ansi_regex, flags=re.IGNORECASE)
-
-        if cwd is not None:
-            self.logfile.print('[Working in {}]'.format(cwd))
-        self.logfile.print('$ {}'.format(command))
-        p = subprocess.Popen(command.split(), cwd=cwd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        p.wait()
-        pout = p.stdout.read().decode('utf-8')
-        perr = p.stderr.read().decode('utf-8')
-        p.stdout.close()
-        p.stderr.close()
-        if pout != '':
-            if command[:4] == 'sex ':
-                self.logfile.print(ansi_escape.sub('', str(pout)))
-            else:
-                self.logfile.print(pout)
-        if perr != '':
-            if command[:4] == 'sex ':
-                self.logfile.print(ansi_escape.sub('', str(perr)))
-            else:
-                self.logfile.print(perr)
-
-
-def save_auxfiles(output_fname, nightdir, workdir, cmd, verbose):
+def save_auxfiles(output_fname, nightdir, workdir, logfile):
     """
     Auxiliary function to store relevant files after astrometric calibration
 
@@ -87,23 +42,22 @@ def save_auxfiles(output_fname, nightdir, workdir, cmd, verbose):
     workdir : str
         Auxiliary working directory where the actual astrometric calibration
         takes place.
-    cmd : instance of CmdExecute
-        Auxiliary class to execute a command line.
-    verbose : bool or None
-       If True, display intermediate information.
+    logfile : instance of ToLogFile
+       Log file to store information.
     """
     basename = os.path.basename(output_fname)
     backupsubdir = basename[:-5]
     backupsubdirfull = '{}/{}'.format(nightdir, backupsubdir)
     if os.path.isdir(backupsubdirfull):
-        if verbose:
-            print('Subdirectory {} found'.format(backupsubdirfull))
+        logfile.print('Subdirectory {} found'.format(backupsubdirfull))
     else:
-        if verbose:
-            print('Subdirectory {} not found. Creating it!'.format(backupsubdirfull))
+        logfile.print('Subdirectory {} not found. Creating it!'.format(backupsubdirfull))
         os.makedirs(backupsubdirfull)
-    tobesaved = ['astrometry-net.pdf', 'astrometry-scamp.pdf', 'astrometry.log',
+    tobesaved = ['astrometry-net.pdf', 'astrometry-scamp.pdf',
                  'xxx.new', 'full_1.cat', 'merged_1.cat']
+
+    cmd = CmdExecute(logfile)
+
     for filename in tobesaved:
         if os.path.isfile('{}/{}'.format(workdir, filename)):
             command = 'cp {} ../{}/'.format(filename, backupsubdir)
@@ -113,7 +67,7 @@ def save_auxfiles(output_fname, nightdir, workdir, cmd, verbose):
 def run_astrometry(image2d, mask2d, saturpix,
                    header, maxfieldview_arcmin, fieldfactor, pvalues,
                    nightdir, output_fname,
-                   interactive, verbose, debug=False):
+                   interactive, logfile, debug=False):
     """
     Compute astrometric solution of image.
 
@@ -146,8 +100,8 @@ def run_astrometry(image2d, mask2d, saturpix,
         Output file name.
     interactive : bool or None
         If True, enable interactive execution (e.g. plots,...).
-    verbose : bool or None
-        If True, display intermediate information.
+    logfile : instance of ToLogFile
+        Logfile to store reduction information.
     debug : bool or None
         Display additional debugging information.
 
@@ -173,16 +127,14 @@ def run_astrometry(image2d, mask2d, saturpix,
         os.makedirs(workdir)
     else:
         filelist = glob.glob('{}/*'.format(workdir))
-        if verbose:
-            print('\nRemoving previous files: {}'.format(filelist))
+        logfile.print('\nRemoving previous files: {}'.format(filelist))
         for filepath in filelist:
             try:
                 os.remove(filepath)
             except:
-                print("Error while deleting file : ", filepath)
+                logfile.print("Error while deleting file : ", filepath)
 
     # define ToLogFile object
-    logfile = ToLogFile(workdir=workdir, basename='astrometry.log', verbose=verbose)
     logfile.print('\nAstrometric calibration of {}'.format(output_fname))
 
     # define CmdExecute object
@@ -429,8 +381,7 @@ def run_astrometry(image2d, mask2d, saturpix,
                 hdu = fits.PrimaryHDU(image2d.astype(np.float32), header)
                 hdu.writeto(output_fname, overwrite=True)
                 logfile.print('-> file {} created'.format(output_fname))
-                save_auxfiles(output_fname=output_fname, nightdir=nightdir, workdir=workdir, cmd=cmd, verbose=verbose)
-                logfile.close()
+                save_auxfiles(output_fname=output_fname, nightdir=nightdir, workdir=workdir, logfile=logfile)
                 return ierr_astr, astrsumm1, astrsumm2
         else:
             loop = False
@@ -474,8 +425,7 @@ def run_astrometry(image2d, mask2d, saturpix,
             hdu = fits.PrimaryHDU(image2d.astype(np.float32), header)
             hdu.writeto(output_fname, overwrite=True)
             logfile.print('-> file {} created'.format(output_fname))
-            save_auxfiles(output_fname=output_fname, nightdir=nightdir, workdir=workdir, cmd=cmd, verbose=verbose)
-            logfile.close()
+            save_auxfiles(output_fname=output_fname, nightdir=nightdir, workdir=workdir, logfile=logfile)
             return ierr_astr, astrsumm1, astrsumm2
 
         # insert new WCS into image header
@@ -532,8 +482,7 @@ def run_astrometry(image2d, mask2d, saturpix,
         logfile.print('Generating {}'.format(txtfname))
         with open(txtfname, 'wt') as f:
             f.write(str(dumdata.decode('utf8')))
-    if verbose:
-        logfile.print(' ')
+    logfile.print(' ')
 
     # run sextractor
     command = 'sex xxx.new -c config.sex -CATALOG_NAME xxx.ldac'
@@ -564,8 +513,7 @@ def run_astrometry(image2d, mask2d, saturpix,
         hdu = fits.PrimaryHDU(image2d.astype(np.float32), newheader)
         hdu.writeto(output_fname, overwrite=True)
         logfile.print('-> file {} created'.format(output_fname))
-        save_auxfiles(output_fname=output_fname, nightdir=nightdir, workdir=workdir, cmd=cmd, verbose=verbose)
-        logfile.close()
+        save_auxfiles(output_fname=output_fname, nightdir=nightdir, workdir=workdir, logfile=logfile)
         return ierr_astr, astrsumm1, astrsumm2
 
     # remove SIP parameters in newheader
@@ -688,10 +636,7 @@ def run_astrometry(image2d, mask2d, saturpix,
     hdu.writeto(output_fname, overwrite=True)
     logfile.print('-> file {} created'.format(output_fname))
 
-    # close logfile
-    logfile.close()
-
     # storing relevant files in corresponding subdirectory
-    save_auxfiles(output_fname=output_fname, nightdir=nightdir, workdir=workdir, cmd=cmd, verbose=verbose)
+    save_auxfiles(output_fname=output_fname, nightdir=nightdir, workdir=workdir, logfile=logfile)
 
     return ierr_astr, astrsumm1, astrsumm2
