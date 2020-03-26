@@ -57,6 +57,11 @@ def run_reduction_step(redustep, interactive, datadir, list_of_nights, filename,
         Display additional debugging information.
     """
 
+    if filename is not None:
+        if filename.find('*') >= 0 or filename.find('?') >= 0:
+            msg = 'ERROR: wildcards are not valid for --filename argument: {}'.format(filename)
+            raise SystemError(msg)
+
     instrument = instconf['instname']
 
     # check for subdirectory in current directory to store results
