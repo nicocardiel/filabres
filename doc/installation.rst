@@ -34,7 +34,8 @@ it is possible to install **Anaconda** by executing ``conda install anaconda``).
 
 Visit the `Miniconda webpage <https://docs.conda.io/en/latest/miniconda.html>`_
 and download the installer corresponding to your operative system (and,
-preferably, Python 3.7, which is the Python version employed to develop the code).
+preferably, Python 3.7, which is the Python version employed to develop the
+code).
 
 If you have updated the ``$PATH`` system variable during the miniconda or conda
 installation, you can call conda commands directly in the shell, like this:
@@ -169,7 +170,7 @@ can be easily installed in your system by executing the following steps:
   ::
 
     (filabres) $ filabres-version
-    Version: 0.9.0
+    Version: 1.0.0
 
   Note that your version can be different to the one shown above.
 

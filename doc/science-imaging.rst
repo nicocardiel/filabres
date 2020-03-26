@@ -1096,15 +1096,48 @@ images.
   ...
 
 It is interesting to check whether there has been any error when retrieveing
-the bias and flatfield calibrations, or during the astrometric calibration:
+the bias and flatfield calibrations, or during the astrometric calibration.
+
+**Problems with the bias calibration**
 
 ::
 
+  $ filabres -lr science-imaging --filter "k[ierr_bias] != 0" -k ccdsec -k naxis1 -k naxis2
+  ...
+  ...
 
-  $ filabres -lr science-imaging -k ierr_bias -k ierr_flat -k ierr_astr
-    IERR_BIAS IERR_FLAT IERR_ASTR                                                                                     file
-  1  0         0         0         science-imaging/170225_t2_CAFOS/science-imaging_caf-20170225-18:59:12-sci-krek_red.fits
-  Total: 1 files
+In these cases, no bias frame has been found with the requested signature. 
+The median from the nearest bias image is subtracted instead (a constant value
+for the whole image).
+
+**Problems with the flat calibration**
+
+::
+
+  $ filabres -lr science-imaging --filter "k[ierr_flat] != 0" -k object -k ccdsec -k naxis1 -k naxis2
+  ...
+  ...
+
+In these cases, no flat-imaging frame has been found with the requested
+signature. No flatfielding has been applied.
+
+**Problems with the astrometric calibration**
+
+::
+
+  $ filabres -lr science-imaging --filter "k[ierr_astr] != 0" -k astr1_meanerr -k astr2_meanerr
+  ...
+  ...
+
+- ``astr1_meanerr``: mean error in the initial astrometric calibration with the
+  Astrometry.net tools. If ``NaN``, the astrometric calibration has failed and
+  only the basic reduction (bias and flatfielding) has been applied to the
+  scientific image.
+
+- ``astr2_meanerr``: mean error in the refined astrometric calibration with
+  AstrOmatic.net tools. If ``Nan`` but ``astr1_meanerr`` is not ``Nan``, the
+  reduced scientific image at least contains the initial astrometric
+  calibration performed with the Astrometry.net tools.
 
 
 Removing invalid reduced science-imaging frames
