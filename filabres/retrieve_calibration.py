@@ -76,7 +76,7 @@ def findclosestquant(mjdobs, database, quantile):
     return delta_mjdobs, result
 
 
-def retrieve_calibration(instrument, redustep, signature, mjdobs, logfile=None):
+def retrieve_calibration(instrument, redustep, signature, mjdobs, logfile):
     """
     Retrieve calibration from main database.
 
@@ -165,18 +165,23 @@ def retrieve_calibration(instrument, redustep, signature, mjdobs, logfile=None):
             image2d_cal = hdul[0].data
         ierr = 0
     else:
-        print('* WARNING: signature {} not found for {} image'.format(ssig, redustep))
+        logfile.print('* WARNING: signature {} not found for {} image'.format(ssig, redustep))
         ierr = 1
         if redustep == 'bias':
             if naxis1_ is not None and naxis2_ is not None:
                 image2d_cal = np.ones((naxis2_, naxis1_), dtype=np.float)
                 delta_mjd, closestbias = findclosestquant(mjdobs, database[redustep], 'QUANT500')
+                logfile.print('->   looking for mjdobs: {}'.format(mjdobs))
+                logfile.print('->   delta_mjd (days)..: {}'.format(delta_mjd))
+                logfile.print('->   Using median value of closest bias frame: {}'.format(closestbias))
                 image2d_cal *= closestbias
                 calfname = 'None (closest bias with different signature)'
                 return ierr, delta_mjd, image2d_cal, calfname
         elif redustep == 'flat-imaging':
             if naxis1_ is not None and naxis2_ is not None:
                 delta_mjd = 0.0
+                logfile.print('->   looking for mjdobs: {}'.format(mjdobs))
+                logfile.print('->   Using dummy flat of ones')
                 image2d_cal = np.ones((naxis2_, naxis1_), dtype=np.float)
                 calfname = 'None (flat image with ones)'
                 return ierr, delta_mjd, image2d_cal, calfname
