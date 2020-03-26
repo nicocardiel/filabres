@@ -13,8 +13,11 @@ class ToLogFile(object):
     """
     Auxiliary class to generate a log file.
     """
-    def __init__(self, basename, workdir, verbose):
-        self.fname = '{}/{}'.format(workdir, basename)
+    def __init__(self, workdir=None, basename=None, verbose=False):
+        if workdir is None:
+            self.fname = '{}'.format(basename)
+        else:
+            self.fname = '{}/{}'.format(workdir, basename)
         self.logfile = open(self.fname, 'wt')
         self.verbose = verbose
 

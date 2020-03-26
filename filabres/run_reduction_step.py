@@ -13,7 +13,6 @@ import datetime
 import json
 import numpy as np
 import os
-import subprocess
 import sys
 
 from .cmdexecute import CmdExecute
@@ -304,7 +303,7 @@ def run_reduction_step(redustep, interactive, datadir, list_of_nights, filename,
                     json.dump(database, outfile, indent=2)
 
                 datetime_end = datetime.datetime.now()
-                logfile.print('-> Reduction ends at..,,...: {}'.format(datetime_end), f=True)
+                logfile.print('-> Reduction ends at.......: {}'.format(datetime_end), f=True)
                 logfile.print('-> Elapsed time............: {}'.format(datetime_end - datetime_ini), f=True)
 
                 # close and store log file with basic reduction

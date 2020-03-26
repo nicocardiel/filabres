@@ -20,6 +20,7 @@ from .retrieve_calibration import retrieve_calibration
 from .signature import getkey_from_signature
 from .signature import signature_string
 from .statsumm import statsumm
+from .tologfile import ToLogFile
 from .version import version
 
 from filabres import LISTDIR
@@ -166,7 +167,7 @@ def run_calibration_step(redustep, datadir, list_of_nights,
                 for fname in images_with_fixed_signature:
                     classified_images[fname] = False
                 if verbose:
-                    print('Signature ({}/{}):'.format(isignature+1, len(list_of_signatures)))
+                    print('\nSignature ({}/{}):'.format(isignature+1, len(list_of_signatures)))
                     for key in signaturekeys:
                         print(' - {}: {}'.format(key, signature[key]))
                     print('Total number of images with this signature:', len(images_with_fixed_signature))
@@ -186,7 +187,7 @@ def run_calibration_step(redustep, datadir, list_of_nights,
                         for fname in classified_images:
                             if not classified_images[fname]:
                                 basename = os.path.basename(fname)
-                                if verbose:
+                                if debug:
                                     print(' - {}'.format(fname))
                                 t = imagedb[redustep][basename]['MJD-OBS']
                                 mean_mjdobs += t
@@ -202,11 +203,11 @@ def run_calibration_step(redustep, datadir, list_of_nights,
                                     imgblock.append(fname)
                                     t0 = imagedb[redustep][basename]['MJD-OBS']
                                     mean_mjdobs += t0
-                                    if verbose:
+                                    if debug:
                                         print(' - {}'.format(fname))
                                 else:
                                     if abs(t-t0) < maxtimespan_hours/24:
-                                        if verbose:
+                                        if debug:
                                             print(' - {}'.format(fname))
                                         imgblock.append(fname)
                                         mean_mjdobs += t
@@ -214,11 +215,6 @@ def run_calibration_step(redustep, datadir, list_of_nights,
                     nfiles = len(imgblock)
                     originf = [os.path.basename(dum) for dum in imgblock]
                     mean_mjdobs /= nfiles
-                    if verbose:
-                        print('-> Number of images with expected signature and within time span:', nfiles)
-                        if debug:
-                            for fname in imgblock:
-                                print(fname)
 
                     # define output FITS file using the file name of the first
                     # image in the block (appending the _red suffix)
@@ -226,6 +222,7 @@ def run_calibration_step(redustep, datadir, list_of_nights,
                     dumfile = os.path.basename(imgblock[0])
                     output_fname += dumfile[:-5]
                     output_mname = output_fname + '_mask.fits'
+                    output_logfile = output_fname + '_red.log'
                     output_fname += '_red.fits'
                     execute_reduction = True
                     if os.path.exists(output_fname) and not force:
@@ -233,19 +230,23 @@ def run_calibration_step(redustep, datadir, list_of_nights,
                         print('File {} already exists: skipping reduction.'.format(output_fname))
 
                     if execute_reduction:
-                        if verbose:
-                            print('-> output fname will be {}'.format(output_fname))
-                            print('-> output mname will be {}'.format(output_mname))
-                        else:
-                            print('---')
+                        # generate string with signature values
+                        ssig = signature_string(signaturekeys, signature)
+                        logfile = ToLogFile(basename=output_logfile, verbose=verbose)
+                        datetime_ini = datetime.datetime.now()
+                        logfile.print('\n-> Reduction starts at.: {}'.format(datetime_ini))
+                        logfile.print('Working with signature {}'.format(ssig))
+                        logfile.print('-> Number of images with expected signature '
+                                      'and within time span: {}'.format(nfiles))
+                        for fname in imgblock:
+                            logfile.print(' - {}'.format(fname))
+                        logfile.print('-> Output fname will be: {}'.format(output_fname), f=True)
 
                         # note: the following step must be performed before
                         # saving the combined image; otherwise, the cleanup
                         # procedure will delete the just created combined image
                         if redustep not in database:
                             database[redustep] = dict()
-                        # generate string with signature values
-                        ssig = signature_string(signaturekeys, signature)
                         if 'signaturekeys' not in database:
                             database['signaturekeys'] = signaturekeys
                         else:
@@ -272,16 +273,14 @@ def run_calibration_step(redustep, datadir, list_of_nights,
                                         fname = database[redustep][ssig][mjdobs]['fname']
                                         mname = database[redustep][ssig][mjdobs]['mname']
                                         if os.path.exists(fname):
-                                            print('Deleting {}'.format(fname))
+                                            logfile.print('Deleting {}'.format(fname))
                                             os.remove(fname)
                                         if os.path.exists(mname):
-                                            print('Deleting {}'.format(mname))
+                                            logfile.print('Deleting {}'.format(mname))
                                             os.remove(mname)
                                 for mjdobs in mjdobs_to_be_deleted:
-                                    print('WARNING: deleting previous database entry: {} --> {} --> {}'.format(
-                                            redustep, ssig, mjdobs
-                                        )
-                                    )
+                                    logfile.print('WARNING: deleting previous database entry:'
+                                                  ' {} --> {} --> {}'.format(redustep, ssig, mjdobs))
                                     del database[redustep][ssig][mjdobs]
 
                         # declare temporary cube to store the images to be combined
@@ -317,7 +316,7 @@ def run_calibration_step(redustep, datadir, list_of_nights,
                                     val2 = imagedb[redustep][basename][keyword]
                                     if val1 != val2:
                                         output_header[keyword] = val2
-                                        print('WARNING: {} changed from {} to {}'.format(keyword, val1, val2))
+                                        logfile.print('WARNING: {} changed from {} to {}'.format(keyword, val1, val2))
                                 output_header.add_history('Using {} images to compute {}:'.format(nfiles, redustep))
                             image3d[i, :, :] += image_data
                             output_header.add_history(os.path.basename(fname))
@@ -349,14 +348,12 @@ def run_calibration_step(redustep, datadir, list_of_nights,
                             mjdobs = output_header['MJD-OBS']
                             # retrieve master bias
                             ierr_bias, delta_mjd_bias, image2d_bias, bias_fname = retrieve_calibration(
-                                    instrument, 'bias', signature, mjdobs,
-                                    verbose=verbose
-                                )
+                                    instrument, 'bias', signature, mjdobs, logfile=logfile)
                             # subtract bias
                             output_header.add_history('Subtracting master bias:')
                             output_header.add_history(bias_fname)
                             if debug:
-                                print('bias level:', np.median(image2d_bias))
+                                logfile.print('bias level:', np.median(image2d_bias))
                             for i in range(nfiles):
                                 image3d[i, :, :] -= image2d_bias
                             # stack all the images for the computation of a single mask for all the individual images
@@ -366,7 +363,7 @@ def run_calibration_step(redustep, datadir, list_of_nights,
                                 image2d /= mediansignal
                             else:
                                 msg = 'WARNING: mediansignal={} is not > 0'.format(mediansignal)
-                                print(msg)
+                                logfile.print(msg)
                                 ierr_flat = 1
                             mask2d = maskfromflat(image2d)
                             for i in range(nfiles):
@@ -374,13 +371,12 @@ def run_calibration_step(redustep, datadir, list_of_nights,
                                 image2d_statsumm = statsumm(image2d=image3d[i, :, :], mask2d=mask2d, rm_nan=True)
                                 # normalize by the median value in the useful region
                                 mediansignal = image2d_statsumm['QUANT500']
-                                if verbose:
-                                    print('Median value in frame #{}/{}: {}'.format(i+1, nfiles, mediansignal))
+                                logfile.print('Median value in frame #{}/{}: {}'.format(i+1, nfiles, mediansignal))
                                 if mediansignal > 0:
                                     image3d[i, :, :] /= mediansignal
                                 else:
                                     msg = 'WARNING: mediansignal={} is not > 0'.format(mediansignal)
-                                    print(msg)
+                                    logfile.print(msg)
                                     ierr_flat = 1
                             # median combination of normalized images
                             image2d = np.median(image3d, axis=0)
@@ -404,13 +400,12 @@ def run_calibration_step(redustep, datadir, list_of_nights,
                         # save result
                         hdu = fits.PrimaryHDU(image2d.astype(np.float32), output_header)
                         hdu.writeto(output_fname, overwrite=True)
-                        print('Working with signature {}'.format(ssig))
-                        print('Creating {}'.format(output_fname))
+                        logfile.print('Creating {}'.format(output_fname))
                         # save mask
                         if mask2d is not None:
                             hdu = fits.PrimaryHDU(mask2d.astype(np.float32), output_header)
                             hdu.writeto(output_mname, overwrite=True)
-                            print('Creating {}'.format(output_mname))
+                            logfile.print('Creating {}'.format(output_mname))
 
                         # update database with result using the mean MJD-OBS of
                         # the combined images as index
@@ -435,6 +430,13 @@ def run_calibration_step(redustep, datadir, list_of_nights,
                             database[redustep][ssig][mjdobs]['bias_fname'] = bias_fname
                         if ierr_flat is not None:
                             database[redustep][ssig][mjdobs]['ierr_flat'] = ierr_flat
+
+                        # close logfile
+                        datetime_end = datetime.datetime.now()
+                        logfile.print('Creating {}'.format(logfile.fname))
+                        logfile.print('-> Reduction ends at...: {}'.format(datetime_end))
+                        logfile.print('-> Time span...........: {}'.format(datetime_end - datetime_ini))
+                        logfile.close()
 
                     # set to reduced status the images that have been reduced
                     for key in imgblock:
