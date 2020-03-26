@@ -50,6 +50,13 @@ def save_auxfiles(output_fname, nightdir, workdir, logfile):
     backupsubdirfull = '{}/{}'.format(nightdir, backupsubdir)
     if os.path.isdir(backupsubdirfull):
         logfile.print('Subdirectory {} found'.format(backupsubdirfull))
+        filelist = glob.glob('{}/*'.format(backupsubdirfull))
+        for filepath in filelist:
+            try:
+                os.remove(filepath)
+                logfile.print('Removing previous file: {}'.format(filepath))
+            except:
+                logfile.print("Error while deleting file : ", filepath)
     else:
         logfile.print('Subdirectory {} not found. Creating it!'.format(backupsubdirfull))
         os.makedirs(backupsubdirfull)
