@@ -79,31 +79,42 @@ under the current directory:
   ├── 170225_t2_CAFOS
   │   ├── flat-imaging_caf-20170224-20:20:04-cal-krek_mask.fits
   │   ├── flat-imaging_caf-20170224-20:20:04-cal-krek_red.fits
+  │   ├── flat-imaging_caf-20170224-20:20:04-cal-krek_red.log
   │   ├── flat-imaging_caf-20170224-20:49:51-cal-krek_mask.fits
   │   ├── flat-imaging_caf-20170224-20:49:51-cal-krek_red.fits
+  │   ├── flat-imaging_caf-20170224-20:49:51-cal-krek_red.log
   │   ├── flat-imaging_caf-20170224-21:12:37-cal-krek_mask.fits
   │   ├── flat-imaging_caf-20170224-21:12:37-cal-krek_red.fits
+  │   ├── flat-imaging_caf-20170224-21:12:37-cal-krek_red.log
   │   ├── flat-imaging_caf-20170225-18:28:50-cal-krek_mask.fits
   │   ├── flat-imaging_caf-20170225-18:28:50-cal-krek_red.fits
+  │   ├── flat-imaging_caf-20170225-18:28:50-cal-krek_red.log
   │   ├── flat-imaging_caf-20170226-06:05:08-cal-krek_mask.fits
   │   ├── flat-imaging_caf-20170226-06:05:08-cal-krek_red.fits
+  │   ├── flat-imaging_caf-20170226-06:05:08-cal-krek_red.log
   │   ├── flat-imaging_caf-20170226-06:24:27-cal-krek_mask.fits
   │   └── flat-imaging_caf-20170226-06:24:27-cal-krek_red.fits
+  │   └── flat-imaging_caf-20170226-06:24:27-cal-krek_red.log
   ├── 170403_t2_CAFOS
   │   ├── flat-imaging_caf-20170403-17:19:21-cal-lilj_mask.fits
   │   ├── flat-imaging_caf-20170403-17:19:21-cal-lilj_red.fits
+  │   ├── flat-imaging_caf-20170403-17:19:21-cal-lilj_red.log
   │   ├── flat-imaging_caf-20170403-18:44:42-cal-lilj_mask.fits
   │   └── flat-imaging_caf-20170403-18:44:42-cal-lilj_red.fits
+  │   └── flat-imaging_caf-20170403-18:44:42-cal-lilj_red.log
   ...
   ...
   ├── 171228_t2_CAFOS
   │   ├── flat-imaging_caf-20171228-13:14:11-cal-bard_mask.fits
   │   └── flat-imaging_caf-20171228-13:14:11-cal-bard_red.fits
+  │   └── flat-imaging_caf-20171228-13:14:11-cal-bard_red.log
   └── 171230_t2_CAFOS
       ├── flat-imaging_caf-20171229-10:04:54-cal-lilj_mask.fits
       ├── flat-imaging_caf-20171229-10:04:54-cal-lilj_red.fits
+      ├── flat-imaging_caf-20171229-10:04:54-cal-lilj_red.log
       ├── flat-imaging_caf-20171231-06:30:10-cal-lilj_mask.fits
       └── flat-imaging_caf-20171231-06:30:10-cal-lilj_red.fits
+      └── flat-imaging_caf-20171231-06:30:10-cal-lilj_red.log
 
 If you want to get more information concerning the reduction of these type of
 images, just add -v to increase the verbosity level. For example, we can try to
@@ -143,6 +154,53 @@ repeat the reduction of the night ``171228_t2_CAFOS``:
    - INSPOFPI: FREE
    - INSPOROT: 0
   Total number of images with this signature: 10
+  -> Number of images with expected signature and within time span: 10
+  File flat-imaging/171228_t2_CAFOS/flat-imaging_caf-20171228-13:14:11-cal-bard_red.fits already exists: skipping reduction.
+  * program STOP
+   
+Since **filabres** has detected that the output image already
+exists, the output file is not overwritten. You can force to overwrite the
+output file by using the additional argument ``--force`` in the command line:
+
+::
+
+  $ filabres -rs flat-imaging -n 171228* -v --force
+  * instrument: cafos
+  * datadir: /Volumes/NicoPassport/CAHA/CAFOS2017
+  * ignored_images_file: ignored_images.yaml
+  * image_header_corrections_file: image_header_corrections.yaml
+  * forced_classifications_file: forced_classifications.yaml
+  * Loading instrument configuration
+  * Number of nights found: 1
+  * List of nights: ['171228_t2_CAFOS']
+  
+  Results database set to filabres_db_cafos_flat-imaging.json
+  
+  Subdirectory flat-imaging found
+  maxtimespan_hours: 1
+  
+  * Working with night 171228_t2_CAFOS (1/1)
+  Reading file ./lists/171228_t2_CAFOS/imagedb_cafos.json
+  Number of flat-imaging images found 10
+  Subdirectory flat-imaging/171228_t2_CAFOS found
+  Number of different signatures found: 1
+  
+  Signature (1/1):
+   - CCDNAME: SITE#1d_15
+   - NAXIS1: 1700
+   - NAXIS2: 1700
+   - DATASEC: [201,201:1900,1900]
+   - CCDBINX: 1
+   - CCDBINY: 1
+   - INSGRID: GRISM-11
+   - INSFLID: FILT- 5
+   - INSPOFPI: FREE
+   - INSPOROT: 0
+  Total number of images with this signature: 10
+  ---
+  -> Reduction starts at.: 2020-03-26 16:56:23.128253
+  Working with signature SITE#1d_15__1700__1700__[201,201:1900,1900]__1__1__GRISM-11__FILT- 5__FREE__0
+  -> Number of images with expected signature and within time span: 10
    - /Volumes/NicoPassport/CAHA/CAFOS2017/171228_t2_CAFOS/caf-20171228-13:14:11-cal-bard.fits
    - /Volumes/NicoPassport/CAHA/CAFOS2017/171228_t2_CAFOS/caf-20171228-13:15:44-cal-bard.fits
    - /Volumes/NicoPassport/CAHA/CAFOS2017/171228_t2_CAFOS/caf-20171228-13:17:17-cal-bard.fits
@@ -153,35 +211,7 @@ repeat the reduction of the night ``171228_t2_CAFOS``:
    - /Volumes/NicoPassport/CAHA/CAFOS2017/171228_t2_CAFOS/caf-20171228-13:25:05-cal-bard.fits
    - /Volumes/NicoPassport/CAHA/CAFOS2017/171228_t2_CAFOS/caf-20171228-13:26:39-cal-bard.fits
    - /Volumes/NicoPassport/CAHA/CAFOS2017/171228_t2_CAFOS/caf-20171228-13:28:12-cal-bard.fits
-  -> Number of images with expected signature and within time span: 10
-  File flat-imaging/171228_t2_CAFOS/flat-imaging_caf-20171228-13:14:11-cal-bard_red.fits already exists: skipping reduction.
-  * program STOP
-   
-For this particular night, all the flat-imaging files exhibit a single
-signature. The 10 available individual frames were obtained within one hour.
-For that reason all of them are selected to be combined in a single master
-flat-imaging frame. The name of the output file is taken from the first image
-in the sequence of 10 images, adding the prefix ``flat-imaging_`` and the
-suffix ``_red`` (the latter prior to the extension ``.fits``). 
-
-An additional output file, containing a mask of useful pixels, is also
-generated, using the same file name but changing the suffix ``_red`` by
-``_mask``. In this mask a value of 0 is assigned to pixels without useful
-signal (probably due to vignetting), whereas a value of 1 is employed for the
-pixels in the useful image region.
-
-Note however that since **filabres** has detected that the output image already
-exists, the output file is not overwritten. You can force to overwrite the
-output file by using the additional argument ``--force`` in the command line:
-
-::
-
-  $ filabres -rs flat-imaging -n 171228* -v --force
-  ...
-  ...
-  -> Number of images with expected signature and within time span: 10
-  -> output fname will be flat-imaging/171228_t2_CAFOS/flat-imaging_caf-20171228-13:14:11-cal-bard_red.fits
-  -> output mname will be flat-imaging/171228_t2_CAFOS/flat-imaging_caf-20171228-13:14:11-cal-bard_mask.fits
+  -> Output fname will be: flat-imaging/171228_t2_CAFOS/flat-imaging_caf-20171228-13:14:11-cal-bard_red.fits
   Deleting flat-imaging/171228_t2_CAFOS/flat-imaging_caf-20171228-13:14:11-cal-bard_red.fits
   Deleting flat-imaging/171228_t2_CAFOS/flat-imaging_caf-20171228-13:14:11-cal-bard_mask.fits
   WARNING: deleting previous database entry: flat-imaging --> SITE#1d_15__1700__1700__[201,201:1900,1900]__1__1__GRISM-11__FILT- 5__FREE__0 --> 58115.55635
@@ -203,10 +233,27 @@ output file by using the additional argument ``--force`` in the command line:
   Median value in frame #8/10: 28298.5
   Median value in frame #9/10: 28038.5
   Median value in frame #10/10: 28083.0
-  Working with signature SITE#1d_15__1700__1700__[201,201:1900,1900]__1__1__GRISM-11__FILT- 5__FREE__0
   Creating flat-imaging/171228_t2_CAFOS/flat-imaging_caf-20171228-13:14:11-cal-bard_red.fits
   Creating flat-imaging/171228_t2_CAFOS/flat-imaging_caf-20171228-13:14:11-cal-bard_mask.fits
+  Creating flat-imaging/171228_t2_CAFOS/flat-imaging_caf-20171228-13:14:11-cal-bard_red.log
+  -> Reduction ends at...: 2020-03-26 16:56:31.938600
+  -> Time span...........: 0:00:08.810347
   * program STOP
+
+For this particular night, all the flat-imaging files exhibit a single
+signature. The 10 available individual frames were obtained within one hour.
+For that reason all of them are selected to be combined in a single master
+flat-imaging frame. The name of the output file is taken from the first image
+in the sequence of 10 images, adding the prefix ``flat-imaging_`` and the
+suffix ``_red`` (the latter prior to the extension ``.fits``). A log file with
+the same name as the output file, but with the extension ``.log``, is also 
+generated.
+
+An additional output file, containing a mask of useful pixels, is also
+generated, using the same file name but changing the suffix ``_red`` by
+``_mask``. In this mask a value of 0 is assigned to pixels without useful
+signal (probably due to vignetting), whereas a value of 1 is employed for the
+pixels in the useful image region.
 
 Note that the reduction of the flat-imaging files requires the use of a master
 bias with a particular signature, in this case
