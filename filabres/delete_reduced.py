@@ -15,16 +15,19 @@ import os
 from .load_instrument_configuration import load_instrument_configuration
 
 
-def delete_reduced(instrument, reducedima):
+def delete_reduced(setupdata, reducedima):
     """Delete calibration: actual file and database reference
 
     Parameters
     ----------
-    instrument : str
-        Instrument name.
+    setupdata : dict
+        Setup data stored as a Python dictionary.
     reducedima : str
         Full path and file name of the reduced calibration image.
     """
+
+    instrument = setupdata['instrument']
+
     print('Image to be deleted {}'.format(reducedima))
 
     # determine image type and night
@@ -43,7 +46,7 @@ def delete_reduced(instrument, reducedima):
     # load instrument configuration, determine calibration image types
     # and check that the current image type is one of them
     instconf = load_instrument_configuration(
-        instrument=instrument,
+        setupdata=setupdata,
         redustep=None,
         dontcheckredustep=True
     )

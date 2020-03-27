@@ -12,7 +12,7 @@ import fnmatch
 import os
 
 
-def nights_to_be_reduced(args_night, datadir, verbose=False):
+def nights_to_be_reduced(args_night, setupdata, verbose=False):
     """Generate list of nights to be reduced.
 
     Parameters
@@ -20,9 +20,8 @@ def nights_to_be_reduced(args_night, datadir, verbose=False):
     args_night : str or None
         Night label. Wildcards are valid. If None, all the nights
         within the datadir directory are considered.
-    datadir : str
-        Directory where the original FITS data (organized by night)
-        are stored.
+    setupdata : dict
+        Setup data stored as a Python dictionary.
     verbose : bool
         If True, display intermediate information.
 
@@ -32,6 +31,8 @@ def nights_to_be_reduced(args_night, datadir, verbose=False):
         List of nights matching the selection filter.
 
     """
+
+    datadir = setupdata['datadir']
 
     if args_night is None:
         night = '*'

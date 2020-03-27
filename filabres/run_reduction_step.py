@@ -28,7 +28,7 @@ from filabres import LISTDIR
 SATURATION_LEVEL = 65000
 
 
-def run_reduction_step(redustep, interactive, datadir, list_of_nights, filename,
+def run_reduction_step(redustep, interactive, setupdata, list_of_nights, filename,
                        instconf, force, verbose=False, debug=False):
     """
     Execute reduction step.
@@ -39,9 +39,8 @@ def run_reduction_step(redustep, interactive, datadir, list_of_nights, filename,
         Reduction step to be executed.
     interactive : bool
         If True, enable interactive execution (e.g. plots,...).
-    datadir : str
-        Directory where the original FITS data (organized by night)
-        are stored.
+    setupdata : dict
+        Setup data stored as a Python dictionary.
     list_of_nights : list
         List of nights matching the selection filter.
     filename : str
@@ -56,6 +55,8 @@ def run_reduction_step(redustep, interactive, datadir, list_of_nights, filename,
     debug : bool
         Display additional debugging information.
     """
+
+    datadir = setupdata['datadir']
 
     if filename is not None:
         if filename.find('*') >= 0 or filename.find('?') >= 0:

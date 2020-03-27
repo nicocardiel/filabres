@@ -21,16 +21,16 @@ from .load_instrument_configuration import load_instrument_configuration
 from .show_df import show_df
 
 
-def list_reduced(instrument, img, list_mode, args_night, args_keyword,
+def list_reduced(setupdata, img, list_mode, args_night, args_keyword,
                  args_keyword_sort, args_filter, args_plotxy, args_plotimage,
                  args_ndecimal=5):
     """
     Display list with already classified images of the selected type
 
     Parameters
-    ==========
-    instrument : str
-        Instrument name.
+    ----------
+    setupdata : dict
+        Setup data stored as a Python dictionary.
     img : str or None
         Image type. It should coincide with any of the available
         image types declared in the instrument configuration file.
@@ -62,6 +62,8 @@ def list_reduced(instrument, img, list_mode, args_night, args_keyword,
         Number of decimal places for floats.
     """
 
+    instrument = setupdata['instrument']
+
     # protections
     check_list_mode(list_mode, args_keyword, args_keyword_sort, args_plotxy, args_plotimage, args_ndecimal)
 
@@ -87,7 +89,7 @@ def list_reduced(instrument, img, list_mode, args_night, args_keyword,
 
     # load instrument configuration
     instconf = load_instrument_configuration(
-        instrument=instrument,
+        setupdata=setupdata,
         redustep=None,
         dontcheckredustep=True
     )

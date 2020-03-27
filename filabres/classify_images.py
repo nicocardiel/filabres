@@ -140,9 +140,7 @@ def classify_image(instconf, header, dictquant):
     return imagetype
 
 
-def classify_images(list_of_nights, instconf, datadir, force,
-                    ignored_images_file, image_header_corrections_file,
-                    forced_classifications_file, verbose=False):
+def classify_images(list_of_nights, instconf, setupdata, force, verbose=False):
     """
     Generate database with relevant keywords for each night.
 
@@ -153,20 +151,18 @@ def classify_images(list_of_nights, instconf, datadir, force,
     instconf : dict
         Instrument configuration. See file configuration.json for
         details.
-    datadir : str
-        Directory where the original FITS data (organized by night)
-        are stored.
+    setupdata : dict
+        Setup data stored as a Python dictionary.
     force : bool
         If True, recompute JSON file.
-    ignored_images_file : str
-        Name of the file containing the images to be ignored.
-    image_header_corrections_file : str
-        Name of the file containing the image corrections.
-    forced_classifications_file : str
-        Name of the file containing the forced image classifications.
     verbose : bool
         If True, display intermediate information.
     """
+
+    datadir = setupdata['datadir']
+    ignored_images_file = setupdata['ignored_images_file']
+    image_header_corrections_file = setupdata['image_header_corrections_file']
+    forced_classifications_file = setupdata['forced_classifications_file']
 
     # check for ignored_images_file
     imgtoignore = ImageIgnore(
@@ -229,7 +225,10 @@ def classify_images(list_of_nights, instconf, datadir, force,
                 night, inight + 1, len(list_of_nights), len(list_of_fits)))
 
             logfname = basefname + '.log'
-            logfile = None
+            logfile = open(logfname, 'wt')
+            if verbose:
+                print('-> Creating {}'.format(logfname))
+
             imagedb = {
                 'metainfo': {
                     'instrument': instconf['instname'],
@@ -269,9 +268,6 @@ def classify_images(list_of_nights, instconf, datadir, force,
                         header = hdul[0].header
                         data = hdul[0].data
                 except (UserWarning, ResourceWarning) as e:
-                    if logfile is None:
-                        logfile = open(logfname, 'wt')
-                        print('-> Creating {}'.format(logfname))
                     logfile.write('{} while reading {}\n'.format(type(e).__name__, basename))
                     logfile.write('{}\n'.format(e))
                     print('{} while reading {}'.format(
@@ -299,7 +295,8 @@ def classify_images(list_of_nights, instconf, datadir, force,
                         night=night,
                         basename=basename,
                         header=header,
-                        verbose=verbose
+                        verbose=verbose,
+                        logfile=logfile
                     )
                     # get master keywords for the current file
                     for keyword in instconf['masterkeywords']:
@@ -318,13 +315,11 @@ def classify_images(list_of_nights, instconf, datadir, force,
                                     msg = 'WARNING: MJD-OBS changed from' \
                                           ' {} to {:.5f} (wrong value in file {})'.format(mjdobs, tinit.mjd, filepath)
                                     print(msg)
-                                    if logfile is None:
-                                        logfile = open(logfname, 'wt')
-                                        print('-> Creating {}'.format(logfname))
                                     logfile.write(msg + '\n')
                         else:
-                            msg = 'ERROR: keyword {} is missing in file {}'.format(keyword, basename)
-                            raise SystemError(msg)
+                            dumdict[keyword] = None
+                            msg = 'WARNING: keyword {} is missing in file {} (set to None)'.format(keyword, basename)
+                            print(msg)
                     # basic image statistics
                     dictquant = statsumm(data, rm_nan=True)
                     for qkw in dictquant.keys():
@@ -351,24 +346,22 @@ def classify_images(list_of_nights, instconf, datadir, force,
                         basename=basename
                     )
                     if imagetype_ is not None:
+                        msg = '-> Forcing classification of {} from {} to {}'.format(basename, imagetype, imagetype_)
+                        logfile.write(msg + '\n')
                         if verbose:
-                            print('-> Forcing classification of {} from {} to {}'.format(
-                                basename, imagetype, imagetype_))
+                            print(msg)
                         imagetype = imagetype_
                 # include image in corresponding classification
                 if imagetype in imagedb:
                     imagedb[imagetype][basename] = dumdict
+                    msg = 'File {} ({}/{}) classified as <{}>'.format(
+                        basename, ifilepath + 1, len(list_of_fits), imagetype)
+                    logfile.write(msg + '\n')
                     if verbose:
-                        print('File {} ({}/{}) classified as <{}>'.format(
-                            basename, ifilepath + 1, len(list_of_fits),
-                            imagetype))
+                        print(msg)
                 else:
                     msg = 'ERROR: unexpected image type {} in file {}'.format(imagetype, basename)
                     raise SystemError(msg)
-
-            # close logfile (if opened)
-            if logfile is not None:
-                logfile.close()
 
             # update number of images
             num_doublecheck = 0
@@ -378,15 +371,19 @@ def classify_images(list_of_nights, instconf, datadir, force,
                     num = len(imagedb[imagetype])
                     imagedb['metainfo'][label] = num
                     num_doublecheck += num
+                    msg = '{}: {}'.format(label, num)
+                    logfile.write(msg + '\n')
                     if verbose:
-                        print('{}: {}'.format(label, num))
+                        print(msg)
 
             imagedb['metainfo']['num_allimages'] = len(list_of_fits)
             imagedb['metainfo']['num_doublecheck'] = num_doublecheck
 
             # generate JSON output file
+            msg = '-> Creating {}'.format(jsonfname)
+            logfile.write(msg + '\n')
             if verbose:
-                print('-> Creating {}'.format(jsonfname))
+                print(msg)
             with open(jsonfname, 'w') as outfile:
                 json.dump(imagedb, outfile, indent=2)
 
@@ -395,3 +392,6 @@ def classify_images(list_of_nights, instconf, datadir, force,
                 print('ERROR: double check in number of files failed!')
                 msg = '--> see file {}'.format(jsonfname)
                 raise SystemError(msg)
+
+            # close logfile
+            logfile.close()

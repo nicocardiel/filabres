@@ -14,20 +14,20 @@ import os
 from .check_image_ignore import ImageIgnore
 
 
-def check_datadir(datadir, ignored_images_file, verbose=False):
+def check_datadir(setupdata, verbose=False):
     """
     Check that FITS files in DATADIR are not repeated
 
     Parameters
-    ==========
-    datadir : str
-        Directory where the original FITS data (organized by night)
-        are stored.
-    ignored_images_file : str
-        Nome of the file containing the images to be ignored.
+    ----------
+    setupdata : dict
+        Setup data stored as a Python dictionary.
     verbose : bool
         If True, display intermediate information.
     """
+
+    datadir = setupdata['datadir']
+    ignored_images_file = setupdata['ignored_images_file']
 
     try:
         all_nights = os.listdir(datadir)

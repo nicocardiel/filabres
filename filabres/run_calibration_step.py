@@ -26,7 +26,7 @@ from .version import version
 from filabres import LISTDIR
 
 
-def run_calibration_step(redustep, datadir, list_of_nights,
+def run_calibration_step(redustep, setupdata, list_of_nights,
                          instconf, force, verbose=False, debug=False):
     """
     Execute reduction step.
@@ -35,9 +35,8 @@ def run_calibration_step(redustep, datadir, list_of_nights,
     ==========
     redustep : str
         Reduction step to be executed.
-    datadir : str
-        Directory where the original FITS data (organized by night)
-        are stored.
+    setupdata : dict
+        Setup data stored as a Python dictionary.
     list_of_nights : list
         List of nights matching the selection filter.
     instconf : dict
@@ -51,6 +50,7 @@ def run_calibration_step(redustep, datadir, list_of_nights,
         Display additional debugging information.
     """
 
+    datadir = setupdata['datadir']
     instrument = instconf['instname']
 
     # set the results database: note that for calibration images, this

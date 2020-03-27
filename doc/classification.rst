@@ -212,49 +212,14 @@ observing nights:
   170519_t2_CAFOS/ 170731_t2_CAFOS/ 171101_t2_CAFOS/
 
 Within each night, a file ``imagedb_cafos.json`` should have been created, 
-storing the image classification.
+storing the image classification, as well as an additional file
+``imagedb_cafos.log`` storing a log with the result of the classification
+(together with those WARNINGS raised during the image classification).
 
 ::
 
   $ ls lists/170225_t2_CAFOS/
-  imagedb_cafos.json
-
-For those nights with images that have raised WARNINGS during the image
-classification, an additional ``imagedb_cafos.log`` file should also have been
-created containing the warning messages:
-
-::
-
-  $ find lists -name *log | sort
-  lists/170408_t2_CAFOS/imagedb_cafos.log
-  lists/170502_t2_CAFOS/imagedb_cafos.log
-  lists/170507_t2_CAFOS/imagedb_cafos.log
-  lists/170517_t2_CAFOS/imagedb_cafos.log
-  lists/170518_t2_CAFOS/imagedb_cafos.log
-  lists/170524_t2_CAFOS/imagedb_cafos.log
-  lists/170525_t2_CAFOS/imagedb_cafos.log
-  lists/170526_t2_CAFOS/imagedb_cafos.log
-  lists/170527_t2_CAFOS/imagedb_cafos.log
-  lists/170528_t2_CAFOS/imagedb_cafos.log
-  lists/170621_t2_CAFOS/imagedb_cafos.log
-  lists/170627_t2_CAFOS/imagedb_cafos.log
-  lists/170628_t2_CAFOS/imagedb_cafos.log
-  lists/170629_t2_CAFOS/imagedb_cafos.log
-  lists/170713_t2_CAFOS/imagedb_cafos.log
-  lists/170731_t2_CAFOS/imagedb_cafos.log
-  lists/170807_t2_CAFOS/imagedb_cafos.log
-  lists/170811_t2_CAFOS/imagedb_cafos.log
-  lists/170918_t2_CAFOS/imagedb_cafos.log
-  lists/170928_t2_CAFOS/imagedb_cafos.log
-  lists/170929_t2_CAFOS/imagedb_cafos.log
-  lists/171011_t2_CAFOS/imagedb_cafos.log
-  lists/171015_t2_CAFOS/imagedb_cafos.log
-  lists/171016_t2_CAFOS/imagedb_cafos.log
-  lists/171108_t2_CAFOS/imagedb_cafos.log
-  lists/171116_t2_CAFOS/imagedb_cafos.log
-  lists/171120_t2_CAFOS/imagedb_cafos.log
-  lists/171218_t2_CAFOS/imagedb_cafos.log
-  lists/171219_t2_CAFOS/imagedb_cafos.log
+  imagedb_cafos.json  imagedb_cafos.log
 
 All the warnings raised in the classification of the CAFOS 2017 data can safely
 be ignored.

@@ -20,7 +20,7 @@ class ImageIgnore(object):
     Class to store the images that should be ignored.
 
     Parameters
-    ==========
+    ----------
     ignored_images_file : str
         Name of the file containing the images to be ignored.
     datadir : str
@@ -30,7 +30,7 @@ class ImageIgnore(object):
         If True, display intermediate information.
 
     Attributes
-    ==========
+    ----------
     nights : set
         List with the nights with files that need corrections.
     corrections : list of dictionaries
@@ -84,21 +84,22 @@ class ImageIgnore(object):
         if verbose:
             print('Nights with images to be ignored: {}'.format(self.nights))
 
-    def to_be_ignored(self, night, basename, verbose):
+    def to_be_ignored(self, night, basename, verbose=False, logfile=None):
         """
         Decide whether a particular image must be ignored.
 
         Parameters
-        ==========
+        ----------
         night : str
             Night where the original FITS file is stored.
         basename : str
             Name of the original FITS file without the path.
         verbose : bool
             If True, display intermediate information.
-
+        logfile : file handler or None
+            Log file to store messages.
         Returns
-        =======
+        -------
         result : bool
             True if the image must be ignored.
         """
@@ -112,6 +113,9 @@ class ImageIgnore(object):
                     for fname in d['files']:
                         if fnmatch.fnmatch(basename, fname):
                             result = True
+                            msg = ' -> Ignoring {}'.format(basename)
+                            if logfile is not None:
+                                logfile.write(msg + '\n')
                             if verbose:
-                                print(' -> Ignoring {}'.format(basename))
+                                print(msg)
         return result

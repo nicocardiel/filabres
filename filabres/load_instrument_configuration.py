@@ -17,7 +17,7 @@ from .statsumm import statsumm
 from filabres import REQ_OPERATORS
 
 
-def load_instrument_configuration(instrument, redustep,
+def load_instrument_configuration(setupdata, redustep,
                                   dontcheckredustep=False,
                                   verbose=False, debug=False):
     """
@@ -25,8 +25,8 @@ def load_instrument_configuration(instrument, redustep,
 
     Parameters
     ----------
-    instrument : str
-        Instrument name.
+    setupdata : dict
+        Setup data stored as a Python dictionary.
     redustep : str or None
         Reduction step. If None, and 'checkonlyredustep' is False,
         a list with the available reduction steps is displayed.
@@ -42,6 +42,8 @@ def load_instrument_configuration(instrument, redustep,
     instconf : dict
         Instrument configuration.
     """
+
+    instrument = setupdata['instrument']
 
     # load configuration file
     yaml_conffile = 'configuration_{}.yaml'.format(instrument)

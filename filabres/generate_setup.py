@@ -14,6 +14,8 @@ import os
 import sys
 import yaml
 
+from .check_tslash import check_tslash
+
 from filabres import version
 
 
@@ -37,7 +39,7 @@ def generate_setup(args_setup):
     - image_header_corrections.yaml
 
     Parameters
-    ==========
+    ----------
     args_setup : list of str
         Instrument and datadir.
 
@@ -60,7 +62,7 @@ def generate_setup(args_setup):
     setup_yaml()
     d = OrderedDict()
     d['instrument'] = args_setup[0]
-    d['datadir'] = args_setup[1]
+    d['datadir'] = check_tslash(args_setup[1])
     d['ignored_images_file'] = yaml_fname2
     d['image_header_corrections_file'] = yaml_fname3
     d['forced_classifications_file'] = yaml_fname4

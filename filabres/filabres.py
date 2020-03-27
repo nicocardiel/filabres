@@ -31,7 +31,6 @@ import sys
 
 from .check_args_compatibility import check_args_compatibility
 from .check_datadir import check_datadir
-from .check_tslash import check_tslash
 from .delete_reduced import delete_reduced
 from .generate_setup import generate_setup
 from .classify_images import classify_images
@@ -67,7 +66,7 @@ def main():
 
     # group_setup
     group_setup.add_argument("--setup", type=str, nargs=2, help="generate setup_filabres.yaml",
-                             metavar=('INSTRUMENT', 'DATADIR'))
+                             metavar=('INSTRUMENT', 'DATADIR', 'FITS_EXTENSION'))
 
     # group_check
     group_check.add_argument("--check", action="store_true",
@@ -136,23 +135,17 @@ def main():
 
     # load setup file
     setupdata = load_setup(args.verbose)
-    instrument = setupdata['instrument']
-    datadir = setupdata['datadir']
-    ignored_images_file = setupdata['ignored_images_file']
-    image_header_corrections_file = setupdata['image_header_corrections_file']
-    forced_classifications_file = setupdata['forced_classifications_file']
-    datadir = check_tslash(datadir)
 
     # delete reduced image
     if args.delete is not None:
-        delete_reduced(instrument=instrument,
+        delete_reduced(setupdata=setupdata,
                        reducedima=args.delete)
         print('* program STOP')
         raise SystemExit()
 
     # initial image check
     if args.check:
-        check_datadir(datadir, ignored_images_file, args.verbose)
+        check_datadir(setupdata, args.verbose)
         print('* program STOP')
         raise SystemExit()
 
@@ -161,10 +154,9 @@ def main():
         if args.list_reduced is not None or args.originf is not None:
             print("-lc is incompatible with either -lr or -of")
             raise SystemExit()
-        list_classified(instrument=instrument,
+        list_classified(setupdata=setupdata,
                         img=args.list_classified,
                         list_mode=args.list_mode,
-                        datadir=datadir,
                         args_night=args.night,
                         args_keyword=args.keyword,
                         args_keyword_sort=args.keyword_sort,
@@ -179,7 +171,7 @@ def main():
         if args.list_classified is not None or args.originf is not None:
             print("-lr is incompatible with either -lc or -of")
             raise SystemExit()
-        list_reduced(instrument=instrument,
+        list_reduced(setupdata=setupdata,
                      img=args.list_reduced,
                      list_mode=args.list_mode,
                      args_night=args.night,
@@ -195,10 +187,9 @@ def main():
         if args.list_classified is not None or args.list_reduced is not None:
             print("-of is incompatible with either -lc or -lr")
             raise SystemExit()
-        list_originf(instrument=instrument,
+        list_originf(setupdata=setupdata,
                      args_originf=args.originf,
                      list_mode=args.list_mode,
-                     datadir=datadir,
                      args_keyword=args.keyword,
                      args_keyword_sort=args.keyword_sort,
                      args_filter=args.filter,
@@ -209,7 +200,7 @@ def main():
 
     # load instrument configuration
     instconf = load_instrument_configuration(
-        instrument=instrument,
+        setupdata=setupdata,
         redustep=args.reduction_step,
         verbose=args.verbose,
         debug=args.debug
@@ -217,7 +208,7 @@ def main():
 
     # nights to be reduced
     list_of_nights = nights_to_be_reduced(args_night=args.night,
-                                          datadir=datadir,
+                                          setupdata=setupdata,
                                           verbose=args.verbose)
 
     # reduction steps
@@ -229,11 +220,8 @@ def main():
         # initialize auxiliary databases (one for each observing night)
         classify_images(list_of_nights=list_of_nights,
                         instconf=instconf,
-                        datadir=datadir,
+                        setupdata=setupdata,
                         force=args.force,
-                        ignored_images_file=ignored_images_file,
-                        image_header_corrections_file=image_header_corrections_file,
-                        forced_classifications_file=forced_classifications_file,
                         verbose=args.verbose)
     else:
         classification = instconf['imagetypes'][args.reduction_step]['classification']
@@ -244,7 +232,7 @@ def main():
                 raise SystemError(msg)
             # execute reduction step
             run_calibration_step(redustep=args.reduction_step,
-                                 datadir=datadir,
+                                 setupdata=setupdata,
                                  list_of_nights=list_of_nights,
                                  instconf=instconf,
                                  force=args.force,
@@ -254,7 +242,7 @@ def main():
             # execute reduction step
             run_reduction_step(redustep=args.reduction_step,
                                interactive=args.interactive,
-                               datadir=datadir,
+                               setupdata=setupdata,
                                list_of_nights=list_of_nights,
                                filename=args.filename,
                                instconf=instconf,

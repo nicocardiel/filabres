@@ -21,7 +21,7 @@ from .statsumm import statsumm
 from filabres import LISTDIR
 
 
-def list_originf(instrument, args_originf, list_mode, datadir,
+def list_originf(setupdata, args_originf, list_mode,
                  args_keyword, args_keyword_sort, args_filter, args_plotxy,
                  args_plotimage, args_ndecimal=5):
     """
@@ -29,8 +29,8 @@ def list_originf(instrument, args_originf, list_mode, datadir,
 
     Parameters
     ----------
-    instrument : str
-        Instrument name.
+    setupdata : dict
+        Setup data stored as a Python dictionary.
     args_originf : str
         Full path and file name of the reduced calibration image.
     list_mode : str
@@ -39,8 +39,6 @@ def list_originf(instrument, args_originf, list_mode, datadir,
         - basic: each file in a single line without the file path and
                  without additional keywords
         - singleline: all the files in a single line without additional keywords
-    datadir : str
-        Data directory where the original FITS files are stored.
     args_keyword : list or None
         List with additional keywords to be displayed when img2
         is not None (otherwise an error is raised). Note that each
@@ -60,6 +58,9 @@ def list_originf(instrument, args_originf, list_mode, datadir,
     args_ndecimal : int or None
         Number of decimal places for floats.
     """
+
+    instrument = setupdata['instrument']
+    datadir = setupdata['datadir']
 
     # protections
     check_list_mode(list_mode, args_keyword, args_keyword_sort, args_plotxy, args_plotimage, args_ndecimal)
@@ -96,7 +97,7 @@ def list_originf(instrument, args_originf, list_mode, datadir,
     # load instrument configuration, determine calibration image types
     # and check that the current image type is one of them
     instconf = load_instrument_configuration(
-        instrument=instrument,
+        setupdata=setupdata,
         redustep=None,
         dontcheckredustep=True
     )

@@ -20,7 +20,7 @@ class ImageCorrections(object):
     Class to store and apply image corrections.
 
     Parameters
-    ==========
+    ----------
     image_header_corrections_file : str
         Name of the file containing the image corrections.
     datadir : str
@@ -30,7 +30,7 @@ class ImageCorrections(object):
         If True, display intermediate information.
 
     Attributes
-    ==========
+    ----------
     nights : set
         List with the nights with files that need corrections.
     corrections : list of dictionaries
@@ -84,13 +84,13 @@ class ImageCorrections(object):
         if verbose:
             print('Nights with image corrections: {}'.format(self.nights))
 
-    def fixheader(self, night, basename, header, verbose):
+    def fixheader(self, night, basename, header, verbose=False, logfile=None):
         """
         Modify the image header if the image appears in the YAML file
         with image corrections.
 
         Parameters
-        ==========
+        ----------
         night : str
             Night where the original FITS file is stored.
         basename : str
@@ -99,9 +99,11 @@ class ImageCorrections(object):
             Header to be modified (if necessary).
         verbose : bool
             If True, display intermediate information.
+        logfile : file handler or None
+            Log file to store messages.
 
         Returns
-        =======
+        -------
         header : astropy header
             The same input FITS header after the corresponding changes.
         """
@@ -113,15 +115,21 @@ class ImageCorrections(object):
                 if d['night'] == night:
                     for fname in d['files']:
                         if fnmatch.fnmatch(basename, fname):
+                            msg = ' -> Fixing {}'.format(basename)
+                            if logfile is not None:
+                                logfile.write(msg + '\n')
                             if verbose:
-                                print(' -> Fixing {}'.format(basename))
+                                print(msg)
                             for dd in d['replace-keyword']:
                                 kwd = list(dd.keys())[0]
                                 kwd = kwd.upper()
                                 val = dd[kwd]
                                 if kwd in header:
+                                    msg = '  - changing {} from {} to {}'.format(kwd, header[kwd], val)
+                                    if logfile is not None:
+                                        logfile.write(msg + '\n')
                                     if verbose:
-                                        print('  - changing {} from {} to {}'.format(kwd, header[kwd], val))
+                                        print(msg)
                                     header[kwd] = val
                                 else:
                                     msg = 'keyword {} not found in header of {}'.format(kwd, basename)
