@@ -1,0 +1,88 @@
+# -*- coding: utf-8 -*-
+#
+# Copyright 2020 Universidad Complutense de Madrid
+#
+# This file is part of filabres
+#
+# SPDX-License-Identifier: GPL-3.0+
+# License-Filename: LICENSE.txt
+#
+
+# instrument definitions for filabres
+instname: lsss
+version: 1.0
+requirements:
+  INSTRUME: 'SBIG ST-10 3 CCD Camera'
+masterkeywords:
+  - NAXIS      # number of axes
+  - NAXIS1     # fastest changing axis
+  - NAXIS2     # next fastest changing axis
+  - OBJECT     # Target description
+  - TELESCOP   # Telescope name
+  - RA         # hms J2000
+  - DEC        # dms +N J2000
+  - DATE-OBS   # [ISO 8601] UTC date/time of exposure start
+  - JD         # Julian Date at start of exposure
+  - AIRMASS    # Airmass (multiple of zenithal airmass)
+  - EXPTIME    # [sec] Duration of exposure
+  - INSTRUME   # Detector instrument name
+  - XORGSUBF   # Subframe X position in binned pixels
+  - YORGSUBF   # Subframe Y position in binned pixels
+  - XBINNING   # Binning level along the X-axis
+  - YBINNING   # Binning level along the Y-axis
+  - IMAGETYP   # Type of observation
+  - FLIPSTAT   # (flip mirror status)
+  - CLRBAND    # [J-C std] Std. color band of image or C=Color
+imagetypes:
+  bias:
+    executable: True
+    classification: calibration
+    requirements:
+      IMAGETYP: 'Dark Frame'
+    requirementx:
+      QUANT975.LT.: 3000
+    signature:
+      - INSTRUME
+      - NAXIS1
+      - NAXIS2
+      - XORGSUBF
+      - YORGSUBF
+      - XBINNING
+      - YBINNING
+    maxtimespan_hours: 1
+  flat-imaging:
+    executable: True
+    classification: calibration
+    requirements:
+      IMAGETYP: 'Flat Field'
+    requirementx:
+      EXPTIME.GT.: 0
+    signature:
+      - INSTRUME
+      - NAXIS1
+      - NAXIS2
+      - XORGSUBF
+      - YORGSUBF
+      - XBINNING
+      - YBINNING
+      - CLRBAND
+    maxtimespan_hours: 1
+  science-imaging:
+    classification: science
+    executable: True
+    maxfieldview_arcmin: 180
+    requirements:
+      IMAGETYP: 'Light Frame'
+    requirementx:
+      EXPTIME.GT.: 0
+      QUANT975.LT.: 60000
+    signature:
+      - INSTRUME
+      - NAXIS1
+      - NAXIS2
+      - XORGSUBF
+      - YORGSUBF
+      - XBINNING
+      - YBINNING
+      - CLRBAND
+    maxtimespan_hours: 0
