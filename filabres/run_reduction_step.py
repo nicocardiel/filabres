@@ -205,11 +205,15 @@ def run_reduction_step(redustep, interactive, setupdata, list_of_nights, filenam
                     # check for modified keywords when initializing
                     # the image databases
                     for keyword in instconf['masterkeywords']:
-                        val1 = output_header[keyword]
                         val2 = imagedb[redustep][fname][keyword]
-                        if val1 != val2:
+                        if keyword in output_header:
+                            val1 = output_header[keyword]
+                            if val1 != val2:
+                                output_header[keyword] = val2
+                                logfile.print('WARNING: {} changed from {} to {}'.format(keyword, val1, val2), f=True)
+                        else:
                             output_header[keyword] = val2
-                            logfile.print('WARNING: {} changed from {} to {}'.format(keyword, val1, val2), f=True)
+                            logfile.print('WARNING: missing {} set to {}'.format(keyword, val2))
                     output_header.add_history('Creating {} file:'.format(redustep))
                     saturpix = np.where(image2d >= SATURATION_LEVEL)
                     image2d_saturpix[saturpix] = True
@@ -220,28 +224,41 @@ def run_reduction_step(redustep, interactive, setupdata, list_of_nights, filenam
 
                     # combine images according to their type
                     # ---------------------------------------------------------
+                    ierr_bias = None
+                    delta_mjd_bias = None
+                    bias_fname = None
+                    ierr_flat = None
+                    delta_mjd_flat = None
+                    flat_fname = None
                     if redustep == 'science-imaging':
-                        mjdobs = output_header['MJD-OBS']
-                        # retrieve and subtract bias
-                        ierr_bias, delta_mjd_bias, image2d_bias, bias_fname = retrieve_calibration(
-                                instrument, 'bias', imgsignature, mjdobs, logfile=logfile)
-                        output_header.add_history('Subtracting master bias:')
-                        output_header.add_history(bias_fname)
-                        if debug:
-                            logfile.print('bias level: {}'.format(np.median(image2d_bias)), f=True)
-                        image2d -= image2d_bias
-                        # retrieve and divide by flatfield
-                        ierr_flat, delta_mjd_flat, image2d_flat, flat_fname = retrieve_calibration(
-                                instrument, 'flat-imaging', imgsignature, mjdobs, logfile=logfile)
-                        output_header.add_history('Applying master flatfield:')
-                        output_header.add_history(flat_fname)
-                        if debug:
-                            logfile.print('flat level: {}'.format(np.median(image2d_flat)), f=True)
-                        image2d /= image2d_flat
-                        # generate useful region mask from flatfield
-                        mask2d = maskfromflat(image2d_flat)
-                        if debug:
-                            logfile.print('masked pixels: {}/{}'.format(np.sum(mask2d == 0.0), naxis1 * naxis2), f=True)
+                        basicreduction = instconf['imagetypes'][redustep]['basicreduction']
+                        if basicreduction:
+                            mjdobs = output_header['MJD-OBS']
+                            # retrieve and subtract bias
+                            ierr_bias, delta_mjd_bias, image2d_bias, bias_fname = retrieve_calibration(
+                                    instrument, 'bias', imgsignature, mjdobs, logfile=logfile)
+                            output_header.add_history('Subtracting master bias:')
+                            output_header.add_history(bias_fname)
+                            if debug:
+                                logfile.print('bias level: {}'.format(np.median(image2d_bias)), f=True)
+                            image2d -= image2d_bias
+                            # retrieve and divide by flatfield
+                            ierr_flat, delta_mjd_flat, image2d_flat, flat_fname = retrieve_calibration(
+                                    instrument, 'flat-imaging', imgsignature, mjdobs, logfile=logfile)
+                            output_header.add_history('Applying master flatfield:')
+                            output_header.add_history(flat_fname)
+                            if debug:
+                                logfile.print('flat level: {}'.format(np.median(image2d_flat)), f=True)
+                            image2d /= image2d_flat
+                            # generate useful region mask from flatfield
+                            mask2d = maskfromflat(image2d_flat)
+                            if debug:
+                                logfile.print('masked pixels: {}/{}'.format(np.sum(mask2d == 0.0), naxis1 * naxis2),
+                                              f=True)
+                        else:
+                            msg = 'WARNING: skipping basic reduction working with file {}'.format(fname)
+                            logfile.print(msg)
+                            mask2d = np.ones((naxis2, naxis1), dtype=np.float32)
                         # apply useful region mask
                         image2d *= mask2d
                         # compute statistical analysis and update the image header
@@ -259,9 +276,23 @@ def run_reduction_step(redustep, interactive, setupdata, list_of_nights, filenam
                             raise SystemError(msg)
                         # define possible P values for build-astrometry-index (scale number)
                         # in the order to be employed (if one fails, the next one is used)
-                        # [see help of build-astrometry-index for details]
+                        # [see help of build-astrometry-index for details]; in addition, convert
+                        # RA and DEC to DD.ddddd +/- DD.ddddd when necessary
                         if instrument == 'cafos':
                             pvalues = [2, 3, 1, 0, 4, 5, 6]
+                        elif instrument == 'lsss':
+                            pvalues = [8, 9, 7, 10, 6, 11, 5]
+                            ra_initial = output_header['ra']
+                            ra_h, ra_m, ra_s = ra_initial.split()
+                            ra_final = (float(ra_h) + float(ra_m)/60.0 + float(ra_s)/3600.0) * 15
+                            output_header['ra'] = ra_final
+                            dec_initial = output_header['dec']
+                            dec_sign = dec_initial[0]
+                            dec_d, dec_m, dec_s = dec_initial[1:].split()
+                            dec_final = (float(dec_d) + float(dec_m)/60.0 + float(dec_s)/3600.0)
+                            if dec_sign == '-':
+                                dec_final = -dec_final
+                            output_header['dec'] = dec_final
                         else:
                             msg = 'ERROR: instrument not included here!'
                             raise SystemError(msg)

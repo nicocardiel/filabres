@@ -222,7 +222,7 @@ def run_calibration_step(redustep, setupdata, list_of_nights,
                     dumfile = os.path.basename(imgblock[0])
                     output_fname += dumfile[:-5]
                     output_mname = output_fname + '_mask.fits'
-                    output_logfile = output_fname + '_red.log'
+                    output_lname = output_fname + '_red.log'
                     output_fname += '_red.fits'
                     execute_reduction = True
                     if os.path.exists(output_fname) and not force:
@@ -232,7 +232,7 @@ def run_calibration_step(redustep, setupdata, list_of_nights,
                     if execute_reduction:
                         # generate string with signature values
                         ssig = signature_string(signaturekeys, signature)
-                        logfile = ToLogFile(basename=output_logfile, verbose=verbose)
+                        logfile = ToLogFile(basename=output_lname, verbose=verbose)
                         datetime_ini = datetime.datetime.now()
                         logfile.print('---', f=True)
                         logfile.print('-> Reduction starts at.: {}'.format(datetime_ini))
@@ -313,14 +313,19 @@ def run_calibration_step(redustep, setupdata, list_of_nights,
                                 # check for modified keywords when initializing
                                 # the image databases
                                 for keyword in instconf['masterkeywords']:
-                                    val1 = output_header[keyword]
                                     val2 = imagedb[redustep][basename][keyword]
-                                    if val1 != val2:
+                                    if keyword in output_header:
+                                        val1 = output_header[keyword]
+                                        if val1 != val2:
+                                            output_header[keyword] = val2
+                                            logfile.print('WARNING: {} changed from {} to {}'.format(
+                                                keyword, val1, val2))
+                                    else:
                                         output_header[keyword] = val2
-                                        logfile.print('WARNING: {} changed from {} to {}'.format(keyword, val1, val2))
+                                        logfile.print('WARNING: missing {} set to {}'.format(keyword, val2))
                                 output_header.add_history('Using {} images to compute {}:'.format(nfiles, redustep))
                             image3d[i, :, :] += image_data
-                            output_header.add_history(os.path.basename(fname))
+                            output_header.add_history(basename)
                         output_header.add_history('Signature:')
                         for key in signature:
                             output_header.add_history(' - {}: {}'.format(key, signature[key]))
@@ -346,39 +351,45 @@ def run_calibration_step(redustep, setupdata, list_of_nights,
                         # ---------------------------------------------------------
                         elif redustep == 'flat-imaging':
                             ierr_flat = 0
-                            mjdobs = output_header['MJD-OBS']
-                            # retrieve master bias
-                            ierr_bias, delta_mjd_bias, image2d_bias, bias_fname = retrieve_calibration(
-                                    instrument, 'bias', signature, mjdobs, logfile=logfile)
-                            # subtract bias
-                            output_header.add_history('Subtracting master bias:')
-                            output_header.add_history(bias_fname)
-                            if debug:
-                                logfile.print('bias level:', np.median(image2d_bias))
-                            for i in range(nfiles):
-                                image3d[i, :, :] -= image2d_bias
-                            # stack all the images for the computation of a single mask for all the individual images
-                            image2d = np.sum(image3d, axis=0)
-                            mediansignal = np.median(image2d)
-                            if mediansignal > 0:
-                                image2d /= mediansignal
-                            else:
-                                msg = 'WARNING: mediansignal={} is not > 0'.format(mediansignal)
-                                logfile.print(msg)
-                                ierr_flat = 1
-                            mask2d = maskfromflat(image2d)
-                            for i in range(nfiles):
-                                # perform statistical analysis in useful region
-                                image2d_statsumm = statsumm(image2d=image3d[i, :, :], mask2d=mask2d, rm_nan=True)
-                                # normalize by the median value in the useful region
-                                mediansignal = image2d_statsumm['QUANT500']
-                                logfile.print('Median value in frame #{}/{}: {}'.format(i+1, nfiles, mediansignal))
+                            basicreduction = instconf['imagetypes'][redustep]['basicreduction']
+                            if basicreduction:
+                                mjdobs = output_header['MJD-OBS']
+                                # retrieve master bias
+                                ierr_bias, delta_mjd_bias, image2d_bias, bias_fname = retrieve_calibration(
+                                        instrument, 'bias', signature, mjdobs, logfile=logfile)
+                                # subtract bias
+                                output_header.add_history('Subtracting master bias:')
+                                output_header.add_history(bias_fname)
+                                if debug:
+                                    logfile.print('bias level:', np.median(image2d_bias))
+                                for i in range(nfiles):
+                                    image3d[i, :, :] -= image2d_bias
+                                # stack all the images for the computation of a single mask
+                                # for all the individual images
+                                image2d = np.sum(image3d, axis=0)
+                                mediansignal = np.median(image2d)
                                 if mediansignal > 0:
-                                    image3d[i, :, :] /= mediansignal
+                                    image2d /= mediansignal
                                 else:
                                     msg = 'WARNING: mediansignal={} is not > 0'.format(mediansignal)
                                     logfile.print(msg)
                                     ierr_flat = 1
+                                mask2d = maskfromflat(image2d)
+                                for i in range(nfiles):
+                                    # perform statistical analysis in useful region
+                                    image2d_statsumm = statsumm(image2d=image3d[i, :, :], mask2d=mask2d, rm_nan=True)
+                                    # normalize by the median value in the useful region
+                                    mediansignal = image2d_statsumm['QUANT500']
+                                    logfile.print('Median value in frame #{}/{}: {}'.format(i+1, nfiles, mediansignal))
+                                    if mediansignal > 0:
+                                        image3d[i, :, :] /= mediansignal
+                                    else:
+                                        msg = 'WARNING: mediansignal={} is not > 0'.format(mediansignal)
+                                        logfile.print(msg)
+                                        ierr_flat = 1
+                            else:
+                                msg = 'WARNING: skipping basic reduction when generating {}'.format(output_fname)
+                                logfile.print(msg)
                             # median combination of normalized images
                             image2d = np.median(image3d, axis=0)
                             # set to 1.0 pixels with values <= 0
@@ -416,6 +427,7 @@ def run_calibration_step(redustep, setupdata, list_of_nights,
                         database[redustep][ssig][mjdobs]['signature'] = signature
                         database[redustep][ssig][mjdobs]['fname'] = output_fname
                         database[redustep][ssig][mjdobs]['mname'] = output_mname
+                        database[redustep][ssig][mjdobs]['lname'] = output_lname
                         database[redustep][ssig][mjdobs]['statsumm'] = image2d_statsumm
                         dumdict = dict()
                         for keyword in instconf['masterkeywords']:

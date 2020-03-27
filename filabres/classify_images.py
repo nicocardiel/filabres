@@ -317,9 +317,22 @@ def classify_images(list_of_nights, instconf, setupdata, force, verbose=False):
                                     print(msg)
                                     logfile.write(msg + '\n')
                         else:
-                            dumdict[keyword] = None
-                            msg = 'WARNING: keyword {} is missing in file {} (set to None)'.format(keyword, basename)
-                            print(msg)
+                            # MJD-OBS is the basic time used to handle the image reduction
+                            if keyword == 'MJD-OBS':
+                                if 'JD' in header:
+                                    dumdict[keyword] = header['JD'] - 2400000.5
+                                    msg = 'WARNING: keyword {} is missing in file {} (set to {})'.format(
+                                        keyword, basename, dumdict[keyword])
+                                    print(msg)
+                                    logfile.write(msg + '\n')
+                                else:
+                                    msg = 'ERROR: MJD-OBS not computed. Modify code here!'
+                                    raise SystemError(msg)
+                            else:
+                                dumdict[keyword] = None
+                                msg = 'WARNING: keyword {} is missing in file {} (set to None)'.format(keyword, basename)
+                                print(msg)
+                                logfile.write(msg + '\n')
                     # basic image statistics
                     dictquant = statsumm(data, rm_nan=True)
                     for qkw in dictquant.keys():
