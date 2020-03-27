@@ -10,7 +10,7 @@
 
 # instrument definitions for filabres
 instname: cafos
-version: 2.6
+version: 2.7
 requirements:
   INSTRUME: 'CAFOS 2.2'
 masterkeywords:
@@ -97,6 +97,7 @@ imagetypes:
       - INSPOFPI
       - INSPOROT
     maxtimespan_hours: 1
+    basicreduction: True
   flat-imaging-wollaston:
     executable: False
     classification: calibration
@@ -120,6 +121,7 @@ imagetypes:
       - INSPOFPI
       - INSPOROT
     maxtimespan_hours: 1
+    basicreduction: True
   flat-spectroscopy:
     executable: False
     classification: calibration
@@ -141,6 +143,7 @@ imagetypes:
       - INSPOFPI
       - INSPOROT
     maxtimespan_hours: 1
+    basicreduction: True
   arc:
     executable: False
     classification: calibration
@@ -164,6 +167,7 @@ imagetypes:
       - RA
       - DEC
     maxtimespan_hours: 0
+    basicreduction: True
   science-imaging:
     classification: science
     executable: True
@@ -189,6 +193,7 @@ imagetypes:
       - RA
       - DEC
     maxtimespan_hours: 0
+    basicreduction: True
   science-imaging-wollaston:
     classification: science
     executable: False
@@ -214,6 +219,7 @@ imagetypes:
       - RA
       - DEC
     maxtimespan_hours: 0
+    basicreduction: True
   science-spectroscopy:
     classification: science
     executable: False
@@ -237,3 +243,4 @@ imagetypes:
       - RA
       - DEC
     maxtimespan_hours: 0
+    basicreduction: True

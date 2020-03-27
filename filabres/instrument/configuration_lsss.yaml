@@ -10,7 +10,7 @@
 
 # instrument definitions for filabres
 instname: lsss
-version: 1.0
+version: 1.1
 requirements:
   INSTRUME: 'SBIG ST-10 3 CCD Camera'
 masterkeywords:
@@ -23,6 +23,7 @@ masterkeywords:
   - DEC        # dms +N J2000
   - DATE-OBS   # [ISO 8601] UTC date/time of exposure start
   - JD         # Julian Date at start of exposure
+  - MJD-OBS    # Modified Julian Date (this keyword is missing!)
   - AIRMASS    # Airmass (multiple of zenithal airmass)
   - EXPTIME    # [sec] Duration of exposure
   - INSTRUME   # Detector instrument name
@@ -49,7 +50,7 @@ imagetypes:
       - YORGSUBF
       - XBINNING
       - YBINNING
-    maxtimespan_hours: 1
+    maxtimespan_hours: 0
   flat-imaging:
     executable: True
     classification: calibration
@@ -66,7 +67,8 @@ imagetypes:
       - XBINNING
       - YBINNING
       - CLRBAND
-    maxtimespan_hours: 1
+    maxtimespan_hours: 0
+    basicreduction: False
   science-imaging:
     classification: science
     executable: True
@@ -86,3 +88,4 @@ imagetypes:
       - YBINNING
       - CLRBAND
     maxtimespan_hours: 0
+    basicreduction: True
