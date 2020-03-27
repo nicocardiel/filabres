@@ -72,7 +72,7 @@ imagetypes:
   science-imaging:
     classification: science
     executable: True
-    maxfieldview_arcmin: 180
+    maxfieldview_arcmin: 120
     requirements:
       IMAGETYP: 'Light Frame'
     requirementx:
