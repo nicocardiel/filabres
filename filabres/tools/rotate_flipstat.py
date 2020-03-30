@@ -20,7 +20,7 @@ import numpy as np
 
 def main():
     # parse command-line options
-    parser = argparse.ArgumentParser(description="Basic data reduction of astronomical images")
+    parser = argparse.ArgumentParser(description="Auxiliary script to rotate LSSS images")
 
     parser.add_argument("filename", help="input FITS file")
     parser.add_argument("--debug", action="store_true")
