@@ -36,8 +36,9 @@ def setup_package():
         entry_points={
             'console_scripts': [
                 'filabres = filabres.filabres:main',
-                'filabres-ximshow = filabres.ximshow:main',
-                'filabres-version = filabres.version:main'
+                'filabres-rotate_flipstat = filabres.tools.rotate_flipstat:main',
+                'filabres-version = filabres.version:main',
+                'filabres-ximshow = filabres.ximshow:main'
             ],
         },
         install_requires=REQUIRES,
