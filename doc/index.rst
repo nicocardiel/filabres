@@ -64,6 +64,7 @@ this documentation.
    bias
    flat-imaging
    science-imaging
+   lsss-test
 
 ----
 
