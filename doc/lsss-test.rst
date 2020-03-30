@@ -9,7 +9,7 @@ Another example with LSSS data
    This is a summary of the steps followed to carry out a quick reduction of
    the LSSS data.
 
-The data must be placed within a subdirectory corresponding to a particular
+The data must be located within a subdirectory corresponding to a particular
 observing night:
 
 ::
@@ -19,9 +19,10 @@ observing night:
   $ mkdir 141214_LSSS
   $ cd 141214_LSSS
 
-We place under ``141214_LSSS`` all the FITS files corresponding to this test.
-Since the images have the extension ``.fts``, it is necessary to replace that
-extension by ``.fits``:
+We place here, under ``141214_LSSS``, all the FITS files corresponding to this
+test.  Since the images have the extension ``.fts``, it is necessary to replace
+that extension by ``.fits``. The corresponding command (under the BASH shell)
+is:
 
 ::
 
@@ -33,7 +34,9 @@ It is also necessary to generate a rotated version of the two calibrations:
 
   $ filabres-rotate_flipstat masterbias2x2.fits
 
-The previous command generates a file ``masterbias2x2r.fits``. Similarly:
+The previous command generates a file ``masterbias2x2r.fits``. 
+
+Similarly:
 
 ::
 
@@ -53,14 +56,16 @@ Let's have a look to the keyword ``FLIPSTAT`` in these 4 calibration images:
    masterflat2x2.fits            
   masterflat2x2r.fits Flip/Mirror
 
-Move up in the directory tree and generate setup files:
+Move up in the directory tree and generate the setup files for filabres:
 
 ::
 
   $ cd ../..
   $ filabres --setup lsss data_LSSS_test
 
-Check that there are no duplicated files:
+Check that there are no duplicated files (this step is actually not necessary
+since there is only one subdirectory; with more than one observing night it is
+useful to perfomr this check):
 
 ::
 
@@ -270,10 +275,53 @@ corresponding databases):
   -> Time span...........: 0:00:01.169368
   * program STOP
 
+The final step is the reduction of the scientific images (ignore the WARNINGS):
 
 ::
 
   $ filabres -rs science-imaging
+  * Number of nights found: 1
+
+  * Working with night 171214_LSSS (1/1)
+  ---
+  -> Working with file 00308-S001-R001-C001-NoFilt.fits (1/334)  [Night 1/1]
+  -> Input file name is......: data_LSSS_test/171214_LSSS/00308-S001-R001-C001-NoFilt.fits
+  -> Output file name will be: science-imaging/171214_LSSS/science-imaging_00308-S001-R001-C001-NoFilt_red.fits
+  -> Reduction starts at.....: 2020-03-30 17:08:52.561091
+  -> Reduction ends at.......: 2020-03-30 17:10:07.375212
+  -> Elapsed time............: 0:01:14.814121
+  $ mv science-imaging/171214_LSSS/reduction.log science-imaging/171214_LSSS/science-imaging_00308-S001-R001-C001-NoFilt_red/
+  ---
+  -> Working with file 00308-S001-R002-C001-NoFilt.fits (2/334)  [Night 1/1]
+  -> Input file name is......: data_LSSS_test/171214_LSSS/00308-S001-R002-C001-NoFilt.fits
+  -> Output file name will be: science-imaging/171214_LSSS/science-imaging_00308-S001-R002-C001-NoFilt_red.fits
+  -> Reduction starts at.....: 2020-03-30 17:10:07.381744
+  -> Reduction ends at.......: 2020-03-30 17:10:20.691468
+  -> Elapsed time............: 0:00:13.309724
+  $ mv science-imaging/171214_LSSS/reduction.log science-imaging/171214_LSSS/science-imaging_00308-S001-R002-C001-NoFilt_red/
   ...
   ...
 
+Note that the redution of the first image takes longer because it is necessary
+to retrieve the GAIA data for the astrometric calibration with Astrometry.net.
+The remaining scientific images, which pointings are close enough to the one
+corresponding to the first image, do not require that step (the same catalogue
+of GAIA objects is reused).
+
+You can easily check the quality of the astrometric solution:
+
+::
+
+  $ filabres -lr science-imaging -k astr1_ntargets -k astr2_ntargets \
+  -k astr1_meanerr -k astr2_meanerr 
+      ASTR1_NTARGETS ASTR2_NTARGETS  ASTR1_MEANERR  ASTR2_MEANERR                                                                              file
+  1              132            367        0.67439        0.12894  science-imaging/171214_LSSS/science-imaging_00308-S001-R001-C001-NoFilt_red.fits
+  2              132            379        0.67678        0.13156  science-imaging/171214_LSSS/science-imaging_00308-S001-R002-C001-NoFilt_red.fits
+  3              132            362        0.66732        0.14693  science-imaging/171214_LSSS/science-imaging_00308-S001-R003-C001-NoFilt_red.fits
+  ...
+  ...
+
+The prefixes ``ASTR1_`` and ``ASTR2_`` indicate values corresponding to the
+astrometric calibration with the Astrometry.net and AstrOmatic.net tools,
+respectively. ``NTARGETS`` and ``MEANERR`` refer to the number of objects
+employed to compute the calibration and the mean error (in arcsec).
