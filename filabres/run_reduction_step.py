@@ -281,7 +281,7 @@ def run_reduction_step(redustep, interactive, setupdata, list_of_nights, filenam
                         if instrument == 'cafos':
                             pvalues = [2, 3, 1, 0, 4, 5, 6]
                         elif instrument == 'lsss':
-                            pvalues = [8, 9, 7, 10, 6, 11, 5]
+                            pvalues = [6, 7, 8, 5, 4, 3, 2, 9]
                             ra_initial = output_header['ra']
                             ra_h, ra_m, ra_s = ra_initial.split()
                             ra_final = (float(ra_h) + float(ra_m)/60.0 + float(ra_s)/3600.0) * 15
