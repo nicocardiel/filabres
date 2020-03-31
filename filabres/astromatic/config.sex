@@ -57,13 +57,15 @@ BACK_FILTERSIZE  3              # Background filter: <size> or <width>,<height>
 BACKPHOTO_TYPE   LOCAL         # can be GLOBAL or LOCAL
  
 #------------------------------ Check Image ----------------------------------
- 
-CHECKIMAGE_TYPE  NONE           # can be NONE, BACKGROUND, BACKGROUND_RMS,
+
+CHECKIMAGE_TYPE  BACKGROUND,BACKGROUND_RMS,OBJECTS,SEGMENTATION,APERTURES
+                                # can be NONE, BACKGROUND, BACKGROUND_RMS,
                                 # MINIBACKGROUND, MINIBACK_RMS, -BACKGROUND,
                                 # FILTERED, OBJECTS, -OBJECTS, SEGMENTATION,
                                 # or APERTURES
-CHECKIMAGE_NAME  check.fits     # Filename for the check-image
- 
+CHECKIMAGE_NAME  sex_bkg.fits,sex_bkgrms.fits,sex_objects.fits,sex_segmentation.fits,sex_apertures.fits
+                                # Filename for the check-image
+
 #--------------------- Memory (change with caution!) -------------------------
  
 MEMORY_OBJSTACK  3000           # number of objects in stack

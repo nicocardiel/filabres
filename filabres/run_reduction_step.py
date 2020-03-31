@@ -351,7 +351,7 @@ def run_reduction_step(redustep, interactive, setupdata, list_of_nights, filenam
                     backupsubdir = basename[:-5]
                     backupsubdirfull = '{}/{}'.format(nightdir, backupsubdir)
                     if os.path.isdir(backupsubdirfull):
-                        command = 'mv {} {}/'.format(logfile.fname, backupsubdirfull)
+                        command = 'cp {} {}/'.format(logfile.fname, backupsubdirfull)
                         cmd = CmdExecute()
                         cmd.run(command)
                     else:
