@@ -196,7 +196,11 @@ def run_astrometry(image2d, mask2d, saturpix,
             z = ccbase[i]['z']
             search_radius_arcmin = ccbase[i]['search_radius_arcmin']
             # angular distance (radians)
-            dist_rad = np.arccos(x * xj2000 + y * yj2000 + z * zj2000)
+            dotprodcut = x * xj2000 + y * yj2000 + z * zj2000
+            if abs(dotprodcut) > 1:  # avoid RuntimeWarning when dotproduct = 1.0000000000000002
+                dist_rad = 0.0
+            else:
+                dist_rad = np.arccos(x * xj2000 + y * yj2000 + z * zj2000)
             # angular distance (arcmin)
             dist_arcmin = dist_rad * 180 / np.pi * 60
             if (maxfieldview_arcmin / 2) + dist_arcmin < search_radius_arcmin:
