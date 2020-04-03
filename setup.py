@@ -19,7 +19,7 @@ def setup_package():
         python_requires='>=3.7',
         version=__version__,
         description='Data Reduction Package for CAHA instruments',
-        author='Enrique Galcerán / Nicolás Cardiel',
+        author='Nicolás Cardiel',
         author_email='cardiel@ucm.es',
         packages=find_packages('.'),
         package_data={

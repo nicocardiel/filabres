@@ -71,8 +71,8 @@ def save_auxfiles(output_fname, nightdir, workdir, logfile):
             cmd.run(command, cwd=workdir)
 
 
-def run_astrometry(image2d, mask2d, saturpix,
-                   header, maxfieldview_arcmin, fieldfactor, pvalues,
+def run_astrometry(image2d, mask2d, saturpix, header,
+                   no_reuse_gaia, maxfieldview_arcmin, fieldfactor, pvalues,
                    nightdir, output_fname,
                    interactive, logfile, debug=False):
     """
@@ -91,6 +91,9 @@ def run_astrometry(image2d, mask2d, saturpix,
     header: astropy header
         Initial header of the image prior to the astrometric
         calibration.
+    no_reuse_gaia : bool
+        If True, previous GAIA data is not reused to perform the
+        initial astrometric calibration with Astrometry.net.
     maxfieldview_arcmin : float
         Maximum field of view. This is necessary to retrieve the GAIA
         data for the astrometric calibration.
@@ -188,37 +191,56 @@ def run_astrometry(image2d, mask2d, saturpix,
 
     # decide whether new GAIA data is needed
     retrieve_new_gaia_data = True
-    if len(ccbase) > 0:
-        indexid = len(ccbase) + 1
-        for i in ccbase:
-            x = ccbase[i]['x']
-            y = ccbase[i]['y']
-            z = ccbase[i]['z']
-            search_radius_arcmin = ccbase[i]['search_radius_arcmin']
-            # angular distance (radians)
-            dotprodcut = x * xj2000 + y * yj2000 + z * zj2000
-            if abs(dotprodcut) > 1:  # avoid RuntimeWarning when dotproduct = 1.0000000000000002
-                dist_rad = 0.0
-            else:
-                dist_rad = np.arccos(x * xj2000 + y * yj2000 + z * zj2000)
-            # angular distance (arcmin)
-            dist_arcmin = dist_rad * 180 / np.pi * 60
-            if (maxfieldview_arcmin / 2) + dist_arcmin < search_radius_arcmin:
-                indexid = int(i[-6:])
-                retrieve_new_gaia_data = False
-                break
+    indexid = None
+    if no_reuse_gaia:
+        logfile.print('-> Forcing downloading of GAIA catalogue close the field pointing')
     else:
-        indexid = 1
+        nindices = len(ccbase)
+        if nindices > 0:
+            dist_arcmin_min = None
+            for i, ikey in enumerate(ccbase):
+                x = ccbase[ikey]['x']
+                y = ccbase[ikey]['y']
+                z = ccbase[ikey]['z']
+                search_radius_arcmin = ccbase[ikey]['search_radius_arcmin']
+                # angular distance (radians)
+                dotprodcut = x * xj2000 + y * yj2000 + z * zj2000
+                if abs(dotprodcut) > 1:  # avoid RuntimeWarning when dotproduct = 1.0000000000000002
+                    dist_rad = 0.0
+                else:
+                    dist_rad = np.arccos(x * xj2000 + y * yj2000 + z * zj2000)
+                # angular distance (arcmin)
+                dist_arcmin = dist_rad * 180 / np.pi * 60
+                if (maxfieldview_arcmin / 2) + dist_arcmin < search_radius_arcmin:
+                    if dist_arcmin_min is None:
+                        dist_arcmin_min = dist_arcmin
+                        indexid = int(ikey[-6:])
+                    else:
+                        if dist_arcmin < dist_arcmin_min:
+                            dist_arcmin_min = dist_arcmin
+                            indexid = int(ikey[-6:])
+        if indexid is not None:
+            logfile.print('-> Reusing previously downloaded GAIA catalogue (indexid={})'.format(indexid))
+            retrieve_new_gaia_data = False
+        else:
+            logfile.print('-> No previous GAIA catalogue found close the field pointing')
+
+    if retrieve_new_gaia_data:
+        indexid = len(ccbase) + 1
 
     # create index subdir
     subdir = 'index{:06d}'.format(indexid)
     # create path to subdir
     newsubdir = nightdir + '/' + subdir
-    if not os.path.isdir(newsubdir):
-        logfile.print('Subdirectory {} not found. Creating it!'.format(newsubdir))
-        os.makedirs(newsubdir)
 
     if retrieve_new_gaia_data:
+        # check that directory for the new index does not exist
+        if not os.path.isdir(newsubdir):
+            logfile.print('Subdirectory {} not found. Creating it!'.format(newsubdir))
+            os.makedirs(newsubdir)
+        else:
+            msg = 'ERROR: subdirectory {} already exists'.format(newsubdir)
+            raise SystemError(msg)
         # generate additional logfile for retrieval of GAIA data
         loggaianame = '{}/gaialog.log'.format(newsubdir)
         loggaia = open(loggaianame, 'wt')
@@ -340,8 +362,12 @@ def run_astrometry(image2d, mask2d, saturpix,
             json.dump(ccbase, outfile, indent=2)
 
     else:
-        # copying the previously computed WCS image
-        logfile.print('Reusing previously downloaded GAIA catalogue')
+        # check that directory with the old index does exist
+        if os.path.isdir(newsubdir):
+            logfile.print('Subdirectory {} found'.format(newsubdir))
+        else:
+            msg = 'ERROR: subdirectory {} does not exist!'
+            raise SystemError(msg)
 
     command = 'cp {}/{}/GaiaDR2-query.fits {}/work/'.format(nightdir, subdir, nightdir)
     cmd.run(command)

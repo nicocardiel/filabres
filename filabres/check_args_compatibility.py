@@ -29,7 +29,7 @@ def check_args_compatibility(args, debug=False):
     # create a list for each group
     arglist_setup = ['setup']
     arglist_check = ['check']
-    arglist_reduc = ['reduction_step', 'force', 'interactive', 'filename']
+    arglist_reduc = ['reduction_step', 'force', 'no_reuse_gaia', 'interactive', 'filename']
     arglist_delet = ['delete']
     arglist_lists = ['list_classified', 'list_reduced', 'originf', 'list_mode',
                      'keyword', 'keyword_sort', 'filter', 'plotxy', 'plotimage',

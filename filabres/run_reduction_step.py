@@ -29,7 +29,7 @@ SATURATION_LEVEL = 65000
 
 
 def run_reduction_step(redustep, interactive, setupdata, list_of_nights, filename,
-                       instconf, force, verbose=False, debug=False):
+                       no_reuse_gaia, instconf, force, verbose=False, debug=False):
     """
     Execute reduction step.
 
@@ -45,6 +45,9 @@ def run_reduction_step(redustep, interactive, setupdata, list_of_nights, filenam
         List of nights matching the selection filter.
     filename : str
         File name of the image to be reduced.
+    no_reuse_gaia : bool
+        If True, previous GAIA data is not reused to perform the
+        initial astrometric calibration with Astrometry.net.
     instconf : dict
         Instrument configuration. See file configuration.json for
         details.
@@ -299,6 +302,7 @@ def run_reduction_step(redustep, interactive, setupdata, list_of_nights, filenam
                         ierr_astr, astrsumm1, astrsumm2 = run_astrometry(
                             image2d=image2d, mask2d=mask2d, saturpix=image2d_saturpix,
                             header=output_header,
+                            no_reuse_gaia=no_reuse_gaia,
                             maxfieldview_arcmin=maxfieldview_arcmin, fieldfactor=1.1, pvalues=pvalues,
                             nightdir=nightdir, output_fname=output_fname,
                             interactive=interactive, logfile=logfile, debug=False

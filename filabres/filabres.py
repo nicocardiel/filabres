@@ -75,6 +75,8 @@ def main():
     # group_reduc
     group_reduc.add_argument("-rs", "--reduction_step", type=str, nargs='?', const="None")
     group_reduc.add_argument("-f", "--force", action="store_true", help="force reduction of already reduced files")
+    group_reduc.add_argument("-ng", "--no_reuse_gaia", action="store_true",
+                             help="do not reuse pevious GAIA data to perform the astrometric calibration")
     group_reduc.add_argument("-i", "--interactive", action="store_true", help="enable interactive execution")
     group_reduc.add_argument("--filename", type=str,
                              help="particular image to be reduced (only valid for science images; without path)")
@@ -217,6 +219,9 @@ def main():
         if args.filename is not None:
             msg = 'Argument --filename is invalid for --rs initialize'
             raise SystemError(msg)
+        if args.no_reuse_gaia:
+            msg = 'Argument --no_reuse_gaia is invalid for --rs initialize'
+            raise SystemError(msg)
         # initialize auxiliary databases (one for each observing night)
         classify_images(list_of_nights=list_of_nights,
                         instconf=instconf,
@@ -229,6 +234,9 @@ def main():
             # check --singleimage is not set
             if args.filename is not None:
                 msg = 'Argument --filename is invalid for calibration reduction steps'
+                raise SystemError(msg)
+            if args.no_reuse_gaia:
+                msg = 'Argument --no_reuse_gaia is invalid for calibration reduction steps'
                 raise SystemError(msg)
             # execute reduction step
             run_calibration_step(redustep=args.reduction_step,
@@ -245,6 +253,7 @@ def main():
                                setupdata=setupdata,
                                list_of_nights=list_of_nights,
                                filename=args.filename,
+                               no_reuse_gaia=args.no_reuse_gaia,
                                instconf=instconf,
                                force=args.force,
                                verbose=args.verbose,
