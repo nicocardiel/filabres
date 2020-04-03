@@ -66,7 +66,7 @@ def main():
 
     # group_setup
     group_setup.add_argument("--setup", type=str, nargs=2, help="generate setup_filabres.yaml",
-                             metavar=('INSTRUMENT', 'DATADIR', 'FITS_EXTENSION'))
+                             metavar=('INSTRUMENT', 'DATADIR'))
 
     # group_check
     group_check.add_argument("--check", action="store_true",
@@ -76,7 +76,8 @@ def main():
     group_reduc.add_argument("-rs", "--reduction_step", type=str, nargs='?', const="None")
     group_reduc.add_argument("-f", "--force", action="store_true", help="force reduction of already reduced files")
     group_reduc.add_argument("-ng", "--no_reuse_gaia", action="store_true",
-                             help="do not reuse pevious GAIA data to perform the astrometric calibration")
+                             help="do not reuse pevious GAIA data to perform the initial astrometric calibration"
+                                  " (with Astrometry.net tools)")
     group_reduc.add_argument("-i", "--interactive", action="store_true", help="enable interactive execution")
     group_reduc.add_argument("--filename", type=str,
                              help="particular image to be reduced (only valid for science images; without path)")
