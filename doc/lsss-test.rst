@@ -325,3 +325,36 @@ The prefixes ``ASTR1_`` and ``ASTR2_`` indicate values corresponding to the
 astrometric calibration with the Astrometry.net and AstrOmatic.net tools,
 respectively. ``NTARGETS`` and ``MEANERR`` refer to the number of objects
 employed to compute the calibration and the mean error (in arcsec).
+
+Solving some problems with the astrometric calibration
+------------------------------------------------------
+
+The image number 193 shows a large astrometric error. It is possible to repeat
+the reduction of this image, forcing the downloading of GAIA data (centered
+around the central coordinates of this particular image) without reusing the
+GAIA data initially downloaded for the astrometric calibration of the first
+image. This affects the initial astrometric calibration with Astrometry.net
+tools, which subsequently also has an effect on the refined calibration with
+AstrOmatic.net tools. For this purpose one has to use the argument
+``-ng/--no_reuse_gaia``:
+
+::
+
+  $ filabres -rs science-imaging --filename 00308-S001-R193-C001-NoFilt.fits -v -i --force -ng
+  ...
+  ...
+  Astrometric calibration of science-imaging/171214_LSSS/science-imaging_00308-S001-R193-C001-NoFilt_red.fits
+  Creating configuration file science-imaging/171214_LSSS/work/myastrometry.cfg
+  Central coordinates:
+  <SkyCoord (FK5: equinox=2017-12-14T03:57:29.879): (ra, dec) in deg
+      (132.2155, 12.23583333)>
+  <SkyCoord (FK5: equinox=J2000.000): (ra, dec) in deg
+      (131.9693779, 12.30282281)>
+  -> Forcing downloading of GAIA catalogue close the field pointing
+  Subdirectory science-imaging/171214_LSSS/index000002 not found. Creating it!
+  -> Creating science-imaging/171214_LSSS/index000002/gaialog.log
+  ...
+  ...
+
+Note that a new ``index000002`` subdirectory has been created, where the
+additional GAIA data have been stored.
