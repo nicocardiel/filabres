@@ -1165,3 +1165,12 @@ these actions are performed automatically by **filabres** using the
   -> Removing file: science-imaging/170225_t2_CAFOS/science-imaging_caf-20170225-18:59:12-sci-krek_red/reduction.log
   -> Removing subdirectory: science-imaging/170225_t2_CAFOS/science-imaging_caf-20170225-18:59:12-sci-krek_red
   * program STOP 
+
+
+Skipping the astrometric calibration
+====================================
+
+It is possible to skip the astrometric calibration by using the argument
+``-na/--no_astrometry``.
+
+
