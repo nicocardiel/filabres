@@ -19,6 +19,7 @@ from .cmdexecute import CmdExecute
 from .maskfromflat import maskfromflat
 from .retrieve_calibration import retrieve_calibration
 from .run_astrometry import run_astrometry
+from .run_astrometry import save_auxfiles
 from .signature import getkey_from_signature
 from .statsumm import statsumm
 from .tologfile import ToLogFile
@@ -29,7 +30,8 @@ SATURATION_LEVEL = 65000
 
 
 def run_reduction_step(redustep, interactive, setupdata, list_of_nights, filename,
-                       no_reuse_gaia, instconf, force, verbose=False, debug=False):
+                       no_astrometry, no_reuse_gaia, instconf, force,
+                       verbose=False, debug=False):
     """
     Execute reduction step.
 
@@ -45,6 +47,8 @@ def run_reduction_step(redustep, interactive, setupdata, list_of_nights, filenam
         List of nights matching the selection filter.
     filename : str
         File name of the image to be reduced.
+    no_astrometry : bool
+        If True, the astrometric calibration is not performed.
     no_reuse_gaia : bool
         If True, previous GAIA data is not reused to perform the
         initial astrometric calibration with Astrometry.net.
@@ -271,42 +275,54 @@ def run_reduction_step(redustep, interactive, setupdata, list_of_nights, filenam
                             header=output_header,
                             redustep=redustep,
                             rm_nan=True)
-                        # compute run_astrometry: note that the function generates the output file
-                        if 'maxfieldview_arcmin' in instconf['imagetypes'][redustep]:
-                            maxfieldview_arcmin = instconf['imagetypes'][redustep]['maxfieldview_arcmin']
+                        if no_astrometry:
+                            workdir = nightdir + '/work'
+                            hdu = fits.PrimaryHDU(image2d.astype(np.float32), output_header)
+                            hdu.writeto(output_fname, overwrite=True)
+                            logfile.print('-> Skipping astrometric calibration')
+                            logfile.print('-> file {} created'.format(output_fname))
+                            save_auxfiles(output_fname=output_fname, nightdir=nightdir, workdir=workdir,
+                                          logfile=logfile)
+                            ierr_astr = 1
+                            astrsumm1 = None
+                            astrsumm2 = None
                         else:
-                            msg = 'maxfieldview_arcmin missing in instrument configuration'
-                            raise SystemError(msg)
-                        # define possible P values for build-astrometry-index (scale number)
-                        # in the order to be employed (if one fails, the next one is used)
-                        # [see help of build-astrometry-index for details]; in addition, convert
-                        # RA and DEC to DD.ddddd +/- DD.ddddd when necessary
-                        if instrument == 'cafos':
-                            pvalues = [2, 3, 1, 0, 4, 5, 6]
-                        elif instrument == 'lsss':
-                            pvalues = [6, 7, 8, 5, 4, 3, 2, 9]
-                            ra_initial = output_header['ra']
-                            ra_h, ra_m, ra_s = ra_initial.split()
-                            ra_final = (float(ra_h) + float(ra_m)/60.0 + float(ra_s)/3600.0) * 15
-                            output_header['ra'] = ra_final
-                            dec_initial = output_header['dec']
-                            dec_sign = dec_initial[0]
-                            dec_d, dec_m, dec_s = dec_initial[1:].split()
-                            dec_final = (float(dec_d) + float(dec_m)/60.0 + float(dec_s)/3600.0)
-                            if dec_sign == '-':
-                                dec_final = -dec_final
-                            output_header['dec'] = dec_final
-                        else:
-                            msg = 'ERROR: instrument not included here!'
-                            raise SystemError(msg)
-                        ierr_astr, astrsumm1, astrsumm2 = run_astrometry(
-                            image2d=image2d, mask2d=mask2d, saturpix=image2d_saturpix,
-                            header=output_header,
-                            no_reuse_gaia=no_reuse_gaia,
-                            maxfieldview_arcmin=maxfieldview_arcmin, fieldfactor=1.1, pvalues=pvalues,
-                            nightdir=nightdir, output_fname=output_fname,
-                            interactive=interactive, logfile=logfile, debug=False
-                        )
+                            # compute run_astrometry: note that the function generates the output file
+                            if 'maxfieldview_arcmin' in instconf['imagetypes'][redustep]:
+                                maxfieldview_arcmin = instconf['imagetypes'][redustep]['maxfieldview_arcmin']
+                            else:
+                                msg = 'maxfieldview_arcmin missing in instrument configuration'
+                                raise SystemError(msg)
+                            # define possible P values for build-astrometry-index (scale number)
+                            # in the order to be employed (if one fails, the next one is used)
+                            # [see help of build-astrometry-index for details]; in addition, convert
+                            # RA and DEC to DD.ddddd +/- DD.ddddd when necessary
+                            if instrument == 'cafos':
+                                pvalues = [2, 3, 1, 0, 4, 5, 6]
+                            elif instrument == 'lsss':
+                                pvalues = [6, 7, 8, 5, 4, 3, 2, 9]
+                                ra_initial = output_header['ra']
+                                ra_h, ra_m, ra_s = ra_initial.split()
+                                ra_final = (float(ra_h) + float(ra_m)/60.0 + float(ra_s)/3600.0) * 15
+                                output_header['ra'] = ra_final
+                                dec_initial = output_header['dec']
+                                dec_sign = dec_initial[0]
+                                dec_d, dec_m, dec_s = dec_initial[1:].split()
+                                dec_final = (float(dec_d) + float(dec_m)/60.0 + float(dec_s)/3600.0)
+                                if dec_sign == '-':
+                                    dec_final = -dec_final
+                                output_header['dec'] = dec_final
+                            else:
+                                msg = 'ERROR: instrument not included here!'
+                                raise SystemError(msg)
+                            ierr_astr, astrsumm1, astrsumm2 = run_astrometry(
+                                image2d=image2d, mask2d=mask2d, saturpix=image2d_saturpix,
+                                header=output_header,
+                                no_reuse_gaia=no_reuse_gaia,
+                                maxfieldview_arcmin=maxfieldview_arcmin, fieldfactor=1.1, pvalues=pvalues,
+                                nightdir=nightdir, output_fname=output_fname,
+                                interactive=interactive, logfile=logfile, debug=False
+                            )
                     # ---------------------------------------------------------
                     else:
                         msg = '* ERROR: combination of {} not implemented yet'.format(redustep)
