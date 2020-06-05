@@ -32,6 +32,7 @@ def load_setup(verbose=False):
 
     expected_kwd = ['instrument', 'datadir', 'ignored_images_file',
                     'image_header_corrections_file', 'forced_classifications_file']
+    additional_kwd = ['default_param', 'config_sex', 'config_scamp']
 
     for kwd in expected_kwd:
         if kwd not in setupdata:
@@ -42,7 +43,7 @@ def load_setup(verbose=False):
                 print('* {}: {}'.format(kwd, setupdata[kwd]))
 
     for kwd in setupdata:
-        if kwd not in expected_kwd:
+        if kwd not in expected_kwd + additional_kwd:
             msg = 'Unexpected keyword {} in {}'.format(kwd, setupfile)
             raise SystemError(msg)
 

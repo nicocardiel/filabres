@@ -60,8 +60,11 @@ def save_auxfiles(output_fname, nightdir, workdir, logfile):
     else:
         logfile.print('Subdirectory {} not found. Creating it!'.format(backupsubdirfull))
         os.makedirs(backupsubdirfull)
-    tobesaved = ['astrometry-net.pdf', 'astrometry-scamp.pdf',
-                 'xxx.new', 'full_1.cat', 'merged_1.cat']
+    tobesaved = \
+        ['astrometry-net.pdf', 'astrometry-scamp.pdf',
+         'xxx.new', 'full_1.cat', 'merged_1.cat',
+         'default.param', 'config.sex', 'config.scamp'
+        ]
 
     cmd = CmdExecute(logfile)
 
@@ -74,6 +77,7 @@ def save_auxfiles(output_fname, nightdir, workdir, logfile):
 def run_astrometry(image2d, mask2d, saturpix, header,
                    no_reuse_gaia, maxfieldview_arcmin, fieldfactor, pvalues,
                    nightdir, output_fname,
+                   setupdata,
                    interactive, logfile, debug=False):
     """
     Compute astrometric solution of image.
@@ -108,6 +112,8 @@ def run_astrometry(image2d, mask2d, saturpix, header,
         Directory where the reduced images will be stored.
     output_fname : str or None
         Output file name.
+    setupdata : dict
+        Setup data stored as a Python dictionary.
     interactive : bool or None
         If True, enable interactive execution (e.g. plots,...).
     logfile : instance of ToLogFile
@@ -514,11 +520,22 @@ def run_astrometry(image2d, mask2d, saturpix, header,
     logfile.print('\n*** Using AstrOmatic.net tools ***')
     conffiles = ['default.param', 'config.sex', 'config.scamp']
     for fname in conffiles:
-        dumdata = pkgutil.get_data('filabres.astromatic', fname)
-        txtfname = '{}/{}'.format(workdir, fname)
-        logfile.print('Generating {}'.format(txtfname))
-        with open(txtfname, 'wt') as f:
-            f.write(str(dumdata.decode('utf8')))
+        keyfname = fname.replace('.', '_')
+        if keyfname in setupdata:
+            initfname = setupdata[keyfname]
+            if initfname[0] != '/':
+                initfname = os.getcwd() + '/' + initfname
+            if os.path.exists(initfname):
+                command = 'cp {} {}/'.format(initfname, workdir)
+                cmd.run(command)
+            else:
+                raise SystemError('The file {} given in setup_filabres.yaml does not exist!'.format(initfname))
+        else:
+            dumdata = pkgutil.get_data('filabres.astromatic', fname)
+            txtfname = '{}/{}'.format(workdir, fname)
+            logfile.print('Generating {}'.format(txtfname))
+            with open(txtfname, 'wt') as f:
+                f.write(str(dumdata.decode('utf8')))
     logfile.print(' ')
 
     # run sextractor

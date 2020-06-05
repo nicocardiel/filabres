@@ -321,6 +321,7 @@ def run_reduction_step(redustep, interactive, setupdata, list_of_nights, filenam
                                 no_reuse_gaia=no_reuse_gaia,
                                 maxfieldview_arcmin=maxfieldview_arcmin, fieldfactor=1.1, pvalues=pvalues,
                                 nightdir=nightdir, output_fname=output_fname,
+                                setupdata=setupdata,
                                 interactive=interactive, logfile=logfile, debug=False
                             )
                     # ---------------------------------------------------------
