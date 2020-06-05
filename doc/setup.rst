@@ -100,6 +100,25 @@ subdirectories, i.e.,
    deletion. In this sense, the working directory should be different
    from ``datadir``.
 
+It is also possible to include additional definitions in the configuration file
+``setup_filabres.yaml``. For instance, one can define alternative
+configuration files to be used when running the AstrOmatic.net utilities
+``sextractor`` and ``scamp``:
+
+::
+
+  # sextractor and scamp files
+  default_param: default.param
+  config_sex: config.sex
+  config_scamp: config.scamp
+
+The inclusion of the previous lines in ``setup_filabres.yaml`` will force
+``filabres`` to make use of the particular configuration files located at the
+current directory (the one from which you are actually running ``filabres``).
+Note that you can also provide absolute paths to those file names. Obviously,
+those alternative files can be easily modified by the user to play with
+different options when running ``sextractor`` and/or ``scamp``.
+
 File ``ignored_images.yaml``
 ============================
 
