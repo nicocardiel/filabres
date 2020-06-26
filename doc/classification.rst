@@ -107,6 +107,37 @@ the following keys: ``instname``, ``version``, ``requirements``,
           - CCDBINY
         maxtimespan_hours: 1
 
+  Another example: the ``science-imaging`` type is defined as:
+
+  ::
+
+    science-imaging:
+      executable: True
+      classification: science
+      maxfieldview_arcmin: 16
+      requirements:
+        IMAGETYP: 'science'
+        INSGRID: 'GRISM-11'
+        INSPOFPI.NE.: 'Wollaston'
+      requirementx:
+        EXPTIME.GT.: 0
+        QUANT975.LT.: 60000
+      signature:
+        - CCDNAME
+        - NAXIS1
+        - NAXIS2
+        - DATASEC
+        - CCDBINX
+        - CCDBINY
+        - INSGRID
+        - INSFLID
+        - INSPOFPI
+        - INSPOROT
+        - RA
+        - DEC
+      maxtimespan_hours: 0
+      basicreduction: True
+
   The relevant keywords in this third-level dictionary are:
 
   - ``executable``: if True, the reduction of this image type has been
@@ -133,6 +164,16 @@ the following keys: ``instname``, ``version``, ``requirements``,
     (because they verify all the ``requirements``) can be flagged as suspicious 
     because they exhibit an unexpected property (defined in the
     ``requirementx``), such as anomalous exposure time or signal.
+
+  - ``maxtimespan_hours``: calibration images with the same signature and
+    within this maximum time span are combined prior to their reduction and
+    generation of a single master calibration. Bias images are averaged using a
+    median combination (note that the median combination gets rid of cosmic
+    rays). Flat images are normalized prior to their median combination.
+    Science images are reduced individually (i.e., ``maxtimespan_hours: 0``).
+
+  - ``basicreduction``: logical flag that indicates whether science images are
+    reduced using the master calibrations. This flag should always be ``True``.
 
 Note that images previously included in the file ``ignored_images.yaml`` will
 be classified as ``ignored``.
