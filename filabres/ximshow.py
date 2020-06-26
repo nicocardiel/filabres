@@ -277,7 +277,7 @@ Toggle fullscreen...............: ctrl + f
 Close plot......................: ctrl + w
 Set zscale......................: /
 Set bg=min and fg=max values....: ,
-Display statistical summary.....: .
+Display statistical summary.....: ;
 Set foreground by keyboard......: m
 Set background by keyboard......: n
 Activate/deactivate ds9 regions.: a
@@ -312,7 +312,7 @@ Toggle y axis scale (log/linear): l when mouse is over an axes
             dum_par = ''
             plt.show(block=False)
             plt.pause(0.001)
-        elif event.key == ".":
+        elif event.key == ";":
             subimage2d = get_current_zoom(ax, debug=True)
             summary(subimage2d.flatten(), debug=True)
         elif event.key == "n":
