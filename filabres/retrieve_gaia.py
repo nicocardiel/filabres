@@ -47,7 +47,7 @@ def retrieve_gaia(ra_deg, dec_deg, radius_deg, magnitude, loggaia):
                        'phot_g_mean_mag, bp_rp, ' \
                        'radial_velocity, radial_velocity_error, ' \
                        'a_g_val'.format(NMAXGAIA)
-    gaia_query_line2 = 'FROM gdr2.gaia_source'
+    gaia_query_line2 = 'FROM gaiadr2.gaia_source'
     gaia_query_line3 = '''WHERE CONTAINS(POINT('ICRS',gaiadr2.gaia_source.ra,gaiadr2.gaia_source.dec), ''' + \
                        '''CIRCLE('ICRS',''' + \
                        '{},{},{}'.format(ra_deg, dec_deg, radius_deg) + \
