@@ -260,7 +260,10 @@ def run_astrometry(image2d, mask2d, saturpix, header,
         mag_minimum = 0
         gaia_query_line, tap_result = retrieve_gaia(c_fk5_j2000.ra.deg, c_fk5_j2000.dec.deg, search_radius_degree,
                                                     mag_minimum, loggaia)
-        nobjects_mag_minimum = len(tap_result)
+        if tap_result is None:
+            nobjects_mag_minimum = 0
+        else:
+            nobjects_mag_minimum = len(tap_result)
         logfile.print('-> Gaia data: magnitude, nobjects: {:.3f}, {}'.format(mag_minimum, nobjects_mag_minimum))
         if nobjects_mag_minimum >= NMAXGAIA:
             raise SystemError('Unexpected')
@@ -268,7 +271,10 @@ def run_astrometry(image2d, mask2d, saturpix, header,
         mag_maximum = 30
         gaia_query_line, tap_result = retrieve_gaia(c_fk5_j2000.ra.deg, c_fk5_j2000.dec.deg, search_radius_degree,
                                                     mag_maximum, loggaia)
-        nobjects_mag_maximum = len(tap_result)
+        if tap_result is None:
+            nobjects_mag_maximum = 0
+        else:
+            nobjects_mag_maximum = len(tap_result)
         logfile.print('-> Gaia data: magnitude, nobjects: {:.3f}, {}'.format(mag_maximum, nobjects_mag_maximum))
         if nobjects_mag_maximum < NMAXGAIA:
             loop_in_gaia = False
