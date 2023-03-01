@@ -4,6 +4,14 @@
 Reduction of science-imaging frames
 ***********************************
 
+.. warning::
+
+   The following documentation has been prepared executing the commands in a
+   terminal running the bash shell. If you are using the Z shell (that at the
+   time of writing is the default in mac OS) it is important to remember that
+   the wildcards employed in some `filabres` parameters need to be provided
+   enclosed in double quotes.
+
 .. note::
 
    The reduction of science images is carried out individually, i.e., the

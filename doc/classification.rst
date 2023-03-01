@@ -23,6 +23,19 @@ distribution source code, under the directory ``filabres/instrument/``.
    to change it, it will be necessary to reinstall the code for the changes to
    be applied.
 
+.. warning::
+
+   The following documentation has been prepared executing the commands in a
+   terminal running the bash shell. If you are using the Z shell (that at the
+   time of writing is the default in mac OS) it is important to remember that
+   the wildcards employed in some `filabres` parameters need to be provided
+   enclosed in double quotes.
+
+::
+
+   $ filabres -lc bias -n "1702*"
+
+
 In its first hierarchical level, this file ``configuration_cafos.yaml`` defines
 the following keys: ``instname``, ``version``, ``requirements``,
 ``masterkeywords``, and ``imagetypes``:
@@ -325,8 +338,8 @@ Select image type and observing nights
 --------------------------------------
 
 It is possible to constraint the list of files to those corresponding to a
-given subset of nights (using the argument ``-n/--night <night>``; wildcards are valid
-here):
+given subset of nights (using the argument ``-n/--night <night>``; wildcards
+are valid here):
 
 ::
 
@@ -341,6 +354,14 @@ here):
   29  /Volumes/NicoPassport/CAHA/CAFOS2017/170226_t2_CAFOS/caf-20170226-11:49:11-cal-bomd.fits
   30  /Volumes/NicoPassport/CAHA/CAFOS2017/170226_t2_CAFOS/caf-20170226-11:50:23-cal-bomd.fits
   Total: 30 files
+
+**Remember:** when using wildcards in a terminal running the Z shell, you need
+to enclose the corresponding item with double quotes:
+
+::
+
+   $ filabres -lc bias -n "1702*"
+
 
 Select image type and relevant keywords
 ---------------------------------------
