@@ -1067,7 +1067,7 @@ Repeating the reduction
 -----------------------
 
 If you need to repeat the reduction of a particular image that has already been
-reduced, remember to use the parameter `--force`. Otherwise the reduction is
+reduced, remember to use the parameter ``--force``. Otherwise the reduction is
 skipped.
 
 
