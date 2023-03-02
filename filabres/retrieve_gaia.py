@@ -8,12 +8,12 @@
 # License-Filename: LICENSE.txt
 #
 
-import pyvo
+from astroquery.gaia import Gaia
 
 NMAXGAIA = 2000
 
 
-def retrieve_gaia(ra_deg, dec_deg, radius_deg, magnitude, loggaia):
+def retrieve_gaia(gaiadr_source, ra_deg, dec_deg, radius_deg, magnitude, loggaia):
     """
     Retrieve GAIA data.
 
@@ -22,6 +22,10 @@ def retrieve_gaia(ra_deg, dec_deg, radius_deg, magnitude, loggaia):
 
     Parameters
     ==========
+    gaiadr_source : str
+        String identifying the Gaia DR version to be used.
+        For example: 'gaiadr3.gaia_source'. This string is
+        declared in the file setup_filabres.yaml.
     ra_deg : float
         Right ascension of the central point.
     dec_deg : float
@@ -37,33 +41,30 @@ def retrieve_gaia(ra_deg, dec_deg, radius_deg, magnitude, loggaia):
     =======
     gaia_query_line : str
         Full query.
-    tap_result : TAPResults instance
+    job_result : astropy table
         Result of the cone search
     """
-    gaia_query_line1 = 'SELECT TOP {} source_id, ref_epoch, ' \
+    gaia_query_line1 = f'SELECT TOP {NMAXGAIA} source_id, ref_epoch, ' \
                        'ra, ra_error, dec, dec_error, ' \
                        'parallax, parallax_error, ' \
                        'pmra, pmra_error, pmdec, pmdec_error, ' \
                        'phot_g_mean_mag, bp_rp, ' \
-                       'radial_velocity, radial_velocity_error, ' \
-                       'a_g_val'.format(NMAXGAIA)
-    gaia_query_line2 = 'FROM gaiadr2.gaia_source'
-    gaia_query_line3 = '''WHERE CONTAINS(POINT('ICRS',gaiadr2.gaia_source.ra,gaiadr2.gaia_source.dec), ''' + \
+                       'radial_velocity, radial_velocity_error'
+    gaia_query_line2 = f'FROM {gaiadr_source}'
+    gaia_query_line3 = f'''WHERE CONTAINS(POINT('ICRS',{gaiadr_source}.ra,{gaiadr_source}.dec), ''' + \
                        '''CIRCLE('ICRS',''' + \
-                       '{},{},{}'.format(ra_deg, dec_deg, radius_deg) + \
+                       f'{ra_deg},{dec_deg},{radius_deg}' + \
                        '))=1'
-    gaia_query_line4 = 'AND phot_g_mean_mag < {}'.format(magnitude)
+    gaia_query_line4 = f'AND phot_g_mean_mag < {magnitude}'
     gaia_query_line = gaia_query_line1 + ' ' + gaia_query_line2 + ' ' + gaia_query_line3 + ' ' + gaia_query_line4
 
     loggaia.write('Querying GAIA data with phot_g_mean_mag={:.2f}\n'.format(magnitude))
 
     loggaia.write(gaia_query_line + '\n')
-    # retrieve GAIA data using the Table Access Protocol;
-    # see specific details for retrieval of GAIA data in
-    # https://gaia.aip.de/cms/documentation/tap-interface/
+    # retrieve GAIA data (see example in https://www.cosmos.esa.int/web/gaia-users/archive/use-cases#ClusterAnalysisPythonTutorial)
     try:
-        tap_service = pyvo.dal.TAPService('https://gaia.aip.de/tap')
-        tap_result = tap_service.run_sync(gaia_query_line)
+        job = Gaia.launch_job_async(gaia_query_line)
+        job_result = job.get_results()
     except:
-        tap_result = None
-    return gaia_query_line, tap_result
+        job_result = None
+    return gaia_query_line, job_result
