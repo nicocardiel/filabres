@@ -42,6 +42,7 @@ from .load_setup import load_setup
 from .nights_to_be_reduced import nights_to_be_reduced
 from .run_calibration_step import run_calibration_step
 from .run_reduction_step import run_reduction_step
+from .version import version
 
 
 def main():
@@ -118,6 +119,8 @@ def main():
     group_other.add_argument("--debug", action="store_true", help="display debugging information")
 
     args = parser.parse_args()
+
+    print(f'Welcome to filabres, version {version}\n')
 
     if len(sys.argv) == 1:
         parser.print_usage()
