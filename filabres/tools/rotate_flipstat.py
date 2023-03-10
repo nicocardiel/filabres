@@ -66,7 +66,7 @@ def main():
     newdata = np.flip(np.flip(data, 1), 0)
 
     # generate output file
-    hdu = fits.PrimaryHDU(newdata.astype(np.float32), header)
+    hdu = fits.PrimaryHDU(newdata, header)
     hdu.writeto(output_filename, overwrite=True)
 
 

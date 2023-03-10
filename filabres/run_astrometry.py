@@ -395,7 +395,7 @@ def run_astrometry(image2d, mask2d, saturpix, header,
     # save temporary FITS file
     tmpfname = '{}/xxx.fits'.format(workdir)
     header.add_history('--Computing Astrometry.net WCS solution--')
-    hdu = fits.PrimaryHDU(image2d.astype(np.float32), header)
+    hdu = fits.PrimaryHDU(image2d, header)
     hdu.writeto(tmpfname, overwrite=True)
     logfile.print('\nGenerating reduced image {}/xxx.fits (after bias '
                   'subtraction and flatfielding)\n'.format(workdir))
@@ -432,7 +432,7 @@ def run_astrometry(image2d, mask2d, saturpix, header,
                 msg = 'Unable to solve the field with Astrometry.net'
                 logfile.print(msg)
                 header.add_history(msg)
-                hdu = fits.PrimaryHDU(image2d.astype(np.float32), header)
+                hdu = fits.PrimaryHDU(image2d, header)
                 hdu.writeto(output_fname, overwrite=True)
                 logfile.print('-> file {} created'.format(output_fname))
                 save_auxfiles(output_fname=output_fname, nightdir=nightdir, workdir=workdir, logfile=logfile)
@@ -476,7 +476,7 @@ def run_astrometry(image2d, mask2d, saturpix, header,
             msg = 'Unable to solve the field with Astrometry.net'
             logfile.print(msg)
             header.add_history(msg)
-            hdu = fits.PrimaryHDU(image2d.astype(np.float32), header)
+            hdu = fits.PrimaryHDU(image2d, header)
             hdu.writeto(output_fname, overwrite=True)
             logfile.print('-> file {} created'.format(output_fname))
             save_auxfiles(output_fname=output_fname, nightdir=nightdir, workdir=workdir, logfile=logfile)
@@ -575,7 +575,7 @@ def run_astrometry(image2d, mask2d, saturpix, header,
         newheader['history'] = '- ntargets: {}'.format(astrsumm1.ntargets)
         newheader['history'] = '- meanerr: {}'.format(astrsumm1.meanerr)
         newheader['history'] = '-------------------------------------------------------'
-        hdu = fits.PrimaryHDU(image2d.astype(np.float32), newheader)
+        hdu = fits.PrimaryHDU(image2d, newheader)
         hdu.writeto(output_fname, overwrite=True)
         logfile.print('-> file {} created'.format(output_fname))
         save_auxfiles(output_fname=output_fname, nightdir=nightdir, workdir=workdir, logfile=logfile)
@@ -697,7 +697,7 @@ def run_astrometry(image2d, mask2d, saturpix, header,
     newheader['history'] = '-------------------------------------------------------'
 
     # save result
-    hdu = fits.PrimaryHDU(image2d.astype(np.float32), newheader)
+    hdu = fits.PrimaryHDU(image2d, newheader)
     hdu.writeto(output_fname, overwrite=True)
     logfile.print('-> file {} created'.format(output_fname))
 

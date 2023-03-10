@@ -196,7 +196,7 @@ def run_reduction_step(redustep, interactive, setupdata, list_of_nights, filenam
                     # declare temporary cube to store the images to be combined
                     naxis1 = getkey_from_signature(imgsignature, 'NAXIS1')
                     naxis2 = getkey_from_signature(imgsignature, 'NAXIS2')
-                    image2d_saturpix = np.zeros((naxis2, naxis1), dtype=np.bool)
+                    image2d_saturpix = np.zeros((naxis2, naxis1), dtype=bool)
 
                     with fits.open(input_fname) as hdulist:
                         image_header = hdulist[0].header
@@ -265,7 +265,7 @@ def run_reduction_step(redustep, interactive, setupdata, list_of_nights, filenam
                         else:
                             msg = 'WARNING: skipping basic reduction working with file {}'.format(fname)
                             logfile.print(msg)
-                            mask2d = np.ones((naxis2, naxis1), dtype=np.float32)
+                            mask2d = np.ones((naxis2, naxis1), dtype=float)
                         # apply useful region mask
                         image2d *= mask2d
                         # compute statistical analysis and update the image header
@@ -277,7 +277,7 @@ def run_reduction_step(redustep, interactive, setupdata, list_of_nights, filenam
                             rm_nan=True)
                         if no_astrometry:
                             workdir = nightdir + '/work'
-                            hdu = fits.PrimaryHDU(image2d.astype(np.float32), output_header)
+                            hdu = fits.PrimaryHDU(image2d, output_header)
                             hdu.writeto(output_fname, overwrite=True)
                             logfile.print('-> Skipping astrometric calibration')
                             logfile.print('-> file {} created'.format(output_fname))

@@ -15,10 +15,6 @@ def statsumm(image2d=None, mask2d=None, header=None, redustep=None, rm_nan=False
     """
     Compute statistical summary of 2D image.
 
-    Note that the results are stored as native integers and float
-    to avoid problems when saving the dictionary as a JSON file
-    (that does not admit np.int nor np.float objects).
-
     Parameters
     ==========
     image2d : numpy 2D array or None
@@ -44,7 +40,7 @@ def statsumm(image2d=None, mask2d=None, header=None, redustep=None, rm_nan=False
     """
 
     if image2d is None:
-        x = np.array([], dtype=np.float)
+        x = np.array([], dtype=float)
         npoints = 0
     else:
         x = image2d.flatten()

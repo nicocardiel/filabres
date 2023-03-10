@@ -287,8 +287,8 @@ def run_calibration_step(redustep, setupdata, list_of_nights,
                         # declare temporary cube to store the images to be combined
                         naxis1 = getkey_from_signature(signature, 'NAXIS1')
                         naxis2 = getkey_from_signature(signature, 'NAXIS2')
-                        image3d = np.zeros((nfiles, naxis2, naxis1), dtype=np.float32)
-                        exptime = np.zeros(nfiles, dtype=np.float32)
+                        image3d = np.zeros((nfiles, naxis2, naxis1), dtype=float)
+                        exptime = np.zeros(nfiles, dtype=float)
 
                         # output file name
                         output_header = None
@@ -410,12 +410,12 @@ def run_calibration_step(redustep, setupdata, list_of_nights,
                             raise SystemError(msg)
 
                         # save result
-                        hdu = fits.PrimaryHDU(image2d.astype(np.float32), output_header)
+                        hdu = fits.PrimaryHDU(image2d, output_header)
                         hdu.writeto(output_fname, overwrite=True)
                         logfile.print('Creating {}'.format(output_fname), f=True)
                         # save mask
                         if mask2d is not None:
-                            hdu = fits.PrimaryHDU(mask2d.astype(np.float32), output_header)
+                            hdu = fits.PrimaryHDU(mask2d, output_header)
                             hdu.writeto(output_mname, overwrite=True)
                             logfile.print('Creating {}'.format(output_mname), f=True)
 

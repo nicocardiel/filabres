@@ -169,7 +169,7 @@ def retrieve_calibration(instrument, redustep, signature, mjdobs, logfile):
         ierr = 1
         if redustep == 'bias':
             if naxis1_ is not None and naxis2_ is not None:
-                image2d_cal = np.ones((naxis2_, naxis1_), dtype=np.float)
+                image2d_cal = np.ones((naxis2_, naxis1_), dtype=float)
                 delta_mjd, closestbias = findclosestquant(mjdobs, database[redustep], 'QUANT500')
                 logfile.print('->   looking for mjdobs: {}'.format(mjdobs))
                 logfile.print('->   delta_mjd (days)..: {}'.format(delta_mjd))
@@ -182,7 +182,7 @@ def retrieve_calibration(instrument, redustep, signature, mjdobs, logfile):
                 delta_mjd = 0.0
                 logfile.print('->   looking for mjdobs: {}'.format(mjdobs))
                 logfile.print('->   Using dummy flat of ones')
-                image2d_cal = np.ones((naxis2_, naxis1_), dtype=np.float)
+                image2d_cal = np.ones((naxis2_, naxis1_), dtype=float)
                 calfname = 'None (flat image with ones)'
                 return ierr, delta_mjd, image2d_cal, calfname
         raise SystemError('No alternative implemented in this case!')
