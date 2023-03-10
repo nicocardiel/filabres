@@ -191,11 +191,10 @@ The astrometric calibration is delegated to two well-known software packages
 specially suited for this task:
 
 - `Astrometry.net <http://astrometry.net/doc/readme.html>`_: determines an
-  initial astrometric calibration using a gnomic projection ``RA---TAN`` and
-  ``DEC--TAN``, with SIP (Simple Imaging Polynomial) distortions. The
-  required binaries are ``build-astrometry-index`` and ``solve-field``.
-  This initial astrometric calibration is refined by using
-  the AstrOmatic.net tools.
+  initial astrometric calibration using a gnomic projection ``RA---TAN-SIP``
+  and ``DEC--TAN-SIP``, with SIP (Simple Imaging Polynomial) distortions. The
+  required binaries are ``build-astrometry-index`` and ``solve-field``.  This
+  initial astrometric calibration is refined by using the AstrOmatic.net tools.
 
 - `AstrOmatic.net <https://www.astromatic.net/>`_: ``sextractor`` and ``scamp``
   are employed to detect the image sources and perform a refined astrometric
@@ -223,6 +222,12 @@ or follow the instructions given in
 `Building/installing the Astrometry.net code
 <http://astrometry.net/doc/build.html>`_.
 
+In macOS it is also possible to use the package manager
+`Homebrew <https://brew.sh/>`_:
+
+::
+
+  (filabres) $ brew install astrometry-net
 
 Installing AstrOmatic.net
 .........................
@@ -241,4 +246,4 @@ or follow the instructions provided in the official web pages for
 `scamp <https://www.astromatic.net/software/scamp>`_.
 
 If either of these two programs (``sextractor`` or ``scamp``) is not installed,
-the refinement process is skipped during the reduction procedure.
+the refinement process is skipped during the astrometric calibration.
