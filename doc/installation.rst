@@ -37,8 +37,9 @@ and download the installer corresponding to your operative system (and,
 preferably, Python 3.7, which is the Python version employed to develop the
 code).
 
-If you have updated the ``$PATH`` system variable during the miniconda or conda
-installation, you can call conda commands directly in the shell, like this:
+If you have updated the ``$PATH`` system variable during the **Miniconda** or
+**Anaconda** installation, you can call ``conda`` commands directly in the
+shell, like this:
 
 ::
 
@@ -87,6 +88,15 @@ which yields a different system prompt to the user:
 
   (filabres) $ 
 
+**Installing additional Python packages**
+
+The Gaia data employed to determine the astrometric calibration requires the
+use of the ``astroquery`` package, which can be easily installed with
+``conda``:
+
+::
+
+  (filabres) $ conda install -c conda-forge astroquery
 
 **Deactivate the environment**
   
@@ -101,7 +111,7 @@ command:
 **Removing the environment**
 
 If at a given point you need to remove the environment, deactivate that
-environment and remove it through conda:
+environment and remove it through ``conda``:
 
 ::
 
@@ -114,7 +124,7 @@ To verify that the environment was removed, execute:
 
   $ conda info --envs
 
-If you want to know more about **conda**, have a look to the `on-line
+If you want to know more about ``conda``, have a look to the `on-line
 documentation <https://docs.conda.io/projects/conda/en/latest/index.html>`_.
 
 
@@ -159,18 +169,12 @@ can be easily installed in your system by executing the following steps:
     (filabres) $ python setup.py build
     (filabres) $ python setup.py install
 
-4. Install some additional Python packages:
-
-  ::
-
-    (filabres) $ conda install -c conda-forge pyvo
-
-5. Check that **filabres** works:
+4. Check that **filabres** works:
 
   ::
 
     (filabres) $ filabres-version
-    Version: 1.0.0
+    Version: 1.3.0
 
   Note that your version can be different to the one shown above.
 
@@ -208,12 +212,11 @@ specially suited for this task:
 Installing Astrometry.net
 .........................
 
-For the installation of this code you can use **conda** to install within
+For the installation of this code you can use ``conda`` to install within
 the ``filabres`` environment:
 
 ::
 
-  $ conda activate filabres
   (filabres) $ conda install -c conda-forge astrometry
 
 or follow the instructions given in
@@ -224,14 +227,18 @@ or follow the instructions given in
 Installing AstrOmatic.net
 .........................
 
-Here you can also use **conda**:
+The initial astrometric solution found with the Astrometry.net tools can be
+refined using the AstrOmatic.net programs ``sextractor`` and ``scamp``. Both
+codes can be installed using ``conda``:
 
 ::
 
-  $ conda activate filabres
   (filabres) $ conda install -c conda-forge astromatic-source-extractor
   (filabres) $ conda install -c conda-forge astromatic-scamp
 
 or follow the instructions provided in the official web pages for
 `sextractor <https://www.astromatic.net/software/sextractor>`_ and
 `scamp <https://www.astromatic.net/software/scamp>`_.
+
+If either of these two programs (``sextractor`` or ``scamp``) is not installed,
+the refinement process is skipped during the reduction procedure.

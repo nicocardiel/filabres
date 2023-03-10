@@ -11,7 +11,7 @@ available:
 
   $ conda activate filabres
   (filabres) $ filabres-version
-  1.0.0
+  1.3.0
 
 Note that your version can be different to the one shown above.
 
@@ -59,6 +59,19 @@ The first file, ``setup_filabres.yaml``, contains a few definitions:
 
 - ``datadir``: the directory where the original (raw data) FITS files are
   stored
+
+- ``gaiadr_source``: the database with the Gaia data release to be employed
+  during the astrometric calibration. Note that the examples in this tutorial
+  have been created using ``gaiadr2.gaia_source``, although the last version
+  of **filabres** will automatically set this parameter to
+  ``gaiadr3.gaia_source``.
+
+- ``tweak_order_astrometry``: the polynomial degree employed to map the
+  astrometric distortions using the Astrometry.net tools. This value is
+  automatically set to 2, assuming that the astrometric calibration will be
+  refined using the AstrOmatic tools (``sextractor`` and ``scamp``). If these
+  tools are not installed, it is recommended to use a value of 3 to improve the
+  initial (and unique in that case) astrometric solution.
 
 - ``ignored_images_file``: the name of an auxiliary YAML file that contains
   files that must be ignored (explained below)
