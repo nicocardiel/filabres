@@ -20,6 +20,7 @@ import json
 import numpy as np
 import os
 import pkgutil
+import shutil
 
 from .cmdexecute import CmdExecute
 from .load_scamp_cat import load_scamp_cat
@@ -418,6 +419,7 @@ def run_astrometry(image2d, mask2d, saturpix, header,
         command += ' --ra ' + str(c_fk5_j2000.ra.degree)
         command += ' --dec ' + str(c_fk5_j2000.dec.degree)
         command += ' --radius {}'.format(maxfieldview_arcmin / 120)
+        command += ' --tweak-order {}'.format(3)
         command += ' xxx.fits'
         cmd.run(command, cwd=workdir)
 
@@ -467,6 +469,7 @@ def run_astrometry(image2d, mask2d, saturpix, header,
         command += ' --ra ' + str(c_fk5_j2000.ra.degree)
         command += ' --dec ' + str(c_fk5_j2000.dec.degree)
         command += ' --radius {}'.format(maxfieldview_arcmin / 120)
+        command += ' --tweak-order {}'.format(3)
         command += ' xxx.axy'
         cmd.run(command, cwd=workdir)
 
@@ -527,48 +530,60 @@ def run_astrometry(image2d, mask2d, saturpix, header,
     with fits.open(result_fname) as hdul:
         newheader = hdul[0].header
 
-    # copy configuration files for astrometric.net
-    logfile.print('\n*** Using AstrOmatic.net tools ***')
-    conffiles = ['default.param', 'config.sex', 'config.scamp']
-    for fname in conffiles:
-        keyfname = fname.replace('.', '_')
-        if keyfname in setupdata:
-            initfname = setupdata[keyfname]
-            if initfname[0] != '/':
-                initfname = os.getcwd() + '/' + initfname
-            if os.path.exists(initfname):
-                command = 'cp {} {}/'.format(initfname, workdir)
-                cmd.run(command)
+    # determine whether the two astromatic.net tools sex and scamp
+    # are available
+    use_astromatic = (shutil.which('sex') is not None) and (shutil.which('scamp') is not None)
+
+    if use_astromatic:
+        # copy configuration files for astrometric.net
+        logfile.print('\n*** Using AstrOmatic.net tools ***')
+        conffiles = ['default.param', 'config.sex', 'config.scamp']
+        for fname in conffiles:
+            keyfname = fname.replace('.', '_')
+            if keyfname in setupdata:
+                initfname = setupdata[keyfname]
+                if initfname[0] != '/':
+                    initfname = os.getcwd() + '/' + initfname
+                if os.path.exists(initfname):
+                    command = 'cp {} {}/'.format(initfname, workdir)
+                    cmd.run(command)
+                else:
+                    raise SystemError('The file {} given in setup_filabres.yaml does not exist!'.format(initfname))
             else:
-                raise SystemError('The file {} given in setup_filabres.yaml does not exist!'.format(initfname))
+                dumdata = pkgutil.get_data('filabres.astromatic', fname)
+                txtfname = '{}/{}'.format(workdir, fname)
+                logfile.print('Generating {}'.format(txtfname))
+                with open(txtfname, 'wt') as f:
+                    f.write(str(dumdata.decode('utf8')))
+        logfile.print(' ')
+
+        # run sextractor
+        command = 'sex xxx.new -c config.sex -CATALOG_NAME xxx.ldac'
+        cmd.run(command, cwd=workdir)
+
+        # run scamp
+        command = 'scamp xxx.ldac -c config.scamp'
+        cmd.run(command, cwd=workdir)
+
+        # check there is a useful result
+        if os.path.exists('{}/xxx.head'.format(workdir)):
+            with open('{}/xxx.head'.format(workdir)) as fdum:
+                singleline = fdum.read()
+            if 'PV2_10' not in singleline:
+                ierr_astr = 2
         else:
-            dumdata = pkgutil.get_data('filabres.astromatic', fname)
-            txtfname = '{}/{}'.format(workdir, fname)
-            logfile.print('Generating {}'.format(txtfname))
-            with open(txtfname, 'wt') as f:
-                f.write(str(dumdata.decode('utf8')))
-    logfile.print(' ')
-
-    # run sextractor
-    command = 'sex xxx.new -c config.sex -CATALOG_NAME xxx.ldac'
-    cmd.run(command, cwd=workdir)
-
-    # run scamp
-    command = 'scamp xxx.ldac -c config.scamp'
-    cmd.run(command, cwd=workdir)
-
-    # check there is a useful result
-    if os.path.exists('{}/xxx.head'.format(workdir)):
-        with open('{}/xxx.head'.format(workdir)) as fdum:
-            singleline = fdum.read()
-        if 'PV2_10' not in singleline:
             ierr_astr = 2
+        if ierr_astr == 2:
+            msg = 'Unable to solve the field with AstrOmatic.net'
+            logfile.print(msg)
+            newheader.add_history(msg)
     else:
         ierr_astr = 2
-    if ierr_astr == 2:
-        msg = 'Unable to solve the field with AstrOmatic.net'
+        msg = 'AstrOmatic.net tools sex and scamp are not available'
         logfile.print(msg)
         newheader.add_history(msg)
+
+    if ierr_astr == 2:
         newheader['history'] = '-------------------------------------------------------'
         newheader['history'] = 'Summary of astrometric calibration with Astrometry.net:'
         newheader['history'] = '- pixscale: {}'.format(astrsumm1.pixscale)
