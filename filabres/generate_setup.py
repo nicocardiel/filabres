@@ -64,6 +64,7 @@ def generate_setup(args_setup):
     d['instrument'] = args_setup[0]
     d['datadir'] = check_tslash(args_setup[1])
     d['gaiadr_source'] = 'gaiadr3.gaia_source'
+    d['tweak_order_astrometry'] = 2
     d['ignored_images_file'] = yaml_fname2
     d['image_header_corrections_file'] = yaml_fname3
     d['forced_classifications_file'] = yaml_fname4

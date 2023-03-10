@@ -30,8 +30,9 @@ def load_setup(verbose=False):
     with open(setupfile) as yamlfile:
         setupdata = yaml.load(yamlfile, Loader=yaml.SafeLoader)
 
-    expected_kwd = ['instrument', 'datadir', 'gaiadr_source', 'ignored_images_file',
-                    'image_header_corrections_file', 'forced_classifications_file']
+    expected_kwd = ['instrument', 'datadir', 'gaiadr_source', 'tweak_order_astrometry',
+                    'ignored_images_file', 'image_header_corrections_file',
+                    'forced_classifications_file']
     additional_kwd = ['default_param', 'config_sex', 'config_scamp']
 
     for kwd in expected_kwd:

@@ -419,7 +419,7 @@ def run_astrometry(image2d, mask2d, saturpix, header,
         command += ' --ra ' + str(c_fk5_j2000.ra.degree)
         command += ' --dec ' + str(c_fk5_j2000.dec.degree)
         command += ' --radius {}'.format(maxfieldview_arcmin / 120)
-        command += ' --tweak-order {}'.format(3)
+        command += ' --tweak-order {}'.format(setupdata['tweak_order_astrometry'])
         command += ' xxx.fits'
         cmd.run(command, cwd=workdir)
 
@@ -469,7 +469,7 @@ def run_astrometry(image2d, mask2d, saturpix, header,
         command += ' --ra ' + str(c_fk5_j2000.ra.degree)
         command += ' --dec ' + str(c_fk5_j2000.dec.degree)
         command += ' --radius {}'.format(maxfieldview_arcmin / 120)
-        command += ' --tweak-order {}'.format(3)
+        command += ' --tweak-order {}'.format(setupdata['tweak_order_astrometry'])
         command += ' xxx.axy'
         cmd.run(command, cwd=workdir)
 
