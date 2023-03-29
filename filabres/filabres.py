@@ -27,6 +27,7 @@ Maintainer: Nicolás Cardiel <cardiel@ucm.es>
 """
 
 import argparse
+from datetime import datetime
 import sys
 
 from .check_args_compatibility import check_args_compatibility
@@ -125,6 +126,18 @@ def main():
     if len(sys.argv) == 1:
         parser.print_usage()
         raise SystemExit()
+
+    # ---
+
+    execution_command = ''
+    for item in sys.argv:
+        if "*" in item or "?" in item:
+            item = f'"{item}"'
+            print(item)
+        execution_command += f'{item} '
+    with open('last_execution_command.txt', 'w') as f:
+        f.write(f'{datetime.now()}\n')
+        f.write(f'{execution_command}\n')
 
     # ---
 
