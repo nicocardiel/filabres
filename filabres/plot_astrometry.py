@@ -165,7 +165,7 @@ def plot_astrometry(output_fname, image2d, mask2d,
     ax.plot(peak_x, peak_y, 'bo', fillstyle='none', markersize=10, label='peaks')
     for i, iorder in enumerate(rorder):
         ax.text(peak_x[iorder], peak_y[iorder], str(i + 1), fontsize=15, color='blue')
-    ax.plot(xcatag, ycatag, 'mo', alpha=0.5, markersize=10, fillstyle='none', label='predicted GaiaDR2')
+    ax.plot(xcatag, ycatag, 'mo', alpha=0.5, markersize=10, fillstyle='none', label='predicted Gaia')
     ax.plot(pred_x, pred_y, 'g+', markersize=10, label='predicted peaks')
     # ax.set_xlim([min(np.min(xcatag), -0.5), max(np.max(xcatag), naxis1 + 0.5)])
     ax.set_xlim([-0.05 * naxis1, 1.05 * naxis1])

@@ -363,7 +363,7 @@ def run_astrometry(image2d, mask2d, saturpix, header,
         col4 = fits.Column(name='phot_g_mean_mag', format='E', array=phot_g_mean_mag)
         hdu = fits.BinTableHDU.from_columns([col1, col2, col3, col4])
         hdul = fits.HDUList([primary_hdu, hdu])
-        outfname = nightdir + '/' + subdir + '/GaiaDR2-query.fits'
+        outfname = nightdir + '/' + subdir + '/GaiaDRX-query.fits'
         hdul.writeto(outfname, overwrite=True)
         logfile.print('-> Saving {}'.format(outfname))
 
@@ -387,7 +387,7 @@ def run_astrometry(image2d, mask2d, saturpix, header,
             msg = 'ERROR: subdirectory {} does not exist!'
             raise SystemError(msg)
 
-    command = 'cp {}/{}/GaiaDR2-query.fits {}/work/'.format(nightdir, subdir, nightdir)
+    command = 'cp {}/{}/GaiaDRX-query.fits {}/work/'.format(nightdir, subdir, nightdir)
     cmd.run(command)
 
     # image dimensions
@@ -406,7 +406,7 @@ def run_astrometry(image2d, mask2d, saturpix, header,
     loop = True
     while loop:
         # generate index file with GAIA data
-        command = 'build-astrometry-index -i GaiaDR2-query.fits'
+        command = 'build-astrometry-index -i GaiaDRX-query.fits'
         command += ' -o index-image.fits'
         command += ' -A ra -D dec -S phot_g_mean_mag'
         command += ' -P {}'.format(pvalues[ip])
@@ -489,10 +489,10 @@ def run_astrometry(image2d, mask2d, saturpix, header,
         command = 'new-wcs -i xxx.fits -w xxx.wcs -o xxx.new -d'
         cmd.run(command, cwd=workdir)
 
-    # read GaiaDR2 table and convert RA, DEC to X, Y
+    # read GaiaDRX table and convert RA, DEC to X, Y
     # (note: the same result can be accomplished using the command-line program:
-    # $ wcs-rd2xy -w xxx.wcs -i GaiaDR2-query.fits -o gaia-xy.fits)
-    with fits.open('{}/GaiaDR2-query.fits'.format(workdir)) as hdul_table:
+    # $ wcs-rd2xy -w xxx.wcs -i GaiaDRX-query.fits -o gaia-xy.fits)
+    with fits.open('{}/GaiaDRX-query.fits'.format(workdir)) as hdul_table:
         gaiadr2 = hdul_table[1].data
     with fits.open('{}/xxx.new'.format(workdir)) as hdul:
         w = WCS(hdul[0].header)
@@ -680,7 +680,7 @@ def run_astrometry(image2d, mask2d, saturpix, header,
     pred_x, pred_y = w.wcs_world2pix(peak_ra, peak_dec, 1)
 
     # predict expected location of GAIA data
-    with fits.open('{}/GaiaDR2-query.fits'.format(workdir)) as hdul_table:
+    with fits.open('{}/GaiaDRX-query.fits'.format(workdir)) as hdul_table:
         gaiadr2 = hdul_table[1].data
     xgaia, ygaia = w.wcs_world2pix(gaiadr2.ra, gaiadr2.dec, 1)
 
