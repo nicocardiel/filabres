@@ -8,7 +8,7 @@ FGROUP_RADIUS          1.0             # Max dist (deg) between field groups
  
 #---------------------------- Reference catalogs ------------------------------
  
-REF_SERVER         cocat1.u-strasbg.fr # Internet addresses of catalog servers
+REF_SERVER         vizier.u-strasbg.fr # Internet addresses of catalog servers
 ASTREF_CATALOG         GAIA-DR2        # NONE, FILE, USNO-A1,USNO-A2,USNO-B1,
 		       		       # GSC-1.3,GSC-2.2,GSC-2.3, TYCHO-2,
                                        # UCAC-1,UCAC-2,UCAC-3,UCAC-4, URAT-1,
