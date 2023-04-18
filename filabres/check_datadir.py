@@ -35,14 +35,16 @@ def check_datadir(setupdata, verbose=False):
         print('ERROR: datadir directory {} not found'.format(datadir))
         raise SystemExit()
 
+    all_nights.sort()
+    if '.DS_Store' in all_nights:
+        all_nights.remove('.DS_Store')
+
     # check for ignored_images_file
     imgtoignore = ImageIgnore(
         ignored_images_file=ignored_images_file,
         datadir=datadir,
         verbose=verbose
     )
-
-    all_nights.sort()
 
     all_files = {}
     nfiles = 0

@@ -45,6 +45,10 @@ def nights_to_be_reduced(args_night, setupdata, verbose=False):
         print('ERROR: directory {} not found'.format(datadir))
         raise SystemExit()
 
+    all_nights.sort()
+    if '.DS_Store' in all_nights:
+        all_nights.remove('.DS_Store')
+
     list_of_nights = [fname for fname in all_nights if fnmatch.fnmatch(fname, night)]
 
     if len(list_of_nights) == 0:
