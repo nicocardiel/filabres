@@ -10,7 +10,7 @@
 
 # instrument definitions for filabres
 instname: lsss
-version: 1.2
+version: 2.0
 requirements:
   INSTRUME: 'SBIG ST-10 3 CCD Camera'
 masterkeywords:
@@ -39,7 +39,7 @@ imagetypes:
     executable: True
     classification: calibration
     requirements:
-      IMAGETYP: 'Dark Frame'
+      IMAGETYP: ['Dark Frame']
     requirementx:
       QUANT975.LT.: 3000
     signature:
@@ -56,7 +56,7 @@ imagetypes:
     executable: True
     classification: calibration
     requirements:
-      IMAGETYP: 'Flat Field'
+      IMAGETYP: ['Flat Field']
     requirementx:
       EXPTIME.GT.: 0
     signature:
@@ -76,7 +76,7 @@ imagetypes:
     executable: True
     maxfieldview_arcmin: 120
     requirements:
-      IMAGETYP: 'Light Frame'
+      IMAGETYP: ['Light Frame']
     requirementx:
       EXPTIME.GT.: 0
       QUANT975.LT.: 60000

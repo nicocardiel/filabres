@@ -10,7 +10,7 @@
 
 # instrument definitions for filabres
 instname: cafos
-version: 2.7
+version: 3.0
 requirements:
   INSTRUME: 'CAFOS 2.2'
 masterkeywords:
@@ -62,7 +62,7 @@ imagetypes:
     executable: True
     classification: calibration
     requirements:
-      IMAGETYP: 'bias'
+      IMAGETYP: ['bias']
     requirementx:
       EXPTIME: 0.0
       QUANT975.LT.: 1000
@@ -78,7 +78,7 @@ imagetypes:
     executable: True
     classification: calibration
     requirements:
-      IMAGETYP: 'flat'
+      IMAGETYP: ['flat', 'domeflat', 'twilight']
       INSGRID: 'GRISM-11'
       INSPOFPI.NE.: 'Wollaston'
     requirementx:
@@ -102,7 +102,7 @@ imagetypes:
     executable: False
     classification: calibration
     requirements:
-      IMAGETYP: 'flat'
+      IMAGETYP: ['flat', 'domeflat', 'twilight']
       INSGRID: 'GRISM-11'
       INSPOFPI: 'Wollaston'
     requirementx:
@@ -126,7 +126,7 @@ imagetypes:
     executable: False
     classification: calibration
     requirements:
-      IMAGETYP: 'flat'
+      IMAGETYP: ['flat', 'domeflat', 'twilight']
       INSGRID.NE.: 'GRISM-11'
     requirementx:
       EXPTIME.GT.: 0
@@ -148,7 +148,7 @@ imagetypes:
     executable: False
     classification: calibration
     requirements:
-      IMAGETYP: 'arc'
+      IMAGETYP: ['arc']
       INSGRID.NE.: 'GRISM-11'
     requirementx:
       EXPTIME.GT.: 0
@@ -173,7 +173,7 @@ imagetypes:
     executable: True
     maxfieldview_arcmin: 16
     requirements:
-      IMAGETYP: 'science'
+      IMAGETYP: ['science']
       INSGRID: 'GRISM-11'
       INSPOFPI.NE.: 'Wollaston'
     requirementx:
@@ -199,7 +199,7 @@ imagetypes:
     executable: False
     maxfieldview_arcmin: 16
     requirements:
-      IMAGETYP: 'science'
+      IMAGETYP: ['science']
       INSGRID: 'GRISM-11'
       INSPOFPI: 'Wollaston'
     requirementx:
@@ -224,7 +224,7 @@ imagetypes:
     classification: science
     executable: False
     requirements:
-      IMAGETYP: 'science'
+      IMAGETYP: ['science']
       INSGRID.NE.: 'GRISM-11'
     requirementx:
       EXPTIME.GT.: 0

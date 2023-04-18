@@ -51,35 +51,46 @@ def check_requirements(requirements, header, dictquant):
     result = True
 
     for keyword in requirements:
-        operatorfound = False
-        for operator in REQ_OPERATORS:
-            lenop = len(operator)
-            if keyword[-lenop:] == operator:
-                operatorfound = True
-                newkeyword = keyword[:-lenop]
-                if newkeyword in dictquant:
-                    command = 'dictquant[newkeyword] '
-                else:
-                    command = 'header[newkeyword] '
-                command += REQ_OPERATORS[operator]
-                command += ' requirements[keyword]'
-                if not eval(command):
-                    result = False
-                break
-        if not operatorfound:
-            if isinstance(requirements[keyword], str):
-                if requirements[keyword].lower() != header[keyword].lower():
-                    result = False
-            elif isinstance(requirements[keyword], int):
-                if requirements[keyword] != header[keyword]:
-                    result = False
-            elif isinstance(requirements[keyword], float):
-                if requirements[keyword] != header[keyword]:
+        if keyword.upper() == 'IMAGETYP':
+            if isinstance(requirements[keyword], list):
+                any_ok = False
+                for item in requirements[keyword]:
+                    if item.lower() == header[keyword].lower():
+                        any_ok = True
+                if not any_ok:
                     result = False
             else:
-                msg = 'Codify comparison here for {}'.format(
-                    type(requirements[keyword]))
-                raise SystemError(msg)
+                raise ValueError(f'Expected list not found in {requirements[keyword]}')
+        else:
+            operatorfound = False
+            for operator in REQ_OPERATORS:
+                lenop = len(operator)
+                if keyword[-lenop:] == operator:
+                    operatorfound = True
+                    newkeyword = keyword[:-lenop]
+                    if newkeyword in dictquant:
+                        command = 'dictquant[newkeyword] '
+                    else:
+                        command = 'header[newkeyword] '
+                    command += REQ_OPERATORS[operator]
+                    command += ' requirements[keyword]'
+                    if not eval(command):
+                        result = False
+                    break
+            if not operatorfound:
+                if isinstance(requirements[keyword], str):
+                    if requirements[keyword].lower() != header[keyword].lower():
+                        result = False
+                elif isinstance(requirements[keyword], int):
+                    if requirements[keyword] != header[keyword]:
+                        result = False
+                elif isinstance(requirements[keyword], float):
+                    if requirements[keyword] != header[keyword]:
+                        result = False
+                else:
+                    msg = 'Codify comparison here for {}'.format(
+                        type(requirements[keyword]))
+                    raise SystemError(msg)
 
         if not result:
             break
@@ -109,7 +120,7 @@ def classify_image(instconf, header, dictquant):
     Returns
     -------
     imagetype : str or None
-        One of the expected image types (or None if the any of the
+        One of the expected image types (or None if any of the
         requirements is not met).
     """
 
