@@ -31,10 +31,6 @@ distribution source code, under the directory ``filabres/instrument/``.
    the wildcards employed in some `filabres` parameters need to be provided
    enclosed in double quotes.
 
-::
-
-   $ filabres -lc bias -n "1702*"
-
 
 In its first hierarchical level, this file ``configuration_cafos.yaml`` defines
 the following keys: ``instname``, ``version``, ``requirements``,
