@@ -71,7 +71,7 @@ useful to perfomr this check):
 
   $ filabres --check
   Night 171214_LSSS -> number of files:   336, ignored:     0 --> TOTAL:   336
-  There are not repeated files
+  There are no duplicate files
   * program STOP
 
 Classify the images (ignore the warning messages):

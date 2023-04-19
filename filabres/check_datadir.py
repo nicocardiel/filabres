@@ -71,11 +71,11 @@ def check_datadir(setupdata, verbose=False):
             night, len(newfiles), nignored, nfiles))
 
     if len(repeated_files) > 1:
-        print('WARNING: There are repeated files!')
+        print('WARNING: There are duplicate files!')
         input('Press <ENTER> to display duplicate files...')
         for basename in repeated_files:
             print('\n* File {} appears in:'.format(basename))
             for fname in all_files[basename]:
                 print(fname)
     else:
-        print('There are not repeated files')
+        print('There are no duplicate files')

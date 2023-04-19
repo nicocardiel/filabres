@@ -24,7 +24,7 @@ This can be easily checked using:
   Night 171225_t2_CAFOS -> number of files:    86, ignored:     0 --> TOTAL:  8999
   Night 171228_t2_CAFOS -> number of files:    50, ignored:     0 --> TOTAL:  9049
   Night 171230_t2_CAFOS -> number of files:   383, ignored:     0 --> TOTAL:  9432
-  WARNING: There are repeated files!
+  WARNING: There are duplicate files!
   Press <ENTER> to display duplicate files...
 
 At this point the program has revealed that there are repeated files. The
@@ -122,7 +122,7 @@ initial check must indicate that there are no repeated files:
   Night 171225_t2_CAFOS -> number of files:    86, ignored:     0 --> TOTAL:  8744
   Night 171228_t2_CAFOS -> number of files:    50, ignored:     0 --> TOTAL:  8794
   Night 171230_t2_CAFOS -> number of files:   383, ignored:     0 --> TOTAL:  9177
-  There are not repeated files
+  There are no duplicate files
   * program STOP
 
 Note that now the total number of files has decreased from 9432 (the initial
