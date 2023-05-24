@@ -208,8 +208,8 @@ specially suited for this task:
   This means that a live internet connection is required for the code to
   work properly.
 
-Installing Astrometry.net
-.........................
+Installing Astrometry.net tools
+...............................
 
 For the installation of this code you can use ``conda`` to install within
 the ``filabres`` environment:
@@ -229,8 +229,8 @@ In macOS it is also possible to use the package manager
 
   (filabres) $ brew install astrometry-net
 
-Installing AstrOmatic.net
-.........................
+Installing AstrOmatic.net tools
+...............................
 
 The initial astrometric solution found with the Astrometry.net tools can be
 refined using the AstrOmatic.net programs ``sextractor`` and ``scamp``. Both
