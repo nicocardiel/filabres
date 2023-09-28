@@ -11,12 +11,13 @@ def setup_package():
         'pandas',
         'python-dateutil',
         'PyYaml',
-        'setuptools',
-        'scipy'
+        'scipy',
+        'seaborn',
+        'setuptools'
     ]
     META_DATA = dict(
         name='filabres',
-        python_requires='>=3.7',
+        python_requires='>=3.8',
         version=__version__,
         description='Data Reduction Package for CAHA instruments',
         author='Nicolás Cardiel',

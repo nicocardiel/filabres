@@ -33,9 +33,7 @@ it is possible to install **Anaconda** by executing ``conda install anaconda``).
 ----------------------
 
 Visit the `Miniconda webpage <https://docs.conda.io/en/latest/miniconda.html>`_
-and download the installer corresponding to your operative system (and,
-preferably, Python 3.7, which is the Python version employed to develop the
-code).
+to download the installer appropriate for your operating system. Although the original code was developed using Python 3.7, ensure you select a recent Python version.
 
 If you have updated the ``$PATH`` system variable during the **Miniconda** or
 **Anaconda** installation, you can call ``conda`` commands directly in the
@@ -72,6 +70,7 @@ together with some additional packages:
   python-dateutil \
   PyYaml \
   scipy \
+  seaborn \
   setuptools
 
 and answer ``y`` to the question ``Proceed ([y]/n)?``

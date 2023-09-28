@@ -98,12 +98,12 @@ the following keys: ``instname``, ``version``, ``requirements``,
 
   ::
 
-    imagetype:
+    imagetypes:
       bias:
         executable: True
         classification: calibration
         requirements:
-          IMAGETYP: 'bias'
+          IMAGETYP: ['bias']
         requirementx:
           EXPTIME: 0.0
           QUANT975.LT.: 1000
@@ -116,6 +116,35 @@ the following keys: ``instname``, ``version``, ``requirements``,
           - CCDBINY
         maxtimespan_hours: 1
 
+  The corresponding section for ``flat-imaging`` is:
+
+  ::
+
+    flat-imaging:
+      executable: True
+      classification: calibration
+      requirements:
+        IMAGETYP: ['flat', 'domeflat', 'twilight']
+        INSGRID: 'GRISM-11'
+        INSPOFPI.NE.: 'Wollaston'
+      requirementx:
+        EXPTIME.GT.: 0
+        QUANT975.GT.: 5000
+        QUANT975.LT.: 60000
+      signature:
+        - CCDNAME
+        - NAXIS1
+        - NAXIS2
+        - DATASEC
+        - CCDBINX
+        - CCDBINY
+        - INSGRID
+        - INSFLID
+        - INSPOFPI
+        - INSPOROT
+      maxtimespan_hours: 1
+      basicreduction: True
+
   Another example: the ``science-imaging`` type is defined as:
 
   ::
@@ -125,7 +154,7 @@ the following keys: ``instname``, ``version``, ``requirements``,
       classification: science
       maxfieldview_arcmin: 16
       requirements:
-        IMAGETYP: 'science'
+        IMAGETYP: ['science']
         INSGRID: 'GRISM-11'
         INSPOFPI.NE.: 'Wollaston'
       requirementx:
@@ -162,7 +191,10 @@ the following keys: ``instname``, ``version``, ``requirements``,
   - ``requirements``: conditions on FITS keywords that must be met in order to
     classify a particular image within the considered category. All these
     requirements are mandatory. Otherwise the image will be classified as
-    ``unclassified``. 
+    ``unclassified``. *Important*: note here that ``IMAGETYP`` should be defined
+    as a list of possible names. For example, in the case of flats exposures in
+    imaging mode, possible values for this keyword are ``flat``, ``domeflat``
+    or ``twilight``.
 
   - ``requirementx``: additional set of requirements . If any of these new
     requirements is not met, the image will be classified as
