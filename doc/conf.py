@@ -20,7 +20,7 @@
 # -- Project information -----------------------------------------------------
 
 project = 'Filabres'
-copyright = '2020, Nicolás Cardiel'
+copyright = '2020-2023, Nicolás Cardiel'
 author = 'Nicolás Cardiel'
 
 # The short X.Y version
@@ -40,7 +40,7 @@ release = '1.0.0'
 # ones.
 extensions = ['sphinx.ext.autodoc', 'sphinx.ext.doctest', 'sphinx.ext.imgmath',
               'sphinx.ext.coverage', 'sphinx.ext.intersphinx',
-              'sphinx.ext.napoleon']
+              'sphinx.ext.napoleon', 'sphinx_rtd_theme']
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -76,7 +76,8 @@ pygments_style = 'sphinx'
 # a list of builtin themes.
 #
 # html_theme = 'alabaster'
-html_theme = 'default'
+# html_theme = 'default'
+html_theme = 'sphinx_rtd_theme'
 
 html_logo = 'images/logo.png'
 

@@ -6,9 +6,7 @@
 Welcome to Filabres's documentation!
 ====================================
 
-This is the documentation for **filabres** (version |version|).
-
-**Filabres** is embedded in a joint effort of the `Calar Alto Observatory
+**Filabres** started in 2019 as a joint effort of the `Calar Alto Observatory
 <http://w3.caha.es/>`_ (especially Santos Pedraz and Jesús Aceituno), the
 `Spanish Virtual Observatory <https://svo.cab.inta-csic.es/>`_ (Enrique Solano,
 José Manuel Alacid and Miriam Cortés), and the `Physics of the Earth and
@@ -20,11 +18,11 @@ Cantabria <https://ifca.unican.es/>`_
 (Maite Ceballos), with the main goal of providing useful reduced images through
 the Calar Alto Archive hosted at http://caha.sdc.cab.inta-csic.es/calto/.
 
-Although this software package has been initially created with the idea of
-performing the automatic reduction of direct images obtained with the instrument
-CAFOS, placed at the 2.2 m telescope of the Calar Alto Observatory, **filabres**
-has been designed to allow the future inclusion of additional observing modes and
-instruments.
+Although this software package was initially created with the idea of
+performing the automatic reduction of direct images obtained with the
+instrument CAFOS, placed at the 2.2 m telescope of the Calar Alto Observatory,
+**filabres** has been designed to allow the future inclusion of additional
+observing modes and instruments.
 
 The typical workflow with **filabres** consists of the following steps:
 
