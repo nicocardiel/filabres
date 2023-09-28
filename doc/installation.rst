@@ -152,8 +152,7 @@ can be easily installed in your system by executing the following steps:
 
   ::
 
-    (filabres) $ python setup.py build
-    (filabres) $ python setup.py install
+    (filabres) $ pip install -e .
 
 
   If you have **filabres** already installed in your system, but want to update
@@ -165,8 +164,7 @@ can be easily installed in your system by executing the following steps:
 
     (filabres) $ cd filabres
     (filabres) $ git pull
-    (filabres) $ python setup.py build
-    (filabres) $ python setup.py install
+    (filabres) $ pip install -e .
 
 4. Check that **filabres** works:
 
