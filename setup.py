@@ -12,7 +12,6 @@ def setup_package():
         'python-dateutil',
         'PyYaml',
         'scipy',
-        'seaborn',
         'setuptools'
     ]
     META_DATA = dict(

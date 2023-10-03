@@ -80,19 +80,17 @@ def show_df(df, n, list_mode, imagetype, args_keyword_sort, args_ndecimal,
             if df.shape[0] > 0:
                 # scatter plots
                 if args_plotxy:
-                    with plt.style.context('seaborn'):
-                        # remove the 'file' column and convert to float the remaining columns
-                        scatter_matrix(df.drop(['file'], axis=1).astype(float, errors='ignore'))
-                        print('Press "q" to continue...', end='')
-                        plt.suptitle('{} ({} files)'.format(imagetype, df.shape[0]))
-                        plt.tight_layout(rect=(0, 0, 1, 0.95))
-                        plt.show()
-                        print('')
+                    # remove the 'file' column and convert to float the remaining columns
+                    scatter_matrix(df.drop(['file'], axis=1).astype(float, errors='ignore'))
+                    print('Press "q" to continue...', end='')
+                    plt.suptitle('{} ({} files)'.format(imagetype, df.shape[0]))
+                    plt.tight_layout(rect=(0, 0, 1, 0.95))
+                    plt.show()
+                    print('')
                 # display images
                 if args_plotimage:
                     # preserve sorted dataframe if args_keyword_sort is not None
                     for i in df.index.values:
                         fname = df.loc[i, 'file']
                         print(df.loc[[i]].round(ndecimal).to_string(index=True))
-                        with plt.style.context('seaborn'):
-                            ximshow_file(fname, debugplot=12)
+                        ximshow_file(fname, debugplot=12)

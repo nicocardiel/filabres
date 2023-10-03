@@ -70,7 +70,6 @@ together with some additional packages:
   python-dateutil \
   PyYaml \
   scipy \
-  seaborn \
   setuptools
 
 and answer ``y`` to the question ``Proceed ([y]/n)?``
