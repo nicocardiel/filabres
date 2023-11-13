@@ -1,3 +1,59 @@
 [build-system]
 requires = ["setuptools >= 43.0.0", "wheel", "numpy"]
 build-backend = "setuptools.build_meta"
+
+[project]
+name = "filabres"
+description = "Data Reduction Package for CAHA instruments"
+readme = "README.md"
+requires-python = ">=3.8"
+license = {text = "GPL-3.0-or-later"}
+dynamic = ["version"]
+authors = [
+  {name = "Nicolás Cardiel", email = "cardiel@ucm.es"},
+]
+classifiers = [
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Development Status :: 3 - Alpha",
+    "Environment :: Console",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: GNU General Public License (GPL)",
+    "Operating System :: OS Independent",
+    "Topic :: Scientific/Engineering :: Astronomy",
+]
+dependencies = [
+    "astropy",
+    "numpy",
+    "matplotlib",
+    "scipy",
+    "pandas",
+    "python-dateutil",
+    "PyYaml",
+    ]
+
+[project.optional-dependencies]
+test = [
+    "pytest",
+]
+docs = [
+    "sphinx",
+    "sphinx_rtd_theme",
+]
+
+[project.urls]
+Homepage = "https://github.com/nicocardiel/filabres"
+Repository = "https://github.com/nicocardiel/filabres.git"
+Documentation = "https://filabres.readthedocs.io/"
+
+[project.scripts]
+filabres = "filabres.filabres:main"
+filabres-rotate_flipstat = "filabres.tools.rotate_flipstat:main"
+filabres-version = "filabres.version:main"
+filabres-ximshow = "filabres.ximshow:main"
+
+[tool.setuptools.dynamic]
+version = {attr = "filabres.__version__"}
