@@ -18,6 +18,30 @@ instrument CAFOS, placed at the 2.2 m telescope of the Calar Alto
 Observatory, filabres has been designed to allow the future inclusion of 
 additional observing modes and instruments.
 
+## Installing the code
+
+n order to keep your current Python installation clean, it is highly
+recommended to first build a new Python 3 *virtual environment*.
+
+```shell
+$ python3 -m venv venv_filabres
+$ . venv_filabres/bin/activate
+(venv_filabres) $
+```
+
+We recommend installing the latest stable version, which is available via
+the [PyPI respository](https://pypi.org/project/filabres/):
+
+```shell
+(venv_rgb) $ pip install filabres
+```
+
+The latest development version is available through [GitHub](https://github.com/nicocardiel/filabres):
+
+```shell
+(venv_rgb) $ pip install git+https://github.com/nicocardiel/filabres.git@main#egg=filabres
+```
+
 See full documentation at https://filabres.readthedocs.io/
 
 Software repository: https://github.com/nicocardiel/filabres
