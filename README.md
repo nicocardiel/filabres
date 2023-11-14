@@ -20,7 +20,7 @@ additional observing modes and instruments.
 
 ## Installing the code
 
-n order to keep your current Python installation clean, it is highly
+In order to keep your current Python installation clean, it is highly
 recommended to first build a new Python 3 *virtual environment*.
 
 ```shell
@@ -33,18 +33,18 @@ We recommend installing the latest stable version, which is available via
 the [PyPI respository](https://pypi.org/project/filabres/):
 
 ```shell
-(venv_rgb) $ pip install filabres
+(venv_filabres) $ pip install filabres
 ```
 
 The latest development version is available through [GitHub](https://github.com/nicocardiel/filabres):
 
 ```shell
-(venv_rgb) $ pip install git+https://github.com/nicocardiel/filabres.git@main#egg=filabres
+(venv_filabres) $ pip install git+https://github.com/nicocardiel/filabres.git@main#egg=filabres
 ```
 
-See full documentation at https://filabres.readthedocs.io/
+## Usage
 
-Software repository: https://github.com/nicocardiel/filabres
+See full documentation at https://filabres.readthedocs.io/
 
 Developers and maintainers: Nicolás Cardiel (cardiel@ucm.es) and 
 Sergio Pascual (sergiopr@fis.ucm.es)
