@@ -44,7 +44,7 @@ def retrieve_gaia(gaiadr_source, ra_deg, dec_deg, radius_deg, magnitude, loggaia
     job_result : astropy table
         Result of the cone search
     """
-    gaia_query_line1 = f'SELECT TOP {NMAXGAIA} source_id, ref_epoch, ' \
+    gaia_query_line1 = f'SELECT TOP {NMAXGAIA} SOURCE_ID, ref_epoch, ' \
                        'ra, ra_error, dec, dec_error, ' \
                        'parallax, parallax_error, ' \
                        'pmra, pmra_error, pmdec, pmdec_error, ' \

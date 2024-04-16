@@ -327,7 +327,7 @@ def run_astrometry(image2d, mask2d, saturpix, header,
         dec_corrected = []
         phot_g_mean_mag = []
         for irecord, record in enumerate(gaia_result):
-            source_id.append(record['source_id'])
+            source_id.append(record['SOURCE_ID'])
             phot_g_mean_mag.append(record['phot_g_mean_mag'])
             ra, dec = record['ra'], record['dec']
             pmra, pmdec = record['pmra'], record['pmdec']
